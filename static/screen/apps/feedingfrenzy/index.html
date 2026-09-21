@@ -1,0 +1,323 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Feeding Frenzy</title>
+
+  <!--  <link rel="icon" tybe="image/x-icon" href="images/dumy_fish.gif"> -->
+    <link rel="icon" tybe="image/x-icon" href="images/favicon.gif">
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <link rel="stylesheet" type="text/css" href="css/main.css" />
+
+
+
+<style id="xp-feedingfrenzy-compat">
+html,body{
+    width:100% !important;
+    height:100% !important;
+    margin:0 !important;
+    padding:0 !important;
+    overflow:hidden !important;
+}
+body{
+    min-width:0 !important;
+    min-height:0 !important;
+}
+.xp-dialog-shade{
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:2147483646;
+    background:rgba(0,0,0,.20);
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+}
+.xp-dialog-shade.show{display:flex}
+.xp-dialog{
+    width:min(390px,92vw);
+    background:#ECE9D8;
+    color:#000;
+    border:2px outset #fff;
+    box-shadow:4px 4px 12px rgba(0,0,0,.45);
+    font:11px Tahoma,sans-serif;
+}
+.xp-dialog-title{
+    min-height:25px;
+    display:flex;
+    align-items:center;
+    padding:3px 7px;
+    color:#fff;
+    font-weight:bold;
+    background:linear-gradient(90deg,#0a246a,#3a6ea5);
+}
+.xp-dialog-body{padding:12px;white-space:pre-wrap}
+.xp-dialog-actions{text-align:right;padding:0 12px 11px}
+.xp-dialog-actions button{
+    min-width:75px;
+    height:25px;
+    background:#ECE9D8;
+    border:2px outset #fff;
+    font:11px Tahoma,sans-serif;
+}
+.xp-dialog-actions button:active{border-style:inset}
+</style>
+
+<script id="xp-feedingfrenzy-dialog-shim">
+(function(){
+    function ensureDialog(){
+        var shade=document.getElementById('xpFeedingFrenzyDialogShade');
+        if(shade) return shade;
+
+        shade=document.createElement('div');
+        shade.id='xpFeedingFrenzyDialogShade';
+        shade.className='xp-dialog-shade';
+
+        shade.innerHTML=
+            '<div class="xp-dialog" role="dialog" aria-modal="true">'+
+              '<div class="xp-dialog-title">Feeding Frenzy</div>'+
+              '<div class="xp-dialog-body" id="xpFeedingFrenzyDialogMessage"></div>'+
+              '<div class="xp-dialog-actions">'+
+                '<button type="button" id="xpFeedingFrenzyDialogOK">Tamam</button>'+
+              '</div>'+
+            '</div>';
+
+        document.body.appendChild(shade);
+
+        shade.querySelector('#xpFeedingFrenzyDialogOK').onclick=function(){
+            shade.classList.remove('show');
+        };
+
+        return shade;
+    }
+
+    function showMessage(message){
+        var shade=ensureDialog();
+        var msg=shade.querySelector('#xpFeedingFrenzyDialogMessage');
+        if(msg) msg.textContent=String(message == null ? '' : message);
+        shade.classList.add('show');
+    }
+
+    window.alert=function(message){
+        showMessage(message);
+    };
+
+    window.confirm=function(message){
+        showMessage(message);
+        return false;
+    };
+
+    window.prompt=function(message){
+        showMessage(message);
+        return null;
+    };
+})();
+</script>
+</head>
+
+<body>
+
+        <div id="load" class="text-center animated">
+                <img onerror="this.onerror=null;this.src='icon.png';" src="Div/Welcome/logo.png" width="40%" >
+                <div id="loader"> </div>
+        </div>
+
+
+    <video id="backgroundVideo" playsinline autoplay muted loop>
+
+
+        <source id="backgroundWebm" src="videos/background.webm" type="video/webm">
+        <!-- <source src="videos/background.mp4" type="video/mp4"> -->
+
+    </video>
+
+    <section id="select" class="text-center animated ">
+            <img onerror="this.onerror=null;this.src='icon.png';" src="Div/Welcome/logo.png" width="40%">
+            <br>
+            <button class="transperant-btn" onclick="selectUp(),setPlayerNumber(1),startGame()">
+                <img onerror="this.onerror=null;this.src='icon.png';" src="Div/Select/Char1.png" width="40%">
+            </button>
+            <button class="transperant-btn" onclick="selectUp(),setPlayerNumber(3),startGame()">
+                <img onerror="this.onerror=null;this.src='icon.png';" src="Div/Select/Char2.png" width="40%">
+            </button>
+
+
+   </section>
+
+
+   <section id  = "EnterNameSec" class="text-center animated  ">
+        <img onerror="this.onerror=null;this.src='icon.png';" src="Div/Welcome/logo.png" width="40%">
+        <br>
+
+        <input type="text" class="form-control" placeholder="Enter your Name" id="nameEnter">
+        <button type="submit" id="btnGame" class="btn-start">
+            <img onerror="this.onerror=null;this.src='icon.png';" class="start-img" src="images/Start/Start.png">
+        </button>
+
+   </section>
+    <div id='board' class= "text-center">
+
+
+
+
+        <div id='scoreDiv'>
+            <img onerror="this.onerror=null;this.src='icon.png';" src='images/Header Content/Score.png' id='scoreImg'></img>
+            <div id='scoreNumDiv'>
+                <img onerror="this.onerror=null;this.src='icon.png';" class='scoreNum' src='images/Characters/numbers/0-blue.png'></img>
+                <img onerror="this.onerror=null;this.src='icon.png';" class='scoreNum' src='images/Characters/numbers/0-blue.png'></img>
+                <img onerror="this.onerror=null;this.src='icon.png';" class='scoreNum' src='images/Characters/numbers/0-blue.png'></img>
+                <img onerror="this.onerror=null;this.src='icon.png';" class='scoreNum' src='images/Characters/numbers/0-blue.png'></img>
+            </div>
+        </div>
+
+        <div id='growthDiv'>
+            <img onerror="this.onerror=null;this.src='icon.png';" src='images/Header Content/Growth.png' id='growthImg'></img>
+            <div id='growthBarTotal'>
+                <div id='progressNotch1'></div>
+                <div id='progressNotch2'></div>
+                <div id='growthBarActual'></div>
+            </div>
+        </div>
+
+        <div id='levelDiv'>
+            <img onerror="this.onerror=null;this.src='icon.png';" src='images/Header Content/Level.png' id='levelImg'></img>
+            <img onerror="this.onerror=null;this.src='icon.png';" id='levelNum' src='images/Characters/numbers/1-blue.png'></img>
+        </div>
+
+        <div id='liveDiv'>
+            <img onerror="this.onerror=null;this.src='icon.png';" id='charImg'></img>
+            <div id='liveNumDiv'>
+                <img onerror="this.onerror=null;this.src='icon.png';" class='liveNum' src='images/Characters/numbers/0-blue.png'></img>
+                <img onerror="this.onerror=null;this.src='icon.png';" class='liveNum' src='images/Characters/numbers/0-blue.png'></img>
+            </div>
+        </div>
+
+        <div id='menuDiv'>
+            <img onerror="this.onerror=null;this.src='icon.png';" src='images/Header Content/menu.png' id='menuImg'></img>
+            <div id='menuCharDiv'>
+                <img onerror="this.onerror=null;this.src='icon.png';" class='menuChar' src='images/Characters/player1-right.gif'></img>
+                <img onerror="this.onerror=null;this.src='icon.png';" class='menuChar' src='images/Characters/player1-right.gif'></img>
+                <img onerror="this.onerror=null;this.src='icon.png';" class='menuChar' src='images/Characters/player1-right.gif'></img>
+            </div>
+        </div>
+
+        <div id='seaStarDiv'>
+            <img onerror="this.onerror=null;this.src='icon.png';" src='images/Bonus/seaStar.png' id='seaStarImg'></img>
+            <img onerror="this.onerror=null;this.src='icon.png';" id='seaStarNum' src='images/Characters/numbers/0-blue.png'></img>
+        </div>
+
+        <div id="timer" class="time">
+
+                <div id='hour'>
+                        <img onerror="this.onerror=null;this.src='icon.png';" class='hourNum' src='images/Characters/numbers/0-blue.png'></img>
+                        <img onerror="this.onerror=null;this.src='icon.png';" class='hourNum' src='images/Characters/numbers/0-blue.png'></img>
+                </div>
+
+             <!--   <div id='leftColon'>:</div> -->
+
+                <div id='min'>
+                        <img onerror="this.onerror=null;this.src='icon.png';" class='minNum' src='images/Characters/numbers/0-blue.png'></img>
+                        <img onerror="this.onerror=null;this.src='icon.png';" class='minNum' src='images/Characters/numbers/0-blue.png'></img>
+                </div>
+
+              <!--  <div id='rightColon'>:</div> -->
+
+                <div id='second'>
+                        <img onerror="this.onerror=null;this.src='icon.png';" class='secondNum' src='images/Characters/numbers/0-blue.png'></img>
+                        <img onerror="this.onerror=null;this.src='icon.png';" class='secondNum' src='images/Characters/numbers/0-blue.png'></img>
+                </div>
+        </div>
+
+        <div id='badgeDiv'>
+            <img onerror="this.onerror=null;this.src='icon.png';" src='images/Header Content/Badge.png' id='badgeImg'></img>
+            <div id='playerBadgesDiv'>
+                <img onerror="this.onerror=null;this.src='icon.png';" class='bad' src = "./images/Badges/TimeBadge1.png"></img>
+                <img onerror="this.onerror=null;this.src='icon.png';" class='bad' src = "./images/Badges/TimeBadge2.png"></img>
+                <img onerror="this.onerror=null;this.src='icon.png';" class='bad' src = "./images/Badges/TimeBadge3.png"></img>
+                <img onerror="this.onerror=null;this.src='icon.png';" class='bad' src = "./images/Badges/HighScore.png"></img>
+                <img onerror="this.onerror=null;this.src='icon.png';" class='bad' src = "./images/Badges/Champion.png"></img>
+            </div>
+          </div>
+
+        </div>
+
+    <div id ="gameOver" class="text-center gameOver animated">
+            <img onerror="this.onerror=null;this.src='icon.png';" src='Div/GameOver/Gameover.png'>
+            <br/>
+
+            <button id='exitBtn' onclick="exit()"><img onerror="this.onerror=null;this.src='icon.png';" width='80%' src='images/Header Content/exit.png' >
+            </button>
+            <button id='playAgain1' onclick="gameOverUp(),startGame()"><img onerror="this.onerror=null;this.src='icon.png';" width='100%' src='Div/Select/playagain.png' >
+            </button>
+                <button id='badgeBtn' onclick="viewBadges()"><img onerror="this.onerror=null;this.src='icon.png';" width='100%' src='images/Header Content/Badge.png' >
+                </button>
+        </div>
+
+        <div id ="CongDiv" class="text-center gameOver animated">
+                <img onerror="this.onerror=null;this.src='icon.png';" src='images/Badges/congratulations.png'>
+                <br/>
+                <button id='exitBtn' onclick="exit()"><img onerror="this.onerror=null;this.src='icon.png';" width='100%' src='images/Header Content/exit.png' >
+                </button>
+                <button id='playAgain2' onclick="congUp(),startGame()"><img onerror="this.onerror=null;this.src='icon.png';" width='100%' src='Div/Select/playagain.png' >
+                </button>
+               <button id='badgeBtn' onclick="viewBadges()"><img onerror="this.onerror=null;this.src='icon.png';" width='100%' src='images/Header Content/Badge.png' >
+                </button>
+            </div>
+
+
+    <div id="container">
+            <img onerror="this.onerror=null;this.src='icon.png';" id='seaStar' src='images/Bonus/seaStar.png'></img>
+        <img onerror="this.onerror=null;this.src='icon.png';" id="fishPlayer" width=100 height=60 src="./images/Characters/player1-left.gif" style="left: 48%;top:49%;position: relative" />
+    </div>
+
+    <div id='currentPlayerBadges' class="text-center animated" style="display:none;">
+      <img onerror="this.onerror=null;this.src='icon.png';" src='images/Header Content/Badge.png' id='finalBadgeImg'></img>
+      <div id='playerBadgesDiv text-center'>
+        <div class="row">
+          <img onerror="this.onerror=null;this.src='icon.png';" class='finalBadges col-md-2' src = "./images/Badges/TimeBadge1.png"></img>
+          <img onerror="this.onerror=null;this.src='icon.png';" class='finalBadges col-md-2' src = "./images/Badges/TimeBadge2.png"></img>
+          <img onerror="this.onerror=null;this.src='icon.png';" class='finalBadges col-md-2' src = "./images/Badges/TimeBadge3.png"></img>
+          <img onerror="this.onerror=null;this.src='icon.png';" class='finalBadges col-md-2' src = "./images/Badges/HighScore.png"></img>
+          <img onerror="this.onerror=null;this.src='icon.png';" class='finalBadges col-md-2' src = "./images/Badges/Champion.png"></img>
+        </div>
+        <button id='backBtn' onclick="hideBadges()"><img onerror="this.onerror=null;this.src='icon.png';"  src="Div/Welcome/back.png" >
+         </button>
+      </div>
+    </div>
+
+
+
+    <audio id="eat" type="audio/wav" src="sound/eat.wav" preload="auto" controls="none" style="display: none;" ></audio>
+    <audio id="die" type="audio/wav" src="sound/die.wav" preload="auto" controls="none" style="display: none;"></audio>
+    <audio id="level" type="audio/wav" src="sound/levelUp.wav" preload="auto" controls="none" style="display: none;"></audio>
+    <audio id="underWater" type="audio/wav" src="sound/underWater.wav" preload="auto" controls="none" style="display: none;"></audio>
+    <audio id="sizeUp" type="audio/wav" src="sound/size_up.wav" preload="auto" controls="none" style="display: none;"></audio>
+    <audio id="gameOverSound" type="audio/wav" src="sound/GameOver.wav" preload="auto" controls="none" style="display: none;"></audio>
+    <audio id="congSound" type="audio/wav" src="sound/congratulation.wav" preload="auto" controls="none" style="display: none;"></audio>
+
+    <script src="js/init.js"></script>
+    <script src="js/EnemyFish.js"></script>
+    <script src="js/specialFish.js"></script>
+    <script src="js/Sound.js"></script>
+    <script src="js/board.js"></script>
+    <script src="js/EnemyFishesCreationAndMovement.js"></script>
+    <script src="js/scoreAndLevel.js"></script>
+    <script src="js/CollisionDetection.js"></script>
+    <script src="js/UpAndDownDivs.js"></script>
+    <script src="js/timer.js"></script>
+    <script src="js/randomMotion.js"></script>
+    <script src="js/seaStar.js"></script>
+    <script src="js/localStorageFunctions.js"></script>
+    <script src="js/finalBadges.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>
+

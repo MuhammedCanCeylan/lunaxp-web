@@ -1,0 +1,614 @@
+<!--
+BULLY - NOSTALJIK PC MENÜ / SİNEMATİK VİTRİN - ASSET LİSTESİ
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama |
+| icon.png  | 32x32                | Zorunlu    | XP masaustu / AppCheck ikonu |
+Not: Bu sürüm telifli Rockstar görseli, video, ses veya oyun verisi içermez.
+Arka planlar ve sesler HTML/CSS/Canvas/Web Audio ile üretilir.
+-->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bully</title>
+<style>
+:root{
+  --cream:#e5d6aa;
+  --paper:#cbbd91;
+  --ink:#20170f;
+  --brown:#5a3c24;
+  --red:#7b1e16;
+  --gold:#b58a3c;
+  --green:#30442c;
+  --shadow:rgba(0,0,0,.58);
+}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#090806}
+body{
+  font-family:Georgia,"Times New Roman",serif;
+  color:var(--cream);
+  user-select:none;
+}
+button,input,select{font:inherit}
+#app{position:relative;width:100%;height:100%;overflow:hidden;background:#0b0a08}
+canvas#scene{
+  position:absolute;inset:0;width:100%;height:100%;
+  background:#111;
+}
+.vignette{
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(circle at center,transparent 38%,rgba(0,0,0,.25) 68%,rgba(0,0,0,.76) 100%),
+    linear-gradient(180deg,rgba(255,224,150,.06),transparent 22%,rgba(0,0,0,.28));
+  mix-blend-mode:multiply;
+}
+.grain{
+  position:absolute;inset:-50%;pointer-events:none;opacity:.13;
+  background-image:
+    repeating-radial-gradient(circle at 12% 20%,rgba(255,255,255,.8) 0 1px,transparent 1px 3px),
+    repeating-linear-gradient(13deg,rgba(255,255,255,.2) 0 1px,transparent 1px 4px);
+  animation:grainMove .32s steps(2) infinite;
+}
+@keyframes grainMove{
+  0%{transform:translate(0,0)}
+  25%{transform:translate(2%,1%)}
+  50%{transform:translate(-1%,2%)}
+  75%{transform:translate(1%,-1%)}
+  100%{transform:translate(0,0)}
+}
+
+#hud{
+  position:absolute;inset:0;display:flex;align-items:center;
+  padding:clamp(18px,4vw,56px);
+}
+.panel{
+  width:min(420px,46vw);
+  min-width:300px;
+  padding:22px 24px 18px;
+  background:
+    linear-gradient(rgba(56,37,22,.94),rgba(25,17,11,.94)),
+    #2a1a10;
+  border:1px solid rgba(226,202,142,.38);
+  box-shadow:0 14px 36px var(--shadow),inset 0 0 0 2px rgba(0,0,0,.45);
+  transform:rotate(-.35deg);
+}
+.brand{
+  position:relative;margin:-5px 0 16px;
+  font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;
+  font-size:clamp(50px,8vw,92px);
+  line-height:.9;
+  letter-spacing:1px;
+  color:#d6c57f;
+  text-shadow:
+    2px 2px 0 #23160e,
+    -2px -2px 0 #23160e,
+    5px 5px 0 rgba(0,0,0,.65);
+}
+.brand small{
+  display:block;margin-top:7px;margin-left:5px;
+  font:700 10px/1.2 Tahoma,Arial,sans-serif;
+  letter-spacing:3px;color:#b8a97a;text-shadow:none;
+}
+.rule{height:1px;background:linear-gradient(90deg,transparent,#bfa467,transparent);margin:8px 0 12px}
+.menu{display:flex;flex-direction:column;gap:3px}
+.menu button{
+  width:100%;height:34px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 10px;border:0;background:transparent;color:#ddd0a9;
+  text-align:left;font:bold 17px Georgia,serif;letter-spacing:.3px;
+  cursor:default;
+}
+.menu button::after{content:"";width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:7px solid transparent}
+.menu button:hover,.menu button.active{
+  background:linear-gradient(90deg,rgba(127,31,23,.92),rgba(79,26,20,.35),transparent);
+  color:#fff4cf;
+}
+.menu button.active::after{border-left-color:#d8bf78}
+.footer-hint{
+  margin-top:14px;padding-top:9px;border-top:1px solid rgba(210,190,135,.22);
+  font:10px Tahoma,Arial,sans-serif;color:#9d9271;display:flex;justify-content:space-between;gap:10px
+}
+.badge{
+  position:absolute;right:22px;bottom:22px;
+  padding:6px 9px;background:rgba(12,10,8,.62);border:1px solid rgba(223,205,152,.25);
+  font:10px Tahoma,Arial,sans-serif;color:#b9ad86
+}
+
+/* Internal overlays: these are NOT outer Windows title bars. */
+.overlay{
+  position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+  padding:24px;background:rgba(3,3,3,.64);z-index:20;
+}
+.overlay.show{display:flex}
+.card{
+  width:min(720px,94vw);max-height:88vh;overflow:auto;
+  background:#d7caa3;color:#1e1711;border:2px solid #403021;
+  box-shadow:0 18px 50px rgba(0,0,0,.7),inset 0 0 0 3px #aa986c;
+  padding:18px;
+}
+.card h2{
+  margin:0 0 12px;font:700 28px Georgia,serif;color:#4d2019;
+  border-bottom:2px solid #7b5c39;padding-bottom:6px
+}
+.card p{font:13px/1.55 Tahoma,Arial,sans-serif}
+.xpish-row{display:grid;grid-template-columns:180px 1fr;gap:10px;align-items:center;margin:9px 0;font:12px Tahoma,Arial,sans-serif}
+.xpish-row input[type=range]{width:100%}
+.xpish-row select,.console-input{
+  width:100%;height:25px;border:1px solid #6b5738;background:#f4edd7;color:#1e1711;padding:2px 5px
+}
+.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:15px}
+.actions button,.paper-btn{
+  min-width:92px;height:28px;background:#c9b889;border:2px outset #eadfbf;color:#24180e;font:bold 12px Tahoma,Arial,sans-serif
+}
+.actions button:active,.paper-btn:active{border-style:inset}
+
+/* Showcase */
+#showcase{
+  position:absolute;inset:0;display:none;z-index:15;background:#080706;color:#efe3bb;
+}
+#showcase.show{display:block}
+.showcase-scene{
+  position:absolute;inset:0;display:flex;align-items:flex-end;
+  padding:44px;background:
+    radial-gradient(circle at 65% 34%,rgba(203,157,80,.16),transparent 27%),
+    linear-gradient(180deg,#171613,#070706 70%);
+}
+.story-box{
+  width:min(680px,84vw);padding:18px 20px;background:rgba(25,18,12,.86);
+  border-left:4px solid #8a2b20;box-shadow:0 10px 30px rgba(0,0,0,.5)
+}
+.story-kicker{font:10px Tahoma,sans-serif;letter-spacing:3px;color:#a99663;margin-bottom:7px}
+.story-title{font:700 28px Georgia,serif;color:#ead9a6;margin-bottom:7px}
+.story-text{font:13px/1.55 Tahoma,Arial,sans-serif;color:#d2c8a9}
+.progress{
+  position:absolute;left:44px;right:44px;bottom:20px;height:3px;background:#30281d
+}
+.progress>span{display:block;height:100%;width:0;background:#a23a2d}
+.showcase-top{
+  position:absolute;top:18px;right:22px;font:10px Tahoma,sans-serif;color:#8f866b
+}
+
+/* Console */
+#console{
+  position:absolute;left:3%;right:3%;bottom:3%;height:42%;display:none;z-index:40;
+  background:rgba(4,5,3,.95);border:1px solid #61755b;box-shadow:0 8px 28px #000;
+  color:#b9d6a7;font:12px Consolas,"Courier New",monospace
+}
+#console.show{display:flex;flex-direction:column}
+.console-head{padding:5px 8px;background:#1a2118;border-bottom:1px solid #53644d;color:#e2efd8}
+.console-log{flex:1;overflow:auto;padding:8px;white-space:pre-wrap;user-select:text}
+.console-line{display:flex;border-top:1px solid #263022}
+.console-line span{padding:5px 7px;color:#6f9367}
+.console-input{flex:1;border:0;background:#080b07;color:#d8eed0;font:12px Consolas,monospace;outline:none}
+
+/* Save slots */
+.slots{display:grid;gap:8px}
+.slot{padding:10px;border:1px solid #87744e;background:#eee4c5;font:12px Tahoma,Arial,sans-serif}
+.slot b{display:block;margin-bottom:3px;color:#53231b}
+
+/* responsive */
+@media(max-width:700px){
+  #hud{align-items:flex-end;padding:12px}
+  .panel{width:100%;min-width:0}
+  .brand{font-size:56px}
+  .menu button{height:31px;font-size:15px}
+  .badge{display:none}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="scene"></canvas>
+  <div class="vignette"></div>
+  <div class="grain"></div>
+
+  <main id="hud">
+    <section class="panel">
+      <div class="brand">BULLY<small>2006 PC NOSTALGIA SHOWCASE</small></div>
+      <div class="rule"></div>
+      <nav class="menu" id="menu">
+        <button class="active" data-action="start">Yeni Oyun / Vitrin</button>
+        <button data-action="load">Oyunu Yükle</button>
+        <button data-action="extras">Ekstralar</button>
+        <button data-action="options">Seçenekler</button>
+        <button data-action="quit">Çıkış</button>
+      </nav>
+      <div class="footer-hint">
+        <span>↑ ↓ / Enter</span>
+        <span>` veya F10: Konsol</span>
+      </div>
+    </section>
+  </main>
+
+  <div class="badge">Fan yapımı menü simülasyonu — oyun motoru içermez</div>
+
+  <section id="showcase">
+    <div class="showcase-scene">
+      <div class="story-box">
+        <div class="story-kicker" id="storyKicker">BULLWORTH DOSYASI</div>
+        <div class="story-title" id="storyTitle">Yeni Bir Dönem</div>
+        <div class="story-text" id="storyText"></div>
+      </div>
+      <div class="showcase-top">ESC: Menüye dön • ← →: Sahne değiştir</div>
+      <div class="progress"><span id="storyProgress"></span></div>
+    </div>
+  </section>
+
+  <div class="overlay" id="optionsOverlay">
+    <div class="card">
+      <h2>Seçenekler</h2>
+      <div class="xpish-row"><label>Ana Ses</label><input id="volume" type="range" min="0" max="100" value="65"></div>
+      <div class="xpish-row"><label>Film Greni</label><input id="grainAmount" type="range" min="0" max="30" value="13"></div>
+      <div class="xpish-row"><label>Arka Plan Hareketi</label>
+        <select id="motion"><option value="on">Açık</option><option value="off">Kapalı</option></select>
+      </div>
+      <div class="xpish-row"><label>Menü Sesi</label>
+        <select id="menuSound"><option value="on">Açık</option><option value="off">Kapalı</option></select>
+      </div>
+      <div class="actions"><button data-close="optionsOverlay">Tamam</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="loadOverlay">
+    <div class="card">
+      <h2>Oyunu Yükle</h2>
+      <div class="slots">
+        <div class="slot"><b>Yuvalar boş</b>Bu vitrin gerçek Bully kayıt dosyalarını okuyamaz.</div>
+        <div class="slot"><b>Demo İlerlemesi</b>Vitrin sahnesi ve seçenekler tarayıcıda yerel olarak saklanır.</div>
+      </div>
+      <div class="actions"><button data-close="loadOverlay">Geri</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="extrasOverlay">
+    <div class="card">
+      <h2>Ekstralar</h2>
+      <p><b>Sınıflar:</b> English, Chemistry, Gym, Art ve Shop gibi klasik okul temaları bu vitrin içinde bilgi kartı olarak temsil edilir.</p>
+      <p><b>Konsol:</b> <code>`</code> veya <code>F10</code> ile aç. <code>help</code>, <code>unlockall</code>, <code>prefects off</code>, <code>chaos</code>, <code>time 08:00</code>, <code>clear</code> komutları desteklenir. Bunlar yalnızca vitrin durumunu etkiler.</p>
+      <p><b>Not:</b> Bu sürüm telifli Rockstar video, müzik, texture, model veya oyun veri dosyası içermez.</p>
+      <div class="actions"><button data-close="extrasOverlay">Geri</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="quitOverlay">
+    <div class="card">
+      <h2>Çıkış</h2>
+      <p>Bully vitrinini kapatmak istiyor musunuz?</p>
+      <div class="actions">
+        <button data-close="quitOverlay">Hayır</button>
+        <button id="quitYes">Evet</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="console">
+    <div class="console-head">BULLY DEBUG / CHEAT CONSOLE — SHOWCASE ONLY</div>
+    <div class="console-log" id="consoleLog">Bullworth terminal hazır. "help" yazın.</div>
+    <div class="console-line"><span>&gt;</span><input id="consoleInput" class="console-input" autocomplete="off" spellcheck="false"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+const canvas=document.getElementById('scene');
+const ctx=canvas.getContext('2d');
+const menu=[...document.querySelectorAll('#menu button')];
+const grain=document.querySelector('.grain');
+
+const settings=Object.assign({
+  volume:65,grain:13,motion:'on',menuSound:'on',
+  sceneIndex:0,unlocked:false,prefects:true,chaos:false,time:'08:00'
+},loadState());
+
+let menuIndex=0;
+let audioCtx=null;
+let running=true;
+let t=0;
+let showcaseTimer=null;
+
+const scenes=[
+  {
+    kicker:'BULLWORTH DOSYASI',
+    title:'Yeni Bir Dönem',
+    text:'Eski taş binaların, disiplin kurallarının ve bitmeyen okul dedikodularının arasında yeni bir öğrenci kampüse adım atar. Bu bölüm oynanabilir oyun değildir; 2000’ler PC menüsü atmosferini canlandıran sinematik bir vitrindir.'
+  },
+  {
+    kicker:'AKADEMİ',
+    title:'Ders Zili Çalıyor',
+    text:'Koridorlarda dolap kapakları çarpar, sınıf kapıları kapanır ve okul zili günün ritmini belirler. English, Chemistry, Gym ve Art gibi dersler yalnızca nostaljik bilgi kartları olarak temsil edilir.'
+  },
+  {
+    kicker:'KAMPÜS',
+    title:'Kurallar ve Gruplar',
+    text:'Prefect devriyeleri, okul grupları ve kampüsün farklı köşeleri; Bully’nin okul yaşamı temasına gönderme yapan soyut bir arka plan animasyonuyla sunulur.'
+  },
+  {
+    kicker:'GECE',
+    title:'Işıklar Sönmeden',
+    text:'Akşam olduğunda kampüs daha sessiz görünür. Konsoldaki "time", "prefects off" ve "chaos" komutları bu vitrinin ışık ve hareket parametrelerini değiştirir.'
+  }
+];
+
+function loadState(){
+  try{return JSON.parse(localStorage.getItem('xp_bully_showcase_v1')||'{}')}catch(e){return{}}
+}
+function saveState(){
+  try{localStorage.setItem('xp_bully_showcase_v1',JSON.stringify(settings))}catch(e){}
+}
+
+function resize(){
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  const r=canvas.getBoundingClientRect();
+  canvas.width=Math.max(1,Math.floor(r.width*dpr));
+  canvas.height=Math.max(1,Math.floor(r.height*dpr));
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+window.addEventListener('resize',resize);resize();
+
+function initAudio(){
+  if(audioCtx) return audioCtx;
+  try{audioCtx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}
+  return audioCtx;
+}
+function tone(freq,dur,type='sine',gain=.06,delay=0){
+  const a=initAudio(); if(!a||settings.volume<=0) return;
+  try{
+    const o=a.createOscillator(),g=a.createGain();
+    o.type=type;o.frequency.value=freq;
+    const now=a.currentTime+delay;
+    const level=gain*(settings.volume/100);
+    g.gain.setValueAtTime(0.0001,now);
+    g.gain.exponentialRampToValueAtTime(Math.max(.0002,level),now+.012);
+    g.gain.exponentialRampToValueAtTime(.0001,now+dur);
+    o.connect(g);g.connect(a.destination);
+    o.start(now);o.stop(now+dur+.03);
+  }catch(e){}
+}
+function menuTick(){
+  if(settings.menuSound==='on'){tone(185,.05,'square',.028);tone(92,.07,'triangle',.018,.015)}
+}
+function selectSound(){
+  if(settings.menuSound==='on'){tone(220,.07,'square',.035);tone(330,.09,'square',.025,.06)}
+}
+function schoolBell(){
+  tone(620,.55,'sine',.045);tone(840,.7,'sine',.028,.03);tone(620,.45,'sine',.03,.64)
+}
+
+function draw(){
+  if(!running)return;
+  requestAnimationFrame(draw);
+  const w=canvas.clientWidth,h=canvas.clientHeight;
+  t += settings.motion==='on' ? .008 : 0;
+
+  const night=String(settings.time).startsWith('2')||String(settings.time).startsWith('0');
+  const top=night?'#0d1820':'#423a2c';
+  const bot=night?'#11100d':'#17110c';
+  const g=ctx.createLinearGradient(0,0,0,h);
+  g.addColorStop(0,top);g.addColorStop(1,bot);
+  ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+
+  // distant glow
+  const gx=w*.72+Math.sin(t)*18,gy=h*.23;
+  const rg=ctx.createRadialGradient(gx,gy,5,gx,gy,h*.35);
+  rg.addColorStop(0,night?'rgba(154,185,174,.18)':'rgba(219,183,101,.24)');
+  rg.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=rg;ctx.fillRect(0,0,w,h);
+
+  // campus hill
+  ctx.fillStyle=night?'#141a16':'#17130d';
+  ctx.beginPath();ctx.moveTo(0,h*.72);
+  for(let x=0;x<=w;x+=50){
+    ctx.lineTo(x,h*.69+Math.sin(x*.012+t)*9);
+  }
+  ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();ctx.fill();
+
+  // main school block
+  const bw=Math.min(560,w*.48),bh=Math.min(250,h*.42);
+  const bx=w*.57-bw*.5,by=h*.43-bh*.2;
+  ctx.fillStyle=night?'#20241e':'#32291d';
+  ctx.fillRect(bx,by,bw,bh);
+
+  // roof
+  ctx.fillStyle=night?'#151815':'#241b14';
+  ctx.beginPath();ctx.moveTo(bx-18,by);ctx.lineTo(bx+bw*.5,by-65);ctx.lineTo(bx+bw+18,by);ctx.closePath();ctx.fill();
+
+  // tower
+  const tw=bw*.18,tx=bx+bw*.41,ty=by-110;
+  ctx.fillStyle=night?'#242822':'#3a2d20';
+  ctx.fillRect(tx,ty,tw,115);
+  ctx.fillStyle=night?'#111511':'#211811';
+  ctx.beginPath();ctx.moveTo(tx-7,ty);ctx.lineTo(tx+tw*.5,ty-45);ctx.lineTo(tx+tw+7,ty);ctx.closePath();ctx.fill();
+
+  // windows
+  const pulse=settings.chaos?(.45+.4*Math.abs(Math.sin(t*7))):.55;
+  for(let row=0;row<3;row++){
+    for(let col=0;col<10;col++){
+      const wx=bx+18+col*(bw-36)/10;
+      const wy=by+25+row*58;
+      ctx.fillStyle=night?`rgba(213,184,103,${pulse})`:'rgba(188,156,85,.24)';
+      ctx.fillRect(wx,wy,18,28);
+    }
+  }
+  // tower window
+  ctx.fillStyle=night?'rgba(210,178,95,.75)':'rgba(171,139,73,.35)';
+  ctx.beginPath();ctx.arc(tx+tw/2,ty+38,16,0,Math.PI*2);ctx.fill();
+
+  // gate foreground
+  ctx.strokeStyle=night?'#090b09':'#0c0a08';
+  ctx.lineWidth=7;
+  for(let x=w*.48;x<w*.98;x+=35){
+    ctx.beginPath();ctx.moveTo(x,h*.66);ctx.lineTo(x,h);ctx.stroke();
+  }
+  ctx.lineWidth=10;
+  ctx.beginPath();ctx.moveTo(w*.46,h*.69);ctx.lineTo(w,h*.69);ctx.stroke();
+
+  // moving silhouettes
+  const count=settings.chaos?18:8;
+  for(let i=0;i<count;i++){
+    const speed=.018+(i%4)*.005;
+    const px=((i*137 + t*10000*speed)%(w+160))-80;
+    const py=h*.70+(i%3)*22;
+    ctx.fillStyle='rgba(4,4,3,.75)';
+    ctx.beginPath();ctx.arc(px,py-16,5,0,Math.PI*2);ctx.fill();
+    ctx.fillRect(px-4,py-11,8,19);
+    ctx.strokeStyle='rgba(4,4,3,.75)';ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(px,py+8);ctx.lineTo(px-5,py+22);ctx.moveTo(px,py+8);ctx.lineTo(px+5,py+22);ctx.stroke();
+  }
+
+  // prefect sweep
+  if(settings.prefects){
+    const px=(Math.sin(t*.9)*.5+.5)*w;
+    ctx.fillStyle='rgba(124,31,24,.16)';
+    ctx.beginPath();ctx.arc(px,h*.62,80,0,Math.PI*2);ctx.fill();
+  }
+}
+draw();
+
+function setMenuIndex(i,play=true){
+  menuIndex=(i+menu.length)%menu.length;
+  menu.forEach((b,idx)=>b.classList.toggle('active',idx===menuIndex));
+  if(play)menuTick();
+}
+menu.forEach((b,i)=>{
+  b.addEventListener('mouseenter',()=>setMenuIndex(i,false));
+  b.addEventListener('click',()=>{setMenuIndex(i,false);activate(b.dataset.action)});
+});
+
+function activate(action){
+  selectSound();
+  if(action==='start')startShowcase();
+  else if(action==='load')openOverlay('loadOverlay');
+  else if(action==='extras')openOverlay('extrasOverlay');
+  else if(action==='options'){syncOptions();openOverlay('optionsOverlay')}
+  else if(action==='quit')openOverlay('quitOverlay');
+}
+function openOverlay(id){document.getElementById(id).classList.add('show')}
+function closeOverlay(id){document.getElementById(id).classList.remove('show')}
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeOverlay(b.dataset.close)));
+
+function syncOptions(){
+  document.getElementById('volume').value=settings.volume;
+  document.getElementById('grainAmount').value=settings.grain;
+  document.getElementById('motion').value=settings.motion;
+  document.getElementById('menuSound').value=settings.menuSound;
+}
+document.getElementById('volume').addEventListener('input',e=>{settings.volume=+e.target.value;saveState()});
+document.getElementById('grainAmount').addEventListener('input',e=>{
+  settings.grain=+e.target.value;grain.style.opacity=settings.grain/100;saveState()
+});
+document.getElementById('motion').addEventListener('change',e=>{settings.motion=e.target.value;saveState()});
+document.getElementById('menuSound').addEventListener('change',e=>{settings.menuSound=e.target.value;saveState()});
+grain.style.opacity=settings.grain/100;
+
+function renderStory(){
+  const s=scenes[settings.sceneIndex%scenes.length];
+  document.getElementById('storyKicker').textContent=s.kicker;
+  document.getElementById('storyTitle').textContent=s.title;
+  document.getElementById('storyText').textContent=s.text;
+  const p=document.getElementById('storyProgress');
+  p.style.transition='none';p.style.width='0%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    p.style.transition='width 8s linear';p.style.width='100%';
+  }));
+  clearTimeout(showcaseTimer);
+  showcaseTimer=setTimeout(()=>nextStory(1),8000);
+}
+function startShowcase(){
+  document.getElementById('showcase').classList.add('show');
+  schoolBell();renderStory();
+}
+function stopShowcase(){
+  document.getElementById('showcase').classList.remove('show');
+  clearTimeout(showcaseTimer);saveState();
+}
+function nextStory(dir){
+  settings.sceneIndex=(settings.sceneIndex+dir+scenes.length)%scenes.length;
+  renderStory();saveState();
+}
+
+/* Console */
+const con=document.getElementById('console'),conLog=document.getElementById('consoleLog'),conInput=document.getElementById('consoleInput');
+function toggleConsole(){
+  con.classList.toggle('show');
+  if(con.classList.contains('show'))setTimeout(()=>conInput.focus(),10);
+}
+function log(s){
+  conLog.textContent += '\n'+s;
+  conLog.scrollTop=conLog.scrollHeight;
+}
+function runCommand(raw){
+  const cmd=raw.trim();
+  if(!cmd)return;
+  log('> '+cmd);
+  const lower=cmd.toLowerCase();
+
+  if(lower==='help'){
+    log('help | unlockall | prefects on/off | chaos | time HH:MM | status | clear');
+  }else if(lower==='unlockall'){
+    settings.unlocked=true;log('Vitrin ekstraları açıldı.');
+  }else if(lower==='prefects off'){
+    settings.prefects=false;log('Prefect devriyesi kapatıldı.');
+  }else if(lower==='prefects on'){
+    settings.prefects=true;log('Prefect devriyesi açıldı.');
+  }else if(lower==='chaos'){
+    settings.chaos=!settings.chaos;log('Chaos = '+settings.chaos);
+  }else if(lower.startsWith('time ')){
+    const v=cmd.slice(5).trim();
+    if(/^\d{1,2}:\d{2}$/.test(v)){settings.time=v;log('Saat = '+v)}
+    else log('Kullanım: time 08:00');
+  }else if(lower==='status'){
+    log(JSON.stringify({unlocked:settings.unlocked,prefects:settings.prefects,chaos:settings.chaos,time:settings.time},null,2));
+  }else if(lower==='clear'){
+    conLog.textContent='Bullworth terminal temizlendi.';
+  }else{
+    log('Bilinmeyen komut. "help" yazın.');
+  }
+  saveState();
+}
+conInput.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){runCommand(conInput.value);conInput.value=''}
+});
+
+document.addEventListener('keydown',e=>{
+  const anyOverlay=document.querySelector('.overlay.show');
+  if(e.key==='F10'||e.key==='`'){
+    e.preventDefault();toggleConsole();return;
+  }
+  if(con.classList.contains('show')){
+    if(e.key==='Escape'){con.classList.remove('show');e.preventDefault()}
+    return;
+  }
+  if(document.getElementById('showcase').classList.contains('show')){
+    if(e.key==='Escape'){stopShowcase();e.preventDefault()}
+    else if(e.key==='ArrowRight'){nextStory(1);e.preventDefault()}
+    else if(e.key==='ArrowLeft'){nextStory(-1);e.preventDefault()}
+    return;
+  }
+  if(anyOverlay){
+    if(e.key==='Escape'){anyOverlay.classList.remove('show');e.preventDefault()}
+    return;
+  }
+  if(e.key==='ArrowDown'){setMenuIndex(menuIndex+1);e.preventDefault()}
+  else if(e.key==='ArrowUp'){setMenuIndex(menuIndex-1);e.preventDefault()}
+  else if(e.key==='Enter'){activate(menu[menuIndex].dataset.action);e.preventDefault()}
+});
+
+document.getElementById('quitYes').addEventListener('click',()=>{
+  try{
+    if(window.parent && window.parent.windowManager && typeof window.parent.windowManager.close==='function'){
+      window.parent.windowManager.close('bully');
+      return;
+    }
+  }catch(e){}
+  closeOverlay('quitOverlay');
+  openOverlay('extrasOverlay');
+});
+
+document.addEventListener('pointerdown',()=>{const a=initAudio();if(a&&a.state==='suspended')a.resume().catch(()=>{})},{once:true});
+
+})();
+</script>
+</body>
+</html>

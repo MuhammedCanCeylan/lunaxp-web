@@ -1,0 +1,31 @@
+﻿mIRC - Windows XP Web Simulator Integration
+============================================
+
+Kaynak proje:
+https://github.com/krylabsofficial/mIRCSim
+
+Calisma yolu:
+static/screen/apps/mirc/index.html
+
+Ana WindowManager iframe ornegi:
+static/screen/apps/mirc/index.html
+
+Demo Mode:
+index.html?demo=true
+
+Bu kurulum:
+- Moonlight kullanmaz.
+- Sunshine kullanmaz.
+- Parsec kullanmaz.
+- Windows servisi kurmaz.
+- LM Studio gerektirmez.
+- Python proxy gerektirmez.
+- Node.js gerektirmez.
+- WebAssembly isolation gerektirmez.
+
+icon.png:
+32x32 seffaf PNG.
+
+Not:
+Ana portfolio sitesi HTTP/localhost uzerinden acilmalidir.
+file:// kullanilmamasi tavsiye edilir.

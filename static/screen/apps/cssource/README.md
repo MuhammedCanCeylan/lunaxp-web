@@ -1,0 +1,139 @@
+# Tiny Strike
+
+A fast, Counter-Strike-inspired bomb-defusal FPS that runs entirely in the browser.
+Three.js rendering, procedural textures, synthesized WebAudio, bot AI — no
+build step.
+
+**[Play Tiny Strike](https://guyzyskind.com/tinystrike/)**
+
+Soldier character models are from the
+[Quaternius "Toon Shooter Game Kit"](https://quaternius.com/packs/toonshootergamekit.html)
+(CC0), processed headlessly in Blender (mesh pruning, per-loadout weapon
+meshes, GLB export) into `assets/models/`. See [ASSETS.md](ASSETS.md) for the
+complete asset provenance and licensing record.
+
+Fight across five distinct maps. Play solo with bots, host a humans-only match, or fill online teams with a
+mix of humans and bots. Full economy, buy menu, rounds, radar, killfeed, and
+bomb objectives are synchronized across the room. Human, bot, and overall
+leaderboards reward match wins, eliminations, objectives, and consistency.
+First team to 8 round wins takes the match.
+
+## Run
+
+```sh
+npm install
+npm start
+# then open http://localhost:8020
+```
+
+The Node server serves the game and hosts WebSocket rooms. A plain static
+server still works for solo play, but online rooms require `npm start`.
+
+## Game modes
+
+- **Solo + bots:** the original offline game, with one human CT and bot teams.
+- **Humans only:** create a room, share its six-character code, choose CT or T,
+  and start after at least one human joins each team.
+- **Humans + bots:** create or join a room; each side is filled to five players
+  with bots. This mode may also be started by one human.
+
+The room server keeps the canonical roster and state fence while leasing bot
+AI, hit resolution, round timers, and objective simulation to one active
+client. Other clients send movement and actions to that authority and render
+sequenced snapshots. If the authority stalls or disconnects, the server fences
+its stale state and transfers the lease to another active player.
+
+## Leaderboards
+
+Rankings are split into Humans, Bots, and Overall season boards. The server
+calculates points from completed matches, wins, rounds, eliminations,
+headshots, bomb objectives, efficiency, and playtime. Human competition has
+the highest value; repeated bot matches taper and have a daily point cap.
+
+Leaderboard data persists atomically in `.tiny-strike/leaderboard.json` by
+default. Set `TINY_STRIKE_LEADERBOARD_PATH` and `TINY_STRIKE_SEASON` when
+deploying. See [docs/leaderboard-api.md](docs/leaderboard-api.md) for the API,
+identity, scoring, and live-room protocol.
+
+### Career progression and returning players
+
+Every player has a permanent server-side career with lifetime XP, levels,
+tiers, personal records, streaks, per-map and per-mode totals, and achievements.
+The menu surfaces current rank, the next level, a daily bot contract, nearby
+rivals, and a direct leaderboard link. Bot leaderboard points taper after
+repeated daily matches for competitive fairness, while every completed bot
+match still earns at least 30 career XP and the daily contract awards bonus XP.
+
+The browser automatically resumes a career using an opaque private progress
+key stored locally; the server stores only its SHA-256 digest. Offline or
+temporarily failed solo results are queued with their owning career and retried
+after the identity is validated. To move devices or survive cleared browser
+storage, copy the private progress key from **Profile → Play on another
+device**, keep it secret, and restore it on the other device. There is no
+password/account recovery service: possession of that key is possession of the
+career.
+
+Solo results are plausibility-checked and idempotent, but the browser remains
+the source of solo gameplay telemetry. The public bot board is therefore an
+engagement leaderboard, not a cheat-proof competitive authority. Human-room
+results are accepted only from the room service.
+
+Append `?test` to the URL for the automated-test mode (auto-starts the match
+and simulates pointer lock for synthetic input).
+
+## Controls
+
+Keyboard controls can be remapped from **Settings** on the main menu. Settings
+also provides live look-sensitivity (`0.25×–3.00×`) and brightness
+(`−0.50–+0.50 EV`) controls; preferences are saved on this device.
+
+| Input | Action |
+|---|---|
+| WASD | Move |
+| Mouse | Aim |
+| LMB | Fire / throw grenade |
+| RMB | AWP scope zoom |
+| Space | Jump (mantles low crates) |
+| Ctrl | Crouch |
+| Shift | Walk (silent) |
+| R | Reload |
+| B | Buy menu (during buy time) |
+| E (hold) | Defuse the bomb |
+| E (hold, T carrier) | Plant at site A or B |
+| 1–4 / wheel | Switch weapons |
+| Q | Last weapon |
+| Tab (hold) | Scoreboard |
+
+## Arsenal
+
+Pistols: G-18, USP-S (silenced), Night Hawk .50 — SMG: MP-5 — Rifles: AK-47,
+M4-A1 — Sniper: AWP — plus knife, HE grenade, flashbang, and smoke grenade.
+Kevlar and defuse kits in the Gear tab of the buy menu.
+
+## Architecture
+
+See [SPEC.md](SPEC.md) for the original gameplay architecture. The gameplay
+modules (world, player, weapons, viewmodel, combat, bots, rounds, HUD, audio,
+effects, input) communicate over a synchronous event bus and are wired in
+[src/main.js](src/main.js). [src/network/multiplayer.js](src/network/multiplayer.js)
+adds room UI, remote human entities, interpolation, client input forwarding,
+and host snapshots. [server.mjs](server.mjs) owns rooms, teams, host selection,
+and WebSocket message routing.
+
+## Tests
+
+```sh
+npm test
+```
+
+The protocol test opens two real WebSocket clients and verifies room creation,
+balanced teams, match start, state replication, and shot forwarding.
+
+## License
+
+Tiny Strike's source code is open source under the [ISC License](LICENSE).
+Third-party and original asset terms are documented in [ASSETS.md](ASSETS.md).
+
+Tiny Strike is an independent project inspired by tactical shooters. It is not
+affiliated with or endorsed by Valve Corporation; Counter-Strike is a trademark
+of Valve Corporation.

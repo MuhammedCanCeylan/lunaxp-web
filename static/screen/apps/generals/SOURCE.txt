@@ -1,0 +1,22 @@
+﻿Command & Conquer: Generals - Zero Hour WebAssembly
+
+Browser engine source:
+https://github.com/TheodoryLabs/command-and-conquer-generals-zero-hour-web
+
+This installation contains no EA retail game assets from this installer.
+The assets junction points to the user's own legally-owned game installation.
+
+Engine:
+Emscripten / WebAssembly / WebGL2
+
+No:
+- Moonlight
+- Sunshine
+- Parsec
+- Wine streaming
+- COOP/COEP configuration
+- Node.js runtime server
+
+NOTE:
+The currently exposed browser runtime is Zero Hour (GeneralsMD), not a
+separate vanilla 2003 Generals runtime.

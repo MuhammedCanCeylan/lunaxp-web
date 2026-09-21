@@ -1,0 +1,21 @@
+﻿Microsoft Office PowerPoint 2003 style module
+
+Selected stage:
+Stage 3 - ready browser presentation editor.
+
+Engine:
+PPTist
+https://github.com/pipipi-pikachu/PPTist
+
+License:
+AGPL-3.0
+
+Build:
+Node.js/npm are used only by this installer.
+The final app/ directory is a static Vite build.
+
+Architecture:
+index.html = XP / Office 2003 wrapper
+app/       = PPTist production build
+
+No registry.js modifications were made.

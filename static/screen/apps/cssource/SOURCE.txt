@@ -1,0 +1,30 @@
+﻿Counter-Strike: Source style browser FPS for Windows XP Web Simulator
+
+Selected project:
+https://github.com/guyz/tinystrike
+
+License:
+ISC
+
+Upstream description:
+- Counter-Strike-inspired browser FPS
+- Three.js rendering
+- Procedural textures
+- Synthesized WebAudio
+- Bot AI
+- Five maps
+- Economy and buy menu
+- Bomb objectives
+- Radar and killfeed
+- Solo + bots works from a plain static HTTP server
+
+Important:
+This is NOT Valve's original Counter-Strike: Source.
+No Valve game files or assets are included.
+
+XP application path:
+static/screen/apps/cssource/
+
+Runtime:
+Plain HTTP static server for solo play.
+Do not open through file:// because ES modules require HTTP.

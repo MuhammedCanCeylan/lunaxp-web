@@ -1,0 +1,481 @@
+<!--
+CRAZY TAXI - NOSTALGIC ARCADE LAUNCHER & MENU SIMULATION
+Bu modül ana sistemdeki iframe içinde izole çalışır. Harici bağımlılık gerektirmez.
+
+| Dosya Adı | Boyut | Zorunluluk | Açıklama |
+| :--- | :---: | :---: | :--- |
+| icon.png  | 32x32 | Zorunlu    | XP Masaüstü ve başlat menüsü ikonu |
+
+ÖZELLİKLER:
+- Sega / Arcade tarzı hareketli damalı arka plan (CSS animasyonu).
+- Sentetik Web Audio API ile jeton atma, motor devri (engine rev) ve menü sesleri.
+- Karakter seçim ekranı (Axel, B.D. Joe, Gena, Gus).
+- "Arcade Mode", "Original Mode", "Crazy Box" nostaljik menü yapısı.
+- "Start Game" dendiğinde efsanevi giriş repliklerini taklit eden sinematik simülasyon diyalogları.
+- Tarayıcı popup'ları (alert vb.) kesinlikle kullanılmamış, .xp-dialog kullanılmıştır.
+-->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crazy Taxi Arcade Launcher</title>
+<style>
+  :root {
+    --ct-yellow: #ffcc00;
+    --ct-red: #ff3300;
+    --ct-blue: #0066ff;
+    --ct-dark: #111;
+    --xp-bg: #ece9d8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+  html, body { 
+    width: 100%; height: 100%; overflow: hidden; 
+    font-family: "Impact", "Arial Black", sans-serif; 
+    background: var(--ct-yellow); 
+    color: var(--ct-dark);
+  }
+
+  /* Damalı (Checkerboard) Hareketli Arka Plan */
+  .checkerboard-bg {
+    position: absolute;
+    inset: -50%;
+    background-image: 
+      linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000),
+      linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000);
+    background-color: var(--ct-yellow);
+    background-size: 60px 60px;
+    background-position: 0 0, 30px 30px;
+    opacity: 0.15;
+    z-index: 1;
+    animation: moveBg 4s linear infinite;
+  }
+  @keyframes moveBg {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(60px); }
+  }
+
+  #app {
+    position: relative;
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    z-index: 2;
+  }
+
+  /* ÜST BAŞLIK / LOGO ALANI */
+  .header {
+    text-align: center;
+    padding: 20px 10px 10px 10px;
+    background: linear-gradient(to bottom, rgba(255,204,0,1) 60%, rgba(255,204,0,0) 100%);
+    z-index: 10;
+  }
+  .logo-text {
+    font-size: 48px;
+    font-style: italic;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    -webkit-text-stroke: 2px var(--ct-dark);
+    text-shadow: 4px 4px 0 var(--ct-red), 8px 8px 0 var(--ct-dark);
+    transform: skew(-10deg);
+    margin-bottom: 5px;
+  }
+  .sub-logo {
+    font-family: Tahoma, sans-serif;
+    font-weight: bold;
+    font-size: 12px;
+    color: var(--ct-red);
+    letter-spacing: 4px;
+    text-shadow: 1px 1px 0 #fff;
+  }
+
+  /* ORTA OYUN MENÜSÜ VE KARAKTER SEÇİMİ */
+  .main-content {
+    flex: 1;
+    display: flex;
+    padding: 10px 30px;
+    gap: 30px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .menu-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    min-width: 220px;
+  }
+
+  .arcade-btn {
+    background: var(--ct-red);
+    color: #fff;
+    border: 4px solid var(--ct-dark);
+    padding: 12px 20px;
+    font-size: 20px;
+    font-family: "Impact", sans-serif;
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 var(--ct-dark);
+    transform: skew(-5deg);
+    transition: 0.1s;
+  }
+  .arcade-btn:hover {
+    background: #fff;
+    color: var(--ct-red);
+    transform: skew(-5deg) translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--ct-dark);
+  }
+  .arcade-btn:active {
+    transform: skew(-5deg) translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--ct-dark);
+  }
+  .arcade-btn.blue { background: var(--ct-blue); }
+  .arcade-btn.blue:hover { background: #fff; color: var(--ct-blue); }
+
+  /* KARAKTER SEÇİMİ */
+  .character-select {
+    background: rgba(0,0,0,0.8);
+    border: 4px solid var(--ct-yellow);
+    padding: 15px;
+    box-shadow: 8px 8px 0 rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .char-title {
+    color: var(--ct-yellow);
+    font-size: 18px;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+  .char-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .char-card {
+    width: 100px;
+    height: 120px;
+    background: #333;
+    border: 3px solid #555;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 10px;
+    transition: 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  /* Karakter Renk Temsilleri */
+  .char-card[data-char="Axel"] { background: linear-gradient(to bottom, #444, #2a752a); }
+  .char-card[data-char="BDJoe"] { background: linear-gradient(to bottom, #444, #a34127); }
+  .char-card[data-char="Gena"] { background: linear-gradient(to bottom, #444, #a8327d); }
+  .char-card[data-char="Gus"] { background: linear-gradient(to bottom, #444, #2b5c8f); }
+
+  .char-card.selected {
+    border-color: var(--ct-yellow);
+    transform: scale(1.05);
+    box-shadow: 0 0 15px var(--ct-yellow);
+  }
+  .char-name {
+    color: #fff;
+    font-size: 18px;
+    text-shadow: 2px 2px 0 #000;
+    z-index: 2;
+  }
+
+  /* ALT BİLGİ */
+  .footer {
+    background: var(--ct-dark);
+    color: #fff;
+    font-family: Tahoma, sans-serif;
+    font-size: 10px;
+    text-align: center;
+    padding: 5px;
+    z-index: 10;
+  }
+
+  /* WINDOWS XP DİYALOG KUTULARI (POPUP ALTERNATİFİ) */
+  .dialog-overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .xp-dialog {
+    width: 400px;
+    background: var(--xp-bg);
+    border: 3px solid #0055ea;
+    border-radius: 4px 4px 0 0;
+    box-shadow: 2px 4px 16px rgba(0,0,0,0.8);
+    font-family: Tahoma, sans-serif;
+    color: #000;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .xp-dialog-header {
+    background: linear-gradient(to bottom, #0058ee 0%, #3593ff 6%, #0058ee 14%, #0053ee 100%);
+    padding: 4px 8px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 11px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .xp-dialog-body {
+    padding: 16px;
+    background: #fff;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+  .xp-dialog-footer {
+    background: var(--xp-bg);
+    border-top: 1px solid #ccc;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+  .xp-btn {
+    padding: 4px 16px;
+    background: #ece9d8;
+    border: 2px outset #ffffff;
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    cursor: pointer;
+    color: #000;
+  }
+  .xp-btn:active { border-style: inset; }
+
+  /* Sinematik Başlangıç Ekranı */
+  .cinematic-screen {
+    position: absolute; inset: 0;
+    background: #000;
+    color: var(--ct-yellow);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    text-align: center;
+  }
+  .cinematic-text {
+    font-size: 32px;
+    margin-bottom: 20px;
+    animation: pulseText 0.5s infinite alternate;
+  }
+  @keyframes pulseText {
+    from { transform: scale(1); text-shadow: 0 0 10px var(--ct-red); }
+    to { transform: scale(1.05); text-shadow: 0 0 20px var(--ct-yellow); }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="checkerboard-bg"></div>
+
+<div id="app">
+  <div class="header">
+    <div class="logo-text">CRAZY TAXI</div>
+    <div class="sub-logo">NOSTALGIC ARCADE LAUNCHER</div>
+  </div>
+
+  <div class="main-content">
+    <div class="menu-list">
+      <button class="arcade-btn" onclick="startGame('Arcade Mode')">Arcade Mode</button>
+      <button class="arcade-btn blue" onclick="startGame('Original Mode')">Original Mode</button>
+      <button class="arcade-btn blue" onclick="openDialog('crazyBoxModal')">Crazy Box</button>
+      <button class="arcade-btn blue" style="background:#555;" onclick="openDialog('optionsModal')">Options</button>
+    </div>
+
+    <div class="character-select">
+      <div class="char-title">SELECT DRIVER</div>
+      <div class="char-grid">
+        <div class="char-card selected" data-char="Axel" onclick="selectChar('Axel', this)">
+          <div class="char-name">AXEL</div>
+        </div>
+        <div class="char-card" data-char="BDJoe" onclick="selectChar('BDJoe', this)">
+          <div class="char-name">B.D. JOE</div>
+        </div>
+        <div class="char-card" data-char="Gena" onclick="selectChar('Gena', this)">
+          <div class="char-name">GENA</div>
+        </div>
+        <div class="char-card" data-char="Gus" onclick="selectChar('Gus', this)">
+          <div class="char-name">GUS</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    (C) SEGA / HITMAKER 1999. Web Simulation Edition. Insert Coin(s) to continue.
+  </div>
+</div>
+
+<!-- XP DİYALOG: CRAZY BOX -->
+<div class="dialog-overlay" id="crazyBoxModal">
+  <div class="xp-dialog">
+    <div class="xp-dialog-header">
+      <span>Crazy Box - Mini Games</span>
+      <span style="cursor:pointer;" onclick="closeDialog('crazyBoxModal')">✕</span>
+    </div>
+    <div class="xp-dialog-body">
+      <b>Hoş Geldin Şoför!</b><br><br>
+      Crazy Box, taksi yeteneklerini test edebileceğin mini görevlerden oluşur. 
+      <br><br>
+      <i>Örnek Görevler:</i><br>
+      - Crazy Jump (Uzun atlama)<br>
+      - Crazy Balloon (Balon patlatma)<br>
+      - Crazy Bowling (Dev lobutları devirme)<br><br>
+      Bu sürüm, tarayıcı performansı nedeniyle mini oyunların 3D motorunu barındırmamaktadır. Sadece Arcade modu başlatılabilir.
+    </div>
+    <div class="xp-dialog-footer">
+      <button class="xp-btn" onclick="closeDialog('crazyBoxModal')">Tamam</button>
+    </div>
+  </div>
+</div>
+
+<!-- XP DİYALOG: OPTIONS -->
+<div class="dialog-overlay" id="optionsModal">
+  <div class="xp-dialog">
+    <div class="xp-dialog-header">
+      <span>Options</span>
+      <span style="cursor:pointer;" onclick="closeDialog('optionsModal')">✕</span>
+    </div>
+    <div class="xp-dialog-body" style="background:#ece9d8;">
+      <fieldset style="padding:10px; border:1px solid #aca899; border-radius:3px;">
+        <legend>Game Settings</legend>
+        <div style="margin-bottom:8px;">
+          <input type="checkbox" id="chkBlood" checked> <label for="chkBlood">Sokak Trafiği Aktif</label>
+        </div>
+        <div style="margin-bottom:8px;">
+          <input type="checkbox" id="chkArrow" checked> <label for="chkArrow">Yol Gösterici Ok (Crazy Arrow) Aktif</label>
+        </div>
+        <div>
+          Zaman Sınırı: 
+          <select style="font-family:Tahoma; font-size:11px;">
+            <option>Arcade Rules</option>
+            <option>3, 5, 10 Minutes</option>
+          </select>
+        </div>
+      </fieldset>
+    </div>
+    <div class="xp-dialog-footer">
+      <button class="xp-btn" onclick="closeDialog('optionsModal')" style="font-weight:bold;">OK</button>
+      <button class="xp-btn" onclick="closeDialog('optionsModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- SİNEMATİK BAŞLANGIÇ EKRANI -->
+<div class="cinematic-screen" id="cinematicScreen">
+  <div class="cinematic-text">"HEY HEY, COME ON OVER AND HAVE SOME FUN WITH CRAZY TAXI!"</div>
+  <div style="font-family:Tahoma; font-size:14px; color:#fff;">
+    Seçilen Karakter: <b id="displayChar" style="color:var(--ct-red);">AXEL</b><br>
+    Mod: <b id="displayMode">Arcade Mode</b>
+  </div>
+  <div style="margin-top:40px; font-family:Tahoma; font-size:11px; color:#888;">
+    Orijinal müzik lisansları ve 1GB+ 3D oyun dosyası tarayıcı simülasyon kuralları gereği yüklenmemiştir.<br>
+    (ESC veya Tıklayarak Geri Dön)
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   WEB AUDIO API: SENTETİK ARCADE SES EFEKTLERİ
+   ========================================================= */
+let audioCtx = null;
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+// Menü gezinme sesi
+function playMenuBlip() {
+  try {
+    const ctx = getAudio();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(440, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.05);
+    gain.gain.setValueAtTime(0.05, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(); osc.stop(ctx.currentTime + 0.1);
+  } catch(e) {}
+}
+
+// Start Game sesi (Jeton atma / Araba gaz verme efekti)
+function playStartRev() {
+  try {
+    const ctx = getAudio();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(100, ctx.currentTime);
+    osc.frequency.linearRampToValueAtTime(300, ctx.currentTime + 0.3);
+    osc.frequency.linearRampToValueAtTime(150, ctx.currentTime + 0.5);
+    osc.frequency.linearRampToValueAtTime(400, ctx.currentTime + 0.8);
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 1.2);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(); osc.stop(ctx.currentTime + 1.2);
+  } catch(e) {}
+}
+
+/* =========================================================
+   UI MANTIK VE ETKİLEŞİMLER
+   ========================================================= */
+let selectedCharacter = 'Axel';
+
+function selectChar(charName, element) {
+  playMenuBlip();
+  selectedCharacter = charName;
+  document.querySelectorAll('.char-card').forEach(el => el.classList.remove('selected'));
+  element.classList.add('selected');
+}
+
+function openDialog(id) {
+  playMenuBlip();
+  document.getElementById(id).style.display = 'flex';
+}
+
+function closeDialog(id) {
+  playMenuBlip();
+  document.getElementById(id).style.display = 'none';
+}
+
+function startGame(mode) {
+  playStartRev();
+  document.getElementById('displayChar').innerText = selectedCharacter.toUpperCase();
+  document.getElementById('displayMode').innerText = mode;
+  document.getElementById('cinematicScreen').style.display = 'flex';
+}
+
+// Sinematik Ekrandan Çıkış
+document.getElementById('cinematicScreen').addEventListener('click', () => {
+  playMenuBlip();
+  document.getElementById('cinematicScreen').style.display = 'none';
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && document.getElementById('cinematicScreen').style.display === 'flex') {
+    playMenuBlip();
+    document.getElementById('cinematicScreen').style.display = 'none';
+  }
+});
+</script>
+</body>
+</html>

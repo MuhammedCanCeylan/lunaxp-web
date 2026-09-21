@@ -1,0 +1,778 @@
+<!--
+ACCESS 2003 XP SIMULATOR - ASSET LISTESI
+Bu dosyalar index.html ile AYNI KLASORE konulabilir. Hepsi opsiyoneldir; yuklenmezse CSS/Unicode fallback ikonlari kullanilir.
+
+| Dosya adi        | Tavsiye edilen boyut | Kullanim / Aciklama                         |
+|------------------|-----------------------|---------------------------------------------|
+| access2003.png   | 32x32                 | Access uygulama logosu                      |
+| database.png     | 24x24                 | Veritabani / Database ikonu                 |
+| table.png        | 16x16                 | Tables nesne ikonu                          |
+| query.png        | 16x16                 | Queries nesne ikonu                         |
+| form.png         | 16x16                 | Forms nesne ikonu                           |
+| report.png       | 16x16                 | Reports nesne ikonu                         |
+| page.png         | 16x16                 | Pages nesne ikonu                           |
+| macro.png        | 16x16                 | Macros nesne ikonu                          |
+| module.png       | 16x16                 | Modules nesne ikonu                         |
+| key.png          | 12x12                 | Primary key isareti                         |
+
+NOT: Tum <img> kullanımlarinda onerror fallback vardir. Harici kutuphane, font, ses veya CDN gerekmez.
+-->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Microsoft Access 2003</title>
+<style>
+  :root{
+    --xp-bg:#ECE9D8;
+    --xp-blue:#316AC5;
+    --xp-border:#ACA899;
+    --xp-input:#7F9DB9;
+    --xp-dark:#404040;
+    --xp-face:#ECE9D8;
+    --xp-shadow:#716F64;
+    --xp-hi:#FFFFFF;
+    --access:#7f1d5d;
+  }
+  *{box-sizing:border-box}
+  html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--xp-bg);font:11px Tahoma,Verdana,Arial,sans-serif;color:#000}
+  body{-webkit-font-smoothing:antialiased;user-select:none}
+  button,input,select,textarea{font:11px Tahoma,Verdana,Arial,sans-serif}
+  button{min-height:23px;padding:2px 10px;background:linear-gradient(#fff,#ece9d8);border:2px outset #fff;color:#000}
+  button:active{border-style:inset;padding:3px 9px 1px 11px}
+  button:disabled{color:#888;text-shadow:1px 1px #fff}
+  input,select,textarea{border:1px solid var(--xp-input);background:#fff;padding:2px}
+  textarea{resize:none}
+  .app{height:100%;display:flex;flex-direction:column;min-width:620px;min-height:400px;background:var(--xp-bg)}
+
+  /* menu */
+  .menubar{height:23px;display:flex;align-items:center;padding:0 3px;border-bottom:1px solid var(--xp-border);background:#f5f3e9;position:relative;z-index:60}
+  .menu-item{position:relative;padding:3px 7px;height:21px;line-height:15px}
+  .menu-item:hover,.menu-item.open{background:var(--xp-blue);color:white}
+  .menu-item .u{text-decoration:underline}
+  .dropdown{display:none;position:absolute;left:0;top:20px;min-width:210px;background:var(--xp-face);border:1px solid #777;box-shadow:2px 2px 0 rgba(0,0,0,.25);padding:2px;color:#000}
+  .menu-item.open>.dropdown{display:block}
+  .menu-row{display:flex;align-items:center;gap:7px;padding:4px 18px 4px 24px;white-space:nowrap;position:relative}
+  .menu-row:hover{background:var(--xp-blue);color:#fff}
+  .menu-row .shortcut{margin-left:auto;padding-left:24px;color:inherit}
+  .menu-row.disabled{color:#888}
+  .menu-row.disabled:hover{background:transparent;color:#888}
+  .menu-sep{height:1px;background:#ACA899;border-bottom:1px solid #fff;margin:3px 2px}
+  .menu-check{position:absolute;left:7px}
+
+  /* toolbars */
+  .toolbar{height:30px;display:flex;align-items:center;padding:2px 4px;gap:2px;border-bottom:1px solid #aca899;background:linear-gradient(#f7f5eb,#ece9d8)}
+  .tb-sep{width:1px;height:22px;background:#aca899;border-right:1px solid #fff;margin:0 3px}
+  .tool{width:25px;height:24px;padding:0;display:grid;place-items:center;border:1px solid transparent;background:transparent;min-height:0}
+  .tool:hover{border:1px solid #316ac5;background:#c9ddff}
+  .tool:active{border:1px inset #fff;padding:1px 0 0 1px}
+  .tool .glyph{font-size:15px;line-height:1}
+  .toolbar-label{margin-left:4px;color:#333}
+  .toolbar select{height:21px;min-width:135px;padding:0 2px}
+
+  /* workspace */
+  .workspace{flex:1;min-height:0;display:flex;position:relative;background:#808080;padding:6px}
+  .db-window{width:100%;height:100%;display:flex;flex-direction:column;background:#fff;border:2px inset #fff;min-height:0;min-width:0}
+  .db-caption{height:24px;display:flex;align-items:center;padding:0 5px;background:linear-gradient(90deg,#0a246a,#3a6ea5);color:#fff;font-weight:bold}
+  .app-logo{width:16px;height:16px;margin-right:5px;object-fit:contain}
+  .app-logo.fallback{display:none}
+  .db-caption .caption-fallback{width:15px;height:15px;margin-right:5px;background:#8a236c;border:1px solid #fff;color:#fff;font:bold 10px Tahoma;display:none;place-items:center}
+  .db-caption .cap-spacer{flex:1}
+  .inner-controls{display:flex;gap:2px}
+  .inner-controls button{width:18px;height:17px;min-height:0;padding:0;font:bold 10px Arial;background:#ece9d8;color:#000;border:2px outset #fff;line-height:12px}
+  .db-toolbar{height:34px;display:flex;align-items:center;gap:5px;padding:4px 6px;border-bottom:1px solid #aca899;background:#ece9d8}
+  .db-toolbar button{height:24px;min-width:58px;padding:1px 8px;display:flex;align-items:center;gap:5px;justify-content:center}
+  .small-ico{width:14px;height:14px;object-fit:contain}
+  .db-body{flex:1;display:flex;min-height:0;background:#fff}
+  .object-nav{width:155px;border-right:1px solid #aca899;background:#f5f5f5;overflow:auto;padding:5px 0}
+  .nav-header{font-weight:bold;padding:3px 8px;color:#444}
+  .nav-item{display:flex;align-items:center;gap:7px;padding:5px 8px;cursor:default}
+  .nav-item:hover{background:#dfe8f6}
+  .nav-item.active{background:var(--xp-blue);color:white}
+  .nav-icon-wrap{width:18px;height:18px;display:grid;place-items:center}
+  .nav-icon{width:16px;height:16px;object-fit:contain}
+  .fallback-ico{font-size:15px;display:none}
+  .object-list{flex:1;min-width:0;display:flex;flex-direction:column;background:#fff}
+  .object-list-head{height:24px;background:#f1f0e8;border-bottom:1px solid #ccc;padding:5px 8px;font-weight:bold}
+  .object-items{flex:1;overflow:auto;padding:5px}
+  .obj-row{height:26px;display:flex;align-items:center;gap:7px;padding:3px 5px;border:1px solid transparent;max-width:420px}
+  .obj-row:hover{background:#e7eef9}
+  .obj-row.selected{background:var(--xp-blue);color:#fff;border:1px dotted #fff}
+  .obj-ico{width:16px;height:16px;object-fit:contain}
+  .obj-fallback{width:16px;text-align:center;display:none}
+  .object-empty{color:#666;padding:20px}
+
+  /* document tab/work view */
+  .document-view{position:absolute;inset:6px;background:#ece9d8;border:2px inset #fff;display:none;flex-direction:column;z-index:20}
+  .document-view.open{display:flex}
+  .doc-caption{height:24px;display:flex;align-items:center;padding:0 5px;background:linear-gradient(90deg,#0a246a,#3a6ea5);color:#fff;font-weight:bold}
+  .doc-caption .spacer{flex:1}
+  .doc-caption button{width:18px;height:17px;min-height:0;padding:0;font:bold 10px Arial}
+  .docbar{height:31px;display:flex;align-items:center;gap:4px;padding:3px 5px;border-bottom:1px solid #aca899}
+  .doc-content{flex:1;min-height:0;overflow:auto;background:#fff;position:relative}
+  .doc-status{height:22px;border-top:1px solid #aca899;background:#ece9d8;display:flex;align-items:center;padding:0 6px;gap:10px}
+
+  /* datasheet */
+  .sheet-wrap{height:100%;overflow:auto;background:#fff}
+  table.datasheet{border-collapse:collapse;min-width:100%;table-layout:fixed}
+  .datasheet th,.datasheet td{border-right:1px solid #b9b9b9;border-bottom:1px solid #b9b9b9;height:23px;padding:2px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .datasheet th{background:linear-gradient(#fdfdfd,#dcdcdc);font-weight:normal;text-align:left;border-top:0}
+  .datasheet th:first-child,.datasheet td:first-child{width:28px;text-align:center;background:#e5e5e5;padding:0}
+  .datasheet td[contenteditable="true"]{user-select:text;outline:none}
+  .datasheet td[contenteditable="true"]:focus{background:#fff6c9;outline:1px solid #000;outline-offset:-1px}
+  .datasheet tr.current td:first-child{background:#c8dfff}
+  .pk{font-size:11px;color:#d7a400;margin-right:4px}
+  .newrow td{color:#777}
+
+  /* form */
+  .form-canvas{height:100%;overflow:auto;background:#d4d0c8;padding:22px}
+  .form-paper{width:620px;min-height:390px;background:#f7f7f7;border:1px solid #777;box-shadow:1px 1px #fff inset;padding:18px 24px;margin:auto}
+  .form-title{font:bold 18px Tahoma;color:#17365d;border-bottom:2px solid #a9b7c9;padding-bottom:7px;margin-bottom:17px}
+  .form-grid{display:grid;grid-template-columns:130px 1fr;gap:9px 12px;max-width:470px}
+  .form-grid label{text-align:right;padding-top:4px}
+  .form-grid input,.form-grid select{height:23px;width:100%}
+  .record-nav{display:flex;align-items:center;gap:4px;margin-top:20px;border-top:1px solid #aaa;padding-top:8px}
+  .record-nav button{min-width:27px;padding:1px 5px}
+  .record-nav input{width:45px;height:22px;text-align:center}
+
+  /* query */
+  .query-shell{height:100%;display:flex;flex-direction:column;background:#ece9d8}
+  .query-top{height:44%;min-height:145px;background:#f4f4f4;border-bottom:3px ridge #fff;position:relative;overflow:auto;padding:12px}
+  .table-box{width:210px;background:#fff;border:1px solid #555;box-shadow:1px 1px 2px #777}
+  .table-box-title{background:#0a246a;color:#fff;font-weight:bold;padding:4px 6px}
+  .table-field{padding:3px 6px;border-bottom:1px solid #eee}
+  .query-grid{flex:1;overflow:auto;background:#fff}
+  .query-grid table{border-collapse:collapse;min-width:100%}
+  .query-grid th,.query-grid td{border:1px solid #aaa;height:25px;padding:3px 5px;min-width:120px}
+  .query-grid th:first-child{background:#ece9d8;width:74px;min-width:74px;font-weight:normal;text-align:right}
+  .query-grid td{background:#fff}
+  .query-sql{height:100%;width:100%;border:0;padding:10px;font:12px "Courier New",monospace;outline:none;user-select:text}
+
+  /* report */
+  .report-bg{min-height:100%;background:#777;padding:22px;overflow:auto}
+  .report-page{width:760px;min-height:950px;margin:0 auto;background:white;box-shadow:2px 2px 8px #333;padding:55px 55px;color:#111}
+  .report-title{text-align:center;font:bold 22px "Times New Roman";margin-bottom:5px}
+  .report-sub{text-align:center;margin-bottom:30px;color:#555}
+  .report-table{width:100%;border-collapse:collapse}
+  .report-table th{border-bottom:2px solid #333;text-align:left;padding:6px}
+  .report-table td{border-bottom:1px solid #bbb;padding:6px}
+  .report-foot{margin-top:35px;text-align:right;color:#666}
+
+  /* design table */
+  .design-wrap{height:100%;display:flex;flex-direction:column}
+  .design-grid{border-collapse:collapse;width:100%;table-layout:fixed}
+  .design-grid th,.design-grid td{border:1px solid #aaa;height:24px;padding:2px 4px}
+  .design-grid th{background:#ece9d8;font-weight:normal}
+  .design-grid td input,.design-grid td select{width:100%;height:20px;border:0;padding:0;background:white}
+  .design-grid .sel{width:26px;background:#ece9d8;text-align:center}
+  .field-props{margin-top:8px;border-top:2px groove #fff;padding:8px;background:#ece9d8;flex:1}
+  .prop-tabs{display:flex;gap:2px}
+  .prop-tab{padding:4px 14px;border:1px solid #888;border-bottom:0;background:#ece9d8}
+  .prop-tab.active{background:#fff;position:relative;top:1px}
+  .prop-body{border:1px solid #888;background:#fff;padding:10px;height:130px}
+  .prop-row{display:grid;grid-template-columns:150px 1fr;gap:8px;margin-bottom:5px;max-width:500px}
+
+  /* dialogs */
+  .modal-layer{position:absolute;inset:0;background:rgba(0,0,0,.12);display:none;align-items:center;justify-content:center;z-index:200}
+  .modal-layer.show{display:flex}
+  .xp-dialog{min-width:330px;max-width:520px;background:#ece9d8;border:1px solid #003c74;box-shadow:3px 3px 8px rgba(0,0,0,.5)}
+  .xp-dialog-title{height:25px;background:linear-gradient(#0f58c6,#0b3e9e);color:white;font-weight:bold;padding:5px 7px;display:flex;align-items:center}
+  .xp-dialog-title .spacer{flex:1}
+  .xp-dialog-title button{width:20px;height:19px;min-height:0;padding:0;color:#fff;background:linear-gradient(#e99b81,#c43a24);border:1px solid #fff;font-weight:bold}
+  .xp-dialog-body{padding:16px;display:flex;gap:12px;align-items:flex-start}
+  .dialog-icon{width:32px;height:32px;border-radius:50%;background:#316ac5;color:white;display:grid;place-items:center;font:bold 21px Georgia;flex:none;border:1px solid #174782}
+  .dialog-icon.warn{background:#f5d000;color:#111;border-color:#8d7900;border-radius:4px}
+  .dialog-icon.err{background:#d53022}
+  .dialog-message{line-height:1.45;white-space:pre-line;min-width:220px}
+  .dialog-input{margin-top:10px;width:100%}
+  .dialog-buttons{padding:8px 12px 12px;text-align:right}
+  .dialog-buttons button{min-width:78px;margin-left:5px}
+
+  /* status */
+  .statusbar{height:23px;display:flex;align-items:center;background:#ece9d8;border-top:1px solid #fff;padding:2px 3px;gap:3px}
+  .status-panel{height:18px;border:1px inset #fff;padding:2px 5px;overflow:hidden;white-space:nowrap}
+  .status-main{flex:1}
+  .status-mode{width:145px}
+  .status-num{width:85px;text-align:center}
+
+  /* custom scrollbars */
+  ::-webkit-scrollbar{width:16px;height:16px}
+  ::-webkit-scrollbar-track{background:#ece9d8;border:1px solid #b8b5a7}
+  ::-webkit-scrollbar-thumb{background:linear-gradient(90deg,#d9e7ff,#9ebbe7,#d9e7ff);border:1px solid #6586b7}
+  ::-webkit-scrollbar-button{width:16px;height:16px;background:linear-gradient(#fff,#d8d5c7);border:1px solid #8d8a7e}
+  ::-webkit-scrollbar-corner{background:#ece9d8}
+
+  .hidden{display:none!important}
+  .drag-note{color:#555;font-style:italic;margin-top:5px}
+  .design-note{padding:10px;background:#fffbe1;border:1px solid #d4c36a;margin:10px}
+  @media(max-width:760px){.object-nav{width:130px}.toolbar-label{display:none}.form-paper{width:92%}.report-page{width:92%}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="menubar" id="menubar">
+    <div class="menu-item" data-menu="file"><span class="u">F</span>ile
+      <div class="dropdown">
+        <div class="menu-row" data-action="new-db">New Database... <span class="shortcut">Ctrl+N</span></div>
+        <div class="menu-row" data-action="open-backup">Open Backup...</div>
+        <div class="menu-sep"></div>
+        <div class="menu-row" data-action="save">Save <span class="shortcut">Ctrl+S</span></div>
+        <div class="menu-row" data-action="backup">Backup Database...</div>
+        <div class="menu-sep"></div>
+        <div class="menu-row" data-action="print">Print...</div>
+        <div class="menu-row" data-action="close-object">Close</div>
+      </div>
+    </div>
+    <div class="menu-item" data-menu="edit"><span class="u">E</span>dit
+      <div class="dropdown">
+        <div class="menu-row" data-action="undo">Undo</div>
+        <div class="menu-sep"></div>
+        <div class="menu-row" data-action="cut">Cut <span class="shortcut">Ctrl+X</span></div>
+        <div class="menu-row" data-action="copy">Copy <span class="shortcut">Ctrl+C</span></div>
+        <div class="menu-row" data-action="paste">Paste <span class="shortcut">Ctrl+V</span></div>
+        <div class="menu-sep"></div>
+        <div class="menu-row" data-action="delete">Delete <span class="shortcut">Del</span></div>
+      </div>
+    </div>
+    <div class="menu-item" data-menu="view"><span class="u">V</span>iew
+      <div class="dropdown">
+        <div class="menu-row" data-action="view-open">Open</div>
+        <div class="menu-row" data-action="view-design">Design View</div>
+        <div class="menu-row" data-action="view-sql">SQL View</div>
+        <div class="menu-sep"></div>
+        <div class="menu-row" data-action="refresh">Refresh</div>
+      </div>
+    </div>
+    <div class="menu-item" data-menu="insert"><span class="u">I</span>nsert
+      <div class="dropdown">
+        <div class="menu-row" data-action="new-table">Table...</div>
+        <div class="menu-row" data-action="new-query">Query...</div>
+        <div class="menu-row" data-action="new-form">Form...</div>
+        <div class="menu-row" data-action="new-report">Report...</div>
+      </div>
+    </div>
+    <div class="menu-item" data-menu="tools"><span class="u">T</span>ools
+      <div class="dropdown">
+        <div class="menu-row" data-action="relationships">Relationships...</div>
+        <div class="menu-row" data-action="compact">Database Utilities &gt; Compact and Repair</div>
+        <div class="menu-sep"></div>
+        <div class="menu-row" data-action="options">Options...</div>
+      </div>
+    </div>
+    <div class="menu-item" data-menu="window"><span class="u">W</span>indow
+      <div class="dropdown">
+        <div class="menu-row" data-action="db-window">Database Window</div>
+        <div class="menu-row" data-action="close-object">Close Active Object</div>
+      </div>
+    </div>
+    <div class="menu-item" data-menu="help"><span class="u">H</span>elp
+      <div class="dropdown">
+        <div class="menu-row" data-action="help">Microsoft Access Help</div>
+        <div class="menu-sep"></div>
+        <div class="menu-row" data-action="about">About Microsoft Access 2003 Simulator</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button class="tool" title="New" data-action="new-table"><span class="glyph">📄</span></button>
+    <button class="tool" title="Open" data-action="open-selected"><span class="glyph">📂</span></button>
+    <button class="tool" title="Save" data-action="save"><span class="glyph">💾</span></button>
+    <div class="tb-sep"></div>
+    <button class="tool" title="Print" data-action="print"><span class="glyph">🖨</span></button>
+    <div class="tb-sep"></div>
+    <button class="tool" title="Cut" data-action="cut"><span class="glyph">✂</span></button>
+    <button class="tool" title="Copy" data-action="copy"><span class="glyph">▣</span></button>
+    <button class="tool" title="Paste" data-action="paste"><span class="glyph">📋</span></button>
+    <button class="tool" title="Undo" data-action="undo"><span class="glyph">↶</span></button>
+    <div class="tb-sep"></div>
+    <button class="tool" title="Relationships" data-action="relationships"><span class="glyph">🔗</span></button>
+    <button class="tool" title="Run Query" data-action="run-query"><span class="glyph">❗</span></button>
+    <span class="toolbar-label">Object:</span>
+    <select id="objectJump" aria-label="Object jump"></select>
+  </div>
+
+  <div class="workspace" id="workspace">
+    <section class="db-window" id="dbWindow">
+      <div class="db-caption">
+        <img src="access2003.png" class="app-logo" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
+        <span class="caption-fallback">A</span>
+        <span id="dbTitle">School.mdb : Database (Access 2000 file format)</span>
+        <span class="cap-spacer"></span>
+        <div class="inner-controls"><button title="Minimize" data-action="fake-min">_</button><button title="Close" data-action="fake-close">×</button></div>
+      </div>
+      <div class="db-toolbar">
+        <button data-action="open-selected">Open</button>
+        <button data-action="design-selected">Design</button>
+        <button data-action="new-object">New</button>
+        <button data-action="delete">Delete</button>
+      </div>
+      <div class="db-body">
+        <aside class="object-nav" id="objectNav"></aside>
+        <main class="object-list">
+          <div class="object-list-head" id="objectListHead">Tables</div>
+          <div class="object-items" id="objectItems"></div>
+        </main>
+      </div>
+    </section>
+
+    <section class="document-view" id="documentView">
+      <div class="doc-caption"><span id="docTitle">Object</span><span class="spacer"></span><button data-action="close-object">×</button></div>
+      <div class="docbar" id="docbar"></div>
+      <div class="doc-content" id="docContent"></div>
+      <div class="doc-status" id="docStatus"><span>Ready</span></div>
+    </section>
+
+    <div class="modal-layer" id="modalLayer">
+      <div class="xp-dialog" role="dialog" aria-modal="true">
+        <div class="xp-dialog-title"><span id="dialogTitle">Microsoft Access</span><span class="spacer"></span><button id="dialogX">×</button></div>
+        <div class="xp-dialog-body"><div class="dialog-icon" id="dialogIcon">i</div><div class="dialog-message" id="dialogMessage"></div></div>
+        <div class="dialog-buttons" id="dialogButtons"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="statusbar">
+    <div class="status-panel status-main" id="statusMain">Ready</div>
+    <div class="status-panel status-mode" id="statusMode">Database Window</div>
+    <div class="status-panel status-num" id="statusNum">NUM</div>
+  </div>
+
+  <input type="file" id="backupInput" accept="application/json,.json" class="hidden" />
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const $ = (s, root=document) => root.querySelector(s);
+  const $$ = (s, root=document) => Array.from(root.querySelectorAll(s));
+  const clone = obj => JSON.parse(JSON.stringify(obj));
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+  const defaultDB = {
+    name: 'School.mdb',
+    tables: {
+      Students: {
+        fields: [
+          {name:'StudentID', type:'AutoNumber', key:true},
+          {name:'FirstName', type:'Text'},
+          {name:'LastName', type:'Text'},
+          {name:'Class', type:'Text'},
+          {name:'BirthDate', type:'Date/Time'},
+          {name:'Active', type:'Yes/No'}
+        ],
+        rows: [
+          {StudentID:1,FirstName:'Ayşe',LastName:'Yılmaz',Class:'10-A',BirthDate:'2010-03-14',Active:'Yes'},
+          {StudentID:2,FirstName:'Mehmet',LastName:'Kaya',Class:'10-B',BirthDate:'2009-11-02',Active:'Yes'},
+          {StudentID:3,FirstName:'Elif',LastName:'Demir',Class:'11-A',BirthDate:'2009-06-21',Active:'Yes'},
+          {StudentID:4,FirstName:'Can',LastName:'Arslan',Class:'9-C',BirthDate:'2011-01-08',Active:'No'},
+          {StudentID:5,FirstName:'Zeynep',LastName:'Çelik',Class:'10-A',BirthDate:'2010-09-27',Active:'Yes'}
+        ]
+      },
+      Courses: {
+        fields:[
+          {name:'CourseID',type:'AutoNumber',key:true},
+          {name:'CourseName',type:'Text'},
+          {name:'Teacher',type:'Text'},
+          {name:'Room',type:'Text'},
+          {name:'WeeklyHours',type:'Number'}
+        ],
+        rows:[
+          {CourseID:1,CourseName:'Mathematics',Teacher:'Selin Aksoy',Room:'B-204',WeeklyHours:6},
+          {CourseID:2,CourseName:'Physics',Teacher:'Kerem Şahin',Room:'Lab-1',WeeklyHours:4},
+          {CourseID:3,CourseName:'English',Teacher:'Derya Aydın',Room:'A-108',WeeklyHours:5},
+          {CourseID:4,CourseName:'Computer Science',Teacher:'Emre Koç',Room:'Lab-2',WeeklyHours:4}
+        ]
+      },
+      Enrollments: {
+        fields:[
+          {name:'EnrollmentID',type:'AutoNumber',key:true},
+          {name:'StudentID',type:'Number'},
+          {name:'CourseID',type:'Number'},
+          {name:'Exam1',type:'Number'},
+          {name:'Exam2',type:'Number'}
+        ],
+        rows:[
+          {EnrollmentID:1,StudentID:1,CourseID:1,Exam1:82,Exam2:91},
+          {EnrollmentID:2,StudentID:1,CourseID:3,Exam1:94,Exam2:88},
+          {EnrollmentID:3,StudentID:2,CourseID:1,Exam1:75,Exam2:79},
+          {EnrollmentID:4,StudentID:3,CourseID:4,Exam1:98,Exam2:100}
+        ]
+      }
+    },
+    queries: {
+      'Active Students': {sql:"SELECT StudentID, FirstName, LastName, Class FROM Students WHERE Active = 'Yes'"},
+      'High Scores': {sql:'SELECT EnrollmentID, StudentID, CourseID, Exam1, Exam2 FROM Enrollments WHERE Exam1 >= 80'}
+    },
+    forms: {
+      'Student Form': {table:'Students', title:'Student Information'},
+      'Course Form': {table:'Courses', title:'Course Information'}
+    },
+    reports: {
+      'Student List': {table:'Students', title:'Student List Report'},
+      'Course Catalog': {table:'Courses', title:'Course Catalog'}
+    },
+    pages: {}, macros: {'AutoExec':{}}, modules: {'Utilities':{}}
+  };
+
+  let db = loadDB();
+  let category = 'tables';
+  let selectedObject = null;
+  let currentDoc = null;
+  let currentRow = 0;
+  let queryMode = 'design';
+  let history = [];
+  let modalCallback = null;
+
+  const categoryInfo = {
+    tables:{label:'Tables',img:'table.png',fallback:'▦'},
+    queries:{label:'Queries',img:'query.png',fallback:'⌕'},
+    forms:{label:'Forms',img:'form.png',fallback:'▤'},
+    reports:{label:'Reports',img:'report.png',fallback:'▥'},
+    pages:{label:'Pages',img:'page.png',fallback:'▧'},
+    macros:{label:'Macros',img:'macro.png',fallback:'⚙'},
+    modules:{label:'Modules',img:'module.png',fallback:'◆'}
+  };
+
+  function loadDB(){
+    try{
+      const raw = localStorage.getItem('access2003-sim-db');
+      return raw ? JSON.parse(raw) : clone(defaultDB);
+    }catch(e){ return clone(defaultDB); }
+  }
+  function persist(){
+    localStorage.setItem('access2003-sim-db', JSON.stringify(db));
+    setStatus('Record(s) saved.');
+  }
+  function snapshot(){
+    history.push(JSON.stringify(db));
+    if(history.length > 15) history.shift();
+  }
+  function undo(){
+    if(!history.length){ beep('error'); return setStatus('Nothing to undo.'); }
+    db = JSON.parse(history.pop()); persist(); renderNav(); renderObjects();
+    if(currentDoc) openObject(currentDoc.category,currentDoc.name,currentDoc.view || 'open', true);
+    setStatus('Undo complete.'); beep('click');
+  }
+
+  function beep(type='click'){
+    try{
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if(!Ctx) return;
+      const ctx = new Ctx();
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      const now=ctx.currentTime;
+      const cfg = type==='error' ? [170,.14,.09] : type==='ok' ? [760,.09,.05] : [520,.045,.035];
+      o.type = type==='error' ? 'square' : 'sine'; o.frequency.setValueAtTime(cfg[0],now);
+      if(type==='error') o.frequency.exponentialRampToValueAtTime(110,now+cfg[1]);
+      g.gain.setValueAtTime(cfg[2],now); g.gain.exponentialRampToValueAtTime(.0001,now+cfg[1]);
+      o.start(now); o.stop(now+cfg[1]); setTimeout(()=>ctx.close(),250);
+    }catch(e){}
+  }
+
+  function setStatus(msg, mode){
+    $('#statusMain').textContent = msg || 'Ready';
+    if(mode) $('#statusMode').textContent = mode;
+  }
+
+  function imgHTML(src, cls, fallback){
+    return `<img src="${src}" class="${cls}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block'"><span class="fallback-ico">${fallback}</span>`;
+  }
+
+  function renderNav(){
+    const nav = $('#objectNav');
+    nav.innerHTML = `<div class="nav-header">Objects</div>` + Object.entries(categoryInfo).map(([key,info]) => `
+      <div class="nav-item ${key===category?'active':''}" data-cat="${key}">
+        <span class="nav-icon-wrap"><img src="${info.img}" class="nav-icon" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'"><span class="fallback-ico">${info.fallback}</span></span>
+        <span>${info.label}</span>
+      </div>`).join('');
+    $$('.nav-item',nav).forEach(el=>el.addEventListener('click',()=>{
+      category=el.dataset.cat; selectedObject=null; renderNav(); renderObjects(); beep('click');
+    }));
+  }
+
+  function objectNames(cat){ return Object.keys(db[cat] || {}); }
+
+  function renderObjects(){
+    const info=categoryInfo[category];
+    $('#objectListHead').textContent=info.label;
+    const names=objectNames(category);
+    const list=$('#objectItems');
+    if(!names.length){ list.innerHTML=`<div class="object-empty">There are no ${info.label.toLowerCase()} in this database.</div>`; }
+    else list.innerHTML=names.map(name=>`<div class="obj-row ${name===selectedObject?'selected':''}" data-name="${esc(name)}">${imgHTML(info.img,'obj-ico',info.fallback)}<span>${esc(name)}</span></div>`).join('');
+    $$('.obj-row',list).forEach(row=>{
+      row.addEventListener('click',()=>{selectedObject=row.dataset.name; renderObjects(); setStatus(`${info.label.slice(0,-1)} '${selectedObject}' selected.`);});
+      row.addEventListener('dblclick',()=>openObject(category,row.dataset.name,'open'));
+    });
+    updateJump();
+  }
+
+  function updateJump(){
+    const j=$('#objectJump');
+    const opts=[];
+    for(const [cat,info] of Object.entries(categoryInfo)) for(const n of objectNames(cat)) opts.push(`<option value="${cat}|${esc(n)}">${info.label}: ${esc(n)}</option>`);
+    j.innerHTML='<option value="">-- Database Objects --</option>'+opts.join('');
+  }
+
+  function closeMenus(){ $$('.menu-item').forEach(m=>m.classList.remove('open')); }
+  function initMenus(){
+    $$('.menu-item').forEach(mi=>{
+      mi.addEventListener('mousedown',e=>{e.stopPropagation(); const was=mi.classList.contains('open'); closeMenus(); if(!was)mi.classList.add('open');});
+    });
+    document.addEventListener('mousedown',e=>{ if(!e.target.closest('.menubar')) closeMenus(); });
+    $$('.menu-row').forEach(r=>r.addEventListener('mousedown',e=>{e.stopPropagation();closeMenus();if(!r.classList.contains('disabled'))action(r.dataset.action);}));
+  }
+
+  function showDialog(title,message,buttons=['OK'],icon='info',cb=null,input=null){
+    $('#dialogTitle').textContent=title;
+    $('#dialogMessage').innerHTML=`<div>${esc(message).replace(/\n/g,'<br>')}</div>`+(input?`<input class="dialog-input" id="dialogText" value="${esc(input.value||'')}" placeholder="${esc(input.placeholder||'')}">`:'');
+    const di=$('#dialogIcon'); di.className='dialog-icon '+(icon==='warn'?'warn':icon==='error'?'err':''); di.textContent=icon==='warn'?'!':icon==='error'?'×':'i';
+    $('#dialogButtons').innerHTML=buttons.map((b,i)=>`<button data-dialog="${esc(b)}" ${i===0?'autofocus':''}>${esc(b)}</button>`).join('');
+    $('#modalLayer').classList.add('show'); modalCallback=cb;
+    $$('#dialogButtons button').forEach(btn=>btn.onclick=()=>closeDialog(btn.dataset.dialog));
+    $('#dialogX').onclick=()=>closeDialog('Cancel');
+    setTimeout(()=>$('#dialogText')?.focus(),0);
+  }
+  function closeDialog(result){
+    const input=$('#dialogText')?.value;
+    $('#modalLayer').classList.remove('show'); beep(result==='OK'||result==='Yes'||result==='Create'?'ok':'click');
+    const cb=modalCallback; modalCallback=null; if(cb)cb(result,input);
+  }
+
+  function ensureSelected(){
+    if(!selectedObject){showDialog('Microsoft Access','Select an object first.',['OK'],'info');return false;} return true;
+  }
+
+  function openObject(cat,name,view='open',silent=false){
+    const obj=db[cat]?.[name]; if(!obj){beep('error');return;}
+    currentDoc={category:cat,name,view}; currentRow=0;
+    $('#documentView').classList.add('open');
+    $('#docTitle').textContent=`${name} : ${view==='design'?'Design View':cat==='queries'&&view==='sql'?'SQL View':categoryInfo[cat].label.slice(0,-1)}`;
+    $('#statusMode').textContent= view==='design' ? 'Design View' : (cat==='tables'?'Datasheet View':cat==='forms'?'Form View':cat==='reports'?'Print Preview':cat==='queries'?'Query':'Object View');
+    if(cat==='tables') view==='design'?renderTableDesign(name):renderTable(name);
+    else if(cat==='forms') renderForm(name);
+    else if(cat==='reports') renderReport(name);
+    else if(cat==='queries') renderQuery(name,view);
+    else renderGenericObject(cat,name);
+    if(!silent)beep('click');
+  }
+
+  function closeObject(){ currentDoc=null; $('#documentView').classList.remove('open'); $('#docContent').innerHTML=''; $('#docbar').innerHTML=''; setStatus('Ready','Database Window'); }
+
+  function toolbarButton(label,act){return `<button data-docact="${act}">${label}</button>`}
+  function wireDocbar(){ $$('#docbar [data-docact]').forEach(b=>b.onclick=()=>docAction(b.dataset.docact)); }
+
+  function renderTable(name){
+    const t=db.tables[name];
+    $('#docbar').innerHTML=toolbarButton('Design View','design')+toolbarButton('New Record','new-record')+toolbarButton('Delete Record','delete-record')+toolbarButton('Save','save')+toolbarButton('Sort A→Z','sort');
+    wireDocbar();
+    const heads=t.fields.map(f=>`<th>${f.key?'<span class="pk">🔑</span>':''}${esc(f.name)}</th>`).join('');
+    const rows=t.rows.map((r,ri)=>`<tr data-row="${ri}" class="${ri===currentRow?'current':''}"><td>${ri===currentRow?'▶':''}</td>${t.fields.map(f=>`<td contenteditable="true" data-field="${esc(f.name)}">${esc(r[f.name])}</td>`).join('')}</tr>`).join('');
+    const blanks=t.fields.map(f=>`<td contenteditable="true" data-newfield="${esc(f.name)}">${f.type==='AutoNumber'?'(AutoNumber)':''}</td>`).join('');
+    $('#docContent').innerHTML=`<div class="sheet-wrap"><table class="datasheet"><thead><tr><th></th>${heads}</tr></thead><tbody>${rows}<tr class="newrow" data-newrow="1"><td>*</td>${blanks}</tr></tbody></table></div>`;
+    $('#docStatus').innerHTML=`<span>Record: ${t.rows.length?currentRow+1:0} of ${t.rows.length}</span><span>${t.rows.length} record(s)</span>`;
+    $$('.datasheet tr[data-row]').forEach(tr=>tr.addEventListener('click',()=>{currentRow=+tr.dataset.row; renderTable(name);}));
+    $$('.datasheet td[contenteditable][data-field]').forEach(td=>{
+      td.addEventListener('focus',()=>snapshot());
+      td.addEventListener('blur',()=>{
+        const ri=+td.parentElement.dataset.row, field=td.dataset.field;
+        db.tables[name].rows[ri][field]=coerce(td.textContent,db.tables[name].fields.find(f=>f.name===field)?.type);persist();
+      });
+    });
+    $$('.newrow [data-newfield]').forEach(td=>td.addEventListener('blur',()=>{
+      const vals={}; $$('.newrow [data-newfield]').forEach(c=>vals[c.dataset.newfield]=c.textContent.trim());
+      const nonAuto=t.fields.filter(f=>f.type!=='AutoNumber'); if(!nonAuto.some(f=>vals[f.name]))return;
+      snapshot(); const r={};
+      t.fields.forEach(f=>{ if(f.type==='AutoNumber')r[f.name]=nextAuto(t,f.name); else r[f.name]=coerce(vals[f.name],f.type); });
+      t.rows.push(r); persist(); currentRow=t.rows.length-1; renderTable(name); beep('ok');
+    }));
+  }
+
+  function coerce(v,type){
+    if(type==='Number'||type==='AutoNumber'){const n=Number(v);return Number.isFinite(n)?n:v;}
+    if(type==='Yes/No'){const s=String(v).toLowerCase();return ['yes','true','1','evet'].includes(s)?'Yes':'No';}
+    return v;
+  }
+  function nextAuto(t,field){return Math.max(0,...t.rows.map(r=>Number(r[field])||0))+1}
+
+  function renderTableDesign(name){
+    const t=db.tables[name];
+    $('#docbar').innerHTML=toolbarButton('Datasheet View','open')+toolbarButton('Primary Key','primary-key')+toolbarButton('Insert Row','insert-field')+toolbarButton('Save','save'); wireDocbar();
+    const rows=t.fields.concat([{name:'',type:'Text'}]).map((f,i)=>`<tr data-fi="${i}"><td class="sel">${f.key?'🔑':''}</td><td><input data-fn value="${esc(f.name)}"></td><td><select data-ft>${['Text','Number','Date/Time','Currency','AutoNumber','Yes/No','Memo'].map(x=>`<option ${x===f.type?'selected':''}>${x}</option>`).join('')}</select></td><td><input data-fd value=""></td></tr>`).join('');
+    $('#docContent').innerHTML=`<div class="design-wrap"><table class="design-grid"><thead><tr><th style="width:26px"></th><th>Field Name</th><th style="width:160px">Data Type</th><th>Description</th></tr></thead><tbody>${rows}</tbody></table><div class="field-props"><div class="prop-tabs"><div class="prop-tab active">General</div><div class="prop-tab">Lookup</div></div><div class="prop-body"><div class="prop-row"><span>Field Size</span><input value="50"></div><div class="prop-row"><span>Format</span><input></div><div class="prop-row"><span>Default Value</span><input></div><div class="prop-row"><span>Required</span><select><option>No</option><option>Yes</option></select></div></div></div></div>`;
+    $$('[data-fn],[data-ft]','#docContent').forEach(el=>el.addEventListener('change',()=>saveDesign(name)));
+    $('#docStatus').innerHTML='<span>Table Design</span><span>Define field names and data types.</span>';
+  }
+  function saveDesign(name){
+    const t=db.tables[name]; const newFields=[];
+    $$('.design-grid tbody tr').forEach((tr,i)=>{ const n=$('[data-fn]',tr).value.trim(); if(n)newFields.push({name:n,type:$('[data-ft]',tr).value,key:t.fields[i]?.key||false}); });
+    if(!newFields.length)return; snapshot();
+    t.rows.forEach(r=>{ const nr={}; newFields.forEach(f=>nr[f.name]=r[f.name]??''); Object.keys(r).forEach(k=>delete r[k]); Object.assign(r,nr); });
+    t.fields=newFields; persist();
+  }
+
+  function renderForm(name){
+    const f=db.forms[name], t=db.tables[f.table];
+    if(!t){return renderMissing('The form source table could not be found.');}
+    currentRow=Math.min(currentRow,Math.max(0,t.rows.length-1)); const r=t.rows[currentRow]||{};
+    $('#docbar').innerHTML=toolbarButton('Design View','form-design')+toolbarButton('Save Record','save-form')+toolbarButton('New Record','new-form-record'); wireDocbar();
+    const controls=t.fields.map(field=>`<label>${esc(field.name)}:</label><input data-formfield="${esc(field.name)}" value="${esc(r[field.name]??'')}" ${field.type==='AutoNumber'?'readonly':''}>`).join('');
+    $('#docContent').innerHTML=`<div class="form-canvas"><div class="form-paper"><div class="form-title">${esc(f.title||name)}</div><div class="form-grid">${controls}</div><div class="record-nav"><span>Record:</span><button data-nav="first">|◀</button><button data-nav="prev">◀</button><input value="${t.rows.length?currentRow+1:0}" readonly><span>of ${t.rows.length}</span><button data-nav="next">▶</button><button data-nav="last">▶|</button><button data-nav="new">*</button></div></div></div>`;
+    $$('[data-formfield]').forEach(inp=>inp.addEventListener('change',()=>{snapshot();r[inp.dataset.formfield]=coerce(inp.value,t.fields.find(x=>x.name===inp.dataset.formfield)?.type);persist();}));
+    $$('[data-nav]').forEach(b=>b.onclick=()=>{const a=b.dataset.nav;if(a==='first')currentRow=0;else if(a==='prev')currentRow=Math.max(0,currentRow-1);else if(a==='next')currentRow=Math.min(t.rows.length-1,currentRow+1);else if(a==='last')currentRow=Math.max(0,t.rows.length-1);else if(a==='new'){snapshot();const nr={};t.fields.forEach(x=>nr[x.name]=x.type==='AutoNumber'?nextAuto(t,x.name):'');t.rows.push(nr);currentRow=t.rows.length-1;persist();}renderForm(name);beep('click');});
+    $('#docStatus').innerHTML=`<span>Form View</span><span>${t.rows.length?`Record ${currentRow+1} of ${t.rows.length}`:'No records'}</span>`;
+  }
+
+  function renderReport(name){
+    const rep=db.reports[name],t=db.tables[rep.table]; if(!t)return renderMissing('Report source table not found.');
+    $('#docbar').innerHTML=toolbarButton('Print','print')+toolbarButton('Close','close');wireDocbar();
+    $('#docContent').innerHTML=`<div class="report-bg"><div class="report-page"><div class="report-title">${esc(rep.title||name)}</div><div class="report-sub">${esc(db.name)} — generated ${new Date().toLocaleDateString('tr-TR')}</div><table class="report-table"><thead><tr>${t.fields.map(f=>`<th>${esc(f.name)}</th>`).join('')}</tr></thead><tbody>${t.rows.map(r=>`<tr>${t.fields.map(f=>`<td>${esc(r[f.name])}</td>`).join('')}</tr>`).join('')}</tbody></table><div class="report-foot">Page 1</div></div></div>`;
+    $('#docStatus').innerHTML='<span>Print Preview</span><span>Page 1 of 1</span>';
+  }
+
+  function renderQuery(name,view){
+    const q=db.queries[name]; queryMode=view==='sql'?'sql':queryMode;
+    $('#docbar').innerHTML=toolbarButton('Run !','run-query')+toolbarButton(queryMode==='sql'?'Design View':'SQL View',queryMode==='sql'?'query-design':'query-sql')+toolbarButton('Save','save-query'); wireDocbar();
+    if(queryMode==='sql'){
+      $('#docContent').innerHTML=`<textarea class="query-sql" id="sqlEditor" spellcheck="false">${esc(q.sql)}</textarea>`;
+      $('#sqlEditor').addEventListener('change',()=>{snapshot();q.sql=$('#sqlEditor').value;persist();});
+      $('#docStatus').innerHTML='<span>SQL View</span><span>Microsoft Jet SQL</span>';
+      return;
+    }
+    const parsed=parseSelect(q.sql), tableName=parsed.table&&db.tables[parsed.table]?parsed.table:Object.keys(db.tables)[0]; const t=db.tables[tableName];
+    const cols=parsed.fields.length?parsed.fields:t.fields.map(f=>f.name);
+    $('#docContent').innerHTML=`<div class="query-shell"><div class="query-top"><div class="table-box"><div class="table-box-title">${esc(tableName)}</div>${t.fields.map(f=>`<div class="table-field">${f.key?'🔑 ':''}${esc(f.name)}</div>`).join('')}</div><div class="drag-note">Double-click fields in Microsoft Access to add them to the grid.</div></div><div class="query-grid"><table><tbody><tr><th>Field:</th>${cols.map(c=>`<td>${esc(c)}</td>`).join('')}</tr><tr><th>Table:</th>${cols.map(()=>`<td>${esc(tableName)}</td>`).join('')}</tr><tr><th>Sort:</th>${cols.map(()=>'<td></td>').join('')}</tr><tr><th>Show:</th>${cols.map(()=>'<td style="text-align:center">☑</td>').join('')}</tr><tr><th>Criteria:</th>${cols.map((c,i)=>`<td>${i===0&&parsed.where?esc(parsed.where):''}</td>`).join('')}</tr><tr><th>or:</th>${cols.map(()=>'<td></td>').join('')}</tr></tbody></table></div></div>`;
+    $('#docStatus').innerHTML='<span>Query Design</span><span>Ready</span>';
+  }
+
+  function parseSelect(sql){
+    const m=String(sql).match(/^\s*SELECT\s+(.+?)\s+FROM\s+([\w ]+?)(?:\s+WHERE\s+(.+?))?\s*;?\s*$/i);
+    if(!m)return{fields:[],table:null,where:null};
+    return{fields:m[1].trim()==='*'?[]:m[1].split(',').map(x=>x.trim().replace(/[\[\]]/g,'')),table:m[2].trim().replace(/[\[\]]/g,''),where:m[3]?.trim()||null};
+  }
+  function runQuery(name){
+    const q=db.queries[name],p=parseSelect(q.sql); if(!p.table||!db.tables[p.table])return showDialog('Microsoft Access','The SQL statement could not be parsed, or the source table does not exist.',['OK'],'error');
+    const t=db.tables[p.table],fields=p.fields.length?p.fields:t.fields.map(f=>f.name);
+    let rows=[...t.rows];
+    if(p.where){
+      const w=p.where.match(/^\s*\[?([\w ]+)\]?\s*(=|>=|<=|>|<|<>)\s*['"]?([^'"]+)['"]?\s*$/i);
+      if(w){const [,field,op,valRaw]=w; const val=isNaN(Number(valRaw))?valRaw:Number(valRaw);rows=rows.filter(r=>{const a=r[field];switch(op){case'=':return String(a)==String(val);case'<>':return String(a)!=String(val);case'>=':return Number(a)>=Number(val);case'<=':return Number(a)<=Number(val);case'>':return Number(a)>Number(val);case'<':return Number(a)<Number(val);default:return true;}})}
+    }
+    $('#docContent').innerHTML=`<div class="sheet-wrap"><table class="datasheet"><thead><tr><th></th>${fields.map(f=>`<th>${esc(f)}</th>`).join('')}</tr></thead><tbody>${rows.map((r,i)=>`<tr><td>${i+1}</td>${fields.map(f=>`<td>${esc(r[f])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+    $('#docStatus').innerHTML=`<span>Query Result</span><span>${rows.length} record(s)</span>`; setStatus(`Query returned ${rows.length} record(s).`,'Datasheet View');beep('ok');
+  }
+
+  function renderGenericObject(cat,name){
+    $('#docbar').innerHTML=toolbarButton('Close','close'); wireDocbar();
+    $('#docContent').innerHTML=`<div class="design-note"><b>${esc(categoryInfo[cat].label.slice(0,-1))}: ${esc(name)}</b><br><br>This object type is included for the Access 2003 database-window experience. Its editor is intentionally simplified in this single-file simulator.</div>`;
+    $('#docStatus').innerHTML='<span>Object View</span>';
+  }
+  function renderMissing(msg){$('#docContent').innerHTML=`<div class="design-note">${esc(msg)}</div>`}
+
+  function createObject(cat){
+    const defaults={tables:'Table1',queries:'Query1',forms:'Form1',reports:'Report1'}; const label=categoryInfo[cat]?.label.slice(0,-1)||'Object';
+    showDialog(`New ${label}`,`Enter a name for the new ${label.toLowerCase()}:`,['Create','Cancel'],'info',(res,name)=>{
+      if(res!=='Create')return; name=(name||defaults[cat]||'Object1').trim(); if(!name)return;
+      if(db[cat]?.[name])return showDialog('Microsoft Access',`An object named '${name}' already exists.`,['OK'],'error');
+      snapshot();
+      if(cat==='tables')db.tables[name]={fields:[{name:'ID',type:'AutoNumber',key:true},{name:'Field1',type:'Text'}],rows:[]};
+      else if(cat==='queries')db.queries[name]={sql:`SELECT * FROM ${Object.keys(db.tables)[0]}`};
+      else if(cat==='forms')db.forms[name]={table:Object.keys(db.tables)[0],title:name};
+      else if(cat==='reports')db.reports[name]={table:Object.keys(db.tables)[0],title:name};
+      else db[cat][name]={};
+      persist(); category=cat; selectedObject=name; renderNav();renderObjects();openObject(cat,name,cat==='tables'?'design':'open');
+    },{value:defaults[cat]||'Object1'});
+  }
+
+  function deleteSelected(){
+    if(!ensureSelected())return; const n=selectedObject,c=category;
+    showDialog('Microsoft Access',`Do you want to permanently delete '${n}'?`,['Yes','No'],'warn',(res)=>{if(res!=='Yes')return;snapshot();delete db[c][n];persist();selectedObject=null;renderObjects();setStatus(`Deleted '${n}'.`);});
+  }
+
+  function relationships(){
+    $('#documentView').classList.add('open'); currentDoc={category:'special',name:'Relationships',view:'open'}; $('#docTitle').textContent='Relationships'; $('#statusMode').textContent='Relationships';
+    $('#docbar').innerHTML=toolbarButton('Show Table','rel-show')+toolbarButton('Close','close');wireDocbar();
+    $('#docContent').innerHTML=`<div style="height:100%;background:#fff;position:relative;overflow:auto;padding:25px"><svg width="900" height="500" style="position:absolute;left:0;top:0;pointer-events:none"><line x1="260" y1="95" x2="390" y2="155" stroke="#222"/><line x1="260" y1="120" x2="390" y2="180" stroke="#222"/><text x="270" y="100" font-size="11">1</text><text x="375" y="150" font-size="12">∞</text></svg>${relationshipBox('Students',35,35)}${relationshipBox('Enrollments',390,105)}${relationshipBox('Courses',35,250)}</div>`;
+    $('#docStatus').innerHTML='<span>Relationships</span><span>Drag table headers to arrange.</span>'; enableRelDrag();
+  }
+  function relationshipBox(name,x,y){const t=db.tables[name];if(!t)return'';return`<div class="table-box relbox" style="position:absolute;left:${x}px;top:${y}px" data-rel="${name}"><div class="table-box-title reltitle">${esc(name)}</div>${t.fields.map(f=>`<div class="table-field">${f.key?'🔑 ':''}${esc(f.name)}</div>`).join('')}</div>`}
+  function enableRelDrag(){ $$('.relbox').forEach(box=>{let sx,sy,ox,oy,drag=false; $('.reltitle',box).onmousedown=e=>{drag=true;sx=e.clientX;sy=e.clientY;ox=parseInt(box.style.left);oy=parseInt(box.style.top);e.preventDefault()}; document.addEventListener('mousemove',e=>{if(!drag)return;box.style.left=ox+e.clientX-sx+'px';box.style.top=oy+e.clientY-sy+'px'});document.addEventListener('mouseup',()=>drag=false);});}
+
+  function newDatabase(){
+    showDialog('New Database','Create a new blank database. Enter the file name:',['Create','Cancel'],'info',(res,name)=>{if(res!=='Create')return;snapshot();db={name:(name||'Database1.mdb').endsWith('.mdb')?(name||'Database1.mdb'):(name||'Database1')+'.mdb',tables:{},queries:{},forms:{},reports:{},pages:{},macros:{},modules:{}};persist();category='tables';selectedObject=null;$('#dbTitle').textContent=`${db.name} : Database (Access 2000 file format)`;renderNav();renderObjects();closeObject();},{value:'Database1.mdb'});
+  }
+
+  function backup(){
+    const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}); const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=db.name.replace(/\.mdb$/i,'')+'-backup.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);setStatus('Database backup created.');beep('ok');
+  }
+  function openBackupFile(file){
+    const fr=new FileReader();fr.onload=()=>{try{const d=JSON.parse(fr.result);if(!d.tables||!d.name)throw new Error();snapshot();db=d;persist();$('#dbTitle').textContent=`${db.name} : Database (Access 2000 file format)`;category='tables';selectedObject=null;renderNav();renderObjects();closeObject();showDialog('Microsoft Access','Database backup opened successfully.',['OK'],'info');}catch(e){showDialog('Microsoft Access','This file is not a valid simulator database backup.',['OK'],'error')}};fr.readAsText(file);
+  }
+
+  function action(a){
+    switch(a){
+      case'new-db':return newDatabase(); case'open-backup':return $('#backupInput').click(); case'save':return persist(); case'backup':return backup(); case'print':return fakePrint(); case'close-object':return closeObject(); case'undo':return undo();
+      case'open-selected':case'view-open': if(ensureSelected())openObject(category,selectedObject,'open'); return;
+      case'design-selected':case'view-design': if(ensureSelected())openObject(category,selectedObject,'design'); return;
+      case'view-sql': if(category==='queries'&&ensureSelected())openObject(category,selectedObject,'sql'); else showDialog('Microsoft Access','SQL View is available for Query objects.',['OK'],'info'); return;
+      case'refresh':renderNav();renderObjects();return setStatus('Database window refreshed.');
+      case'new-table':return createObject('tables'); case'new-query':return createObject('queries'); case'new-form':return createObject('forms'); case'new-report':return createObject('reports');
+      case'new-object':return createObject(category);
+      case'delete':return deleteSelected(); case'relationships':return relationships(); case'compact':persist();return showDialog('Compact and Repair Database',`Microsoft Access compacted '${db.name}'.\n\nNo errors were found.`,['OK'],'info');
+      case'options':return showDialog('Options','This simulator keeps its database in browser local storage. Toolbar sounds and Access-style interface behavior are enabled.',['OK'],'info');
+      case'db-window':return closeObject(); case'help':return showDialog('Microsoft Access Help','Try opening a table, query, form, or report from the Database window. Double-click an object to open it. Use Design View to edit table structure.',['OK'],'info');
+      case'about':return showDialog('About Microsoft Access 2003 Simulator','Windows XP / Access 2003 inspired single-file web simulator.\n\nNo Microsoft binaries or Office components are included.',['OK'],'info');
+      case'fake-min':return setStatus('The outer XP window controls minimization.'); case'fake-close':return closeObject();
+      case'run-query':if(currentDoc?.category==='queries')return runQuery(currentDoc.name);else return setStatus('Open a query to run it.');
+      case'cut':case'copy':case'paste':return setStatus(`${a[0].toUpperCase()+a.slice(1)} command available inside editable fields.`);
+    }
+  }
+
+  function docAction(a){
+    if(!currentDoc)return;
+    const {category:c,name:n}=currentDoc;
+    if(a==='close')return closeObject(); if(a==='print')return fakePrint(); if(a==='save')return persist();
+    if(c==='tables'){
+      const t=db.tables[n];
+      if(a==='design')return openObject(c,n,'design'); if(a==='open')return openObject(c,n,'open');
+      if(a==='new-record'){snapshot();const r={};t.fields.forEach(f=>r[f.name]=f.type==='AutoNumber'?nextAuto(t,f.name):'');t.rows.push(r);currentRow=t.rows.length-1;persist();return renderTable(n);}
+      if(a==='delete-record'){if(!t.rows.length)return;return showDialog('Microsoft Access','You are about to delete 1 record.\nAre you sure you want to delete this record?',['Yes','No'],'warn',res=>{if(res==='Yes'){snapshot();t.rows.splice(currentRow,1);currentRow=Math.max(0,currentRow-1);persist();renderTable(n)}});}
+      if(a==='sort'){const field=t.fields[0]?.name;if(field){snapshot();t.rows.sort((x,y)=>String(x[field]).localeCompare(String(y[field]),'tr',{numeric:true}));persist();renderTable(n)}}
+      if(a==='primary-key'){const i=Math.min(currentRow,t.fields.length-1);snapshot();t.fields.forEach(f=>f.key=false);if(t.fields[i])t.fields[i].key=true;persist();renderTableDesign(n);}
+      if(a==='insert-field'){t.fields.push({name:'Field'+(t.fields.length+1),type:'Text'});t.rows.forEach(r=>r[t.fields.at(-1).name]='');persist();renderTableDesign(n);}
+    }
+    if(c==='queries'){
+      if(a==='run-query')return runQuery(n); if(a==='query-sql'){queryMode='sql';return renderQuery(n,'sql')} if(a==='query-design'){queryMode='design';return renderQuery(n,'design')} if(a==='save-query'){const ed=$('#sqlEditor');if(ed){snapshot();db.queries[n].sql=ed.value;persist()}return;}
+    }
+    if(c==='forms'){
+      if(a==='save-form')return persist(); if(a==='new-form-record'){const f=db.forms[n],t=db.tables[f.table];snapshot();const r={};t.fields.forEach(x=>r[x.name]=x.type==='AutoNumber'?nextAuto(t,x.name):'');t.rows.push(r);currentRow=t.rows.length-1;persist();renderForm(n);return;}
+      if(a==='form-design')return showDialog('Microsoft Access','Form Design View is simplified in this single-file simulator. The form remains bound to its source table.',['OK'],'info');
+    }
+    if(a==='rel-show')return showDialog('Show Table','Students, Courses, and Enrollments are already shown in the Relationships window.',['OK'],'info');
+  }
+
+  function fakePrint(){
+    showDialog('Print','This web simulator does not open the browser print dialog automatically, because native browser popups would break the XP experience.\n\nUse the report Print Preview and your host application print command if needed.',['OK'],'info');
+  }
+
+  $('#backupInput').addEventListener('change',e=>{const f=e.target.files?.[0];if(f)openBackupFile(f);e.target.value=''});
+  $('#objectJump').addEventListener('change',e=>{if(!e.target.value)return;const [c,n]=e.target.value.split('|');category=c;selectedObject=n;renderNav();renderObjects();openObject(c,n,'open');e.target.value=''});
+  $$('[data-action]').forEach(el=>{ if(el.classList.contains('menu-row'))return; el.addEventListener('click',()=>action(el.dataset.action)); });
+
+  document.addEventListener('keydown',e=>{
+    if($('#modalLayer').classList.contains('show')){ if(e.key==='Escape')closeDialog('Cancel'); if(e.key==='Enter'&&$('#dialogText')){$('#dialogButtons button')?.click()} return; }
+    if(e.ctrlKey&&e.key.toLowerCase()==='s'){e.preventDefault();persist();beep('ok')}
+    if(e.ctrlKey&&e.key.toLowerCase()==='n'){e.preventDefault();newDatabase()}
+    if(e.key==='Escape')closeMenus();
+    if(e.key==='Delete'&&!['INPUT','TEXTAREA'].includes(document.activeElement.tagName)){e.preventDefault();if(!currentDoc)deleteSelected();}
+  });
+
+  $('#dbTitle').textContent=`${db.name} : Database (Access 2000 file format)`;
+  initMenus(); renderNav(); renderObjects(); setStatus('Ready','Database Window');
+})();
+</script>
+</body>
+</html>

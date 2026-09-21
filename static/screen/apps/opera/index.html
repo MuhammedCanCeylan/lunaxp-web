@@ -1,0 +1,135 @@
+<!--
+OPERA BROWSER - WINDOWS XP WEB SIMULATOR
+
+SOURCE:
+- Hosted Opera WebApp clone: https://opera.ywa.app/
+- Catalog: https://ywa.app/
+
+ASSET TABLE
+| File     | Size  | Required | Purpose |
+|----------|-------|----------|---------|
+| icon.png | 32x32 | Yes      | Generic red browser/O style app icon |
+
+ARCHITECTURE:
+- Parent XP simulator provides the outer Luna window and taskbar.
+- This module does NOT draw a second outer application titlebar/taskbar.
+- The ready hosted Opera WebApp clone is loaded as the app content.
+- No streaming, daemon, VM, ISO, Node server, or local browser executable.
+- No native alert/confirm/prompt.
+-->
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Opera</title>
+<style>
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden}
+body{font:11px Tahoma,Arial,sans-serif;background:#ECE9D8;color:#000}
+#app{position:relative;width:100%;height:100%;background:#fff}
+#opera{
+  position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff;
+}
+.loading{
+  position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;
+  background:#fff;color:#444
+}
+.loading.hide{display:none}
+.loaderbox{text-align:center;min-width:250px}
+.logo{
+  width:55px;height:55px;margin:0 auto 12px;border-radius:50%;
+  border:9px solid #cf2737;box-shadow:inset 0 0 0 2px #f5a0aa
+}
+.brand{font:bold 19px Tahoma,Arial,sans-serif;color:#333;margin-bottom:13px}
+.track{width:240px;height:17px;border:2px inset #fff;background:#f5f5f5;padding:2px;margin:0 auto 9px;overflow:hidden}
+.bar{width:42px;height:100%;background:#316AC5;animation:load 1.25s linear infinite}
+@keyframes load{from{transform:translateX(-48px)}to{transform:translateX(240px)}}
+.note{font-size:10px;color:#777;line-height:1.4}
+#fallback{
+  display:none;position:absolute;inset:0;z-index:12;background:#ECE9D8;
+  align-items:center;justify-content:center;padding:24px
+}
+#fallback.show{display:flex}
+.dialog{
+  width:min(480px,92%);background:#ECE9D8;border:2px outset #fff;
+  box-shadow:4px 5px 15px rgba(0,0,0,.35)
+}
+.title{padding:5px 7px;color:#fff;font-weight:bold;background:linear-gradient(90deg,#0A246A,#3A6EA5)}
+.body{padding:14px;line-height:1.5}
+.actions{text-align:right;padding:0 12px 12px}
+button{font:11px Tahoma,Arial,sans-serif;min-width:86px;height:25px;background:#ECE9D8;border:2px outset #fff}
+button:active{border-style:inset}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="loading" id="loading">
+    <div class="loaderbox">
+      <div class="logo"></div>
+      <div class="brand">Opera</div>
+      <div class="track"><div class="bar"></div></div>
+      <div class="note">Opera WebApp yükleniyor...</div>
+    </div>
+  </div>
+
+  <iframe
+    id="opera"
+    src="https://opera.ywa.app/"
+    title="Opera"
+    referrerpolicy="no-referrer"
+    allow="clipboard-read; clipboard-write; fullscreen"
+  ></iframe>
+
+  <div id="fallback">
+    <div class="dialog">
+      <div class="title">Opera</div>
+      <div class="body">
+        Opera WebApp yüklenemedi.<br><br>
+        Bu modül <b>opera.ywa.app</b> üzerindeki hazır Opera browser klonunu kullanır.
+        İnternet bağlantısını ve uzak servisin erişilebilirliğini kontrol edin.<br><br>
+        XP projesinin diğer uygulamaları etkilenmez.
+      </div>
+      <div class="actions"><button id="retry" type="button">Yeniden Dene</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(()=>{
+'use strict';
+const frame=document.getElementById('opera');
+const loading=document.getElementById('loading');
+const fallback=document.getElementById('fallback');
+let loaded=false;
+
+function reloadRemote(){
+  loaded=false;
+  fallback.classList.remove('show');
+  loading.classList.remove('hide');
+  frame.src='https://opera.ywa.app/?xp='+Date.now();
+
+  setTimeout(()=>{
+    if(!loaded){
+      loading.classList.add('hide');
+      fallback.classList.add('show');
+    }
+  },12000);
+}
+
+frame.addEventListener('load',()=>{
+  loaded=true;
+  loading.classList.add('hide');
+  fallback.classList.remove('show');
+});
+
+document.getElementById('retry').onclick=reloadRemote;
+
+/* native popup ban for wrapper */
+window.alert=function(){};
+window.confirm=function(){return false};
+window.prompt=function(){return null};
+})();
+</script>
+</body>
+</html>

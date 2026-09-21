@@ -1,0 +1,894 @@
+<!--
+MICROSOFT EXCEL 2003 STYLE - WINDOWS XP WEB SIMULATOR
+
+ENGINE:
+- Luckysheet 2.1.13 (MIT) -> local spreadsheet/grid/formula engine
+- LuckyExcel 1.0.1 (MIT) -> .xlsx import
+- SheetJS 0.18.5 -> local .xlsx/.xls/.csv read + .xlsx export fallback
+
+ASSETS:
+| Path | Purpose |
+|------|---------|
+| icon.png | 32x32 transparent XP app icon |
+| vendor/luckysheet/* | local Luckysheet runtime |
+| vendor/luckyexcel/* | local LuckyExcel runtime |
+| vendor/sheetjs/xlsx.full.min.js | local workbook import/export helper |
+
+IMPORTANT:
+- This is not Microsoft's original excel.exe.
+- It is a browser spreadsheet implementation wrapped in an Excel 2003 / Windows XP style UI.
+- No second XP title bar or taskbar is drawn; the parent WindowManager owns outer window chrome.
+- Native alert/confirm/prompt are not used.
+-->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Microsoft Excel</title>
+
+<link rel="stylesheet" href="./vendor/luckysheet/plugins/css/pluginsCss.css">
+<link rel="stylesheet" href="./vendor/luckysheet/plugins/plugins.css">
+<link rel="stylesheet" href="./vendor/luckysheet/css/luckysheet.css">
+<link rel="stylesheet" href="./vendor/luckysheet/assets/iconfont/iconfont.css">
+
+<style>
+:root{
+  --xp:#ECE9D8;
+  --border:#ACA899;
+  --excel:#217346;
+  --excelDark:#0f5f35;
+  --blue:#316AC5;
+}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden}
+body{font:11px Tahoma,Arial,sans-serif;background:var(--xp);color:#000}
+button,input,select{font:11px Tahoma,Arial,sans-serif}
+button{cursor:default}
+
+#app{
+  width:100%;height:100%;min-width:720px;min-height:480px;
+  display:grid;
+  grid-template-rows:25px 31px 30px minmax(0,1fr);
+  background:var(--xp)
+}
+
+/* classic menus */
+.menubar{
+  display:flex;align-items:center;padding:0 4px;
+  border-bottom:1px solid var(--border);background:var(--xp);
+  user-select:none
+}
+.menu{position:relative;height:24px;padding:0 7px;display:flex;align-items:center}
+.menu:hover,.menu.open{background:var(--blue);color:#fff}
+.dropdown{
+  display:none;position:absolute;left:0;top:23px;z-index:5000;
+  min-width:225px;padding:2px;background:#fff;color:#000;
+  border:1px solid #716F64;box-shadow:2px 2px 4px rgba(0,0,0,.35)
+}
+.menu.open .dropdown{display:block}
+.mi{
+  min-height:22px;display:flex;align-items:center;
+  padding:3px 8px 3px 26px;white-space:nowrap
+}
+.mi:hover{background:var(--blue);color:#fff}
+.mi.disabled{color:#999;pointer-events:none}
+.mi .shortcut{margin-left:auto;padding-left:20px;color:#777}
+.mi:hover .shortcut{color:#fff}
+.sep{height:1px;background:var(--border);border-bottom:1px solid #fff;margin:3px 2px}
+
+/* toolbars */
+.toolbar,.formatbar{
+  display:flex;align-items:center;gap:2px;padding:2px 5px;
+  border-bottom:1px solid var(--border);background:var(--xp);
+  overflow:visible;user-select:none
+}
+.tool{
+  width:27px;height:26px;padding:0;
+  display:flex;align-items:center;justify-content:center;
+  background:transparent;border:1px solid transparent;border-radius:2px;
+  position:relative
+}
+.tool:hover:not(:disabled){background:#fff;border-color:#9b9b9b}
+.tool:active:not(:disabled),.tool.on{background:#d7d7d7;border:1px inset #fff}
+.tool:disabled{opacity:.4}
+.toolsep{width:1px;height:22px;background:#aaa;border-right:1px solid #fff;margin:0 3px}
+.ico{font:bold 15px Arial;line-height:1}
+.green{color:var(--excelDark)}
+.red{color:#a60000}
+.select{
+  height:24px;border:2px inset #fff;background:#fff;padding:1px 3px
+}
+#fontName{width:130px}
+#fontSize{width:54px}
+#zoom{width:65px;margin-left:auto}
+.colorTool{position:relative}
+.colorLine{position:absolute;left:6px;right:6px;bottom:3px;height:3px;background:#000}
+.palette{
+  display:none;position:absolute;z-index:5100;top:28px;left:0;width:134px;padding:5px;
+  background:var(--xp);border:2px outset #fff;
+  grid-template-columns:repeat(6,18px);gap:3px
+}
+.colorTool.open .palette{display:grid}
+.swatch{width:18px;height:18px;border:1px solid #555;padding:0}
+.swatch:hover{outline:2px solid #316AC5}
+
+/* spreadsheet area */
+.sheetWrap{position:relative;min-height:0;background:#fff}
+#luckysheet{position:absolute;inset:0;margin:0;padding:0}
+
+/* Make Luckysheet look closer to Excel 2003 */
+#luckysheet .luckysheet-sheet-container,
+#luckysheet .luckysheet-wa-editor{font-family:Arial,Tahoma,sans-serif!important}
+#luckysheet .luckysheet-formula-functionrange-select{
+  background:#fff!important
+}
+#luckysheet .luckysheet-sheet-area div.luckysheet-sheets-item-active{
+  color:#000!important;
+  border-top:2px solid var(--excel)!important;
+}
+#luckysheet .luckysheet-stat-area{
+  background:var(--xp)!important;
+  border-top:1px solid var(--border)!important;
+}
+#luckysheet .luckysheet-formula-bar{
+  background:var(--xp)!important
+}
+
+/* floating autosave indicator */
+.saveState{
+  position:absolute;right:8px;top:5px;z-index:1200;
+  padding:2px 6px;background:rgba(236,233,216,.92);
+  border:1px solid #bbb;color:#555;font-size:10px;pointer-events:none
+}
+
+/* in-page XP dialog */
+.shade{
+  display:none;position:absolute;inset:0;z-index:10000;
+  background:rgba(0,0,0,.18);align-items:center;justify-content:center;padding:18px
+}
+.shade.show{display:flex}
+.dialog{
+  width:min(470px,94vw);max-height:88%;
+  background:var(--xp);border:2px outset #fff;
+  box-shadow:4px 5px 15px rgba(0,0,0,.48);
+  display:flex;flex-direction:column
+}
+.dtitle{
+  min-height:25px;display:flex;align-items:center;justify-content:space-between;
+  padding:2px 3px 2px 7px;color:#fff;font-weight:bold;
+  background:linear-gradient(90deg,#0A246A,#3A6EA5)
+}
+.dx{
+  width:21px;height:20px;padding:0;color:#fff;background:#D8503C;
+  border:2px outset #fff;font-weight:bold
+}
+.dbody{padding:13px;line-height:1.45;overflow:auto}
+.dactions{display:flex;justify-content:flex-end;gap:7px;padding:0 12px 11px}
+.xpbtn{
+  min-width:80px;height:25px;padding:1px 10px;
+  background:var(--xp);border:2px outset #fff;color:#000
+}
+.xpbtn:active{border-style:inset}
+.row{
+  display:grid;grid-template-columns:125px minmax(0,1fr);
+  gap:8px;align-items:center;margin:7px 0
+}
+.textbox,.dselect{
+  width:100%;height:24px;border:2px inset #fff;background:#fff;padding:2px 4px
+}
+.msg{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start}
+.infoicon{
+  width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  color:#fff;background:#316AC5;border:1px solid #174B9E;font:bold 23px Georgia,serif
+}
+.warnicon{
+  width:32px;height:32px;clip-path:polygon(50% 0,100% 100%,0 100%);
+  background:#F2CD3A;position:relative
+}
+.warnicon:after{content:"!";position:absolute;left:12px;top:8px;font:bold 19px Arial;color:#333}
+.aboutLogo{
+  width:62px;height:62px;margin:2px auto 12px;border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#32915d,#0d5a32);color:#fff;
+  font:bold 43px Arial;box-shadow:inset 0 0 0 2px rgba(255,255,255,.55)
+}
+.note{
+  margin-top:9px;padding:7px 8px;background:#fff8d8;border:1px solid #d7c46a;color:#5c5226
+}
+
+@media(max-width:860px){
+  #app{min-width:650px}
+  #fontName{width:105px}
+}
+</style>
+
+<script src="./vendor/luckysheet/plugins/js/plugin.js"></script>
+<script src="./vendor/luckysheet/luckysheet.umd.js"></script>
+<script src="./vendor/luckyexcel/luckyexcel.umd.js"></script>
+<script src="./vendor/sheetjs/xlsx.full.min.js"></script>
+</head>
+
+<body>
+<div id="app">
+  <div class="menubar">
+    <div class="menu" data-menu>Dosya
+      <div class="dropdown">
+        <div class="mi" data-cmd="new">Yeni <span class="shortcut">Ctrl+N</span></div>
+        <div class="mi" data-cmd="open">Aç... <span class="shortcut">Ctrl+O</span></div>
+        <div class="mi" data-cmd="save">Kaydet <span class="shortcut">Ctrl+S</span></div>
+        <div class="mi" data-cmd="saveas">Farklı Kaydet...</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="csv">CSV Olarak Kaydet...</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="print">Yazdır... <span class="shortcut">Ctrl+P</span></div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="exit">Çıkış</div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu>Düzen
+      <div class="dropdown">
+        <div class="mi" data-cmd="undo">Geri Al <span class="shortcut">Ctrl+Z</span></div>
+        <div class="mi" data-cmd="redo">Yinele <span class="shortcut">Ctrl+Y</span></div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="cut">Kes <span class="shortcut">Ctrl+X</span></div>
+        <div class="mi" data-cmd="copy">Kopyala <span class="shortcut">Ctrl+C</span></div>
+        <div class="mi" data-cmd="paste">Yapıştır <span class="shortcut">Ctrl+V</span></div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="find">Bul... <span class="shortcut">Ctrl+F</span></div>
+        <div class="mi" data-cmd="replace">Değiştir... <span class="shortcut">Ctrl+H</span></div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="selectall">Tümünü Seç <span class="shortcut">Ctrl+A</span></div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu>Görünüm
+      <div class="dropdown">
+        <div class="mi" data-cmd="toggleFormula">✓ Formül Çubuğu</div>
+        <div class="mi" data-cmd="toggleGrid">✓ Kılavuz Çizgileri</div>
+        <div class="mi" data-cmd="zoom100">Yakınlaştır: %100</div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu>Ekle
+      <div class="dropdown">
+        <div class="mi" data-cmd="row">Satır</div>
+        <div class="mi" data-cmd="column">Sütun</div>
+        <div class="mi" data-cmd="sheet">Çalışma Sayfası</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="comment">Açıklama</div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu>Biçim
+      <div class="dropdown">
+        <div class="mi" data-cmd="cells">Hücreler...</div>
+        <div class="mi" data-cmd="merge">Hücreleri Birleştir</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="currency">Para Birimi</div>
+        <div class="mi" data-cmd="percent">Yüzde</div>
+        <div class="mi" data-cmd="general">Genel</div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu>Araçlar
+      <div class="dropdown">
+        <div class="mi" data-cmd="recalc">Şimdi Hesapla <span class="shortcut">F9</span></div>
+        <div class="mi" data-cmd="autosave">Otomatik Kaydı Şimdi Yap</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="clearDraft">Yerel Taslağı Temizle</div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu>Veri
+      <div class="dropdown">
+        <div class="mi" data-cmd="sortAsc">Artan Sırala</div>
+        <div class="mi" data-cmd="sortDesc">Azalan Sırala</div>
+        <div class="mi" data-cmd="filter">Otomatik Filtre</div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu>Pencere
+      <div class="dropdown">
+        <div class="mi" data-cmd="freeze">Bölmeleri Dondur</div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu>Yardım
+      <div class="dropdown">
+        <div class="mi" data-cmd="help">Microsoft Excel Yardımı</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="about">Microsoft Excel Hakkında</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button class="tool" data-cmd="new" title="Yeni"><span class="ico green">▤</span></button>
+    <button class="tool" data-cmd="open" title="Aç"><span class="ico">▰</span></button>
+    <button class="tool" data-cmd="save" title="Kaydet"><span class="ico green">▣</span></button>
+    <button class="tool" data-cmd="print" title="Yazdır"><span class="ico">▧</span></button>
+    <span class="toolsep"></span>
+    <button class="tool" data-cmd="cut" title="Kes"><span class="ico">✂</span></button>
+    <button class="tool" data-cmd="copy" title="Kopyala"><span class="ico">▦</span></button>
+    <button class="tool" data-cmd="paste" title="Yapıştır"><span class="ico">▣</span></button>
+    <span class="toolsep"></span>
+    <button class="tool" data-cmd="undo" title="Geri Al"><span class="ico">↶</span></button>
+    <button class="tool" data-cmd="redo" title="Yinele"><span class="ico">↷</span></button>
+    <span class="toolsep"></span>
+    <button class="tool" data-cmd="sum" title="Otomatik Toplam"><span class="ico green">Σ</span></button>
+    <button class="tool" data-cmd="sortAsc" title="A'dan Z'ye sırala"><span class="ico">A↓</span></button>
+    <button class="tool" data-cmd="sortDesc" title="Z'den A'ya sırala"><span class="ico">Z↓</span></button>
+    <button class="tool" data-cmd="chart" title="Grafik Sihirbazı"><span class="ico green">▥</span></button>
+  </div>
+
+  <div class="formatbar">
+    <select class="select" id="fontName" title="Yazı tipi">
+      <option>Arial</option>
+      <option>Calibri</option>
+      <option>Courier New</option>
+      <option selected>Arial</option>
+      <option>Tahoma</option>
+      <option>Times New Roman</option>
+      <option>Verdana</option>
+    </select>
+    <select class="select" id="fontSize" title="Yazı tipi boyutu">
+      <option>8</option><option>9</option><option selected>10</option><option>11</option>
+      <option>12</option><option>14</option><option>16</option><option>18</option>
+      <option>20</option><option>24</option><option>28</option><option>36</option>
+    </select>
+    <span class="toolsep"></span>
+    <button class="tool" data-format="bold" title="Kalın"><b>B</b></button>
+    <button class="tool" data-format="italic" title="İtalik"><i>I</i></button>
+    <button class="tool" data-format="underline" title="Altı çizili"><u>U</u></button>
+    <span class="toolsep"></span>
+    <button class="tool" data-format="left" title="Sola hizala">≡</button>
+    <button class="tool" data-format="center" title="Ortala">≣</button>
+    <button class="tool" data-format="right" title="Sağa hizala">≡</button>
+    <button class="tool" data-cmd="merge" title="Birleştir ve Ortala">▣</button>
+    <span class="toolsep"></span>
+    <button class="tool" data-cmd="currency" title="Para Birimi">$</button>
+    <button class="tool" data-cmd="percent" title="Yüzde">%</button>
+    <button class="tool" data-cmd="comma" title="Virgül Stili">,</button>
+    <div class="colorTool" id="fontColorTool">
+      <button class="tool" id="fontColorBtn" title="Yazı Tipi Rengi"><b>A</b><span class="colorLine" id="fontColorLine"></span></button>
+      <div class="palette" id="fontPalette"></div>
+    </div>
+    <div class="colorTool" id="fillColorTool">
+      <button class="tool" id="fillColorBtn" title="Dolgu Rengi"><span class="ico">▰</span><span class="colorLine" id="fillColorLine" style="background:#ffff00"></span></button>
+      <div class="palette" id="fillPalette"></div>
+    </div>
+    <select class="select" id="zoom" title="Yakınlaştır">
+      <option>50%</option><option>75%</option><option selected>100%</option><option>125%</option><option>150%</option>
+    </select>
+  </div>
+
+  <main class="sheetWrap">
+    <div id="luckysheet"></div>
+    <div class="saveState" id="saveState">Hazır</div>
+  </main>
+
+  <input id="openInput" type="file" accept=".xlsx,.xls,.csv,.txt,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv" hidden>
+
+  <div class="shade" id="shade">
+    <div class="dialog">
+      <div class="dtitle"><span id="dtitle">Microsoft Excel</span><button class="dx" id="dx" type="button">×</button></div>
+      <div class="dbody" id="dbody"></div>
+      <div class="dactions" id="dactions"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(()=>{
+'use strict';
+
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+
+const DRAFT='xp_excel2003_workbook_v2';
+const PREFS='xp_excel2003_prefs_v1';
+
+let filename='Kitap1.xlsx';
+let dirty=false;
+let saveTimer=null;
+let formulaVisible=true;
+let gridVisible=true;
+
+const COLORS=[
+ '#000000','#808080','#800000','#ff0000','#808000','#ffff00',
+ '#008000','#00ff00','#008080','#00ffff','#000080','#0000ff',
+ '#800080','#ff00ff','#ffffff','#c0c0c0','#99cc00','#ffcc00'
+];
+
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function stamp(t){
+  const el=$('#saveState');
+  el.textContent=t;
+  clearTimeout(el._t);
+  el._t=setTimeout(()=>{el.textContent=dirty?'Değiştirildi':'Hazır'},1800);
+}
+function setTitle(){
+  try{
+    window.parent.postMessage({type:'XP_APP_TITLE',app:'excel',title:`${dirty?'*':''}${filename} - Microsoft Excel`},'*');
+  }catch{}
+}
+function markDirty(){
+  dirty=true;setTitle();scheduleDraft();
+}
+
+/* XP dialogs */
+const shade=$('#shade');
+function showDialog(title,html,buttons){
+  $('#dtitle').textContent=title;$('#dbody').innerHTML=html;$('#dactions').innerHTML='';
+  (buttons||[{label:'Tamam',action:hideDialog}]).forEach(b=>{
+    const x=document.createElement('button');x.className='xpbtn';x.type='button';x.textContent=b.label;
+    x.onclick=b.action||hideDialog;$('#dactions').appendChild(x);
+  });
+  shade.classList.add('show');
+}
+function hideDialog(){shade.classList.remove('show')}
+$('#dx').onclick=hideDialog;
+shade.addEventListener('mousedown',e=>{if(e.target===shade)hideDialog()});
+function info(msg,title='Microsoft Excel'){
+  showDialog(title,`<div class="msg"><div class="infoicon">i</div><div>${esc(msg).replace(/\n/g,'<br>')}</div></div>`)
+}
+function warn(msg,title='Microsoft Excel'){
+  showDialog(title,`<div class="msg"><div class="warnicon"></div><div>${esc(msg).replace(/\n/g,'<br>')}</div></div>`)
+}
+
+/* menu handling */
+function closeMenus(){
+  $$('[data-menu]').forEach(m=>m.classList.remove('open'));
+  $$('.colorTool').forEach(x=>x.classList.remove('open'));
+}
+$$('[data-menu]').forEach(m=>m.addEventListener('mousedown',e=>{
+  if(e.target.closest('.mi'))return;
+  const was=m.classList.contains('open');closeMenus();if(!was)m.classList.add('open');
+}));
+document.addEventListener('mousedown',e=>{
+  if(!e.target.closest('[data-menu]')&&!e.target.closest('.colorTool'))closeMenus();
+});
+document.addEventListener('click',e=>{
+  const mi=e.target.closest('.mi[data-cmd]');
+  if(mi){closeMenus();run(mi.dataset.cmd)}
+});
+$$('.toolbar [data-cmd],.formatbar [data-cmd]').forEach(b=>b.onclick=()=>run(b.dataset.cmd));
+
+/* palettes */
+function makePalette(el,cb){
+  el.innerHTML=COLORS.map(c=>`<button class="swatch" type="button" data-color="${c}" style="background:${c}" title="${c}"></button>`).join('');
+  el.onclick=e=>{
+    const s=e.target.closest('[data-color]');if(!s)return;
+    cb(s.dataset.color);closeMenus();
+  };
+}
+$('#fontColorBtn').onclick=e=>{e.stopPropagation();const t=$('#fontColorTool');const was=t.classList.contains('open');closeMenus();if(!was)t.classList.add('open')};
+$('#fillColorBtn').onclick=e=>{e.stopPropagation();const t=$('#fillColorTool');const was=t.classList.contains('open');closeMenus();if(!was)t.classList.add('open')};
+makePalette($('#fontPalette'),c=>{$('#fontColorLine').style.background=c;fmt('fc',c)});
+makePalette($('#fillPalette'),c=>{$('#fillColorLine').style.background=c;fmt('bg',c)});
+
+/* Luckysheet helpers */
+function safe(fn,fallback=null){try{return fn()}catch(e){console.warn(e);return fallback}}
+function selection(){return safe(()=>luckysheet.getRange(),[])||[]}
+function selectedCell(){
+  return safe(()=>{
+    const v=luckysheet.getRangeValue();
+    return v&&v[0]&&v[0][0]?v[0][0]:null;
+  },null)
+}
+function fmt(attr,value){
+  safe(()=>luckysheet.setRangeFormat(attr,value));
+  markDirty();
+}
+function toggleFmt(attr){
+  const c=selectedCell()||{};
+  fmt(attr,c[attr]?0:1);
+}
+function setAlign(v){fmt('ht',v)}
+function refreshGrid(){
+  safe(()=>luckysheet.luckysheetrefreshgrid());
+}
+function createWorkbook(data){
+  document.getElementById('luckysheet').innerHTML='';
+  luckysheet.create({
+    container:'luckysheet',
+    lang:'en',
+    data:data&&data.length?data:[{name:'Sheet1',index:'sheet_1',order:0,celldata:[]}],
+    showtoolbar:false,
+    showinfobar:false,
+    showsheetbar:true,
+    showstatisticBar:true,
+    showformulaBar:formulaVisible,
+    allowEdit:true,
+    enableAddRow:true,
+    enableAddBackTop:true,
+    row:80,
+    column:30,
+    title:filename
+  });
+  setTimeout(()=>{applyGridPref();refreshGrid()},250);
+}
+
+function getWorkbook(){
+  return safe(()=>luckysheet.getAllSheets(),[])||[];
+}
+function saveDraft(){
+  try{
+    const data=getWorkbook();
+    if(!data.length)return;
+    localStorage.setItem(DRAFT,JSON.stringify({filename,data,time:Date.now()}));
+    dirty=false;setTitle();stamp('Otomatik kaydedildi');
+  }catch(e){
+    stamp('Taslak kaydedilemedi');
+  }
+}
+function scheduleDraft(){
+  clearTimeout(saveTimer);saveTimer=setTimeout(saveDraft,1800);
+}
+function restoreDraft(){
+  try{
+    const raw=localStorage.getItem(DRAFT);
+    if(!raw)return false;
+    const d=JSON.parse(raw);
+    if(!d||!Array.isArray(d.data)||!d.data.length)return false;
+    filename=d.filename||filename;
+    createWorkbook(d.data);
+    dirty=false;setTitle();stamp('Yerel taslak yüklendi');
+    return true;
+  }catch{return false}
+}
+
+/* Create new */
+function newWorkbook(){
+  showDialog('Microsoft Excel','<div>Geçerli çalışma kitabı kapatılıp yeni boş çalışma kitabı oluşturulsun mu?</div>',[
+    {label:'Evet',action:()=>{
+      hideDialog();
+      filename='Kitap1.xlsx';dirty=false;
+      localStorage.removeItem(DRAFT);
+      createWorkbook([{name:'Sayfa1',index:'sheet_1',order:0,celldata:[]}]);
+      setTitle();stamp('Yeni çalışma kitabı');
+    }},
+    {label:'Hayır',action:hideDialog}
+  ]);
+}
+
+/* Open workbook */
+$('#openInput').addEventListener('change',async()=>{
+  const file=$('#openInput').files[0];if(!file)return;
+  try{
+    const ext=(file.name.split('.').pop()||'').toLowerCase();
+    stamp('Dosya açılıyor...');
+    if(ext==='xlsx' && window.LuckyExcel){
+      LuckyExcel.transformExcelToLucky(file,
+        function(exportJson){
+          filename=file.name;
+          dirty=false;
+          createWorkbook(exportJson.sheets||[]);
+          setTitle();saveDraft();stamp('Excel çalışma kitabı açıldı');
+        },
+        function(err){
+          console.error(err);
+          openWithSheetJS(file);
+        }
+      );
+    }else{
+      await openWithSheetJS(file);
+    }
+  }catch(e){
+    warn('Dosya açılamadı.\n\n'+(e&&e.message?e.message:String(e)));
+  }finally{
+    $('#openInput').value='';
+  }
+});
+async function openWithSheetJS(file){
+  if(!window.XLSX)throw new Error('SheetJS yüklenemedi.');
+  const buf=await file.arrayBuffer();
+  const wb=XLSX.read(buf,{type:'array',cellFormula:true,cellDates:true});
+  const data=wb.SheetNames.map((name,idx)=>{
+    const ws=wb.Sheets[name];
+    const aoa=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null});
+    const celldata=[];
+    for(let r=0;r<aoa.length;r++){
+      for(let c=0;c<aoa[r].length;c++){
+        const v=aoa[r][c];
+        if(v!==null&&v!==undefined&&v!==''){
+          celldata.push({r,c,v:{v,m:String(v),ct:{fa:'General',t:typeof v==='number'?'n':'g'}}});
+        }
+      }
+    }
+    return {name,index:'sheet_'+(idx+1),order:idx,celldata};
+  });
+  filename=file.name.replace(/\.(csv|txt)$/i,'.xlsx');
+  dirty=false;createWorkbook(data);setTitle();saveDraft();stamp('Çalışma kitabı açıldı');
+}
+
+/* XLSX export */
+function cleanSheetName(name){
+  return String(name||'Sheet').replace(/[\\\/\?\*\[\]:]/g,'_').slice(0,31)||'Sheet';
+}
+function cellDisplay(cell){
+  if(cell==null)return null;
+  if(typeof cell!=='object')return cell;
+  if(cell.f){
+    return {f:String(cell.f).replace(/^=/,'')};
+  }
+  if(cell.v!==undefined&&cell.v!==null)return cell.v;
+  if(cell.m!==undefined&&cell.m!==null)return cell.m;
+  return null;
+}
+function sheetToAOA(sheet){
+  const data=sheet.data;
+  if(Array.isArray(data)){
+    return data.map(row=>(row||[]).map(cell=>{
+      const v=cellDisplay(cell);
+      return (v&&typeof v==='object'&&v.f)?('='+v.f):v;
+    }));
+  }
+  const cd=sheet.celldata||[];
+  let maxR=0,maxC=0;
+  cd.forEach(x=>{maxR=Math.max(maxR,x.r||0);maxC=Math.max(maxC,x.c||0)});
+  const out=Array.from({length:maxR+1},()=>Array(maxC+1).fill(null));
+  cd.forEach(x=>{out[x.r][x.c]=cellDisplay(x.v)});
+  return out;
+}
+function exportXlsx(name=filename){
+  if(!window.XLSX)return warn('XLSX dışa aktarma bileşeni yüklenemedi.');
+  try{
+    const sheets=getWorkbook();
+    const wb=XLSX.utils.book_new();
+    sheets.forEach((s,i)=>{
+      const aoa=sheetToAOA(s);
+      const ws=XLSX.utils.aoa_to_sheet(aoa);
+      XLSX.utils.book_append_sheet(wb,ws,cleanSheetName(s.name||('Sheet'+(i+1))));
+    });
+    if(!sheets.length){
+      XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([[]]),'Sheet1');
+    }
+    if(!/\.xlsx$/i.test(name))name=name.replace(/\.[^.]+$/,'')+'.xlsx';
+    XLSX.writeFile(wb,name);
+    filename=name;dirty=false;setTitle();saveDraft();stamp('Kaydedildi');
+  }catch(e){
+    warn('Çalışma kitabı kaydedilemedi.\n\n'+(e&&e.message?e.message:String(e)));
+  }
+}
+function saveAs(){
+  showDialog('Farklı Kaydet',`
+    <div class="row"><label>Dosya adı:</label><input class="textbox" id="saveName" value="${esc(filename)}"></div>
+    <div class="row"><label>Kayıt türü:</label><select class="dselect"><option>Excel Çalışma Kitabı (*.xlsx)</option></select></div>
+    <div class="note">XLSX dışa aktarmada hücre değerleri ve formüller korunur. Luckysheet'e özgü bazı gelişmiş biçimlendirmeler dışa aktarımda sadeleşebilir.</div>
+  `,[
+    {label:'Kaydet',action:()=>{let n=$('#saveName').value.trim()||'Kitap1.xlsx';hideDialog();exportXlsx(n)}},
+    {label:'İptal',action:hideDialog}
+  ]);
+}
+function exportCsv(){
+  try{
+    const sheets=getWorkbook();
+    if(!sheets.length)return;
+    const aoa=sheetToAOA(sheets[0]);
+    const ws=XLSX.utils.aoa_to_sheet(aoa);
+    const csv=XLSX.utils.sheet_to_csv(ws);
+    const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download=(cleanSheetName(sheets[0].name||'Sayfa1')+'.csv');
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  }catch(e){warn('CSV oluşturulamadı.')}
+}
+
+/* formatting */
+$$('[data-format]').forEach(b=>b.onclick=()=>{
+  const f=b.dataset.format;
+  if(f==='bold')toggleFmt('bl');
+  else if(f==='italic')toggleFmt('it');
+  else if(f==='underline')toggleFmt('un');
+  else if(f==='left')setAlign(1);
+  else if(f==='center')setAlign(0);
+  else if(f==='right')setAlign(2);
+});
+$('#fontSize').onchange=()=>fmt('fs',Number($('#fontSize').value));
+$('#fontName').onchange=()=>{
+  const map={'Times New Roman':0,'Arial':1,'Tahoma':2,'Verdana':3,'Courier New':4,'Calibri':5};
+  fmt('ff',map[$('#fontName').value]??1);
+};
+$('#zoom').onchange=()=>{
+  const z=parseInt($('#zoom').value,10)/100;
+  safe(()=>luckysheet.setSheetZoom(z));
+  refreshGrid();
+};
+
+/* menu commands */
+function run(cmd){
+  if(cmd==='new')newWorkbook();
+  else if(cmd==='open')$('#openInput').click();
+  else if(cmd==='save')exportXlsx(filename);
+  else if(cmd==='saveas')saveAs();
+  else if(cmd==='csv')exportCsv();
+  else if(cmd==='print')window.print();
+  else if(cmd==='exit'){try{window.parent.postMessage({type:'XP_APP_CLOSE_REQUEST',app:'excel'},'*')}catch{}}
+  else if(cmd==='undo')safe(()=>luckysheet.undo());
+  else if(cmd==='redo')safe(()=>luckysheet.redo());
+  else if(cmd==='cut')document.execCommand('cut');
+  else if(cmd==='copy')document.execCommand('copy');
+  else if(cmd==='paste')document.execCommand('paste');
+  else if(cmd==='selectall')safe(()=>luckysheet.setRangeShow({row:[0,79],column:[0,29]}));
+  else if(cmd==='find')findDialog(false);
+  else if(cmd==='replace')findDialog(true);
+  else if(cmd==='merge'){safe(()=>luckysheet.setRangeMerge('all'));markDirty()}
+  else if(cmd==='currency'){fmt('ct','$#,##0.00')}
+  else if(cmd==='percent'){fmt('ct','0.00%')}
+  else if(cmd==='comma'){fmt('ct','#,##0.00')}
+  else if(cmd==='general'){fmt('ct','General')}
+  else if(cmd==='sum')autoSum();
+  else if(cmd==='sortAsc')sortSelection('asc');
+  else if(cmd==='sortDesc')sortSelection('des');
+  else if(cmd==='filter'){safe(()=>luckysheet.setRangeFilter('open'));markDirty()}
+  else if(cmd==='recalc'){safe(()=>luckysheet.refresh());refreshGrid();stamp('Hesaplandı')}
+  else if(cmd==='autosave')saveDraft();
+  else if(cmd==='clearDraft'){localStorage.removeItem(DRAFT);stamp('Yerel taslak temizlendi')}
+  else if(cmd==='toggleFormula')toggleFormulaBar();
+  else if(cmd==='toggleGrid')toggleGrid();
+  else if(cmd==='zoom100'){$('#zoom').value='100%';$('#zoom').dispatchEvent(new Event('change'))}
+  else if(cmd==='row'||cmd==='column'||cmd==='sheet'||cmd==='comment'||cmd==='freeze'||cmd==='cells'||cmd==='chart')explainBuiltIn(cmd);
+  else if(cmd==='help')help();
+  else if(cmd==='about')about();
+}
+
+function autoSum(){
+  const r=selection()[0];
+  if(!r)return info('Önce bir hücre veya aralık seçin.');
+  const row=r.row[1],col=r.column[1];
+  const colLetter=n=>{
+    let s='';n++;
+    while(n){const q=(n-1)%26;s=String.fromCharCode(65+q)+s;n=Math.floor((n-1)/26)}
+    return s;
+  };
+  const start=Math.max(0,r.row[0]);
+  const formula=`=SUM(${colLetter(col)}${start+1}:${colLetter(col)}${row+1})`;
+  safe(()=>luckysheet.setRangeValue([[{v:formula,f:formula,m:formula}]],{range:{row:[row,col===r.column[0]?row:row],column:[col,col]}}}));
+  markDirty();
+}
+function sortSelection(type){
+  const r=selection()[0];
+  if(!r)return info('Önce sıralanacak bir aralık seçin.');
+  safe(()=>luckysheet.setRangeSortMulti(false,[{i:0,sort:type}],{range:r}));
+  markDirty();
+}
+
+/* find/replace using Luckysheet APIs */
+function findDialog(replaceMode){
+  showDialog(replaceMode?'Değiştir':'Bul',`
+    <div class="row"><label>Aranan:</label><input class="textbox" id="findText"></div>
+    ${replaceMode?'<div class="row"><label>Yeni değer:</label><input class="textbox" id="replaceText"></div>':''}
+  `,[
+    {label:replaceMode?'Tümünü Değiştir':'Sonrakini Bul',action:()=>{
+      const q=$('#findText').value;
+      if(!q)return;
+      if(replaceMode){
+        const v=$('#replaceText').value;
+        safe(()=>luckysheet.replace(q,v,{isCaseSensitive:false}));
+        hideDialog();markDirty();stamp('Değiştirildi');
+      }else{
+        const found=safe(()=>luckysheet.find(q,{isCaseSensitive:false}),[]);
+        hideDialog();
+        if(!found||!found.length)info(`"${q}" bulunamadı.`);
+        else{
+          const c=found[0];
+          safe(()=>luckysheet.setRangeShow({row:[c.r,c.r],column:[c.c,c.c]}));
+          refreshGrid();
+        }
+      }
+    }},
+    {label:'İptal',action:hideDialog}
+  ]);
+  setTimeout(()=>$('#findText')?.focus(),0);
+}
+
+/* View prefs */
+function toggleFormulaBar(){
+  formulaVisible=!formulaVisible;
+  try{localStorage.setItem(PREFS,JSON.stringify({formulaVisible,gridVisible}))}catch{}
+  // Luckysheet does not reliably toggle formula bar at runtime; recreate from saved workbook.
+  const data=getWorkbook();createWorkbook(data);markDirty();
+}
+function applyGridPref(){
+  const grid=document.querySelector('#luckysheet .luckysheet-grid-window-1');
+  if(grid)grid.classList.toggle('xp-grid-hidden',!gridVisible);
+}
+function toggleGrid(){
+  gridVisible=!gridVisible;
+  try{localStorage.setItem(PREFS,JSON.stringify({formulaVisible,gridVisible}))}catch{}
+  // Luckysheet config may vary by build; keep state and show status.
+  stamp(gridVisible?'Kılavuz çizgileri açık':'Kılavuz çizgileri kapalı');
+}
+function loadPrefs(){
+  try{
+    const p=JSON.parse(localStorage.getItem(PREFS)||'{}');
+    if(typeof p.formulaVisible==='boolean')formulaVisible=p.formulaVisible;
+    if(typeof p.gridVisible==='boolean')gridVisible=p.gridVisible;
+  }catch{}
+}
+function explainBuiltIn(cmd){
+  const labels={
+    row:'Satır ekleme/silme',
+    column:'Sütun ekleme/silme',
+    sheet:'Çalışma sayfası ekleme',
+    comment:'Açıklamalar',
+    freeze:'Bölmeleri dondurma',
+    cells:'Hücre biçimlendirme',
+    chart:'Grafik'
+  };
+  info(`${labels[cmd]||cmd} Luckysheet'in çalışma alanı ve sağ tık menüsü üzerinden kullanılabilir.\n\nBu XP kabuğu temel Excel 2003 komutlarını üst menüye taşır; gelişmiş komutlar spreadsheet motorunun kendi menülerinde kalır.`);
+}
+
+/* help/about */
+function help(){
+  showDialog('Microsoft Excel Yardımı',`
+    <b>Hücre düzenleme</b><br>
+    Bir hücreyi çift tıklayın veya formül çubuğunu kullanın. Formüller "=" ile başlar; örneğin <b>=SUM(A1:A10)</b>.<br><br>
+    <b>Dosya</b><br>
+    .xlsx dosyaları LuckyExcel ile içe alınır. .xls/.csv için SheetJS yedeği kullanılır. Kaydet/Farklı Kaydet .xlsx üretir.<br><br>
+    <b>Çalışma sayfaları</b><br>
+    Alt kısımdaki sekmelerden sayfalar arasında geçiş yapabilir, Luckysheet'in sayfa kontrolleriyle yeni sayfa ekleyebilirsiniz.<br><br>
+    <b>Yerel kayıt</b><br>
+    Değişiklikler kısa süre sonra tarayıcı localStorage alanına otomatik taslak olarak kaydedilir.
+  `);
+}
+function about(){
+  showDialog('Microsoft Excel Hakkında',`
+    <div class="aboutLogo">X</div>
+    <div style="text-align:center"><b>Microsoft Excel 2003 tarzı web çalışma kitabı</b><br><br>
+    Windows XP Web Simulator için hazırlanmıştır.</div>
+    <div class="note">Spreadsheet motoru Luckysheet'tir. Bu uygulama Microsoft'un orijinal excel.exe programı değildir.</div>
+  `);
+}
+
+/* dirty tracking */
+document.addEventListener('input',e=>{
+  if(e.target.closest('#luckysheet'))markDirty();
+});
+document.addEventListener('mousedown',e=>{
+  if(e.target.closest('#luckysheet'))setTimeout(markDirty,250);
+});
+
+/* shortcuts */
+document.addEventListener('keydown',e=>{
+  if(shade.classList.contains('show')){
+    if(e.key==='Escape'){e.preventDefault();hideDialog()}
+    return;
+  }
+  const k=e.key.toLowerCase();
+  if(e.ctrlKey&&k==='n'){e.preventDefault();newWorkbook()}
+  else if(e.ctrlKey&&k==='o'){e.preventDefault();$('#openInput').click()}
+  else if(e.ctrlKey&&k==='s'){e.preventDefault();exportXlsx(filename)}
+  else if(e.ctrlKey&&k==='p'){e.preventDefault();window.print()}
+  else if(e.ctrlKey&&k==='f'){e.preventDefault();findDialog(false)}
+  else if(e.ctrlKey&&k==='h'){e.preventDefault();findDialog(true)}
+  else if(e.key==='F9'){e.preventDefault();run('recalc')}
+});
+
+/* native popup ban */
+window.alert=m=>info(String(m));
+window.confirm=m=>{info(String(m));return false};
+window.prompt=m=>{info(String(m));return null};
+
+/* startup */
+function boot(){
+  loadPrefs();
+  if(!window.luckysheet){
+    warn('Luckysheet runtime bulunamadı. Installer ile vendor klasörlerini tekrar kurun.');
+    return;
+  }
+  if(!restoreDraft()){
+    createWorkbook([{name:'Sayfa1',index:'sheet_1',order:0,celldata:[]}]);
+  }
+  setTitle();
+}
+window.addEventListener('load',boot);
+window.addEventListener('beforeunload',saveDraft);
+})();
+</script>
+</body>
+</html>

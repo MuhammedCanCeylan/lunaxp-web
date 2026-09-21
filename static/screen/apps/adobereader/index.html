@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!--
+============================================================
+GEREKLİ ASSETLER
+============================================================
+
+Dosya                     Boyut       Açıklama
+------------------------------------------------------------
+icon.png                   32x32       Adobe Reader uygulama ikonu
+pdfjs/                     -           İndirdiğimiz Mozilla PDF.js klasörü
+
+ZORUNLU:
+pdfjs/web/viewer.html
+
+icon.png bulunamazsa otomatik fallback kullanılır.
+============================================================
+-->
+
+<title>Adobe Reader</title>
+
+<style>
+*{
+    box-sizing:border-box;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    margin:0;
+    overflow:hidden;
+    font-family:Tahoma, Arial, sans-serif;
+    font-size:11px;
+    background:#ECE9D8;
+    color:#000;
+}
+
+body{
+    display:flex;
+    flex-direction:column;
+    user-select:none;
+}
+
+/* ================================
+   MENU
+================================ */
+
+.menu-bar{
+    height:23px;
+    min-height:23px;
+    display:flex;
+    align-items:center;
+    padding:0 3px;
+    background:#ECE9D8;
+    border-bottom:1px solid #ACA899;
+}
+
+.menu-item{
+    position:relative;
+    padding:3px 7px;
+    cursor:default;
+}
+
+.menu-item:hover,
+.menu-item.active{
+    background:#316AC5;
+    color:white;
+}
+
+.dropdown{
+    display:none;
+    position:absolute;
+    top:21px;
+    left:0;
+    min-width:190px;
+    padding:2px;
+    background:#ECE9D8;
+    border:1px solid #808080;
+    box-shadow:
+        1px 1px 0 #fff inset,
+        -1px -1px 0 #404040 inset,
+        2px 2px 3px rgba(0,0,0,.25);
+    color:#000;
+    z-index:1000;
+}
+
+.menu-item.active .dropdown{
+    display:block;
+}
+
+.drop-item{
+    padding:4px 24px 4px 25px;
+    position:relative;
+    white-space:nowrap;
+}
+
+.drop-item:hover{
+    background:#316AC5;
+    color:#fff;
+}
+
+.drop-separator{
+    height:1px;
+    margin:3px 2px;
+    background:#ACA899;
+    border-bottom:1px solid white;
+}
+
+.shortcut{
+    float:right;
+    margin-left:25px;
+    color:inherit;
+}
+
+/* ================================
+   TOOLBAR
+================================ */
+
+.toolbar{
+    min-height:43px;
+    background:linear-gradient(#FAF9F5,#ECE9D8);
+    border-bottom:1px solid #ACA899;
+    display:flex;
+    align-items:center;
+    padding:3px 5px;
+    gap:3px;
+}
+
+.tool-button{
+    width:34px;
+    height:34px;
+    border:1px solid transparent;
+    background:transparent;
+    padding:2px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    cursor:default;
+    font-family:Tahoma;
+    font-size:10px;
+}
+
+.tool-button:hover{
+    border:1px solid #7F9DB9;
+    background:linear-gradient(#fff,#dce8f6);
+}
+
+.tool-button:active{
+    border:2px inset #fff;
+}
+
+.tool-icon{
+    font-size:17px;
+    line-height:17px;
+}
+
+.separator{
+    width:2px;
+    height:32px;
+    border-left:1px solid #ACA899;
+    border-right:1px solid #fff;
+    margin:0 4px;
+}
+
+.page-control{
+    display:flex;
+    align-items:center;
+    gap:4px;
+}
+
+.page-box{
+    width:42px;
+    height:21px;
+    border:2px inset #fff;
+    background:#fff;
+    font-family:Tahoma;
+    font-size:11px;
+    text-align:center;
+}
+
+.zoom-select{
+    width:72px;
+    height:22px;
+    font-family:Tahoma;
+    font-size:11px;
+    border:1px solid #7F9DB9;
+    background:#fff;
+}
+
+/* ================================
+   WORK AREA
+================================ */
+
+.reader-area{
+    flex:1;
+    min-height:0;
+    display:flex;
+    background:#808080;
+}
+
+.sidebar{
+    width:170px;
+    min-width:170px;
+    background:#ECE9D8;
+    border-right:1px solid #808080;
+    display:none;
+    flex-direction:column;
+}
+
+.sidebar.visible{
+    display:flex;
+}
+
+.sidebar-title{
+    height:25px;
+    padding:5px;
+    background:linear-gradient(#fff,#d6d2c2);
+    border-bottom:1px solid #ACA899;
+    font-weight:bold;
+}
+
+.sidebar-content{
+    padding:8px;
+    color:#555;
+}
+
+.viewer-container{
+    flex:1;
+    min-width:0;
+    position:relative;
+    background:#808080;
+}
+
+#pdfFrame{
+    width:100%;
+    height:100%;
+    border:0;
+    display:block;
+    background:#808080;
+}
+
+/* ================================
+   START SCREEN
+================================ */
+
+.start-screen{
+    position:absolute;
+    inset:0;
+    background:#7f7f7f;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding-top:55px;
+    z-index:5;
+}
+
+.welcome{
+    width:480px;
+    background:#fff;
+    border:1px solid #444;
+    box-shadow:0 3px 10px rgba(0,0,0,.45);
+}
+
+.welcome-top{
+    height:78px;
+    display:flex;
+    align-items:center;
+    padding:12px 18px;
+    background:linear-gradient(135deg,#8d0000,#d71920);
+    color:#fff;
+}
+
+.welcome-logo{
+    width:50px;
+    height:50px;
+    margin-right:13px;
+    object-fit:contain;
+}
+
+.welcome-title{
+    font-size:21px;
+    font-weight:bold;
+}
+
+.welcome-body{
+    padding:22px;
+    font-size:12px;
+    line-height:1.7;
+}
+
+.open-big{
+    min-width:135px;
+    height:30px;
+    border:2px outset #fff;
+    background:#ECE9D8;
+    font-family:Tahoma;
+    font-size:11px;
+    cursor:pointer;
+}
+
+.open-big:active{
+    border-style:inset;
+}
+
+/* ================================
+   STATUS BAR
+================================ */
+
+.status-bar{
+    height:22px;
+    min-height:22px;
+    display:flex;
+    align-items:center;
+    background:#ECE9D8;
+    border-top:1px solid #fff;
+    padding:2px;
+}
+
+.status-panel{
+    height:18px;
+    padding:2px 6px;
+    border:1px inset #fff;
+    display:flex;
+    align-items:center;
+}
+
+.status-main{
+    flex:1;
+}
+
+.status-page{
+    width:110px;
+}
+
+.status-zoom{
+    width:80px;
+}
+
+/* ================================
+   XP DIALOG
+================================ */
+
+.dialog-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.15);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:99999;
+}
+
+.dialog-overlay.show{
+    display:flex;
+}
+
+.xp-dialog{
+    width:340px;
+    background:#ECE9D8;
+    border:2px outset #fff;
+    box-shadow:3px 4px 10px rgba(0,0,0,.45);
+}
+
+.dialog-title{
+    height:27px;
+    display:flex;
+    align-items:center;
+    padding:0 7px;
+    color:#fff;
+    font-weight:bold;
+    background:linear-gradient(
+        90deg,
+        #0a246a,
+        #3a6ea5
+    );
+}
+
+.dialog-body{
+    min-height:80px;
+    padding:18px;
+    display:flex;
+    align-items:flex-start;
+    gap:13px;
+}
+
+.dialog-icon{
+    font-size:30px;
+}
+
+.dialog-message{
+    flex:1;
+    line-height:1.5;
+}
+
+.dialog-buttons{
+    text-align:right;
+    padding:0 12px 12px;
+}
+
+.xp-button{
+    min-width:75px;
+    height:24px;
+    border:2px outset #fff;
+    background:#ECE9D8;
+    font-family:Tahoma;
+    font-size:11px;
+}
+
+.xp-button:active{
+    border-style:inset;
+}
+
+.hidden{
+    display:none!important;
+}
+
+/* ================================
+   XP SCROLLBAR
+================================ */
+
+::-webkit-scrollbar{
+    width:16px;
+    height:16px;
+}
+
+::-webkit-scrollbar-track{
+    background:#ECE9D8;
+}
+
+::-webkit-scrollbar-thumb{
+    background:linear-gradient(
+        90deg,
+        #e8e8e8,
+        #bfcbe0,
+        #e8e8e8
+    );
+    border:1px solid #7F9DB9;
+}
+
+::-webkit-scrollbar-button{
+    background:#ECE9D8;
+    border:1px outset #fff;
+}
+</style>
+</head>
+
+<body>
+
+<!-- MENU -->
+
+<div class="menu-bar">
+
+    <div class="menu-item">
+        File
+        <div class="dropdown">
+            <div class="drop-item" onclick="choosePdf()">
+                Open...
+                <span class="shortcut">Ctrl+O</span>
+            </div>
+
+            <div class="drop-separator"></div>
+
+            <div class="drop-item" onclick="printPdf()">
+                Print...
+                <span class="shortcut">Ctrl+P</span>
+            </div>
+
+            <div class="drop-separator"></div>
+
+            <div class="drop-item" onclick="showDocumentInfo()">
+                Document Properties
+            </div>
+        </div>
+    </div>
+
+    <div class="menu-item">
+        Edit
+        <div class="dropdown">
+            <div class="drop-item" onclick="findText()">Find...</div>
+            <div class="drop-item" onclick="selectAll()">Select All</div>
+        </div>
+    </div>
+
+    <div class="menu-item">
+        View
+        <div class="dropdown">
+            <div class="drop-item" onclick="zoomIn()">Zoom In</div>
+            <div class="drop-item" onclick="zoomOut()">Zoom Out</div>
+            <div class="drop-item" onclick="fitWidth()">Fit Width</div>
+            <div class="drop-item" onclick="fitPage()">Fit Page</div>
+
+            <div class="drop-separator"></div>
+
+            <div class="drop-item" onclick="toggleSidebar()">
+                Navigation Panel
+            </div>
+        </div>
+    </div>
+
+    <div class="menu-item">
+        Document
+        <div class="dropdown">
+            <div class="drop-item" onclick="firstPage()">First Page</div>
+            <div class="drop-item" onclick="lastPage()">Last Page</div>
+        </div>
+    </div>
+
+    <div class="menu-item">
+        Tools
+        <div class="dropdown">
+            <div class="drop-item" onclick="activateHandTool()">Hand Tool</div>
+            <div class="drop-item" onclick="activateSelectTool()">Select Tool</div>
+        </div>
+    </div>
+
+    <div class="menu-item">
+        Help
+        <div class="dropdown">
+            <div class="drop-item" onclick="showAbout()">
+                About Adobe Reader
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- TOOLBAR -->
+
+<div class="toolbar">
+
+    <button class="tool-button" onclick="choosePdf()" title="Open">
+        <span class="tool-icon">📂</span>
+        <span>Open</span>
+    </button>
+
+    <button class="tool-button" onclick="printPdf()" title="Print">
+        <span class="tool-icon">🖨️</span>
+        <span>Print</span>
+    </button>
+
+    <div class="separator"></div>
+
+    <button class="tool-button" onclick="previousPage()" title="Previous Page">
+        <span class="tool-icon">◀</span>
+    </button>
+
+    <div class="page-control">
+        <input
+            id="pageNumber"
+            class="page-box"
+            type="text"
+            value="1"
+            onchange="goToPage(this.value)"
+        >
+        <span id="pageCount">/ 0</span>
+    </div>
+
+    <button class="tool-button" onclick="nextPage()" title="Next Page">
+        <span class="tool-icon">▶</span>
+    </button>
+
+    <div class="separator"></div>
+
+    <button class="tool-button" onclick="zoomOut()" title="Zoom Out">
+        <span class="tool-icon">−</span>
+    </button>
+
+    <button class="tool-button" onclick="zoomIn()" title="Zoom In">
+        <span class="tool-icon">+</span>
+    </button>
+
+    <select
+        id="zoomSelect"
+        class="zoom-select"
+        onchange="setZoom(this.value)"
+    >
+        <option value="page-fit">Fit Page</option>
+        <option value="page-width">Fit Width</option>
+        <option value="0.5">50%</option>
+        <option value="0.75">75%</option>
+        <option value="1">100%</option>
+        <option value="1.25">125%</option>
+        <option value="1.5">150%</option>
+        <option value="2">200%</option>
+    </select>
+
+    <div class="separator"></div>
+
+    <button class="tool-button" onclick="toggleSidebar()" title="Navigation Panel">
+        <span class="tool-icon">▤</span>
+    </button>
+
+</div>
+
+<!-- WORK AREA -->
+
+<div class="reader-area">
+
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-title">
+            Navigation
+        </div>
+
+        <div class="sidebar-content">
+            Pages<br><br>
+            PDF.js'in kendi thumbnail sistemi görüntüleyici içerisinde kullanılmaktadır.
+        </div>
+    </div>
+
+    <div class="viewer-container">
+
+        <iframe
+            id="pdfFrame"
+            src="pdfjs/web/viewer.html"
+            onload="viewerLoaded()">
+        </iframe>
+
+        <div id="startScreen" class="start-screen">
+
+            <div class="welcome">
+
+                <div class="welcome-top">
+
+                    <img
+                        src="icon.png"
+                        class="welcome-logo"
+                        alt=""
+                        onerror="this.style.display='none'">
+
+                    <div>
+                        <div class="welcome-title">
+                            Adobe Reader
+                        </div>
+
+                        <div>
+                            PDF documents reliably.
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="welcome-body">
+
+                    <b>Welcome to Adobe Reader</b>
+
+                    <p>
+                        Open a PDF document to begin reading.
+                    </p>
+
+                    <button
+                        class="open-big"
+                        onclick="choosePdf()">
+                        Open PDF...
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- STATUS -->
+
+<div class="status-bar">
+
+    <div id="statusText" class="status-panel status-main">
+        Ready
+    </div>
+
+    <div id="statusPage" class="status-panel status-page">
+        Page 0 of 0
+    </div>
+
+    <div id="statusZoom" class="status-panel status-zoom">
+        100%
+    </div>
+
+</div>
+
+<input
+    id="fileInput"
+    type="file"
+    accept="application/pdf,.pdf"
+    class="hidden"
+>
+
+<!-- XP DIALOG -->
+
+<div id="dialogOverlay" class="dialog-overlay">
+
+    <div class="xp-dialog">
+
+        <div id="dialogTitle" class="dialog-title">
+            Adobe Reader
+        </div>
+
+        <div class="dialog-body">
+
+            <div id="dialogIcon" class="dialog-icon">
+                ℹ️
+            </div>
+
+            <div id="dialogMessage" class="dialog-message"></div>
+
+        </div>
+
+        <div class="dialog-buttons">
+
+            <button
+                class="xp-button"
+                onclick="closeDialog()">
+                OK
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const frame = document.getElementById("pdfFrame");
+const fileInput = document.getElementById("fileInput");
+
+let viewerReady = false;
+let openedFileName = "";
+let objectUrl = null;
+
+/* =========================================================
+   AUDIO
+========================================================= */
+
+let audioContext = null;
+
+function beep(type = "click"){
+
+    try{
+
+        if(!audioContext){
+            audioContext =
+                new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+
+        if(type === "error"){
+            osc.frequency.value = 180;
+        }
+        else{
+            osc.frequency.value = 650;
+        }
+
+        gain.gain.value = 0.035;
+
+        osc.start();
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.001,
+            audioContext.currentTime + 0.07
+        );
+
+        osc.stop(audioContext.currentTime + 0.08);
+
+    }catch(e){}
+
+}
+
+/* =========================================================
+   VIEWER ACCESS
+========================================================= */
+
+function app(){
+
+    try{
+
+        return frame.contentWindow.PDFViewerApplication || null;
+
+    }catch(e){
+
+        return null;
+
+    }
+
+}
+
+function viewerLoaded(){
+
+    viewerReady = true;
+
+    setTimeout(syncViewer,800);
+
+}
+
+/* =========================================================
+   FILE
+========================================================= */
+
+function choosePdf(){
+
+    beep();
+    closeMenus();
+    fileInput.click();
+
+}
+
+fileInput.addEventListener("change",async function(){
+
+    const file = this.files[0];
+
+    if(!file){
+        return;
+    }
+
+    if(
+        file.type !== "application/pdf" &&
+        !file.name.toLowerCase().endsWith(".pdf")
+    ){
+
+        showDialog(
+            "Adobe Reader",
+            "The selected file is not a valid PDF document.",
+            "error"
+        );
+
+        return;
+    }
+
+    openedFileName = file.name;
+
+    if(objectUrl){
+        URL.revokeObjectURL(objectUrl);
+    }
+
+    objectUrl = URL.createObjectURL(file);
+
+    document.getElementById("startScreen").classList.add("hidden");
+
+    document.getElementById("statusText").textContent =
+        "Opening " + file.name + "...";
+
+    try{
+
+        const pdfApp = app();
+
+        if(!pdfApp){
+
+            showDialog(
+                "Adobe Reader",
+                "PDF viewer is still loading. Please try again.",
+                "error"
+            );
+
+            return;
+        }
+
+        await pdfApp.open({
+            url: objectUrl,
+            originalUrl: file.name
+        });
+
+        document.getElementById("statusText").textContent =
+            file.name;
+
+        beep();
+
+        setTimeout(syncViewer,500);
+
+    }catch(error){
+
+        console.error(error);
+
+        showDialog(
+            "Adobe Reader",
+            "Adobe Reader could not open this document.",
+            "error"
+        );
+
+    }
+
+});
+
+/* =========================================================
+   PAGE NAVIGATION
+========================================================= */
+
+function previousPage(){
+
+    const a = app();
+
+    if(!a || !a.pdfViewer){
+        return;
+    }
+
+    if(a.pdfViewer.currentPageNumber > 1){
+        a.pdfViewer.currentPageNumber--;
+    }
+
+    beep();
+    syncViewer();
+
+}
+
+function nextPage(){
+
+    const a = app();
+
+    if(!a || !a.pdfViewer){
+        return;
+    }
+
+    if(
+        a.pdfDocument &&
+        a.pdfViewer.currentPageNumber < a.pdfDocument.numPages
+    ){
+        a.pdfViewer.currentPageNumber++;
+    }
+
+    beep();
+    syncViewer();
+
+}
+
+function firstPage(){
+
+    const a = app();
+
+    if(a && a.pdfViewer){
+        a.pdfViewer.currentPageNumber = 1;
+    }
+
+    closeMenus();
+    syncViewer();
+
+}
+
+function lastPage(){
+
+    const a = app();
+
+    if(a && a.pdfViewer && a.pdfDocument){
+        a.pdfViewer.currentPageNumber = a.pdfDocument.numPages;
+    }
+
+    closeMenus();
+    syncViewer();
+
+}
+
+function goToPage(value){
+
+    const a = app();
+
+    if(!a || !a.pdfViewer || !a.pdfDocument){
+        return;
+    }
+
+    let page = parseInt(value,10);
+
+    if(isNaN(page)){
+        return;
+    }
+
+    page = Math.max(
+        1,
+        Math.min(page,a.pdfDocument.numPages)
+    );
+
+    a.pdfViewer.currentPageNumber = page;
+
+    syncViewer();
+
+}
+
+/* =========================================================
+   ZOOM
+========================================================= */
+
+function zoomIn(){
+
+    const a = app();
+
+    if(!a || !a.pdfViewer){
+        return;
+    }
+
+    let scale = a.pdfViewer.currentScale || 1;
+
+    scale = Math.min(scale * 1.1,10);
+
+    a.pdfViewer.currentScale = scale;
+
+    beep();
+    syncViewer();
+
+}
+
+function zoomOut(){
+
+    const a = app();
+
+    if(!a || !a.pdfViewer){
+        return;
+    }
+
+    let scale = a.pdfViewer.currentScale || 1;
+
+    scale = Math.max(scale / 1.1,0.1);
+
+    a.pdfViewer.currentScale = scale;
+
+    beep();
+    syncViewer();
+
+}
+
+function fitWidth(){
+
+    const a = app();
+
+    if(a && a.pdfViewer){
+        a.pdfViewer.currentScaleValue = "page-width";
+    }
+
+    closeMenus();
+
+}
+
+function fitPage(){
+
+    const a = app();
+
+    if(a && a.pdfViewer){
+        a.pdfViewer.currentScaleValue = "page-fit";
+    }
+
+    closeMenus();
+
+}
+
+function setZoom(value){
+
+    const a = app();
+
+    if(!a || !a.pdfViewer){
+        return;
+    }
+
+    a.pdfViewer.currentScaleValue = value;
+
+    syncViewer();
+
+}
+
+/* =========================================================
+   PDF COMMANDS
+========================================================= */
+
+function printPdf(){
+
+    closeMenus();
+
+    const a = app();
+
+    if(!a || !a.pdfDocument){
+
+        showDialog(
+            "Adobe Reader",
+            "There is no document to print.",
+            "info"
+        );
+
+        return;
+    }
+
+    try{
+
+        a.triggerPrinting();
+
+    }catch(e){
+
+        showDialog(
+            "Adobe Reader",
+            "Printing is not available.",
+            "error"
+        );
+
+    }
+
+}
+
+function findText(){
+
+    closeMenus();
+
+    const a = app();
+
+    if(!a){
+        return;
+    }
+
+    try{
+
+        a.eventBus.dispatch("findbaropen",{
+            source:window
+        });
+
+    }catch(e){
+
+        showDialog(
+            "Adobe Reader",
+            "Find is not available for this document.",
+            "info"
+        );
+
+    }
+
+}
+
+function selectAll(){
+
+    closeMenus();
+
+    try{
+
+        frame.contentWindow.document.execCommand("selectAll");
+
+    }catch(e){}
+
+}
+
+function activateHandTool(){
+
+    closeMenus();
+
+    try{
+
+        const a = app();
+
+        a.pdfCursorTools.switchTool(1);
+
+    }catch(e){}
+
+}
+
+function activateSelectTool(){
+
+    closeMenus();
+
+    try{
+
+        const a = app();
+
+        a.pdfCursorTools.switchTool(0);
+
+    }catch(e){}
+
+}
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+function toggleSidebar(){
+
+    closeMenus();
+
+    document
+        .getElementById("sidebar")
+        .classList.toggle("visible");
+
+    beep();
+
+}
+
+/* =========================================================
+   INFO
+========================================================= */
+
+function showAbout(){
+
+    closeMenus();
+
+    showDialog(
+        "About Adobe Reader",
+        "Adobe Reader 7 style interface<br><br>" +
+        "PDF rendering engine: Mozilla PDF.js<br>" +
+        "Windows XP Web Desktop Edition",
+        "info"
+    );
+
+}
+
+function showDocumentInfo(){
+
+    closeMenus();
+
+    const a = app();
+
+    if(!a || !a.pdfDocument){
+
+        showDialog(
+            "Document Properties",
+            "No document is currently open.",
+            "info"
+        );
+
+        return;
+    }
+
+    showDialog(
+        "Document Properties",
+        "<b>File:</b> " +
+        escapeHtml(openedFileName || "PDF document") +
+        "<br><br>" +
+        "<b>Pages:</b> " +
+        a.pdfDocument.numPages,
+        "info"
+    );
+
+}
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+function syncViewer(){
+
+    const a = app();
+
+    if(!a || !a.pdfViewer){
+        return;
+    }
+
+    const page =
+        a.pdfViewer.currentPageNumber || 0;
+
+    const count =
+        a.pdfDocument
+            ? a.pdfDocument.numPages
+            : 0;
+
+    document.getElementById("pageNumber").value =
+        page || 1;
+
+    document.getElementById("pageCount").textContent =
+        "/ " + count;
+
+    document.getElementById("statusPage").textContent =
+        "Page " + page + " of " + count;
+
+    const scale =
+        a.pdfViewer.currentScale || 1;
+
+    document.getElementById("statusZoom").textContent =
+        Math.round(scale * 100) + "%";
+
+}
+
+setInterval(syncViewer,700);
+
+/* =========================================================
+   XP DIALOG
+========================================================= */
+
+function showDialog(title,message,type="info"){
+
+    beep(type === "error" ? "error" : "click");
+
+    document.getElementById("dialogTitle").textContent =
+        title;
+
+    document.getElementById("dialogMessage").innerHTML =
+        message;
+
+    document.getElementById("dialogIcon").textContent =
+        type === "error"
+            ? "❌"
+            : "ℹ️";
+
+    document
+        .getElementById("dialogOverlay")
+        .classList.add("show");
+
+}
+
+function closeDialog(){
+
+    document
+        .getElementById("dialogOverlay")
+        .classList.remove("show");
+
+}
+
+/* =========================================================
+   MENUS
+========================================================= */
+
+document.querySelectorAll(".menu-item").forEach(item=>{
+
+    item.addEventListener("click",function(e){
+
+        if(e.target.closest(".drop-item")){
+            return;
+        }
+
+        document
+            .querySelectorAll(".menu-item")
+            .forEach(other=>{
+
+                if(other !== this){
+                    other.classList.remove("active");
+                }
+
+            });
+
+        this.classList.toggle("active");
+
+        e.stopPropagation();
+
+    });
+
+});
+
+document.addEventListener("click",closeMenus);
+
+function closeMenus(){
+
+    document
+        .querySelectorAll(".menu-item")
+        .forEach(item=>{
+            item.classList.remove("active");
+        });
+
+}
+
+/* =========================================================
+   KEYBOARD
+========================================================= */
+
+document.addEventListener("keydown",function(e){
+
+    if(e.ctrlKey && e.key.toLowerCase() === "o"){
+
+        e.preventDefault();
+        choosePdf();
+
+    }
+
+    if(e.ctrlKey && e.key.toLowerCase() === "p"){
+
+        e.preventDefault();
+        printPdf();
+
+    }
+
+    if(e.key === "PageDown"){
+        nextPage();
+    }
+
+    if(e.key === "PageUp"){
+        previousPage();
+    }
+
+});
+
+/* =========================================================
+   UTIL
+========================================================= */
+
+function escapeHtml(text){
+
+    return String(text)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+
+}
+
+</script>
+
+</body>
+</html>

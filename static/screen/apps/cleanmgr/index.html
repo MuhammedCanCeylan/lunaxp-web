@@ -1,0 +1,873 @@
+<!--
+CLEANMGR / WINDOWS XP DISK CLEANUP SIMULATOR - ASSET LISTESI
+Bu dosyalar index.html ile AYNI KLASORE konulabilir. icon.png masaustu kayit defteri icin zorunludur.
+Uygulama calisirken icon.png bulunamazsa yerlesik SVG Data URI fallback'i kullanilir.
+
+| Dosya adi | Tavsiye edilen boyut | Format | Zorunlu | Kullanim / Aciklama |
+|------------|-----------------------|--------|---------|---------------------|
+| icon.png   | 32x32                 | PNG, seffaf | EVET | Masaustu/uygulama simgesi ve Disk Cleanup ana simgesi |
+
+NOTLAR:
+- Harici kutuphane, font, CDN, ses, WebAssembly veya sunucu gerekmez.
+- Tum HTML/CSS/JavaScript bu tek index.html dosyasindadir.
+- Tum <img> kullanımlarinda onerror="this.onerror=null; this.src='...';" fallback'i vardir.
+- Tarayici guvenligi nedeniyle gercek kullanici diskindeki dosyalar silinmez; temizleme islemi simule edilir.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Disk Cleanup</title>
+<style>
+  :root{
+    --xp-bg:#ECE9D8;
+    --xp-panel:#F5F4EA;
+    --xp-border:#ACA899;
+    --xp-border-dark:#7F9DB9;
+    --xp-blue:#316AC5;
+    --xp-blue-dark:#0A246A;
+    --xp-text:#000;
+    --xp-disabled:#808080;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ width:100%; height:100%; margin:0; overflow:hidden; }
+  body{
+    font-family:Tahoma, sans-serif;
+    font-size:11px;
+    color:var(--xp-text);
+    background:var(--xp-bg);
+    user-select:none;
+  }
+  button,input{ font-family:Tahoma, sans-serif; font-size:11px; }
+
+  ::-webkit-scrollbar{ width:17px; height:17px; }
+  ::-webkit-scrollbar-track{ background:#F1EFE2; border:1px solid #D6D2C2; }
+  ::-webkit-scrollbar-thumb{ background:linear-gradient(90deg,#C9D6EE,#8EAFE2); border:1px solid #6F8FC4; }
+  ::-webkit-scrollbar-button{ background:#DCE6F5; border:1px solid #7F9DB9; height:17px; width:17px; }
+
+  .app{
+    width:100%; height:100%;
+    min-width:360px;
+    background:var(--xp-bg);
+    position:relative;
+    overflow:hidden;
+  }
+
+  .surface{
+    width:100%; height:100%;
+    padding:10px 12px 9px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+
+  .hidden{ display:none !important; }
+
+  .top-intro{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-height:48px;
+    padding:2px 6px 0;
+  }
+  .app-icon{ width:32px; height:32px; flex:0 0 32px; image-rendering:auto; }
+  .intro-copy{ line-height:1.25; }
+
+  .scan-card{
+    width:min(520px, calc(100% - 30px));
+    margin:auto;
+    padding:14px 16px 13px;
+    border:1px solid var(--xp-border);
+    background:var(--xp-bg);
+    box-shadow:inset 1px 1px #fff, inset -1px -1px #D4D0C8;
+  }
+  .scan-card .top-intro{ padding:0 0 8px; }
+  .scan-title{ font-weight:bold; margin-bottom:4px; }
+  .scan-copy{ margin:6px 0 12px; line-height:1.35; }
+  .progress-shell{
+    height:18px;
+    padding:2px;
+    border:1px solid #7F9DB9;
+    background:#fff;
+    box-shadow:inset 1px 1px #B8B8B8;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%; width:0%;
+    background:repeating-linear-gradient(90deg,#2D8B2D 0 8px,#53AF53 8px 11px,#fff 11px 13px);
+    transition:width .17s linear;
+  }
+  .scan-label{ margin-top:7px; min-height:15px; color:#333; }
+  .scan-actions{ display:flex; justify-content:flex-end; margin-top:14px; }
+
+  .tabs{
+    display:flex;
+    align-items:flex-end;
+    height:25px;
+    padding-left:6px;
+    position:relative;
+    z-index:2;
+  }
+  .tab{
+    min-width:84px;
+    height:24px;
+    padding:3px 10px 2px;
+    border:1px solid var(--xp-border);
+    border-bottom:0;
+    background:#E5E3D5;
+    margin-right:2px;
+    position:relative;
+    top:1px;
+    cursor:default;
+  }
+  .tab.active{
+    background:var(--xp-bg);
+    height:26px;
+    top:2px;
+    font-weight:normal;
+    z-index:3;
+  }
+  .tab:focus-visible{ outline:1px dotted #000; outline-offset:-4px; }
+
+  .page-frame{
+    flex:1;
+    min-height:0;
+    border:1px solid var(--xp-border);
+    background:var(--xp-bg);
+    padding:12px 12px 8px;
+    box-shadow:inset 1px 1px #fff;
+    overflow:hidden;
+  }
+  .tab-page{ width:100%; height:100%; min-height:0; }
+
+  .cleanup-page{
+    display:grid;
+    grid-template-rows:auto auto minmax(115px,1fr) auto minmax(76px,.76fr) auto;
+    gap:6px;
+  }
+  .cleanup-page .top-intro{ padding:0 4px 2px; min-height:44px; }
+
+  .field-label{ margin-left:1px; }
+  .file-list{
+    border:1px solid var(--xp-border-dark);
+    background:#fff;
+    overflow-y:auto;
+    overflow-x:hidden;
+    min-height:112px;
+    box-shadow:inset 1px 1px #E7E7E7;
+  }
+  .file-row{
+    min-height:23px;
+    display:grid;
+    grid-template-columns:22px 22px minmax(170px,1fr) 86px;
+    align-items:center;
+    padding:1px 5px 1px 3px;
+    cursor:default;
+  }
+  .file-row.active{ background:var(--xp-blue); color:#fff; }
+  .file-row .check-wrap{ display:flex; justify-content:center; align-items:center; }
+  .file-row input[type="checkbox"]{
+    appearance:none;
+    width:13px; height:13px;
+    margin:0;
+    background:#fff;
+    border:1px solid #7F9DB9;
+    box-shadow:inset 1px 1px #ddd;
+    position:relative;
+  }
+  .file-row input[type="checkbox"]:checked::after{
+    content:"";
+    position:absolute;
+    left:2px; top:0px;
+    width:6px; height:9px;
+    border-right:2px solid #168118;
+    border-bottom:2px solid #168118;
+    transform:rotate(42deg);
+  }
+  .file-row.active input[type="checkbox"]{ border-color:#fff; }
+  .mini-icon{
+    width:16px; height:16px;
+    display:grid; place-items:center;
+    font-size:14px; line-height:16px;
+    filter:saturate(.9);
+  }
+  .file-name{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding-right:6px; }
+  .file-size{ text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
+
+  .gain-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
+    padding:0 4px;
+    min-height:18px;
+  }
+  .gain-row strong{ font-weight:normal; }
+
+  fieldset.group{
+    margin:0;
+    min-width:0;
+    border:1px solid var(--xp-border);
+    padding:11px 9px 9px;
+  }
+  fieldset.group legend{ padding:0 4px; color:#003399; }
+  .description{
+    height:100%;
+    overflow:auto;
+    line-height:1.28;
+    white-space:normal;
+    user-select:text;
+  }
+  .description-actions{ display:flex; justify-content:flex-end; margin-top:6px; }
+
+  .bottom-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:7px;
+    padding-top:1px;
+  }
+  .xp-button{
+    min-width:75px;
+    min-height:23px;
+    padding:2px 10px 3px;
+    background:#ECE9D8;
+    color:#000;
+    border:2px outset #fff;
+    box-shadow:none;
+    cursor:default;
+  }
+  .xp-button:active:not(:disabled){ border-style:inset; padding:3px 9px 2px 11px; }
+  .xp-button:focus-visible{ outline:1px dotted #000; outline-offset:-5px; }
+  .xp-button:disabled{ color:#888; text-shadow:1px 1px #fff; opacity:.8; }
+  .xp-button.default{ box-shadow:0 0 0 1px #000; }
+
+  .more-page{
+    height:100%;
+    overflow:auto;
+    padding:1px 1px 0;
+  }
+  .more-group{
+    border:1px solid var(--xp-border);
+    margin:0 0 10px;
+    padding:11px 10px 10px;
+    min-height:92px;
+  }
+  .more-group legend{ padding:0 4px; color:#003399; }
+  .more-layout{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 82px;
+    gap:12px;
+    align-items:center;
+  }
+  .more-layout p{ margin:0; line-height:1.35; }
+
+  .dialog-layer{
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,.10);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+    z-index:50;
+  }
+  .xp-dialog{
+    width:min(390px, 100%);
+    max-height:calc(100% - 18px);
+    overflow:hidden;
+    background:var(--xp-bg);
+    border:1px solid #003C74;
+    box-shadow:2px 3px 8px rgba(0,0,0,.28), inset 1px 1px #fff;
+  }
+  .dialog-caption{
+    height:25px;
+    padding:4px 7px 3px;
+    display:flex;
+    align-items:center;
+    font-weight:bold;
+    color:#fff;
+    background:linear-gradient(90deg,#0A246A,#3A6EA5,#A6CAF0);
+  }
+  .dialog-body{
+    padding:12px;
+    overflow:auto;
+    max-height:calc(100vh - 96px);
+  }
+  .dialog-message{
+    display:grid;
+    grid-template-columns:34px minmax(0,1fr);
+    gap:10px;
+    align-items:start;
+  }
+  .dialog-symbol{ font-size:28px; line-height:30px; text-align:center; }
+  .dialog-text{ line-height:1.35; user-select:text; }
+  .dialog-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:7px;
+    margin-top:14px;
+  }
+
+  .file-preview{
+    margin-top:8px;
+    border:1px solid var(--xp-border-dark);
+    background:#fff;
+    max-height:150px;
+    overflow:auto;
+  }
+  .preview-row{
+    display:grid;
+    grid-template-columns:22px minmax(0,1fr) 70px;
+    gap:4px;
+    align-items:center;
+    padding:3px 6px;
+    border-bottom:1px solid #F0F0F0;
+  }
+  .preview-row:last-child{ border-bottom:0; }
+  .preview-row span:last-child{ text-align:right; color:#444; }
+
+  .spin-area{ display:flex; align-items:center; gap:8px; margin-top:11px; }
+  .spinbox{
+    width:56px; height:21px;
+    border:1px solid var(--xp-border-dark);
+    background:#fff;
+    padding:1px 4px;
+  }
+
+  .cleaning-box{ margin-top:10px; }
+  .cleaning-status{ margin-bottom:6px; min-height:14px; }
+
+  .cancelled-state{
+    width:100%; height:100%;
+    display:grid;
+    place-items:center;
+    text-align:center;
+    padding:20px;
+    line-height:1.5;
+  }
+  .cancelled-state .xp-button{ margin-top:9px; }
+
+  @media (max-width:460px){
+    .surface{ padding:8px; }
+    .page-frame{ padding:9px 8px 7px; }
+    .file-row{ grid-template-columns:20px 20px minmax(130px,1fr) 68px; }
+    .more-layout{ grid-template-columns:1fr; }
+    .more-layout .xp-button{ justify-self:end; }
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <section class="scan-card" id="scanView" aria-live="polite">
+    <div class="top-intro">
+      <img class="app-icon" src="icon.png" alt="Disk Cleanup" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22 viewBox=%220 0 32 32%22%3E%3Crect x=%224%22 y=%2212%22 width=%2224%22 height=%2213%22 rx=%222%22 fill=%22%23c7c7c7%22 stroke=%22%23555%22/%3E%3Cellipse cx=%2216%22 cy=%2212%22 rx=%2212%22 ry=%224%22 fill=%22%23e8e8e8%22 stroke=%22%23555%22/%3E%3Cpath d=%22M8 22h10%22 stroke=%22%234488cc%22 stroke-width=%222%22/%3E%3Ccircle cx=%2224%22 cy=%2221%22 r=%222%22 fill=%22%2339a84a%22/%3E%3C/svg%3E';">
+      <div>
+        <div class="scan-title">Disk Cleanup</div>
+        <div>Disk Cleanup is calculating how much space you will be able to free on <span class="driveLabel">(C:)</span>.</div>
+      </div>
+    </div>
+    <div class="scan-copy">This may take a few minutes to complete.</div>
+    <div class="progress-shell" aria-hidden="true"><div class="progress-fill" id="scanProgress"></div></div>
+    <div class="scan-label" id="scanLabel">Scanning: Downloaded Program Files</div>
+    <div class="scan-actions"><button class="xp-button" id="scanCancelBtn" type="button">Cancel</button></div>
+  </section>
+
+  <main class="surface hidden" id="mainView">
+    <div class="tabs" role="tablist" aria-label="Disk Cleanup tabs">
+      <button class="tab active" id="tabCleanup" type="button" role="tab" aria-selected="true">Disk Cleanup</button>
+      <button class="tab" id="tabMore" type="button" role="tab" aria-selected="false">More Options</button>
+    </div>
+
+    <section class="page-frame">
+      <div class="tab-page cleanup-page" id="cleanupPage" role="tabpanel">
+        <div class="top-intro">
+          <img class="app-icon" src="icon.png" alt="Disk Cleanup" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22 viewBox=%220 0 32 32%22%3E%3Crect x=%224%22 y=%2212%22 width=%2224%22 height=%2213%22 rx=%222%22 fill=%22%23c7c7c7%22 stroke=%22%23555%22/%3E%3Cellipse cx=%2216%22 cy=%2212%22 rx=%2212%22 ry=%224%22 fill=%22%23e8e8e8%22 stroke=%22%23555%22/%3E%3Cpath d=%22M8 22h10%22 stroke=%22%234488cc%22 stroke-width=%222%22/%3E%3Ccircle cx=%2224%22 cy=%2221%22 r=%222%22 fill=%22%2339a84a%22/%3E%3C/svg%3E';">
+          <div class="intro-copy" id="introCopy">You can use Disk Cleanup to free up to 0 KB of disk space on <span class="driveLabel">(C:)</span>.</div>
+        </div>
+        <div class="field-label">Files to delete:</div>
+        <div class="file-list" id="fileList" tabindex="0" aria-label="Files to delete"></div>
+        <div class="gain-row"><span>Total amount of disk space you gain:</span><strong id="gainValue">0 KB</strong></div>
+        <fieldset class="group">
+          <legend>Description</legend>
+          <div class="description" id="descriptionText"></div>
+          <div class="description-actions"><button class="xp-button" type="button" id="viewFilesBtn">View Files</button></div>
+        </fieldset>
+        <div></div>
+        <div class="bottom-actions">
+          <button class="xp-button default" id="okBtn" type="button">OK</button>
+          <button class="xp-button" id="cancelBtn" type="button">Cancel</button>
+        </div>
+      </div>
+
+      <div class="tab-page more-page hidden" id="morePage" role="tabpanel">
+        <fieldset class="more-group">
+          <legend>Windows components</legend>
+          <div class="more-layout">
+            <p>You can free more disk space by removing optional Windows components that you do not use.</p>
+            <button class="xp-button" type="button" data-more="components">Clean up...</button>
+          </div>
+        </fieldset>
+        <fieldset class="more-group">
+          <legend>Installed programs</legend>
+          <div class="more-layout">
+            <p>You can free more disk space by removing programs that you do not use.</p>
+            <button class="xp-button" type="button" data-more="programs">Clean up...</button>
+          </div>
+        </fieldset>
+        <fieldset class="more-group">
+          <legend>System Restore</legend>
+          <div class="more-layout">
+            <p>You can free more disk space by removing all but the most recent restore point.</p>
+            <button class="xp-button" type="button" data-more="restore">Clean up...</button>
+          </div>
+        </fieldset>
+        <div class="bottom-actions">
+          <button class="xp-button default" id="okBtnMore" type="button">OK</button>
+          <button class="xp-button" id="cancelBtnMore" type="button">Cancel</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <section class="cancelled-state hidden" id="cancelledView">
+    <div>
+      <div>Disk Cleanup is not running.</div>
+      <button class="xp-button" id="reopenBtn" type="button">Run Disk Cleanup</button>
+    </div>
+  </section>
+
+  <div class="dialog-layer hidden" id="dialogLayer" role="presentation">
+    <section class="xp-dialog" id="dialogBox" role="dialog" aria-modal="true" aria-labelledby="dialogCaption">
+      <div class="dialog-caption" id="dialogCaption">Disk Cleanup</div>
+      <div class="dialog-body" id="dialogBody"></div>
+    </section>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const $ = (s, root=document) => root.querySelector(s);
+  const $$ = (s, root=document) => [...root.querySelectorAll(s)];
+
+  const params = new URLSearchParams(location.search);
+  const rawDrive = String(params.get('drive') || 'C:').toUpperCase();
+  const drive = /^[A-Z]:$/.test(rawDrive) ? rawDrive : 'C:';
+  $$('.driveLabel').forEach(el => el.textContent = `(${drive})`);
+
+  const files = [
+    {
+      id:'downloaded', icon:'🧩', name:'Downloaded Program Files', kb:0, checked:true, view:true,
+      desc:'Downloaded Program Files are ActiveX controls and Java applets downloaded automatically from the Internet when you view certain pages. They are temporarily stored in the Downloaded Program Files folder on your hard disk.',
+      preview:[['ActiveX Control','0 KB'],['Java Runtime cache','0 KB']]
+    },
+    {
+      id:'internet', icon:'🌐', name:'Temporary Internet Files', kb:12842, checked:true, view:true,
+      desc:'The Temporary Internet Files folder contains Web pages stored on your hard disk for quick viewing. Your personalized settings for Web pages will not be changed.',
+      preview:[['index[1].htm','24 KB'],['banner_01.gif','86 KB'],['logo_cache.png','118 KB'],['Content.IE5 cache','12,614 KB']]
+    },
+    {
+      id:'recycle', icon:'🗑️', name:'Recycle Bin', kb:88647, checked:false, view:true,
+      desc:'The Recycle Bin contains files you have deleted from your computer. These files are not permanently removed until you empty the Recycle Bin.',
+      preview:[['Old Project.zip','43.1 MB'],['setup-old.exe','25.7 MB'],['Document copy.doc','17.8 MB']]
+    },
+    {
+      id:'temp', icon:'📄', name:'Temporary files', kb:25473, checked:true, view:true,
+      desc:'Programs sometimes store temporary information in a TEMP folder. Before a program quits, it usually deletes this information. You can safely delete temporary files that have not been modified in over a week.',
+      preview:[['~DF3A1.tmp','4.8 MB'],['installer.tmp','12.2 MB'],['cache.tmp','7.9 MB']]
+    },
+    {
+      id:'webclient', icon:'📁', name:'WebClient/Publisher Temporary Files', kb:32, checked:false, view:true,
+      desc:'The WebClient/Publisher service maintains a cache of accessed files on this disk. These files can be deleted and downloaded again if they are needed.',
+      preview:[['WebClient cache','32 KB']]
+    },
+    {
+      id:'compress', icon:'🗜️', name:'Compress old files', kb:421965, checked:true, view:false, options:true,
+      desc:'Windows can compress files that you have not accessed in a while. Compressing the files saves disk space while still enabling you to use the files. No files will be deleted.',
+      days:50
+    },
+    {
+      id:'catalog', icon:'🔎', name:'Catalog files for the Content Indexer', kb:0, checked:false, view:false,
+      desc:'The Indexing Service speeds up and improves file searches by maintaining an index of the files on the disk. These files are left over from a previous indexing operation and can be deleted safely.'
+    }
+  ];
+
+  let activeIndex = 0;
+  let scanTimer = null;
+  let dialogClose = null;
+  let cleaningTimer = null;
+
+  const scanView = $('#scanView');
+  const mainView = $('#mainView');
+  const cancelledView = $('#cancelledView');
+  const fileList = $('#fileList');
+  const descriptionText = $('#descriptionText');
+  const viewFilesBtn = $('#viewFilesBtn');
+  const gainValue = $('#gainValue');
+  const introCopy = $('#introCopy');
+  const dialogLayer = $('#dialogLayer');
+  const dialogBody = $('#dialogBody');
+  const dialogCaption = $('#dialogCaption');
+
+  function formatKB(kb){
+    kb = Math.max(0, Math.round(kb));
+    if(kb < 1024) return `${kb.toLocaleString('en-US')} KB`;
+    const mb = kb / 1024;
+    if(mb < 1024) return `${mb < 10 ? mb.toFixed(1) : Math.round(mb).toLocaleString('en-US')} MB`;
+    return `${(mb/1024).toFixed(2)} GB`;
+  }
+
+  function totalAvailable(){ return files.reduce((sum,f) => sum + f.kb, 0); }
+  function totalSelected(){ return files.reduce((sum,f) => sum + (f.checked ? f.kb : 0), 0); }
+
+  function renderList(){
+    fileList.innerHTML = '';
+    files.forEach((f, i) => {
+      const row = document.createElement('div');
+      row.className = 'file-row' + (i === activeIndex ? ' active' : '');
+      row.dataset.index = i;
+      row.innerHTML = `
+        <span class="check-wrap"><input type="checkbox" ${f.checked ? 'checked' : ''} aria-label="${escapeHtml(f.name)}"></span>
+        <span class="mini-icon" aria-hidden="true">${f.icon}</span>
+        <span class="file-name">${escapeHtml(f.name)}</span>
+        <span class="file-size">${formatKB(f.kb)}</span>`;
+
+      const cb = $('input', row);
+      cb.addEventListener('click', (e) => {
+        e.stopPropagation();
+        f.checked = cb.checked;
+        activeIndex = i;
+        updateAll();
+      });
+      row.addEventListener('click', (e) => {
+        activeIndex = i;
+        if(e.detail > 1){ f.checked = !f.checked; }
+        updateAll();
+      });
+      fileList.appendChild(row);
+    });
+  }
+
+  function updateAll(){
+    renderList();
+    const active = files[activeIndex] || files[0];
+    descriptionText.textContent = active.desc;
+    viewFilesBtn.disabled = !(active.view || active.options);
+    viewFilesBtn.textContent = active.options ? 'Options...' : 'View Files';
+    gainValue.textContent = formatKB(totalSelected());
+    introCopy.innerHTML = `You can use Disk Cleanup to free up to <b>${formatKB(totalAvailable())}</b> of disk space on <span class="driveLabel">(${drive})</span>.`;
+  }
+
+  function escapeHtml(value){
+    return String(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  }
+
+  function showMain(){
+    clearInterval(scanTimer);
+    scanTimer = null;
+    scanView.classList.add('hidden');
+    cancelledView.classList.add('hidden');
+    mainView.classList.remove('hidden');
+    updateAll();
+  }
+
+  function showCancelled(){
+    clearInterval(scanTimer);
+    scanTimer = null;
+    clearInterval(cleaningTimer);
+    cleaningTimer = null;
+    closeDialog();
+    scanView.classList.add('hidden');
+    mainView.classList.add('hidden');
+    cancelledView.classList.remove('hidden');
+  }
+
+  function startScan(){
+    clearInterval(scanTimer);
+    scanView.classList.remove('hidden');
+    mainView.classList.add('hidden');
+    cancelledView.classList.add('hidden');
+    const bar = $('#scanProgress');
+    const label = $('#scanLabel');
+    const steps = [
+      'Downloaded Program Files',
+      'Temporary Internet Files',
+      'Recycle Bin',
+      'Temporary files',
+      'WebClient/Publisher Temporary Files',
+      'Compress old files',
+      'Catalog files for the Content Indexer'
+    ];
+    let progress = 0;
+    bar.style.width = '0%';
+    label.textContent = `Scanning: ${steps[0]}`;
+    scanTimer = setInterval(() => {
+      progress += 3 + Math.random()*5;
+      if(progress > 100) progress = 100;
+      bar.style.width = `${progress}%`;
+      const idx = Math.min(steps.length - 1, Math.floor((progress / 100) * steps.length));
+      label.textContent = `Scanning: ${steps[idx]}`;
+      if(progress >= 100){
+        clearInterval(scanTimer);
+        scanTimer = setTimeout(showMain, 250);
+      }
+    }, 105);
+  }
+
+  function setTab(which){
+    const cleanup = which === 'cleanup';
+    $('#tabCleanup').classList.toggle('active', cleanup);
+    $('#tabMore').classList.toggle('active', !cleanup);
+    $('#tabCleanup').setAttribute('aria-selected', String(cleanup));
+    $('#tabMore').setAttribute('aria-selected', String(!cleanup));
+    $('#cleanupPage').classList.toggle('hidden', !cleanup);
+    $('#morePage').classList.toggle('hidden', cleanup);
+  }
+
+  function openDialog({caption='Disk Cleanup', html='', onClose=null}){
+    dialogCaption.textContent = caption;
+    dialogBody.innerHTML = html;
+    dialogLayer.classList.remove('hidden');
+    dialogClose = onClose;
+    const autofocus = $('[data-autofocus]', dialogBody) || $('button', dialogBody);
+    if(autofocus) setTimeout(() => autofocus.focus(), 0);
+  }
+
+  function closeDialog(result){
+    if(dialogLayer.classList.contains('hidden')) return;
+    dialogLayer.classList.add('hidden');
+    const fn = dialogClose;
+    dialogClose = null;
+    dialogBody.innerHTML = '';
+    if(typeof fn === 'function') fn(result);
+  }
+
+  function simpleDialog(message, options={}){
+    const symbol = options.symbol || 'ℹ️';
+    const buttons = options.buttons || [{label:'OK', value:true, autofocus:true}];
+    openDialog({
+      caption:options.caption || 'Disk Cleanup',
+      html:`
+        <div class="dialog-message">
+          <div class="dialog-symbol" aria-hidden="true">${symbol}</div>
+          <div class="dialog-text">${message}</div>
+        </div>
+        <div class="dialog-actions">
+          ${buttons.map(b => `<button class="xp-button ${b.default ? 'default':''}" type="button" data-value="${escapeHtml(String(b.value))}" ${b.autofocus ? 'data-autofocus':''}>${escapeHtml(b.label)}</button>`).join('')}
+        </div>`,
+      onClose:options.onClose || null
+    });
+    $$('[data-value]', dialogBody).forEach(btn => btn.addEventListener('click', () => closeDialog(btn.dataset.value)));
+  }
+
+  function showPreview(){
+    const active = files[activeIndex];
+    if(active.options){
+      openDialog({
+        caption:'Compress Old Files',
+        html:`
+          <div class="dialog-text">Files that have not been accessed for a specified number of days can be compressed to save disk space.</div>
+          <div class="spin-area">
+            <label for="daysInput">Compress files older than</label>
+            <input class="spinbox" id="daysInput" type="number" min="1" max="999" value="${active.days || 50}">
+            <span>days</span>
+          </div>
+          <div class="dialog-actions">
+            <button class="xp-button default" type="button" id="daysOk" data-autofocus>OK</button>
+            <button class="xp-button" type="button" id="daysCancel">Cancel</button>
+          </div>`,
+        onClose:(result) => {
+          if(result && Number.isFinite(result.days)) active.days = result.days;
+        }
+      });
+      $('#daysOk', dialogBody).addEventListener('click', () => {
+        const days = Math.max(1, Math.min(999, parseInt($('#daysInput', dialogBody).value, 10) || 50));
+        closeDialog({days});
+      });
+      $('#daysCancel', dialogBody).addEventListener('click', () => closeDialog(null));
+      return;
+    }
+    if(!active.view) return;
+    const rows = (active.preview || []).map(([name,size]) => `
+      <div class="preview-row"><span aria-hidden="true">📄</span><span>${escapeHtml(name)}</span><span>${escapeHtml(size)}</span></div>`).join('');
+    openDialog({
+      caption:active.name,
+      html:`
+        <div class="dialog-text">Files currently represented by this cleanup category:</div>
+        <div class="file-preview">${rows || '<div class="preview-row"><span>📄</span><span>No files</span><span>0 KB</span></div>'}</div>
+        <div class="dialog-actions"><button class="xp-button default" type="button" id="previewClose" data-autofocus>Close</button></div>`
+    });
+    $('#previewClose', dialogBody).addEventListener('click', () => closeDialog());
+  }
+
+  function showComponents(){
+    openDialog({
+      caption:'Windows Components Wizard',
+      html:`
+        <div class="dialog-text">Select optional components to remove. This simulator does not modify the host computer.</div>
+        <div class="file-preview" style="margin-top:10px">
+          <label class="preview-row"><span>☐</span><span>Accessories and Utilities</span><span>18.4 MB</span></label>
+          <label class="preview-row"><span>☐</span><span>Fax Services</span><span>3.7 MB</span></label>
+          <label class="preview-row"><span>☐</span><span>Indexing Service</span><span>1.6 MB</span></label>
+          <label class="preview-row"><span>☐</span><span>Management and Monitoring Tools</span><span>4.1 MB</span></label>
+        </div>
+        <div class="dialog-actions"><button class="xp-button default" id="componentClose" type="button" data-autofocus>Close</button></div>`
+    });
+    $('#componentClose', dialogBody).addEventListener('click', () => closeDialog());
+  }
+
+  function showPrograms(){
+    openDialog({
+      caption:'Add or Remove Programs',
+      html:`
+        <div class="dialog-text">Windows XP normally opens Add or Remove Programs here. The entries below are only part of the simulation.</div>
+        <div class="file-preview" style="margin-top:10px">
+          <div class="preview-row"><span>💿</span><span>Windows Media Player 10</span><span>24.0 MB</span></div>
+          <div class="preview-row"><span>🎵</span><span>Winamp</span><span>8.5 MB</span></div>
+          <div class="preview-row"><span>🧰</span><span>Microsoft PowerToys for Windows XP</span><span>5.2 MB</span></div>
+        </div>
+        <div class="dialog-actions"><button class="xp-button default" id="programClose" type="button" data-autofocus>Close</button></div>`
+    });
+    $('#programClose', dialogBody).addEventListener('click', () => closeDialog());
+  }
+
+  function showRestore(){
+    simpleDialog(
+      'Are you sure you want to delete all but the most recent restore point?',
+      {
+        symbol:'❓',
+        buttons:[
+          {label:'Yes', value:'yes', default:true, autofocus:true},
+          {label:'No', value:'no'}
+        ],
+        onClose:(value) => {
+          if(value === 'yes'){
+            setTimeout(() => simpleDialog('Old restore points have been removed in the simulation.', {symbol:'ℹ️'}), 0);
+          }
+        }
+      }
+    );
+  }
+
+  function beginCleanup(){
+    const selected = files.filter(f => f.checked && f.kb > 0);
+    if(!selected.length){
+      simpleDialog('There are no selected files to clean up.', {symbol:'ℹ️'});
+      return;
+    }
+    const amount = totalSelected();
+    simpleDialog(
+      `Are you sure you want to perform these actions?<br><br>Disk Cleanup will free approximately <b>${formatKB(amount)}</b> on ${escapeHtml(drive)}.`,
+      {
+        symbol:'❓',
+        buttons:[
+          {label:'Yes', value:'yes', default:true, autofocus:true},
+          {label:'No', value:'no'}
+        ],
+        onClose:(value) => { if(value === 'yes') setTimeout(() => runCleaning(selected, amount), 0); }
+      }
+    );
+  }
+
+  function runCleaning(selected, amount){
+    openDialog({
+      caption:'Disk Cleanup',
+      html:`
+        <div class="dialog-text">Disk Cleanup is cleaning up unnecessary files on your computer.</div>
+        <div class="cleaning-box">
+          <div class="cleaning-status" id="cleaningStatus">Cleaning: ${escapeHtml(selected[0].name)}</div>
+          <div class="progress-shell"><div class="progress-fill" id="cleaningProgress"></div></div>
+        </div>
+        <div class="dialog-actions"><button class="xp-button" id="cleaningCancel" type="button">Cancel</button></div>`
+    });
+
+    const bar = $('#cleaningProgress', dialogBody);
+    const status = $('#cleaningStatus', dialogBody);
+    let progress = 0;
+    let cancelled = false;
+    $('#cleaningCancel', dialogBody).addEventListener('click', () => {
+      cancelled = true;
+      clearInterval(cleaningTimer);
+      cleaningTimer = null;
+      closeDialog();
+      simpleDialog('Disk Cleanup was canceled before all selected files were processed.', {symbol:'ℹ️'});
+    });
+
+    cleaningTimer = setInterval(() => {
+      if(cancelled) return;
+      progress += 4 + Math.random()*5;
+      if(progress > 100) progress = 100;
+      bar.style.width = `${progress}%`;
+      const idx = Math.min(selected.length - 1, Math.floor((progress / 100) * selected.length));
+      status.textContent = `Cleaning: ${selected[idx].name}`;
+      if(progress >= 100){
+        clearInterval(cleaningTimer);
+        cleaningTimer = null;
+        selected.forEach(f => { f.kb = 0; });
+        closeDialog();
+        updateAll();
+        setTimeout(() => simpleDialog(`Disk Cleanup has completed. <b>${formatKB(amount)}</b> was freed in this simulation.`, {symbol:'✅'}), 0);
+      }
+    }, 100);
+  }
+
+  $('#tabCleanup').addEventListener('click', () => setTab('cleanup'));
+  $('#tabMore').addEventListener('click', () => setTab('more'));
+  $('#scanCancelBtn').addEventListener('click', showCancelled);
+  $('#cancelBtn').addEventListener('click', showCancelled);
+  $('#cancelBtnMore').addEventListener('click', showCancelled);
+  $('#reopenBtn').addEventListener('click', startScan);
+  $('#okBtn').addEventListener('click', beginCleanup);
+  $('#okBtnMore').addEventListener('click', beginCleanup);
+  viewFilesBtn.addEventListener('click', showPreview);
+
+  $$('[data-more]').forEach(btn => btn.addEventListener('click', () => {
+    if(btn.dataset.more === 'components') showComponents();
+    if(btn.dataset.more === 'programs') showPrograms();
+    if(btn.dataset.more === 'restore') showRestore();
+  }));
+
+  fileList.addEventListener('keydown', (e) => {
+    if(e.key === 'ArrowDown'){
+      e.preventDefault();
+      activeIndex = Math.min(files.length - 1, activeIndex + 1);
+      updateAll();
+    }else if(e.key === 'ArrowUp'){
+      e.preventDefault();
+      activeIndex = Math.max(0, activeIndex - 1);
+      updateAll();
+    }else if(e.key === ' '){
+      e.preventDefault();
+      files[activeIndex].checked = !files[activeIndex].checked;
+      updateAll();
+    }else if(e.key === 'Enter'){
+      e.preventDefault();
+      showPreview();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape'){
+      if(!dialogLayer.classList.contains('hidden')) closeDialog('no');
+      else showCancelled();
+    }
+  });
+
+  dialogLayer.addEventListener('mousedown', (e) => {
+    if(e.target === dialogLayer){
+      // Native Windows dialogs do not close just because the shaded background is clicked.
+      $('#dialogBox').animate(
+        [{transform:'translateX(0)'},{transform:'translateX(-2px)'},{transform:'translateX(2px)'},{transform:'translateX(0)'}],
+        {duration:130}
+      );
+    }
+  });
+
+  startScan();
+})();
+</script>
+</body>
+</html>

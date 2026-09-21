@@ -1,0 +1,226 @@
+@font-face {
+  font-family: DejaVu;
+  src: url('DejaVu.ttf');
+}
+body {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  background-color: darkgreen;
+  font-family: DejaVu;
+}
+
+/* Hide scrollbar but allow scrolling */
+body {
+  -ms-overflow-style: none; /* for Internet Explorer, Edge */
+  scrollbar-width: none;    /* for Firefox */
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+body::-webkit-scrollbar {
+  display: none; /* for Chrome, Safari, and Opera */
+}
+
+/* Styles for the game table */
+table.reserve {
+  border-spacing: 5px;
+  margin: auto;
+}
+table.tableau {
+  border-spacing: 10px;
+  margin: auto;
+}
+div.logo {
+  color: aqua;
+  font-size: 24px;
+  margin: 10px;
+  text-align: center;
+  text-shadow: 3px 3px 2px black;
+}
+div.wins {
+  color: yellow;
+  font-size: 16px;
+  text-align: center;
+  text-shadow: 2px 2px 2px black;
+}
+div.card {
+  display: none;
+  position: absolute;
+}
+table.blackcard:hover, table.redcard:hover {
+  background: lightgrey;
+}
+table.blackcard, table.redcard, td.nocard {
+  background-color: floralwhite;
+  border: 1px solid lightgrey;
+  border-radius: 6px;
+  border-spacing: 0px;
+  font-size: 24px;
+  height: 136px;
+  width: 106px;
+  text-align: center;
+  overflow: hidden;
+}
+table.blackcard {
+  color: black;
+}
+table.redcard {
+  color: red;
+}
+td.nocard {
+  background-color: green;
+  height: 136px;
+  width: 102px;
+}
+td.left {
+  font-size: 20px;
+  letter-spacing: -4px;
+  line-height: 1.1;
+  padding-top: 4px;
+  vertical-align: top;
+}
+td.right {
+  font-size: 20px;
+  letter-spacing: -4px;
+  line-height: 1.1;
+  vertical-align: top;
+  padding-top: 4px;
+	transform: rotate(180deg);
+}
+td.center {
+  line-height: 1.1;
+  padding: 0;
+  vertical-align: middle;
+}
+td.center_large, td.picture {
+  font-size: 200%;
+  line-height: 1.1;
+  padding: 0;
+  vertical-align: middle;
+}
+td.picture {
+  transform: scale(1.5, 2.0);
+}
+div.up {
+}
+div.down {
+	transform: rotate(180deg);
+}
+div.pad {
+  font-size: 50%;
+}
+div.rank {
+  transform: scale(1.5, 1.5);
+}
+div.rank2 {
+  transform: scale(1.0, 1.5);
+}
+div.suit {
+  transform: scale(0.8, 0.8);
+}
+div.suit2 {
+  left: 9px;
+  bottom: 3px;
+  position: absolute;
+  transform: scale(0.8, 0.8) rotate(180deg);
+}
+
+/* Styles for the options dialog */
+div.options {
+  background: transparent;
+  font-size: 22px;
+  height: 37px;
+  margin: auto;
+  opacity: 0.8;
+  position: relative;
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+  z-index: 101;
+}
+label {
+  color: lightblue;
+}
+label.control {
+  font-size: 130%;
+}
+label.separator {
+  color: grey;
+  font-size: 130%;
+  text-shadow: 1px 1px 1px black;
+}
+label#difficulty, label#moves, label#elapse {
+  display: inline-block;
+  font-size: 22px;
+  width: 20px;
+}
+label#moves {
+  width: 40px;
+}
+label#elapse {
+  width: 60px;
+}
+label#replay {
+  display: none;
+}
+input, select {
+  appearance: none;
+  background: transparent;
+  border: 0px;
+  color: yellow;
+  font-family: DejaVu;
+  font-size: 22px;
+}
+input:hover, select:hover {
+  background: green;
+}
+
+/* Styles for showing messages */
+div.message {
+  display: none;
+  color: yellow;
+  font-family: DejaVu;
+  font-size: 80px;
+  font-style: italic;
+  font-weight: bold;
+  left: 0;
+  opacity: 1.0;
+  position: absolute;
+  text-align: center;
+  text-shadow: 3px 3px 2px grey;
+  width: 100%;
+  z-index: 1001;
+}
+div#alert {
+  background: black;
+  font-size: 60px;
+  text-shadow: 2px 2px 1px grey;
+}
+div.tip {
+  background: lightyellow;
+  border-radius: 6px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
+  color: black;
+  display: none;
+  font-family: DejaVu;
+  font-size: 15px;
+  opacity: 0.95;
+  padding: 4px;
+  position: absolute;
+  text-shadow: 1px 2px 5px grey;
+  z-index: 1001;
+}
+div#instructions {
+  font-size: 18px;
+}
+div.line {
+  background: orange;
+  display: none;
+  padding: 1px;
+  position: absolute;
+  transform: rotate(90deg);
+  z-index: 1000;
+}

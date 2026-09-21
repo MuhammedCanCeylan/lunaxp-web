@@ -1,0 +1,2138 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Muhammed Can Ceylan - Windows XP Professional</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: Tahoma, 'Segoe UI', sans-serif; }
+html, body { width: 100%; height: 100%; }
+body {
+    width: 100vw; height: 100vh; overflow: hidden; background: #3a6ea5;
+    display: flex; flex-direction: column; justify-content: space-between; position: relative;
+}
+body.wall-bliss { background: url('https://upload.wikimedia.org/wikipedia/en/2/27/Bliss_%28Windows_XP%29.png') no-repeat center center fixed; background-size: cover; }
+body.wall-blue  { background: #1941a5; }
+body.wall-green { background: #14562d; }
+body.wall-red   { background: #7a1414; }
+
+/* BOOT */
+#bootScreen {
+    position: fixed; inset: 0; background: #000; z-index: 99999;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff;
+}
+.boot-logo { display: flex; align-items: center; gap: 14px; margin-bottom: 46px; }
+.boot-logo-text { font-size: 40px; font-weight: 300; letter-spacing: 1px; }
+.boot-bar-track { width: 220px; height: 14px; border: 1px solid #2a2a2a; border-radius: 3px; overflow: hidden; background: #111; }
+.boot-chunk { width: 30px; height: 100%; background: linear-gradient(to bottom,#4f9cf9,#0a3fae); margin-right: 4px; animation: bootMove 1.2s linear infinite; }
+@keyframes bootMove { 0% { transform: translateX(-140px); } 100% { transform: translateX(260px); } }
+
+/* LOGIN */
+#loginScreen {
+    position: fixed; inset: 0; z-index: 99998;
+    background: linear-gradient(120deg, #1a3faa 0%, #2f6fd6 45%, #6fb0f0 100%);
+    display: none; flex-direction: column; color: #fff; overflow: hidden;
+}
+.login-top { padding: 22px 34px 0; display: flex; align-items: center; gap: 12px; }
+.login-top .xp-title { font-size: 26px; font-style: italic; }
+.login-mid { flex: 1; display: flex; align-items: center; justify-content: center; gap: 60px; }
+.login-divider { width: 2px; height: 220px; background: rgba(255,255,255,0.5); }
+.user-tile { display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; padding: 14px 18px; border-radius: 8px; }
+.user-tile:hover { background: rgba(255,255,255,0.18); }
+.user-tile-pic { width: 72px; height: 72px; border-radius: 6px; border: 2px solid #fff; box-shadow: 2px 3px 8px rgba(0,0,0,0.5); object-fit: cover; background: #333; }
+.user-tile-name { font-size: 16px; font-weight: bold; }
+
+/* SHUTDOWN */
+#shutdownScreen {
+    position: fixed; inset: 0; z-index: 99997; background: #000; color: #fff;
+    display: none; align-items: center; justify-content: center; flex-direction: column; gap: 20px;
+}
+.shutdown-msg { font-size: 16px; letter-spacing: .5px; font-weight: bold; }
+.shutdown-btn {
+    background: linear-gradient(to bottom, #4a90f2, #0d51c9); color: #fff; border: 1px solid #fff;
+    padding: 8px 18px; border-radius: 4px; cursor: pointer; font-size: 12px;
+}
+
+/* 3D PIPES */
+#screensaverCanvas { position: fixed; inset: 0; z-index: 99990; display: none; background: #000; cursor: none; }
+
+/* MASAÜSTÜ & SİMGELER */
+.desktop { flex: 1; position: relative; overflow: hidden; }
+.icon {
+    position: absolute; width: 80px; display: flex; flex-direction: column; align-items: center;
+    cursor: pointer; text-align: center; padding: 6px 4px; border-radius: 3px; border: 1px solid transparent;
+    touch-action: none;
+}
+.icon:hover, .icon.selected { background-color: rgba(49, 106, 197, 0.35); border: 1px solid rgba(49, 106, 197, 0.7); }
+.icon img { width: 38px; height: 38px; margin-bottom: 4px; filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.6)); pointer-events: none; }
+.icon span { color: #ffffff; font-size: 11px; text-shadow: 1px 1px 2px #000, -1px -1px 2px #000; pointer-events: none; }
+
+/* SAĞ TIK */
+.context-menu {
+    position: absolute; display: none; flex-direction: column; z-index: 30000;
+    background: #fff; border: 1px solid #6a8ecb; box-shadow: 3px 3px 10px rgba(0,0,0,0.4);
+    min-width: 180px; padding: 3px; border-radius: 2px;
+}
+.ctx-item { padding: 5px 12px; font-size: 12px; cursor: pointer; }
+.ctx-item:hover { background: #316ac5; color: #fff; }
+.ctx-sep { height: 1px; background: #d9d5c9; margin: 3px 4px; }
+
+/* CLIPPY */
+#clippyContainer {
+    position: fixed; bottom: 40px; right: 25px; z-index: 8000; display: flex; align-items: flex-end; gap: 10px; cursor: pointer;
+}
+.clippy-bubble {
+    background: #ffffe1; border: 1px solid #000; border-radius: 6px; padding: 8px 12px; font-size: 11px;
+    max-width: 210px; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); position: relative; color: #000; line-height: 1.35;
+}
+.clippy-bubble::after {
+    content: ''; position: absolute; bottom: 10px; right: -6px; border-width: 6px 0 6px 6px;
+    border-style: solid; border-color: transparent transparent transparent #ffffe1;
+}
+.clippy-svg { width: 48px; height: 58px; filter: drop-shadow(2px 3px 4px rgba(0,0,0,0.35)); }
+
+/* BONZIBUDDY */
+#bonziBuddy {
+    position: absolute; bottom: 120px; left: 280px; z-index: 9500; display: none;
+    flex-direction: column; align-items: center; cursor: move;
+}
+.bonzi-bubble {
+    background: #fff8c6; border: 2px solid #5a3c10; border-radius: 8px; padding: 10px 14px;
+    font-size: 12px; max-width: 240px; box-shadow: 3px 3px 8px rgba(0,0,0,0.4); color: #000;
+    margin-bottom: 8px; position: relative; font-weight: 500; line-height: 1.35;
+}
+.bonzi-bubble::after {
+    content: ''; position: absolute; bottom: -8px; left: 50%; border-width: 8px 8px 0 8px;
+    border-style: solid; border-color: #5a3c10 transparent transparent transparent; transform: translateX(-50%);
+}
+.bonzi-avatar-img { width: 100px; height: 100px; object-fit: contain; filter: drop-shadow(3px 5px 6px rgba(0,0,0,0.5)); cursor: pointer; }
+
+/* BAŞLAT MENÜSÜ */
+.start-menu {
+    position: absolute; bottom: 30px; left: 0; width: 340px; background: #fff; border-radius: 6px 6px 0 0;
+    box-shadow: 4px -4px 15px rgba(0,0,0,0.5); display: none; flex-direction: column; border: 2px solid #0055ea; z-index: 20000;
+    overflow: hidden;
+}
+.start-header { background: linear-gradient(to bottom, #1d6df2 0%, #0053ee 100%); padding: 8px 10px; display: flex; align-items: center; gap: 10px; color: white; font-weight: bold; font-size: 13px; height: 56px; }
+.start-body { display: flex; background: #fff; min-height: 260px; }
+.start-left { width: 55%; padding: 8px; display: flex; flex-direction: column; gap: 4px; }
+.start-right { width: 45%; padding: 8px; background: #d3e5fa; border-left: 1px solid #9bbcf0; display: flex; flex-direction: column; gap: 4px; font-size: 11px; }
+.menu-item { display: flex; align-items: center; gap: 8px; padding: 5px; cursor: pointer; border-radius: 3px; font-size: 11px; }
+.menu-item:hover { background: #316ac5; color: white !important; }
+.start-footer { background: linear-gradient(to bottom, #2f6fd6 0%, #1b4fbb 100%); display: flex; justify-content: flex-end; gap: 8px; padding: 6px 10px; }
+.start-footer-btn { color: #fff; font-size: 11px; font-weight: bold; cursor: pointer; padding: 4px 8px; border-radius: 3px; }
+.start-footer-btn:hover { background: rgba(255,255,255,0.2); }
+
+/* PENCERELER (RESIZABLE) */
+.window {
+    position: absolute; background: #ece9d8; border-radius: 6px 6px 0 0; box-shadow: 2px 4px 16px rgba(0,0,0,0.5);
+    display: none; flex-direction: column; border: 3px solid #0055ea; overflow: hidden; z-index: 10;
+    resize: both; min-width: 280px; min-height: 180px;
+}
+.window-header {
+    background: linear-gradient(to bottom, #0058ee 0%, #3593ff 6%, #0058ee 14%, #0053ee 100%);
+    padding: 3px 6px; display: flex; justify-content: space-between; align-items: center; color: white;
+    font-weight: bold; font-size: 12px; cursor: move; text-shadow: 1px 1px 1px #002e8a; flex: 0 0 auto; height: 26px;
+}
+.window-header-title { display: flex; align-items: center; gap: 6px; }
+.window-header-title img { width: 15px; height: 15px; }
+.window-btns { display: flex; gap: 3px; }
+.win-btn {
+    width: 20px; height: 20px; border: 1px solid #fff; border-radius: 3px; display: flex;
+    align-items: center; justify-content: center; font-size: 11px; font-weight: bold; cursor: pointer; color: white;
+    background: linear-gradient(to bottom, #4282f4 0%, #1958c9 100%);
+}
+.win-close { background: linear-gradient(to bottom, #e87a6c 0%, #ca3b2b 50%, #9e1d10 100%); }
+.win-close:hover { filter: brightness(1.2); }
+.window-content { flex: 1; background: #fff; overflow: auto; display: flex; flex-direction: column; min-height: 0; position: relative; }
+
+/* DOSYA GEZGİNİ */
+.xp-menu-bar { background: #ece9d8; padding: 2px 6px; display: flex; justify-content: space-between; border-bottom: 1px solid #dcd8c8; font-size: 11px; }
+.xp-menu-items { display: flex; gap: 10px; }
+.xp-menu-items span { cursor: pointer; padding: 2px 4px; }
+.xp-menu-items span:hover { background: #316ac5; color: #fff; }
+.xp-toolbar-row { background: #ece9d8; padding: 3px 6px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #c0c0c0; }
+.xp-tool-btn { display: flex; align-items: center; gap: 4px; font-size: 11px; padding: 2px 6px; cursor: pointer; border-radius: 3px; }
+.xp-tool-btn:hover { background: #dcd8c8; }
+.xp-address-row { background: #ece9d8; padding: 3px 8px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #999; font-size: 11px; }
+.xp-address-box { flex: 1; background: #fff; border: 1px solid #7f9db9; height: 20px; display: flex; align-items: center; padding: 0 4px; font-size: 11px; }
+
+.xp-exp-body { display: flex; flex: 1; height: 100%; overflow: hidden; }
+.xp-accordion-left { width: 190px; background: linear-gradient(to bottom, #7ba2e7 0%, #6375d6 100%); padding: 10px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; flex-shrink: 0; }
+.xp-acc-card { background: #fff; border-radius: 4px 4px 0 0; overflow: hidden; box-shadow: 1px 1px 3px rgba(0,0,0,0.2); }
+.xp-acc-head { background: linear-gradient(to right, #225ad7 0%, #3982f7 100%); color: white; font-weight: bold; font-size: 11px; padding: 4px 8px; }
+.xp-acc-content { padding: 6px 8px; background: #d3e5fa; display: flex; flex-direction: column; gap: 4px; font-size: 11px; }
+.xp-acc-item { display: flex; align-items: center; gap: 6px; cursor: pointer; color: #0c327d; }
+.xp-acc-item:hover { text-decoration: underline; }
+.xp-exp-right { flex: 1; background: #fff; padding: 14px; display: grid; grid-template-columns: repeat(auto-fill, 130px); grid-gap: 16px; align-content: flex-start; overflow-y: auto; }
+.xp-file-item { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px; border-radius: 3px; font-size: 11px; }
+.xp-file-item:hover { background: #e5edf9; outline: 1px solid #b2cbed; }
+.xp-status-bar { height: 20px; background: #ece9d8; border-top: 1px solid #aca899; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; font-size: 11px; color: #444; }
+
+/* INTERNET EXPLORER */
+#ieWindow { width: 720px; height: 520px; }
+.ie-toolbar { background: #ece9d8; border-bottom: 1px solid #999; padding: 4px 6px; display: flex; align-items: center; gap: 6px; font-size: 11px; }
+.ie-nav-btn { background: #ece9d8; border: 1px solid #999; border-radius: 3px; padding: 2px 6px; font-size: 11px; cursor: pointer; }
+.ie-nav-btn:hover { background: #d3e5fa; }
+.ie-addr-input { flex: 1; height: 22px; border: 1px inset #808080; padding: 0 6px; font-size: 12px; }
+.ie-links-bar { background: #ece9d8; padding: 2px 8px; border-bottom: 1px solid #aca899; display: flex; align-items: center; gap: 10px; font-size: 11px; }
+.ie-link-item { color: #000; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 3px; }
+.ie-link-item:hover { text-decoration: underline; color: #0055ea; }
+.ie-page { flex: 1; overflow: auto; padding: 16px; background: #fff; }
+
+/* PINBALL */
+#pinballWindow { width: 606px; height: 442px; }
+.pinball-wrapper { width: 100%; height: 100%; overflow: hidden; background: #000; position: relative; }
+#pinballFrame {
+    width: 600px; height: calc(100% + 26px); border: none; display: block;
+    margin-top: -26px;
+}
+
+/* PAINT & DOOM */
+#paintWindow { width: 740px; height: 530px; }
+#doomWindow { width: 646px; height: 480px; }
+
+/* TARİH VE SAAT */
+#dateTimeWindow { width: 440px; height: 380px; resize: none; }
+.dt-tabs { display: flex; gap: 2px; border-bottom: 1px solid #999; padding-left: 8px; background: #ece9d8; padding-top: 6px; }
+.dt-tab { padding: 4px 10px; background: #ece9d8; border: 1px solid #999; border-bottom: none; border-radius: 4px 4px 0 0; font-size: 11px; cursor: pointer; }
+.dt-tab.active { background: #fff; font-weight: bold; border-bottom: 1px solid #fff; margin-bottom: -1px; }
+.dt-body { flex: 1; padding: 12px; background: #fff; display: flex; flex-direction: column; gap: 12px; font-size: 11px; }
+.dt-row { display: flex; gap: 14px; }
+.dt-group { border: 1px solid #999; border-radius: 4px; padding: 10px; flex: 1; position: relative; }
+.dt-legend { position: absolute; top: -8px; left: 8px; background: #fff; padding: 0 4px; font-size: 11px; color: #003399; }
+.dt-calendar-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 11px; margin-top: 6px; }
+.dt-calendar-table th { color: #555; padding: 2px; }
+.dt-calendar-table td { padding: 3px; cursor: pointer; }
+.dt-calendar-table td.today { outline: 1px solid #000; font-weight: bold; background: #cce4f7; }
+.dt-clock-canvas { width: 120px; height: 120px; display: block; margin: 0 auto; }
+.dt-btn-row { display: flex; justify-content: flex-end; gap: 8px; background: #ece9d8; padding: 8px; border-top: 1px solid #ccc; }
+
+/* GÖRÜNTÜ ÖZELLİKLERİ */
+#displayPropsWindow { width: 360px; height: 280px; resize: none; }
+.wall-option { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 3px; cursor: pointer; font-size: 12px; }
+.wall-option:hover { background: #dbe8fb; }
+.wall-swatch { width: 46px; height: 30px; border: 1px solid #888; }
+
+/* WINAMP 2.9 */
+#winampWindow { width: 310px; height: 340px; border-color: #333; resize: vertical; }
+.winamp-screen { background: #000; color: #00ff00; font-family: monospace; padding: 6px; display: flex; flex-direction: column; gap: 4px; font-size: 11px; }
+.winamp-eq { height: 16px; display: flex; gap: 2px; align-items: flex-end; }
+.winamp-eq-bar { width: 6px; background: #00ff00; height: 4px; transition: height 0.1s; }
+.winamp-controls { display: flex; justify-content: space-around; padding: 8px 4px; background: #3b3b3b; border-top: 1px solid #111; }
+.winamp-btn { background: #4a4a4a; border: 1px outset #666; color: #fff; font-size: 10px; padding: 3px 6px; cursor: pointer; }
+
+/* AVAST */
+#avastWindow { width: 480px; height: 320px; }
+.avast-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; background: #f4f4f4; flex: 1; }
+.avast-header-bar { display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #0055ea; padding-bottom: 8px; }
+.avast-scan-box { background: #fff; border: 1px inset #808080; padding: 10px; font-size: 11px; display: flex; flex-direction: column; gap: 6px; }
+.avast-progress-bar { height: 16px; border: 1px solid #777; background: #eee; overflow: hidden; }
+.avast-progress-fill { width: 0%; height: 100%; background: linear-gradient(to right, #225ad7, #3982f7); transition: width 0.2s; }
+
+/* ORİJİNAL XP SES POPUP (Görsel 3 ile Birebir Aynı) */
+#volumePopup {
+    position: absolute; bottom: 31px; right: 60px; width: 78px; height: 168px;
+    background: #ece9d8; border: 2px outset #ffffff;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.5); display: none; flex-direction: column;
+    align-items: center; justify-content: space-between; padding: 10px 4px 8px; z-index: 25000;
+}
+.vol-title { font-size: 11px; font-family: Tahoma, sans-serif; color: #000; margin-bottom: 4px; }
+.vol-groove-wrapper { position: relative; width: 32px; height: 100px; display: flex; justify-content: center; align-items: center; }
+.vol-groove-line {
+    position: absolute; width: 2px; height: 90px;
+    background: #808080; border-right: 1px solid #ffffff;
+}
+.vol-range-input {
+    position: absolute; width: 90px; height: 28px;
+    transform: rotate(-90deg); -webkit-appearance: none; background: transparent; cursor: pointer;
+    margin: 0; outline: none; z-index: 5;
+}
+.vol-range-input::-webkit-slider-runnable-track { width: 90px; height: 2px; background: transparent; }
+.vol-range-input::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 11px; height: 26px; border-radius: 1px;
+    background: linear-gradient(to right, #1dbb1d 0%, #1dbb1d 15%, #ece9d8 20%, #ffffff 50%, #b0b0b0 80%, #1dbb1d 85%, #1dbb1d 100%);
+    border: 1px solid #000; box-shadow: 1px 1px 2px rgba(0,0,0,0.4); cursor: pointer;
+}
+.vol-mute-row { font-size: 11px; font-family: Tahoma, sans-serif; color: #000; display: flex; align-items: center; gap: 4px; cursor: pointer; }
+
+/* GÖREV ÇUBUĞU */
+.taskbar {
+    height: 30px; background: linear-gradient(to bottom, #245edb 0%, #3f8cf3 9%, #245edb 18%, #245edb 92%, #1941a5 100%);
+    display: flex; align-items: center; position: relative; z-index: 10000; border-top: 1px solid #3f8cf3;
+}
+.start-btn {
+    height: 30px; width: 105px; background: linear-gradient(to bottom, #388e3c 0%, #4caf50 15%, #2e7d32 85%, #1b5e20 100%);
+    border-radius: 0 10px 10px 0; display: flex; align-items: center; padding-left: 8px; cursor: pointer;
+}
+.start-btn span { color: #fff; font-weight: bold; font-style: italic; font-size: 14px; margin-left: 6px; }
+#taskbarApps { flex: 1; display: flex; align-items: center; gap: 4px; padding: 0 6px; overflow: hidden; height: 100%; }
+.task-btn { height: 22px; background: #2f66d6; border: 1px solid #143d99; border-radius: 3px; display: flex; align-items: center; gap: 6px; padding: 0 8px; color: #fff; font-size: 11px; cursor: pointer; }
+.task-btn.active { background: #0d3ea3; }
+.tray { height: 100%; background: #095bc5; border-left: 1px solid #104193; display: flex; align-items: center; gap: 8px; padding: 0 10px; color: #fff; font-size: 11px; }
+
+/* MAYIN TARLASI */
+#minesweeper { width: 230px; height: auto; resize: none; }
+.ms-board { background: #c0c0c0; border: 3px solid #fff; border-right-color: #808080; border-bottom-color: #808080; padding: 8px; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.ms-header { width: 100%; background: #c0c0c0; border: 2px inset #fff; display: flex; justify-content: space-between; align-items: center; padding: 4px 6px; }
+.ms-lcd { background: #000; color: #f00; font-family: monospace; font-size: 18px; font-weight: bold; padding: 2px 4px; border: 1px inset #808080; }
+.ms-face { font-size: 16px; cursor: pointer; border: 2px outset #fff; padding: 2px 4px; background: #c0c0c0; }
+.ms-grid { display: grid; grid-template-columns: repeat(9, 20px); grid-template-rows: repeat(9, 20px); border: 2px inset #fff; }
+.ms-cell { width: 20px; height: 20px; background: #c0c0c0; border: 2px outset #fff; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.ms-cell.revealed { border: 1px solid #7b7b7b; cursor: default; }
+
+/* WORDPAD */
+.cv-toolbar { background: #ece9d8; padding: 4px 8px; border-bottom: 1px solid #999; font-size: 11px; display: flex; gap: 14px; }
+.wordpad-content { padding: 24px; font-family: 'Times New Roman', serif; font-size: 14px; line-height: 1.6; color: #000; user-select: text; }
+.wordpad-content h1 { font-size: 24px; border-bottom: 2px solid #0055ea; margin-bottom: 8px; color: #002e8a; }
+.wordpad-content h2 { font-size: 16px; margin-top: 14px; margin-bottom: 4px; color: #0055ea; border-bottom: 1px dotted #aaa; cursor: pointer; }
+.wordpad-content h2:hover { color: #d00000; }
+
+/* NOT DEFTERİ */
+#notepadWindow { width: 520px; height: 420px; }
+.np-menubar { background: #ece9d8; padding: 2px 6px; display: flex; gap: 12px; border-bottom: 1px solid #c0c0c0; font-size: 11px; flex: 0 0 auto; }
+.np-menubar span { padding: 2px 6px; cursor: pointer; border-radius: 2px; }
+.np-menubar span:hover { background: #316ac5; color: #fff; }
+#notepadText {
+    flex: 1; width: 100%; border: none; outline: none; resize: none;
+    font-family: 'Courier New', monospace; font-size: 13px; padding: 6px 8px; line-height: 1.4; color: #000;
+}
+.np-statusbar { flex: 0 0 auto; height: 18px; background: #ece9d8; border-top: 1px solid #aca899; display: flex; align-items: center; justify-content: flex-end; padding: 0 10px; font-size: 10px; color: #444; }
+
+/* HESAP MAKİNESİ */
+#calcWindow { width: 230px; height: 300px; resize: none; }
+.calc-body { background: #ece9d8; flex: 1; display: flex; flex-direction: column; padding: 8px; gap: 6px; }
+.calc-menubar { background: #ece9d8; padding: 2px 6px; display: flex; gap: 12px; border-bottom: 1px solid #c0c0c0; font-size: 11px; flex: 0 0 auto; }
+.calc-display {
+    background: #fff; border: 1px inset #808080; text-align: right; font-family: 'Courier New', monospace;
+    font-size: 20px; padding: 6px 8px; height: 32px; line-height: 32px; overflow: hidden; white-space: nowrap;
+    color: #000;
+}
+.calc-mem-row { display: flex; justify-content: flex-start; font-size: 11px; height: 14px; color: #333; padding-left: 2px; }
+.calc-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; flex: 1; }
+.calc-grid.calc-toprow { flex: 0 0 auto; grid-template-rows: auto; margin-bottom: 2px; }
+.calc-btn {
+    background: linear-gradient(to bottom, #fefefe 0%, #ece9d8 100%); border: 1px outset #fff;
+    border-radius: 3px; font-size: 12px; font-weight: bold; cursor: pointer; color: #000;
+    display: flex; align-items: center; justify-content: center; min-height: 26px;
+}
+.calc-btn:active { border-style: inset; background: #d6d2c4; }
+.calc-btn.calc-op { color: #003c8f; }
+.calc-btn.calc-eq { background: linear-gradient(to bottom, #6fb0f0 0%, #2f6fd6 100%); color: #fff; grid-column: span 1; }
+.calc-btn.calc-zero { grid-column: span 2; }
+
+/* GERİ DÖNÜŞÜM KUTUSU */
+#recycleBinWindow { width: 560px; height: 400px; }
+.rb-toolbar { background: #ece9d8; padding: 4px 8px; border-bottom: 1px solid #999; font-size: 11px; display: flex; gap: 16px; align-items: center; }
+.rb-toolbar span { cursor: pointer; color: #003c8f; font-weight: bold; }
+.rb-toolbar span:hover { text-decoration: underline; }
+.rb-body { flex: 1; background: #fff; padding: 14px; display: grid; grid-template-columns: repeat(auto-fill, 130px); grid-gap: 14px; align-content: flex-start; overflow-y: auto; }
+.rb-item { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 4px; border-radius: 3px; cursor: pointer; font-size: 11px; text-align: center; }
+.rb-item:hover { background: #e5edf9; outline: 1px solid #b2cbed; }
+.rb-empty-msg { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: #888; font-size: 12px; }
+</style>
+</head>
+<body class="wall-bliss" id="bodyEl">
+
+<canvas id="screensaverCanvas"></canvas>
+
+<!-- BOOT -->
+<div id="bootScreen">
+    <div class="boot-logo">
+        <svg style="width:46px;height:46px;" viewBox="0 0 40 40">
+            <rect x="1" y="1" width="17" height="17" fill="#f25022"/>
+            <rect x="21" y="1" width="17" height="17" fill="#7fba00"/>
+            <rect x="1" y="21" width="17" height="17" fill="#00a4ef"/>
+            <rect x="21" y="21" width="17" height="17" fill="#ffb900"/>
+        </svg>
+        <div class="boot-logo-text">Windows<b> xp</b></div>
+    </div>
+    <div class="boot-bar-track"><div class="boot-chunk"></div></div>
+</div>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+    <div class="login-top"><div class="xp-title">windows<b> xp</b></div></div>
+    <div class="login-mid">
+        <div style="font-size:14px; text-align:right;">Devam etmek için<br>hesabınızı tıklatın</div>
+        <div class="login-divider"></div>
+        <div class="user-tile" onclick="doLogin()">
+            <img id="userAvatar" style="width:72px!important; height:72px!important; border-radius:6px; border:2px solid #fff; object-fit:cover; background:#333;" src="./profil.jpg" onerror="this.onerror=null; this.src='https://win98icons.alexmeub.com/icons/png/user_computer-0.png';" alt="Kullanıcı">
+            <div class="user-tile-name">Muhammed Can Ceylan</div>
+            <div style="font-size:11px; opacity:.8;">Yönetici</div>
+        </div>
+    </div>
+</div>
+
+<!-- SHUTDOWN -->
+<div id="shutdownScreen">
+    <svg style="width:50px;height:50px;" viewBox="0 0 40 40">
+        <rect x="1" y="1" width="17" height="17" fill="#f25022"/>
+        <rect x="21" y="1" width="17" height="17" fill="#7fba00"/>
+        <rect x="1" y="21" width="17" height="17" fill="#00a4ef"/>
+        <rect x="21" y="21" width="17" height="17" fill="#ffb900"/>
+    </svg>
+    <div class="shutdown-msg" id="shutdownText">Windows kapatılıyor...</div>
+    <button class="shutdown-btn" id="restartBtn" style="display:none;" onclick="restartDesktop()">Yeniden Başlat</button>
+</div>
+
+<!-- SAĞ TIK MENÜSÜ -->
+<div id="desktopContextMenu" class="context-menu">
+    <div class="ctx-item" onclick="arrangeIcons(); hideContextMenu();">Simgeleri Otomatik Diz</div>
+    <div class="ctx-sep"></div>
+    <div class="ctx-item" onclick="location.reload();">Yenile</div>
+    <div class="ctx-sep"></div>
+    <div class="ctx-item" onclick="openWindow('displayPropsWindow'); hideContextMenu();">Özellikler (Arka Plan)</div>
+</div>
+
+<!-- CLIPPY -->
+<div id="clippyContainer" onclick="clippyNextDialogue()">
+    <div class="clippy-bubble" id="clippyText">Merhaba! Ben Windows XP asistanın Clippy. Sana nasıl yardımcı olabilirim?</div>
+    <svg class="clippy-svg" viewBox="0 0 100 120">
+        <path d="M50,15 C35,15 25,25 25,45 L25,85 C25,100 35,110 50,110 C65,110 75,100 75,85 L75,35 C75,25 68,18 58,18 C48,18 40,25 40,35 L40,80 C40,88 45,92 50,92 C55,92 60,88 60,80 L60,40" 
+              fill="none" stroke="#8a8a8a" stroke-width="7" stroke-linecap="round"/>
+        <path d="M50,15 C35,15 25,25 25,45 L25,85 C25,100 35,110 50,110 C65,110 75,100 75,85 L75,35 C75,25 68,18 58,18 C48,18 40,25 40,35 L40,80 C40,88 45,92 50,92 C55,92 60,88 60,80 L60,40" 
+              fill="none" stroke="#d0d0d0" stroke-width="4" stroke-linecap="round"/>
+        <ellipse cx="40" cy="45" rx="10" ry="14" fill="#ffffff" stroke="#333" stroke-width="2"/>
+        <circle id="clippyPupilL" cx="42" cy="46" r="5" fill="#111"/>
+        <ellipse cx="62" cy="45" rx="10" ry="14" fill="#ffffff" stroke="#333" stroke-width="2"/>
+        <circle id="clippyPupilR" cx="64" cy="46" r="5" fill="#111"/>
+        <path d="M32,30 Q42,24 48,29" fill="none" stroke="#222" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M54,29 Q60,24 70,30" fill="none" stroke="#222" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+</div>
+
+<!-- BONZIBUDDY (7coil Klon Görseli & Ses Entegrasyonu) -->
+<div id="bonziBuddy" onmousedown="dragWindow(event, 'bonziBuddy')">
+    <div class="bonzi-bubble" id="bonziText">
+        Well hello there! I don't think we've been properly introduced.<br><br><b>I'm Bonzi.</b>
+    </div>
+    <img id="bonziAvatarImg" class="bonzi-avatar-img" src="./bonzi/src/images/bonzi.png" onerror="this.onerror=null; this.src='https://win98icons.alexmeub.com/icons/png/user_computer-0.png';" onclick="bonziTalk()">
+</div>
+
+<!-- BAŞLAT MENÜSÜ -->
+<div id="startMenu" class="start-menu">
+    <div class="start-header">
+        <img src="./profil.jpg" style="width:42px!important; height:42px!important; max-width:42px; max-height:42px; border:2px solid #fff; border-radius:4px; object-fit:cover; flex-shrink:0;" onerror="this.onerror=null; this.src='https://win98icons.alexmeub.com/icons/png/user_computer-0.png';" alt="User">
+        <span>Muhammed Can Ceylan</span>
+    </div>
+    <div class="start-body">
+        <div class="start-left">
+            <div class="menu-item" onclick="openWindow('cvWindow'); hideStartMenu();">
+                <img src="https://win98icons.alexmeub.com/icons/png/write_wordpad-1.png" width="20"><b>Özgeçmiş / CV</b>
+            </div>
+            <div class="menu-item" onclick="openWindow('explorerWindow'); hideStartMenu();">
+                <img src="https://win98icons.alexmeub.com/icons/png/computer_explorer-4.png" width="20"><b>Bilgisayarım</b>
+            </div>
+            <div class="menu-item" onclick="openWindow('paintWindow'); hideStartMenu();">
+                <img src="https://win98icons.alexmeub.com/icons/png/paint_file-3.png" width="20"><b>Ressam (Paint)</b>
+            </div>
+            <div class="menu-item" onclick="openWindow('avastWindow'); hideStartMenu();">
+                <img src="./avast.png" onerror="this.onerror=null; this.src='https://win98icons.alexmeub.com/icons/png/scanner-0.png';" width="20"><b>avast! Antivirus</b>
+            </div>
+            <div class="menu-item" onclick="openWindow('minesweeper'); hideStartMenu();">
+                <img src="./mine.png" onerror="this.onerror=null; this.src='https://win98icons.alexmeub.com/icons/png/mine-0.png';" width="20"><b>Mayın Tarlası</b>
+            </div>
+            <div class="menu-item" onclick="openWindow('pinballWindow'); hideStartMenu();">
+                <img src="https://win98icons.alexmeub.com/icons/png/game_solitaire-0.png" width="20"><b>3D Pinball</b>
+            </div>
+            <div class="menu-item" onclick="openWindow('doomWindow'); hideStartMenu();">
+                <img src="https://win98icons.alexmeub.com/icons/png/joystick-0.png" width="20"><b>DOOM (1993)</b>
+            </div>
+            <div class="menu-item" onclick="openWindow('winampWindow'); hideStartMenu();">
+                <img src="https://win98icons.alexmeub.com/icons/png/cd_audio_cd_a-4.png" width="20"><b>Winamp</b>
+            </div>
+            <div class="menu-item" onclick="navIE('google'); hideStartMenu();">
+                <img src="https://win98icons.alexmeub.com/icons/png/msie2-2.png" width="20"><b>Internet Explorer</b>
+            </div>
+            <div class="menu-item" onclick="openWindow('notepadWindow'); hideStartMenu();">
+                <img src="https://win98icons.alexmeub.com/icons/png/notepad-0.png" width="20"><b>Not Defteri</b>
+            </div>
+            <div class="menu-item" onclick="openWindow('calcWindow'); hideStartMenu();">
+                <img src="https://win98icons.alexmeub.com/icons/png/calculator-0.png" width="20"><b>Hesap Makinesi</b>
+            </div>
+        </div>
+        <div class="start-right">
+            <div class="menu-item" onclick="openWindow('cvWindow'); hideStartMenu();">Belgelerim</div>
+            <div class="menu-item" onclick="navIE('github'); hideStartMenu();">GitHub</div>
+            <div class="menu-item" onclick="openWindow('dateTimeWindow'); hideStartMenu();">Denetim Masası</div>
+            <div class="menu-item" onclick="openWindow('recycleBinWindow'); hideStartMenu();">Geri Dönüşüm Kutusu</div>
+            <div class="menu-item" onclick="restartDesktop(); hideStartMenu();">Yeniden Başlat</div>
+        </div>
+    </div>
+    <div class="start-footer">
+        <div class="start-footer-btn" onclick="executeShutdown();">⏻ Bilgisayarı Kapat</div>
+    </div>
+</div>
+
+<!-- MASAÜSTÜ SİMGELERİ -->
+<div class="desktop" id="desktop" oncontextmenu="showDesktopMenu(event)" onmousedown="handleDesktopMouseDown(event)">
+    <div class="icon" id="icon-cv" style="top:20px; left:20px;" ondblclick="openWindow('cvWindow')">
+        <img src="https://win98icons.alexmeub.com/icons/png/write_wordpad-1.png" alt="CV">
+        <span>Özgeçmiş (CV)</span>
+    </div>
+    <div class="icon" id="icon-exp" style="top:110px; left:20px;" ondblclick="openWindow('explorerWindow')">
+        <img src="https://win98icons.alexmeub.com/icons/png/computer_explorer-4.png" alt="Bilgisayarım">
+        <span>Bilgisayarım</span>
+    </div>
+    <div class="icon" id="icon-paint" style="top:200px; left:20px;" ondblclick="openWindow('paintWindow')">
+        <img src="https://win98icons.alexmeub.com/icons/png/paint_file-3.png" alt="Paint">
+        <span>Paint</span>
+    </div>
+    <div class="icon" id="icon-avast" style="top:290px; left:20px;" ondblclick="openWindow('avastWindow')">
+        <img src="./avast.png" onerror="this.onerror=null; this.src='https://win98icons.alexmeub.com/icons/png/scanner-0.png';" alt="Antivirus">
+        <span>avast! Antivirus</span>
+    </div>
+    <div class="icon" id="icon-winamp" style="top:380px; left:20px;" ondblclick="openWindow('winampWindow')">
+        <img src="https://win98icons.alexmeub.com/icons/png/cd_audio_cd_a-4.png" alt="Winamp">
+        <span>Winamp 2.9</span>
+    </div>
+
+    <div class="icon" id="icon-mines" style="top:20px; left:110px;" ondblclick="openWindow('minesweeper')">
+        <img src="./mine.png" onerror="this.onerror=null; this.src='https://win98icons.alexmeub.com/icons/png/mine-0.png';" alt="Mayın Tarlası">
+        <span>Mayın Tarlası</span>
+    </div>
+    <div class="icon" id="icon-pinball" style="top:110px; left:110px;" ondblclick="openWindow('pinballWindow')">
+        <img src="https://win98icons.alexmeub.com/icons/png/game_solitaire-0.png" alt="Pinball">
+        <span>3D Pinball</span>
+    </div>
+    <div class="icon" id="icon-doom" style="top:200px; left:110px;" ondblclick="openWindow('doomWindow')">
+        <img src="https://win98icons.alexmeub.com/icons/png/joystick-0.png" alt="DOOM">
+        <span>DOOM (1993)</span>
+    </div>
+    <div class="icon" id="icon-ie" style="top:290px; left:110px;" ondblclick="openWindow('ieWindow')">
+        <img src="https://win98icons.alexmeub.com/icons/png/msie2-2.png" alt="Internet">
+        <span>Internet Explorer</span>
+    </div>
+    <div class="icon" id="icon-bonzi" style="top:380px; left:110px;" ondblclick="spawnBonzi()">
+        <img src="./bonzi/src/images/bonzi.png" onerror="this.onerror=null; this.src='https://win98icons.alexmeub.com/icons/png/user_computer-0.png';" style="width:38px; height:38px; filter:drop-shadow(1px 2px 2px rgba(0,0,0,0.6));">
+        <span>BonziBUDDY</span>
+    </div>
+
+    <div class="icon" id="icon-notepad" style="top:20px; left:200px;" ondblclick="openWindow('notepadWindow')">
+        <img src="https://win98icons.alexmeub.com/icons/png/notepad-0.png" alt="Not Defteri">
+        <span>Not Defteri</span>
+    </div>
+    <div class="icon" id="icon-calc" style="top:110px; left:200px;" ondblclick="openWindow('calcWindow')">
+        <img src="https://win98icons.alexmeub.com/icons/png/calculator-0.png" alt="Hesap Makinesi">
+        <span>Hesap Makinesi</span>
+    </div>
+    <div class="icon" id="icon-recyclebin" style="top:200px; left:200px;" ondblclick="openWindow('recycleBinWindow')">
+        <img id="recycleBinIcon" src="https://win98icons.alexmeub.com/icons/png/recycle_bin_full-0.png" alt="Geri Dönüşüm Kutusu">
+        <span>Geri Dönüşüm Kutusu</span>
+    </div>
+</div>
+
+<!-- PENCERE 1: CV -->
+<div id="cvWindow" class="window" style="top: 30px; left: 160px; width: 640px; height: 500px;">
+    <div class="window-header" onmousedown="dragWindow(event, 'cvWindow')">
+        <div class="window-header-title">
+            <img src="https://win98icons.alexmeub.com/icons/png/write_wordpad-1.png">
+            <span>Özgeçmiş - Muhammed Can Ceylan</span>
+        </div>
+        <div class="win-btn win-close" onclick="closeWindow('cvWindow')">✕</div>
+    </div>
+    <div class="cv-toolbar">
+        <a href="./cv.pdf" download style="color:#003c8f; font-weight:bold; text-decoration:none;">💾 PDF İndir</a>
+        <span onclick="toggleCv()" style="color:#003c8f; font-weight:bold; cursor:pointer;">📄 Görünüm Değiştir (WordPad / PDF)</span>
+    </div>
+    <div class="window-content">
+        <iframe id="cvPdf" src="./cv.pdf" style="width:100%; height:100%; border:none;"></iframe>
+        <div id="cvWordpad" class="wordpad-content" style="display:none;">
+            <h1>Muhammed Can Ceylan</h1>
+            <p><b>Yazılım Mühendisi &amp; Bilgisayar Bilimleri Geliştiricisi</b></p>
+            <p onclick="clippyComment('Bir iş teklifi için e-posta göndermeyi düşünebilirsiniz!')">E-posta: ceylanmuhammedcan@gmail.com | GitHub: github.com/MuhammedCanCeylan</p>
+            
+            <h2 onclick="clippyComment('Muhammed açık kaynak geliştirmeyi çok seviyor!')">Profil &amp; Vizyon</h2>
+            <p>Bartın Üniversitesi Bilgisayar Mühendisliği 3. sınıf öğrencisi. Modern web teknolojileri, Three.js ile 3D etkileşimli deneyimler, yapay zeka ve otonom sistemler alanlarında çalışan tutkulu bir mühendis adayı.</p>
+            
+            <h2 onclick="clippyComment('Bartın Üniversitesi Bilgisayar Mühendisliği lisans öğrencisi!')">Eğitim</h2>
+            <p><b>Bartın Üniversitesi</b> — Bilgisayar Mühendisliği (Lisans, 3. Sınıf)</p>
+            
+            <h2 onclick="clippyComment('Three.js ve WebGL becerileri mi? Bu 3D oda zaten bunun kanıtı!')">Teknik Beceriler</h2>
+            <p>TypeScript, Python, C++, Three.js, React, Node.js, Express, Webpack, Docker, Linux, Unity.</p>
+            
+            <h2 onclick="clippyComment('Amazon Plus ve MotoWeather harika projeler!')">Öne Çıkan Projeler</h2>
+            <p>• <b>Amazon Plus:</b> Firefox / Floorp tarayıcı eklentisi; DOM filtreleme ve akıllı sıralama.<br>
+            • <b>MotoWeather:</b> Native Android uygulaması; meteorolojik risk analiz motoru.<br>
+            • <b>3D Retro Portfolio &amp; Windows XP OS:</b> Three.js &amp; WebGL etkileşimli masaüstü.</p>
+        </div>
+    </div>
+</div>
+
+<!-- PENCERE 2: PAINT -->
+<div id="paintWindow" class="window" style="top: 50px; left: 190px;">
+    <div class="window-header" onmousedown="dragWindow(event, 'paintWindow')">
+        <div class="window-header-title">
+            <img src="https://win98icons.alexmeub.com/icons/png/paint_file-3.png">
+            <span>Adsız - Paint</span>
+        </div>
+        <div class="win-btn win-close" onclick="closeWindow('paintWindow')">✕</div>
+    </div>
+    <div class="window-content" style="padding:0; overflow:hidden;">
+        <iframe id="paintFrame" style="width:100%; height:100%; border:none; display:block;" src="about:blank"></iframe>
+    </div>
+</div>
+
+<!-- PENCERE 3: WINAMP (25 ŞARKI LİSTESİ) -->
+<div id="winampWindow" class="window" style="top: 80px; left: 240px; width: 310px; height: 340px; border-color: #333; resize: vertical;">
+    <div class="window-header" onmousedown="dragWindow(event, 'winampWindow')" style="background:#222; font-size:10px;">
+        <div class="window-header-title">
+            <img src="https://win98icons.alexmeub.com/icons/png/cd_audio_cd_a-4.png">
+            <span>WINAMP 2.91 - 90'lar Pop</span>
+        </div>
+        <div class="win-btn win-close" onclick="closeWindow('winampWindow')">✕</div>
+    </div>
+    <div class="window-content" style="background:#111; padding:4px;">
+        <div class="winamp-screen">
+            <marquee id="winampTitle" scrollamount="3">1. Parça Seçilmedi</marquee>
+            <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:2px;">
+                <span id="winampTime" style="color:#00ff00; font-size:10px;">00:00</span>
+                <div class="winamp-eq" id="winampEq">
+                    <div class="winamp-eq-bar"></div><div class="winamp-eq-bar"></div><div class="winamp-eq-bar"></div>
+                    <div class="winamp-eq-bar"></div><div class="winamp-eq-bar"></div><div class="winamp-eq-bar"></div>
+                </div>
+                <span id="winampTrackCount" style="color:#00ff00; font-size:10px;">[0/0]</span>
+            </div>
+        </div>
+        <div class="winamp-controls" style="margin:4px 0;">
+            <button class="winamp-btn" onclick="prevTrack()">|◀◀</button>
+            <button class="winamp-btn" onclick="playWinamp()">▶</button>
+            <button class="winamp-btn" onclick="pauseWinamp()">❚❚</button>
+            <button class="winamp-btn" onclick="stopWinamp()">◼</button>
+            <button class="winamp-btn" onclick="nextTrack()">▶▶|</button>
+            <button class="winamp-btn" onclick="document.getElementById('musicFileInput').click()">⏏ Ekle</button>
+        </div>
+        <div id="winampPlaylistContainer" style="background:#000; border:1px solid #444; flex:1; overflow-y:auto; padding:2px; font-family:monospace; font-size:11px;"></div>
+        <input type="file" id="musicFileInput" accept="audio/*" style="display:none;" onchange="handleUserMusic(event)">
+        <audio id="winampAudio" preload="none" onended="nextTrack()" ontimeupdate="updateWinampTime()"></audio>
+    </div>
+</div>
+
+<!-- PENCERE 4: 3D PINBALL -->
+<div id="pinballWindow" class="window" style="top: 40px; left: 200px;">
+    <div class="window-header" onmousedown="dragWindow(event, 'pinballWindow')">
+        <div class="window-header-title">
+            <img src="https://win98icons.alexmeub.com/icons/png/game_solitaire-0.png">
+            <span>3D Pinball for Windows - Space Cadet</span>
+        </div>
+        <div class="win-btn win-close" onclick="closeWindow('pinballWindow')">✕</div>
+    </div>
+    <div class="window-content" style="padding:0; background:#000; overflow:hidden;">
+        <div class="pinball-wrapper">
+            <iframe id="pinballFrame" scrolling="no" src="about:blank"></iframe>
+        </div>
+    </div>
+</div>
+
+<!-- PENCERE 5: DOOM 1993 (DOĞRU VE KESİN ÇALIŞAN YOL: doom/public/index.html) -->
+<div id="doomWindow" class="window" style="top: 50px; left: 180px; width: 646px; height: 480px;">
+    <div class="window-header" onmousedown="dragWindow(event, 'doomWindow')">
+        <div class="window-header-title">
+            <img src="https://win98icons.alexmeub.com/icons/png/joystick-0.png">
+            <span>DOOM (1993) - MS-DOS</span>
+        </div>
+        <div class="win-btn win-close" onclick="closeWindow('doomWindow')">✕</div>
+    </div>
+    <div class="window-content" style="padding:0; background:#000; overflow:hidden;">
+        <iframe id="doomLocalFrame" style="width:100%; height:100%; border:none; display:block;" src="about:blank"></iframe>
+    </div>
+</div>
+
+<!-- PENCERE 6: TARİH VE SAAT -->
+<div id="dateTimeWindow" class="window" style="top: 80px; left: 220px;">
+    <div class="window-header" onmousedown="dragWindow(event, 'dateTimeWindow')">
+        <div class="window-header-title">
+            <img src="https://win98icons.alexmeub.com/icons/png/time_and_date-0.png">
+            <span>Tarih ve Saat Özellikleri</span>
+        </div>
+        <div class="win-btn win-close" onclick="closeWindow('dateTimeWindow')">✕</div>
+    </div>
+    <div class="dt-tabs">
+        <div class="dt-tab active">Tarih ve Saat</div>
+        <div class="dt-tab">Saat Dilimi</div>
+        <div class="dt-tab">İnternet Saati</div>
+    </div>
+    <div class="dt-body">
+        <div class="dt-row">
+            <div class="dt-group">
+                <span class="dt-legend">Tarih</span>
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                    <select id="dtMonthSelect" onchange="renderCalendar()">
+                        <option value="0">Ocak</option><option value="1">Şubat</option><option value="2">Mart</option>
+                        <option value="3">Nisan</option><option value="4">Mayıs</option><option value="5">Haziran</option>
+                        <option value="6">Temmuz</option><option value="7">Ağustos</option><option value="8" selected>Eylül</option>
+                        <option value="9">Ekim</option><option value="10">Kasım</option><option value="11">Aralık</option>
+                    </select>
+                    <input type="number" id="dtYearInput" value="2002" style="width:60px;" onchange="renderCalendar()">
+                </div>
+                <table class="dt-calendar-table">
+                    <thead><tr><th>P</th><th>S</th><th>Ç</th><th>P</th><th>C</th><th>C</th><th>P</th></tr></thead>
+                    <tbody id="dtCalendarBody"></tbody>
+                </table>
+            </div>
+
+            <div class="dt-group" style="text-align:center;">
+                <span class="dt-legend">Saat</span>
+                <canvas id="analogClockCanvas" class="dt-clock-canvas" width="120" height="120"></canvas>
+                <div style="margin-top:8px;">
+                    <input id="dtDigitalTime" value="12:00:00" readonly style="width:85px; text-align:center; border:1px inset #808080;">
+                </div>
+            </div>
+        </div>
+        <p style="color:#555; font-size:10px;">Geçerli saat dilimi: (GMT+03:00) Türkiye Standart Saati</p>
+    </div>
+    <div class="dt-btn-row">
+        <button class="win-btn" style="width:70px; height:22px; color:#000; background:#ece9d8; border:1px solid #777;" onclick="closeWindow('dateTimeWindow')">Tamam</button>
+        <button class="win-btn" style="width:70px; height:22px; color:#000; background:#ece9d8; border:1px solid #777;" onclick="closeWindow('dateTimeWindow')">İptal</button>
+    </div>
+</div>
+
+<!-- PENCERE 7: GÖRÜNTÜ ÖZELLİKLERİ -->
+<div id="displayPropsWindow" class="window" style="top: 100px; left: 240px;">
+    <div class="window-header" onmousedown="dragWindow(event, 'displayPropsWindow')">
+        <div class="window-header-title">
+            <img src="https://win98icons.alexmeub.com/icons/png/display_properties-4.png">
+            <span>Görüntü Özellikleri</span>
+        </div>
+        <div class="win-btn win-close" onclick="closeWindow('displayPropsWindow')">✕</div>
+    </div>
+    <div class="window-content" style="padding:12px;">
+        <b style="font-size:12px; margin-bottom:8px; display:block;">Masaüstü Arka Planı:</b>
+        <div class="wall-option" onclick="setWallpaper('wall-bliss')">
+            <div class="wall-swatch" style="background:linear-gradient(#7ec8ff,#4f9c3a);"></div>
+            <span>Bliss (Windows XP Varsayılan)</span>
+        </div>
+        <div class="wall-option" onclick="setWallpaper('wall-blue')">
+            <div class="wall-swatch" style="background:#1941a5;"></div>
+            <span>Klasik XP Mavisi</span>
+        </div>
+        <div class="wall-option" onclick="setWallpaper('wall-green')">
+            <div class="wall-swatch" style="background:#14562d;"></div>
+            <span>Zümrüt Yeşil</span>
+        </div>
+        <div class="wall-option" onclick="setWallpaper('wall-red')">
+            <div class="wall-swatch" style="background:#7a1414;"></div>
+            <span>Klasik Bordo Kırmızı</span>
+        </div>
+    </div>
+</div>
+
+<!-- PENCERE 8: AVAST -->
+<div id="avastWindow" class="window" style="top: 90px; left: 230px;">
+    <div class="window-header" onmousedown="dragWindow(event, 'avastWindow')">
+        <div class="window-header-title">
+            <img src="./avast.png" onerror="this.onerror=null; this.src='https://win98icons.alexmeub.com/icons/png/scanner-0.png';">
+            <span>avast! Antivirus 4.8 Professional Edition</span>
+        </div>
+        <div class="win-btn win-close" onclick="closeWindow('avastWindow')">✕</div>
+    </div>
+    <div class="window-content avast-body">
+        <div class="avast-header-bar">
+            <img src="./avast.png" onerror="this.onerror=null; this.src='https://win98icons.alexmeub.com/icons/png/scanner-0.png';" width="32" height="32">
+            <div>
+                <b style="font-size:13px;">avast! 4 Protection Shield</b>
+                <p style="font-size:11px; color:#555;">Virüs Veritabanı: 2003.09.17 - GÜNCEL</p>
+            </div>
+        </div>
+        <div class="avast-scan-box">
+            <span id="avastStatusText">Durum: Gerçek Zamanlı Koruma Aktif.</span>
+            <div class="avast-progress-bar">
+                <div class="avast-progress-fill" id="avastBar"></div>
+            </div>
+            <span id="avastScannedFile" style="color:#666; font-size:10px;">C:\WINDOWS\System32\drivers\etc...</span>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:8px;">
+            <button onclick="startAvastScan()" style="padding:4px 12px; font-size:11px; cursor:pointer;">Hızlı Tarama Başlat</button>
+        </div>
+    </div>
+</div>
+
+<!-- PENCERE 9: EXPLORER -->
+<div id="explorerWindow" class="window" style="top: 70px; left: 190px; width: 680px; height: 460px;">
+    <div class="window-header" onmousedown="dragWindow(event, 'explorerWindow')">
+        <div class="window-header-title">
+            <img src="https://win98icons.alexmeub.com/icons/png/computer_explorer-4.png">
+            <span id="expTitle">\\ogretmen1</span>
+        </div>
+        <div class="win-btn win-close" onclick="closeWindow('explorerWindow')">✕</div>
+    </div>
+    
+    <div class="xp-menu-bar">
+        <div class="xp-menu-items">
+            <span>Dosya</span><span>Düzen</span><span>Görünüm</span><span>Sık Kullanılanlar</span><span>Araçlar</span><span>Yardım</span>
+        </div>
+        <img src="https://win98icons.alexmeub.com/icons/png/windows-0.png" width="16" height="16" style="opacity:0.8;">
+    </div>
+
+    <div class="xp-toolbar-row">
+        <div class="xp-tool-btn" onclick="goBackFolder()"><img src="https://win98icons.alexmeub.com/icons/png/directory_open_file_mydocs-0.png" width="16"> Geri</div>
+        <div class="xp-tool-btn" onclick="goUpFolder()"><img src="https://win98icons.alexmeub.com/icons/png/directory_open_file_mydocs-0.png" width="16"> Yukarı</div>
+        <div style="width:1px; height:18px; background:#999;"></div>
+        <div class="xp-tool-btn"><img src="https://win98icons.alexmeub.com/icons/png/search_file-0.png" width="16"> Ara</div>
+        <div class="xp-tool-btn"><img src="https://win98icons.alexmeub.com/icons/png/directory_open_file_mydocs-0.png" width="16"> Klasörler</div>
+    </div>
+
+    <div class="xp-address-row">
+        <span>Adres</span>
+        <div class="xp-address-box">
+            <img src="https://win98icons.alexmeub.com/icons/png/directory_open_file_mydocs-0.png" width="14" style="margin-right:4px;">
+            <span id="expAddressText">\\ogretmen1</span>
+        </div>
+    </div>
+
+    <div class="xp-exp-body">
+        <div class="xp-accordion-left">
+            <div class="xp-acc-card">
+                <div class="xp-acc-head"><span>Dosya ve Klasör Görevleri</span></div>
+                <div class="xp-acc-content">
+                    <span class="xp-acc-item" onclick="createMockFolder()">📁 Yeni klasör oluştur</span>
+                    <span class="xp-acc-item" onclick="navIE('github')">🌐 Bu klasörü Web'de yayımla</span>
+                </div>
+            </div>
+            <div class="xp-acc-card">
+                <div class="xp-acc-head"><span>Diğer Yerler</span></div>
+                <div class="xp-acc-content">
+                    <span class="xp-acc-item" onclick="renderXpFolder('network')">🖥️ Ağ Bağlantılarım</span>
+                    <span class="xp-acc-item" onclick="renderXpFolder('c')">💽 Yerel Disk (C:)</span>
+                    <span class="xp-acc-item" onclick="openWindow('cvWindow')">📁 Belgelerim</span>
+                </div>
+            </div>
+            <div class="xp-acc-card">
+                <div class="xp-acc-head"><span>Ayrıntılar</span></div>
+                <div class="xp-acc-content" style="color:#555;">
+                    <b id="expDetailTitle">ogretmen1</b><br>Paylaşılan Dizin<br>Windows XP
+                </div>
+            </div>
+        </div>
+        <div class="xp-exp-right" id="xpFolderGrid"></div>
+    </div>
+
+    <div class="xp-status-bar">
+        <span id="xpItemCount">12 nesne</span>
+        <span>🖥️ Yerel intranet</span>
+    </div>
+</div>
+
+<!-- PENCERE 10: INTERNET EXPLORER -->
+<div id="ieWindow" class="window" style="top: 60px; left: 180px;">
+    <div class="window-header" onmousedown="dragWindow(event, 'ieWindow')">
+        <div class="window-header-title">
+            <img src="https://win98icons.alexmeub.com/icons/png/msie2-2.png">
+            <span id="ieHeaderTitle">Microsoft Internet Explorer - Google (1998)</span>
+        </div>
+        <div class="win-btn win-close" onclick="closeWindow('ieWindow')">✕</div>
+    </div>
+    
+    <div class="ie-toolbar">
+        <button class="ie-nav-btn" onclick="ieGoBack()">◀ Geri</button>
+        <button class="ie-nav-btn" onclick="ieGoHome()">🏠 Giriş</button>
+        <span>Adres:</span>
+        <input class="ie-addr-input" id="ieUrl" value="http://www.google.com/">
+        <button class="ie-nav-btn" onclick="navIE('google')">Git</button>
+    </div>
+
+    <div class="ie-links-bar">
+        <span style="color:#666; font-size:10px;">Bağlantılar:</span>
+        <span class="ie-link-item" onclick="navIE('github')">⭐ <b>GitHub (@MuhammedCanCeylan)</b></span>
+        <span>|</span>
+        <span class="ie-link-item" onclick="navIE('google')">🔍 Google</span>
+        <span>|</span>
+        <span class="ie-link-item" onclick="openWindow('cvWindow')">📄 Özgeçmiş</span>
+        <span>|</span>
+        <span class="ie-link-item" onclick="openWindow('pinballWindow')">🎮 Pinball</span>
+    </div>
+
+    <div class="window-content ie-page" id="iePageContent">
+        <div id="googleView" style="text-align:center; padding-top:20px;">
+            <h1 style="font-size:44px; font-family:'Times New Roman';"><span style="color:#1738e6;">G</span><span style="color:#ea3323;">o</span><span style="color:#fabb05;">o</span><span style="color:#1738e6;">g</span><span style="color:#34a853;">l</span><span style="color:#ea3323;">e</span>!</h1>
+            <input type="text" id="internalSearch" style="width:340px; padding:6px; margin-top:10px;" placeholder="Web'de arayın..." onkeydown="if(event.key==='Enter') executeLiveSearch()">
+            <br><br>
+            <button onclick="executeLiveSearch()" style="padding:4px 12px; cursor:pointer;">Google'da Ara</button>
+            <button onclick="navIE('github')" style="padding:4px 12px; cursor:pointer;">Kendimi Şanslı Hissediyorum</button>
+
+            <div id="searchResults" style="text-align:left; margin-top:20px; font-size:12px; display:none; background:#fdfdfd; padding:14px; border:1px solid #ccc; border-radius:4px;">
+                <div id="resultsList"></div>
+            </div>
+        </div>
+
+        <div id="wikiArticleView" style="display:none; font-size:13px; line-height:1.6; padding:10px;">
+            <h2 id="wikiArticleTitle" style="border-bottom:1px solid #aaa; padding-bottom:4px; margin-bottom:10px; font-size:20px; color:#000;"></h2>
+            <div id="wikiArticleContent" style="color:#222;"></div>
+        </div>
+
+        <div id="githubView" style="display:none; font-size:12px;">
+            <div style="background:#24292f; color:#fff; padding:10px 14px; display:flex; align-items:center; gap:12px; border-radius:4px; margin-bottom:14px;">
+                <svg height="24" width="24" viewBox="0 0 16 16" fill="#fff"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+                <b>MuhammedCanCeylan / Portfolio</b>
+            </div>
+            <div style="display:flex; gap:16px;">
+                <div style="width:160px; text-align:center;">
+                    <img src="./profil.jpg" onerror="this.onerror=null; this.src='https://win98icons.alexmeub.com/icons/png/user_computer-0.png';" width="130" height="130" style="border-radius:50%; border:2px solid #ddd;">
+                    <h3 style="margin-top:8px;">Muhammed Can Ceylan</h3>
+                    <p style="color:#666;">@MuhammedCanCeylan</p>
+                    <p style="font-size:11px; margin-top:6px;">Bartın Üniversitesi Bilgisayar Mühendisliği</p>
+                </div>
+                <div style="flex:1;">
+                    <h4>Popüler Depolar (Repositories)</h4>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+                        <div style="border:1px solid #d0d7de; padding:10px; border-radius:6px;">
+                            <a style="color:#0969da; font-weight:bold; text-decoration:none;">portfolio-website</a>
+                            <p style="color:#57609a; font-size:11px; margin-top:4px;">WebGL, Three.js ve retro Windows XP işletim sistemi simülasyonu.</p>
+                            <span style="font-size:10px; color:#666;">★ TypeScript</span>
+                        </div>
+                        <div style="border:1px solid #d0d7de; padding:10px; border-radius:6px;">
+                            <a style="color:#0969da; font-weight:bold; text-decoration:none;">Amazon-Plus</a>
+                            <p style="color:#57609a; font-size:11px; margin-top:4px;">Firefox &amp; Floorp için akıllı ürün arama ve filtreleme eklentisi.</p>
+                            <span style="font-size:10px; color:#666;">★ JavaScript</span>
+                        </div>
+                        <div style="border:1px solid #d0d7de; padding:10px; border-radius:6px;">
+                            <a style="color:#0969da; font-weight:bold; text-decoration:none;">MotoWeather</a>
+                            <p style="color:#57609a; font-size:11px; margin-top:4px;">Motosiklet sürücüleri için canlı hava durumu risk analizi.</p>
+                            <span style="font-size:10px; color:#666;">★ Java / Android</span>
+                        </div>
+                        <div style="border:1px solid #d0d7de; padding:10px; border-radius:6px;">
+                            <a style="color:#0969da; font-weight:bold; text-decoration:none;">autonomous-systems-ai</a>
+                            <p style="color:#57609a; font-size:11px; margin-top:4px;">TEKNOFEST otonom araç yarışması simülasyon modelleri.</p>
+                            <span style="font-size:10px; color:#666;">★ Python</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PENCERE 11: MINESWEEPER -->
+<div id="minesweeper" class="window" style="top: 80px; left: 440px;">
+    <div class="window-header" onmousedown="dragWindow(event, 'minesweeper')">
+        <div class="window-header-title">
+            <img src="./mine.png" onerror="this.onerror=null; this.src='https://win98icons.alexmeub.com/icons/png/mine-0.png';">
+            <span>Mayın Tarlası</span>
+        </div>
+        <div class="win-btn win-close" onclick="closeWindow('minesweeper')">✕</div>
+    </div>
+    <div class="window-content ms-board">
+        <div class="ms-header">
+            <div id="ms-mines-count" class="ms-lcd">010</div>
+            <div id="ms-face" class="ms-face" onclick="initMinesweeper()">🙂</div>
+            <div id="ms-timer" class="ms-lcd">000</div>
+        </div>
+        <div id="ms-grid" class="ms-grid"></div>
+    </div>
+</div>
+
+<!-- PENCERE 12: NOT DEFTERİ -->
+<div id="notepadWindow" class="window" style="top: 70px; left: 260px;">
+    <div class="window-header" onmousedown="dragWindow(event, 'notepadWindow')">
+        <div class="window-header-title">
+            <img src="https://win98icons.alexmeub.com/icons/png/notepad-0.png">
+            <span id="notepadTitle">Adsız - Not Defteri</span>
+        </div>
+        <div class="win-btn win-close" onclick="closeWindow('notepadWindow')">✕</div>
+    </div>
+    <div class="np-menubar">
+        <span onclick="newNotepad()">Dosya</span>
+        <span onclick="saveNotepadFile()">Kaydet</span>
+        <span onclick="document.getElementById('notepadText').focus()">Düzen</span>
+        <span onclick="clippyComment('Not Defteri sadece düz metin tutar; biçimlendirme için WordPad kullan!')">Biçim</span>
+        <span onclick="clippyComment('Not Defteri, XP\\'nin en sade ama en kullanışlı aracıdır.')">Yardım</span>
+    </div>
+    <div class="window-content" style="padding:0;">
+        <textarea id="notepadText" spellcheck="false" placeholder="Yazmaya başlayın..." oninput="onNotepadInput()">Muhammed Can Ceylan - notlar.txt
+
+Bu bir Windows XP masaüstü simülasyonudur.
+Buraya istediğin notu yazabilir, alt taraftaki "Kaydet" ile
+bilgisayarına .txt olarak indirebilirsin.</textarea>
+        <div class="np-statusbar"><span id="notepadStatus">Satır 1, Sütun 1</span></div>
+    </div>
+</div>
+
+<!-- PENCERE 13: HESAP MAKİNESİ -->
+<div id="calcWindow" class="window" style="top: 90px; left: 320px;">
+    <div class="window-header" onmousedown="dragWindow(event, 'calcWindow')">
+        <div class="window-header-title">
+            <img src="https://win98icons.alexmeub.com/icons/png/calculator-0.png">
+            <span>Hesap Makinesi</span>
+        </div>
+        <div class="win-btn win-close" onclick="closeWindow('calcWindow')">✕</div>
+    </div>
+    <div class="calc-menubar">
+        <span onclick="clippyComment('Görünüm: Standart mod aktif.')">Görünüm</span>
+        <span onclick="clearAllCalc()">Düzen</span>
+        <span onclick="clippyComment('XP Hesap Makinesi: toplama, çıkarma, çarpma, bölme ve bellek fonksiyonları destekler.')">Yardım</span>
+    </div>
+    <div class="calc-body">
+        <div class="calc-mem-row" id="calcMemFlag"></div>
+        <div class="calc-display" id="calcDisplay">0</div>
+        <div class="calc-grid calc-toprow" style="grid-template-columns: repeat(4, 1fr);">
+            <div class="calc-btn" onclick="calcMemory('MC')">MC</div>
+            <div class="calc-btn" onclick="calcMemory('MR')">MR</div>
+            <div class="calc-btn" onclick="calcMemory('MS')">MS</div>
+            <div class="calc-btn" onclick="calcMemory('M+')">M+</div>
+        </div>
+        <div class="calc-grid calc-toprow" style="grid-template-columns: repeat(3, 1fr);">
+            <div class="calc-btn" onclick="calcBackspace()">⌫ Geri Al</div>
+            <div class="calc-btn" onclick="calcClearEntry()">CE</div>
+            <div class="calc-btn" onclick="clearAllCalc()">C</div>
+        </div>
+        <div class="calc-grid">
+            <div class="calc-btn" onclick="calcInput('7')">7</div>
+            <div class="calc-btn" onclick="calcInput('8')">8</div>
+            <div class="calc-btn" onclick="calcInput('9')">9</div>
+            <div class="calc-btn calc-op" onclick="calcOp('/')">/</div>
+            <div class="calc-btn calc-op" onclick="calcSqrt()">√</div>
+
+            <div class="calc-btn" onclick="calcInput('4')">4</div>
+            <div class="calc-btn" onclick="calcInput('5')">5</div>
+            <div class="calc-btn" onclick="calcInput('6')">6</div>
+            <div class="calc-btn calc-op" onclick="calcOp('*')">*</div>
+            <div class="calc-btn calc-op" onclick="calcPercent()">%</div>
+
+            <div class="calc-btn" onclick="calcInput('1')">1</div>
+            <div class="calc-btn" onclick="calcInput('2')">2</div>
+            <div class="calc-btn" onclick="calcInput('3')">3</div>
+            <div class="calc-btn calc-op" onclick="calcOp('-')">-</div>
+            <div class="calc-btn calc-op" onclick="calcInverse()">1/x</div>
+
+            <div class="calc-btn calc-zero" onclick="calcInput('0')">0</div>
+            <div class="calc-btn" onclick="calcInput('.')">.</div>
+            <div class="calc-btn calc-op" onclick="calcOp('+')">+</div>
+            <div class="calc-btn calc-eq" onclick="calcEquals()">=</div>
+        </div>
+    </div>
+</div>
+
+<!-- PENCERE 14: GERİ DÖNÜŞÜM KUTUSU -->
+<div id="recycleBinWindow" class="window" style="top: 60px; left: 300px;">
+    <div class="window-header" onmousedown="dragWindow(event, 'recycleBinWindow')">
+        <div class="window-header-title">
+            <img id="recycleBinTitleIcon" src="https://win98icons.alexmeub.com/icons/png/recycle_bin_full-0.png">
+            <span>Geri Dönüşüm Kutusu</span>
+        </div>
+        <div class="win-btn win-close" onclick="closeWindow('recycleBinWindow')">✕</div>
+    </div>
+    <div class="rb-toolbar">
+        <span onclick="restoreAllRecycle()">↩ Tüm Öğeleri Geri Yükle</span>
+        <span onclick="emptyRecycleBin()">🗑 Geri Dönüşüm Kutusunu Boşalt</span>
+    </div>
+    <div class="window-content" style="padding:0;">
+        <div class="rb-body" id="recycleBinBody"></div>
+    </div>
+</div>
+
+<!-- ORİJİNAL XP SES POPUP (Görsel 3 ile Birebir Aynı) -->
+<div id="volumePopup">
+    <span class="vol-title">Volume</span>
+    <div class="vol-groove-wrapper">
+        <div class="vol-groove-line"></div>
+        <input type="range" class="vol-range-input" id="masterVolume" min="0" max="100" value="80" oninput="changeVolume(this.value)">
+    </div>
+    <label class="vol-mute-row">
+        <input type="checkbox" id="muteCheck" onchange="toggleMuteAll(this.checked)"> Mute
+    </label>
+</div>
+
+<!-- GÖREV ÇUBUĞU -->
+<div class="taskbar">
+    <div class="start-btn" onclick="toggleStartMenu(event)">
+        <img src="https://win98icons.alexmeub.com/icons/png/windows-0.png" width="18" alt="XP">
+        <span>start</span>
+    </div>
+    <div id="taskbarApps"></div>
+    <div class="tray">
+        <span onclick="openWindow('avastWindow')" title="avast! Antivirus" style="cursor:pointer;">
+            <img src="./avast.png" onerror="this.onerror=null; this.src='https://win98icons.alexmeub.com/icons/png/scanner-0.png';" width="16" height="16">
+        </span>
+        <span onclick="toggleVolumePopup(event)" title="Ses Denetimi" style="cursor:pointer;">🔊</span>
+        <span id="clock" onclick="openWindow('dateTimeWindow')" title="Tarih ve Saati Değiştir" style="cursor:pointer;">12:00</span>
+    </div>
+</div>
+
+<script>
+/* =========================================================
+   DİZİN AĞACI & ÇALMA LİSTESİ (EN TEPEDE BAŞLATILIR)
+   ========================================================= */
+var folderTree = {
+    network: {
+        title: '\\\\ogretmen1',
+        parent: null,
+        items: [
+            { name: 'aykut2', type: 'folder', target: 'empty' },
+            { name: 'Belgeler', type: 'folder', target: 'belgeler' },
+            { name: 'CanonLBP', type: 'printer' },
+            { name: 'Computer', type: 'folder', target: 'empty' },
+            { name: 'Hakan', type: 'folder', target: 'empty' },
+            { name: 'Hazır Sınıf Dosyaları', type: 'folder', target: 'sinif' },
+            { name: 'OFFICExp2003', type: 'folder', target: 'empty' },
+            { name: 'photoshop', type: 'folder', target: 'empty' },
+            { name: 'PROGRAMLAR (H)', type: 'folder', target: 'empty' },
+            { name: 'Resimlerim', type: 'folder', target: 'empty' },
+            { name: 'WinXP', type: 'folder', target: 'empty' },
+            { name: 'Yazıcı ve Fakslar', type: 'printer' }
+        ]
+    },
+    c: {
+        title: 'Yerel Disk (C:)',
+        parent: 'network',
+        items: [
+            { name: 'WINDOWS', type: 'folder', target: 'empty' },
+            { name: 'Program Files', type: 'folder', target: 'empty' },
+            { name: 'cv.pdf', type: 'cv' }
+        ]
+    },
+    belgeler: {
+        title: '\\\\ogretmen1\\Belgeler',
+        parent: 'network',
+        items: [{ name: 'Muhammed_Can_Ceylan_CV.pdf', type: 'cv' }]
+    },
+    sinif: {
+        title: '\\\\ogretmen1\\Hazır Sınıf Dosyaları',
+        parent: 'network',
+        items: [{ name: 'Ders_Notlari.doc', type: 'file' }]
+    },
+    empty: {
+        title: 'Klasör',
+        parent: 'network',
+        items: []
+    }
+};
+
+var currentPath = 'network';
+var historyStack = [];
+
+/* TÜM 90'LAR TÜRKÇE POP PARÇALARI */
+var playlist = [
+    { name: "02 - Gülşen - Be Adam", url: "./music/02 - Gⁿlsen - Be Adam.mp3" },
+    { name: "04 - Mirkelam - Her Gece", url: "./music/04 - Mirkelam Her Gece.mp3" },
+    { name: "06 - Sibel Can - Padişah", url: "./music/06 - Sibel Can - Padisah.mp3" },
+    { name: "07 - Tarkan - Şıkıdım [Hepsi Senin Mi]", url: "./music/07 - Tarkan - Sikidim [Hepsi Senin Mi] _ [Official] _ [Sarki S÷zⁿ - Lyrics].mp3" },
+    { name: "08 - Gülşen - Saz mı Caz mı", url: "./music/08 - Gⁿlsen - Saz mi Caz mi.mp3" },
+    { name: "09 - Murat Başaran - Bir Öpücük Kesmez", url: "./music/09 - Murt Basarn - Bir ╓pcⁿk Kesmez.mp3" },
+    { name: "10 - Demet Sağıroğlu - Arnavut Kaldırımı", url: "./music/10 - Demet Sagiroglu - Arnavut Kaldirimi (Official Video).mp3" },
+    { name: "11 - Emel Müftüoğlu - Hovarda", url: "./music/11 - Emel Mⁿftⁿoglu - Hovarda.mp3" },
+    { name: "12 - Tarkan - Şımarık", url: "./music/12 - Tarkan - Simarik.mp3" },
+    { name: "13 - Tarkan - Ölürüm Sana", url: "./music/13 - TARKAN - ╓lⁿrⁿm Sana (Official Music Video).mp3" },
+    { name: "14 - Nazan Öncel - Dillere Düşeceğiz Seninle", url: "./music/14 - Nazan ╓ncel - Dillere Dⁿsecegiz Seninle.mp3" },
+    { name: "15 - Grup Vitamin - Al Aşkını Sok Gözüne", url: "./music/15 - GRUP VITAMIN - AL ASKINI SOK G╓Z▄NE (Official Music Video).mp3" },
+    { name: "16 - Ufuk Yıldırım - Yaradana Yalvartma", url: "./music/16 - Ufuk Yildirim - Yaradana Yalvartma.mp3" },
+    { name: "17 - Mirkelam - Ah Bir Joker", url: "./music/17 - Mirkelam - Ah Bir Joker.mp3" },
+    { name: "18 - Mirkelam - Bağırıyorsam Sebebi Var", url: "./music/18 - Mirkelam - Bagiriyorsam Sebebi Var.mp3" },
+    { name: "19 - Ragga Oktay - Çukulata Kız", url: "./music/19 - Ragga Oktay - ╟ukulata Kiz (╟ikolata Kiz 1998).mp3" },
+    { name: "20 - Emrah - Narin Yarim", url: "./music/20- Narin Yarim | EMRAH.mp3" },
+    { name: "21 - Ali Güven - Yolcu", url: "./music/21 - Ali Gⁿven - Yolcu (Official Video).mp3" },
+    { name: "22 - Ümit Sayın - Hicran", url: "./music/22 - ▄mit Sayin - Hicran.mp3" },
+    { name: "24 - Reyhan Karaca - Sevdik Sevdalandık", url: "./music/24 - Reyhan Karaca - Sevdik Sevdalandik.mp3" },
+    { name: "25 - Sezen Aksu - Şinanay", url: "./music/25 - Sezen Aksu - Sinanay.mp3" },
+    { name: "30 - Mustafa Sandal - Araba", url: "./music/30 - Mustafa Sandal - Araba.mp3" },
+    { name: "31 - Emrah - Haydi Şimdi Gel", url: "./music/31 - Emrah - Haydi Simdi Gel (Official Video).mp3" },
+    { name: "32 - Çılgın Bediş / Yonca Evcimik", url: "./music/32 - ╟ilgin Bedis Jenerik  ? Yonca Evcimik #YoncaEvcimik #╟ilginBedis.mp3" },
+    { name: "33 - Ebru Gündeş - Fırtınalar", url: "./music/33 - Ebru Gⁿndes - Firtinalar (Official Video).mp3" },
+    { name: "34 - Aldırma Deli Gönlüm", url: "./music/34 - Aldirma Deli G÷nlⁿm.mp3" },
+    { name: "35 - Zafer Peker - Aşkımız Var Gibi", url: "./music/35 - Zafer Peker - Askimiz Var Gibi (Official Video).mp3" },
+    { name: "36 - Murat Başaran - Azcık Ucundan", url: "./music/36 - Murat Basaran - Azcik Ucundan.mp3" },
+    { name: "37 - Ebru Yaşar - Seni Anan Benim İçin Doğurmuş", url: "./music/37 - Ebru Yasar - Seni Anan Benim Iτin Dogurmus (Official Video).mp3" },
+    { name: "38 - Bin Dereden Su Getirsem", url: "./music/38 - BIN DEREDEN SU GETIRSEM.mp3" },
+    { name: "39 - Rengin - Aldatıldık", url: "./music/39 - Rengin - Aldatildik.mp3" },
+    { name: "40 - Tarkan - Kıl Oldum", url: "./music/40 - Tarkan - Kil Oldum (1992 HQ).mp3" },
+    { name: "41 - Doğuş - Uyan", url: "./music/41 - Dogus - Uyan (Official Video).mp3" },
+    { name: "42 - Hakan Peker - Hey Corç", url: "./music/42 - ╟ocuklugumuzun sarkilari 1 Hakan Peker Hey Corτ.mp3" },
+    { name: "43 - Ege - Yaz Aşkım", url: "./music/43 - Ege - Yaz Askim (1995).mp3" },
+    { name: "44 - Ben Adam Olmam", url: "./music/44 - ben adam olmam.mp3" },
+    { name: "45 - Nazan Öncel - Erkekler de Yanar", url: "./music/45 - Nazan ╓ncel (Erkekler de Yanar) 1996.mp3" },
+    { name: "48 - Burak Kut - Yaşandı Bitti", url: "./music/48 - Burak Kut - Yasandi Bitti.mp3" },
+    { name: "49 - Aşkın Nur Yengi - Ay İnanmıyorum", url: "./music/49 - Askin Nur Yengi - Ay Inanmiyorum.mp3" },
+    { name: "50 - Azeri Kızı Günel - Resmimi Çeke Çeke", url: "./music/50 - Resmimi ╟eke ╟eke - Azeri Kizi Gⁿnel.mp3" },
+    { name: "51 - Ayşegül Aldinç - Ben Kimselere Yar Olmam", url: "./music/51 - Aysegⁿl Aldinτ - Ben Kimselere Yar Olmam Klibi 90lar Tⁿrkτe Pop.mp3" },
+    { name: "53 - Tarkan - Kimdi", url: "./music/53 - Tarkan - Kimdi (1992).mp3" },
+    { name: "54 - Haluk Levent - Sevenler Ağlarmış", url: "./music/54 - Haluk Levent-Sevenler Aglarmis.mp3" },
+    { name: "55 - Haluk Levent - Aşkın Mapushane", url: "./music/55 - Haluk Levent-Askin Mapushane.mp3" },
+    { name: "58 - Hakan Peker - İlla Ki", url: "./music/58 - Hakan Peker - Illa Ki (Official Video).mp3" },
+    { name: "59 - Doğuş - Giden Gider", url: "./music/59 - Dogus - Giden Gider.mp3" },
+    { name: "63 - Seden Gürel - Çalkala", url: "./music/63 - ╟alkala - Seden Gⁿrel [Official Video].mp3" },
+    { name: "64 - Haluk Levent - Bir Gece Vakti", url: "./music/64 - Haluk Levent-Bir Gece Vakti.mp3" },
+    { name: "65 - Zafer Peker - Geç Bunları (Külah)", url: "./music/65 - Zafer Peker - Geτ Bunlari (Kⁿlah) (Official Video).mp3" },
+    { name: "66 - Gökhan Özen - Aramazsan Arama", url: "./music/66 - G÷khan ╓zen - Aramazsan Arama.mp3" },
+    { name: "67 - Ege feat. Deniz Seki - Beteri Var", url: "./music/67 - Ege feat. Deniz Seki - Beteri Var.mp3" },
+    { name: "68 - Athena - Skalonga", url: "./music/68 - Athena - Skalonga.mp3" },
+    { name: "69 - Grup Vitamin - İsmail", url: "./music/69 - Grup Vitamin ? Ismail - Official Video.mp3" },
+    { name: "70 - Ebru Gündeş - Sevme Yanarsın", url: "./music/70 - Ebru Gundes----Sevme yanarsin.mp3" },
+    { name: "71 - Sezen Aksu - Şinanay", url: "./music/71 - Sezen Aksu - Sinanay (Official Video).mp3" },
+    { name: "73 - Reyhan Karaca - Gidesim Gelmiyor", url: "./music/73 - Reyhan Karaca - Gidesim Gelmiyor.mp3" },
+    { name: "74 - Fulden Uras - Bensiz Olsun", url: "./music/74 - Fulden Uras - Bensiz Olsun [Video Klip].mp3" },
+    { name: "75 - Ayşegül Aldinç - Alimallah", url: "./music/75 - Aysegⁿl Aldinτ - Alimallah (Official Video).mp3" },
+    { name: "76 - Hülya Avşar - Yürü Ya Kulum", url: "./music/76 - H▄LYA AVSAR | Yⁿrⁿ Ya Kulum.mp3" },
+    { name: "77 - Ali Güven - Yolcu", url: "./music/77 - Ali Gⁿven - Yolcu.mp3" },
+    { name: "78 - Athena - Senden Benden Bizden", url: "./music/78 - Athena - Senden Benden Bizden.mp3" },
+    { name: "79 - Hakan Peker - Ateşini Yolla", url: "./music/79 - Hakan Peker - Atesini Yolla  (Gel Benim Ol).mp3" },
+    { name: "80 - Candan Erçetin - Umrumda Değil", url: "./music/80 - Candan Erτetin - Umrumda Degil.mp3" },
+    { name: "81 - Mirkelam - Kaprislisin Sevgilim", url: "./music/81 - Mirkelam - Kaprislisin Sevgilim.mp3" },
+    { name: "82 - Seden Gürel - Bi Bulsam", url: "./music/82 - Bi Bulsam - Seden Gⁿrel.mp3" },
+    { name: "83 - Mirkelam - Kokoreç", url: "./music/83 - Mirkelam - Kokoreτ.mp3" },
+    { name: "84 - Mirkelam, Kargo - Yollar", url: "./music/84 - Mirkelam, Kargo - Yollar.mp3" },
+    { name: "85 - Barış Manço - Kara Sevda", url: "./music/85 - baris manco - kara sevda.mp3" },
+    { name: "86 - MFÖ - Sakın Gelme", url: "./music/86 - MF╓ Sakin Gelme.mp3" },
+    { name: "87 - Nalan - Acemi Balık", url: "./music/87 - Nalan Acemi Balik.mp3" }
+];
+var currentTrackIdx = 0;
+var winampInterval = null;
+
+/* BOOT & LOGIN */
+window.addEventListener('load', function() {
+    renderXpFolder('network');
+    renderPlaylistUI();
+    setTimeout(function() {
+        document.getElementById('bootScreen').style.display = 'none';
+        document.getElementById('loginScreen').style.display = 'flex';
+    }, 1400);
+});
+
+function doLogin() {
+    document.getElementById('loginScreen').style.display = 'none';
+    openWindow('cvWindow');
+}
+
+/* SHUTDOWN */
+function executeShutdown() {
+    hideStartMenu();
+    var s = document.getElementById('shutdownScreen');
+    var msg = document.getElementById('shutdownText');
+    var btn = document.getElementById('restartBtn');
+    msg.innerText = "Windows kapatılıyor...";
+    btn.style.display = "none";
+    s.style.display = "flex";
+    setTimeout(function() {
+        msg.innerText = "Bilgisayarınızı artık güvenle kapatabilirsiniz.";
+        btn.style.display = "inline-block";
+    }, 1600);
+}
+
+function restartDesktop() {
+    document.getElementById('shutdownScreen').style.display = "none";
+    document.getElementById('bootScreen').style.display = "flex";
+    setTimeout(function() {
+        document.getElementById('bootScreen').style.display = "none";
+        document.getElementById('loginScreen').style.display = "flex";
+    }, 1200);
+}
+
+/* WINDOW MANAGEMENT */
+var windowMeta = {
+    cvWindow:           { label: 'Özgeçmiş (CV)', icon: 'https://win98icons.alexmeub.com/icons/png/write_wordpad-1.png' },
+    explorerWindow:     { label: 'Bilgisayarım',  icon: 'https://win98icons.alexmeub.com/icons/png/computer_explorer-4.png' },
+    paintWindow:        { label: 'Paint',         icon: 'https://win98icons.alexmeub.com/icons/png/paint_file-3.png' },
+    avastWindow:        { label: 'avast! Antivirus', icon: './avast.png' },
+    dateTimeWindow:     { label: 'Tarih ve Saat', icon: 'https://win98icons.alexmeub.com/icons/png/time_and_date-0.png' },
+    displayPropsWindow: { label: 'Görüntü Özellikleri', icon: 'https://win98icons.alexmeub.com/icons/png/display_properties-4.png' },
+    winampWindow:       { label: 'Winamp 2.9',    icon: 'https://win98icons.alexmeub.com/icons/png/cd_audio_cd_a-4.png' },
+    ieWindow:           { label: 'Internet Expl.',icon: 'https://win98icons.alexmeub.com/icons/png/msie2-2.png' },
+    minesweeper:        { label: 'Mayın Tarlası', icon: './mine.png' },
+    pinballWindow:      { label: '3D Pinball',    icon: 'https://win98icons.alexmeub.com/icons/png/game_solitaire-0.png' },
+    doomWindow:         { label: 'DOOM (1993)',   icon: 'https://win98icons.alexmeub.com/icons/png/joystick-0.png' },
+    notepadWindow:      { label: 'Not Defteri',   icon: 'https://win98icons.alexmeub.com/icons/png/notepad-0.png' },
+    calcWindow:         { label: 'Hesap Makinesi',icon: 'https://win98icons.alexmeub.com/icons/png/calculator-0.png' },
+    recycleBinWindow:   { label: 'Geri Dönüşüm Kutusu', icon: 'https://win98icons.alexmeub.com/icons/png/recycle_bin_full-0.png' }
+};
+
+var highestZ = 100;
+function bringToFront(win) { highestZ++; win.style.zIndex = highestZ; }
+
+function openWindow(id) {
+    var win = document.getElementById(id);
+    win.style.display = 'flex';
+    bringToFront(win);
+    ensureTaskbar(id);
+    setActiveTaskbar(id);
+
+    if (id === 'cvWindow') clippyComment("Muhammed'in CV'si açıldı! WebGL ve Three.js projeleri oldukça iddialı görünüyor.");
+    if (id === 'pinballWindow') {
+        clippyComment("Space Cadet Pinball! Boşluk tuşuna basılı tutup bırakarak topu fırlatabilirsin.");
+        var pf = document.getElementById('pinballFrame');
+        if (pf.src === 'about:blank' || !pf.src) pf.src = 'https://alula.github.io/SpaceCadetPinball/';
+    }
+    if (id === 'paintWindow') {
+        clippyComment("Paint açıldı! Bir şaheser yaratmaya hazır mısın?");
+        var ptf = document.getElementById('paintFrame');
+        if (ptf.src === 'about:blank' || !ptf.src) ptf.src = 'https://jspaint.app/';
+    }
+    if (id === 'doomWindow') {
+        clippyComment("DOOM (1993) başlatıldı! WASD / Yön tuşlarıyla hareket edebilirsin.");
+        var df = document.getElementById('doomLocalFrame');
+        if (df.src === 'about:blank' || !df.src) df.src = './doom/public/index.html';
+    }
+    if (id === 'winampWindow') clippyComment("90'lar Türkçe Pop listesi yüklendi. Gülşen ve Tarkan favorimdir!");
+    if (id === 'avastWindow') clippyComment("Sistem kalkanı devrede! Virüs taraması başlatmak için butona basabilirsin.");
+    if (id === 'minesweeper') {
+        clippyComment("İlk hamlede köşeleri açmak her zaman daha güvenlidir!");
+        if (!msInitialized) initMinesweeper();
+    }
+    if (id === 'dateTimeWindow') { renderCalendar(); drawAnalogClock(); }
+    if (id === 'explorerWindow') {
+        clippyComment("\\\\ogretmen1 ağında paylaşılan belgeler hazır!");
+        renderXpFolder(currentPath || 'network');
+    }
+    if (id === 'notepadWindow') {
+        clippyComment("Not Defteri açıldı! Yazdıklarını 'Kaydet' ile .txt olarak indirebilirsin.");
+        document.getElementById('notepadText').focus();
+    }
+    if (id === 'calcWindow') {
+        clippyComment("Hesap Makinesi hazır. MC/MR/MS/M+ ile bellek fonksiyonlarını da kullanabilirsin.");
+    }
+    if (id === 'recycleBinWindow') {
+        clippyComment(recycleItems.length ? "Geri Dönüşüm Kutusunda " + recycleItems.length + " öğe var." : "Geri Dönüşüm Kutusu boş.");
+        renderRecycleBin();
+    }
+}
+
+function closeWindow(id) {
+    document.getElementById(id).style.display = 'none';
+    if (id === 'pinballWindow') document.getElementById('pinballFrame').src = 'about:blank';
+    if (id === 'paintWindow') document.getElementById('paintFrame').src = 'about:blank';
+    if (id === 'winampWindow') stopWinamp();
+    if (id === 'doomWindow') document.getElementById('doomLocalFrame').src = 'about:blank';
+    var b = document.getElementById('task-' + id);
+    if (b) b.remove();
+}
+
+function ensureTaskbar(id) {
+    if (document.getElementById('task-' + id)) return;
+    var meta = windowMeta[id];
+    if (!meta) return;
+    var btn = document.createElement('div');
+    btn.className = 'task-btn active';
+    btn.id = 'task-' + id;
+    btn.innerHTML = '<img src="' + meta.icon + '" onerror="this.src=\'https://win98icons.alexmeub.com/icons/png/window-0.png\'" width="14" height="14"><span>' + meta.label + '</span>';
+    btn.onclick = function() {
+        var w = document.getElementById(id);
+        if (w.style.display === 'none') {
+            w.style.display = 'flex';
+            bringToFront(w);
+            setActiveTaskbar(id);
+        } else {
+            w.style.display = 'none';
+            btn.classList.remove('active');
+        }
+    };
+    document.getElementById('taskbarApps').appendChild(btn);
+}
+
+function setActiveTaskbar(id) {
+    document.querySelectorAll('.task-btn').forEach(function(b){ b.classList.remove('active'); });
+    var cur = document.getElementById('task-' + id);
+    if (cur) cur.classList.add('active');
+}
+
+function toggleStartMenu(e) {
+    e.stopPropagation();
+    var sm = document.getElementById('startMenu');
+    sm.style.display = (sm.style.display === 'flex') ? 'none' : 'flex';
+}
+function hideStartMenu() {
+    document.getElementById('startMenu').style.display = 'none';
+    document.getElementById('volumePopup').style.display = 'none';
+}
+
+/* SÜRÜKLENEBİLİR MASAÜSTÜ SİMGELERİ */
+var ICON_POS_KEY = 'xpDesktopIconPos_v4';
+function loadIconPositions() {
+    try { return JSON.parse(localStorage.getItem(ICON_POS_KEY) || '{}'); } catch(e) { return {}; }
+}
+function saveIconPositions(pos) {
+    try { localStorage.setItem(ICON_POS_KEY, JSON.stringify(pos)); } catch(e) {}
+}
+
+(function applySavedIconPositions() {
+    var pos = loadIconPositions();
+    document.querySelectorAll('.icon').forEach(function(icon) {
+        var saved = pos[icon.id];
+        if (saved) { icon.style.top = saved.top + 'px'; icon.style.left = saved.left + 'px'; }
+    });
+})();
+
+var dragIcon = null, iconDragOffset = { x: 0, y: 0 }, iconMoved = false, iconStart = { x: 0, y: 0 };
+document.querySelectorAll('.icon').forEach(function(icon) {
+    icon.addEventListener('mousedown', function(e) {
+        e.stopPropagation();
+        document.querySelectorAll('.icon').forEach(function(i) { i.classList.remove('selected'); });
+        icon.classList.add('selected');
+        dragIcon = icon;
+        iconMoved = false;
+        iconStart.x = e.clientX; iconStart.y = e.clientY;
+        var rect = icon.getBoundingClientRect();
+        var parentRect = document.getElementById('desktop').getBoundingClientRect();
+        iconDragOffset.x = e.clientX - rect.left;
+        iconDragOffset.y = e.clientY - rect.top;
+        document.addEventListener('mousemove', onIconMouseMove);
+        document.addEventListener('mouseup', onIconMouseUp);
+    });
+});
+
+function onIconMouseMove(e) {
+    if (!dragIcon) return;
+    if (Math.abs(e.clientX - iconStart.x) > 3 || Math.abs(e.clientY - iconStart.y) > 3) iconMoved = true;
+    if (!iconMoved) return;
+    var parentRect = document.getElementById('desktop').getBoundingClientRect();
+    var newLeft = e.clientX - parentRect.left - iconDragOffset.x;
+    var newTop = e.clientY - parentRect.top - iconDragOffset.y;
+    newLeft = Math.max(0, Math.min(newLeft, parentRect.width - dragIcon.offsetWidth));
+    newTop = Math.max(0, Math.min(newTop, parentRect.height - dragIcon.offsetHeight));
+    dragIcon.style.left = newLeft + 'px';
+    dragIcon.style.top = newTop + 'px';
+}
+
+function onIconMouseUp() {
+    if (dragIcon && iconMoved) {
+        var pos = loadIconPositions();
+        pos[dragIcon.id] = { top: parseInt(dragIcon.style.top), left: parseInt(dragIcon.style.left) };
+        saveIconPositions(pos);
+    }
+    dragIcon = null;
+    document.removeEventListener('mousemove', onIconMouseMove);
+    document.removeEventListener('mouseup', onIconMouseUp);
+}
+
+function arrangeIcons() {
+    var icons = document.querySelectorAll('.icon');
+    var col = 0, row = 0;
+    icons.forEach(function(icon) {
+        icon.style.left = (20 + col * 90) + 'px';
+        icon.style.top = (20 + row * 90) + 'px';
+        row++;
+        if (row >= 4) { row = 0; col++; }
+    });
+    localStorage.removeItem(ICON_POS_KEY);
+}
+
+function showDesktopMenu(e) {
+    e.preventDefault();
+    hideStartMenu();
+    var menu = document.getElementById('desktopContextMenu');
+    menu.style.left = e.pageX + 'px';
+    menu.style.top = e.pageY + 'px';
+    menu.style.display = 'flex';
+}
+function hideContextMenu() { document.getElementById('desktopContextMenu').style.display = 'none'; }
+function handleDesktopMouseDown(e) {
+    if (e.target.id === 'desktop') {
+        document.querySelectorAll('.icon').forEach(function(i) { i.classList.remove('selected'); });
+        hideStartMenu();
+        hideContextMenu();
+    }
+}
+document.addEventListener('click', function(e) {
+    hideContextMenu();
+    if (!e.target.closest || !e.target.closest('.start-menu, .start-btn')) hideStartMenu();
+});
+
+/* PENCERE SÜRÜKLEME */
+var activeDrag = null, dragOffset = { x: 0, y: 0 };
+function dragWindow(e, id) {
+    if (e.target.classList.contains('win-btn') || e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+    var win = document.getElementById(id);
+    bringToFront(win);
+    setActiveTaskbar(id);
+    activeDrag = win;
+    dragOffset.x = e.clientX - win.offsetLeft;
+    dragOffset.y = e.clientY - win.offsetTop;
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+}
+function onMouseMove(e) {
+    if (!activeDrag) return;
+    activeDrag.style.left = (e.clientX - dragOffset.x) + 'px';
+    activeDrag.style.top = (e.clientY - dragOffset.y) + 'px';
+}
+function onMouseUp() {
+    activeDrag = null;
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+}
+
+/* DUVAR KAĞIDI DEĞİŞTİRME */
+function setWallpaper(cls) {
+    var b = document.getElementById('bodyEl');
+    b.className = cls;
+}
+
+/* BONZIBUDDY MOTORU & SESLİ KONUŞMA (TTS) */
+var bonziQuotes = [
+    "Well hello there! I'm Bonzi, your purple buddy!",
+    "Daisy, Daisy, give me your answer do! I'm half crazy all for the love of you!",
+    "What do you call a monkey in a minefield? A BABOOM! Haha!",
+    "Hey! Stop dragging me around, it tickles!",
+    "Did you know Muhammed Can Ceylan built this whole 3D retro portfolio?"
+];
+function spawnBonzi() {
+    var b = document.getElementById('bonziBuddy');
+    b.style.display = 'flex';
+    bonziTalk();
+}
+function bonziTalk() {
+    var text = bonziQuotes[Math.floor(Math.random() * bonziQuotes.length)];
+    document.getElementById('bonziText').innerHTML = text;
+    
+    // Robotik Bonzi Sesi (Web Speech API)
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        var utter = new SpeechSynthesisUtterance(text.replace(/<[^>]+>/g, ''));
+        utter.pitch = 1.35;
+        utter.rate = 0.95;
+        utter.lang = 'en-US';
+        window.speechSynthesis.speak(utter);
+    }
+}
+
+/* CLIPPY */
+var clippyDialogues = [
+    "Bir mektup mu yazıyorsunuz? Size yardımcı olabilirim!",
+    "Özgeçmiş penceresindeki başlıklara tıklayarak detaylı bilgi edinebilirsiniz.",
+    "Pencereleri sağ alt köşelerinden tutup dilediğiniz gibi genişletebilirsiniz.",
+    "Masaüstüne sağ tıklayarak klasik Windows XP duvar kağıtlarını değiştirebilirsiniz!",
+    "Winamp'tan 90'lar pop şarkılarını dinlerken retro ortamın tadını çıkarın!",
+    "avast! kalkanı sistem dosyalarını güvende tutuyor.",
+    "Sağ alttaki saate tıklayarak orijinal analog saat ve takvimi görebilirsiniz."
+];
+var clippyIdx = 0;
+function clippyComment(msg) {
+    document.getElementById('clippyText').innerText = msg;
+    animateClippyEyes();
+}
+function clippyNextDialogue() {
+    clippyIdx = (clippyIdx + 1) % clippyDialogues.length;
+    clippyComment(clippyDialogues[clippyIdx]);
+}
+function animateClippyEyes() {
+    var pl = document.getElementById('clippyPupilL');
+    var pr = document.getElementById('clippyPupilR');
+    if (pl && pr) {
+        pl.setAttribute('cx', 38); pr.setAttribute('cx', 60);
+        setTimeout(function() { pl.setAttribute('cx', 42); pr.setAttribute('cx', 64); }, 600);
+    }
+}
+
+/* SES DENETİMİ */
+function toggleVolumePopup(e) {
+    e.stopPropagation();
+    var vp = document.getElementById('volumePopup');
+    vp.style.display = (vp.style.display === 'flex') ? 'none' : 'flex';
+}
+function changeVolume(val) {
+    var a = document.getElementById('winampAudio');
+    if (a) a.volume = val / 100;
+}
+function toggleMuteAll(muted) {
+    var a = document.getElementById('winampAudio');
+    if (a) a.muted = muted;
+}
+
+/* TARİH VE SAAT */
+function renderCalendar() {
+    var month = parseInt(document.getElementById('dtMonthSelect').value);
+    var year = parseInt(document.getElementById('dtYearInput').value);
+    var firstDay = new Date(year, month, 1).getDay();
+    var daysInMonth = new Date(year, month + 1, 0).getDate();
+    var tbody = document.getElementById('dtCalendarBody');
+    tbody.innerHTML = '';
+    
+    var date = 1;
+    for (var i = 0; i < 6; i++) {
+        var row = document.createElement('tr');
+        for (var j = 0; j < 7; j++) {
+            var cell = document.createElement('td');
+            if (i === 0 && j < firstDay) {
+                cell.innerText = '';
+            } else if (date > daysInMonth) {
+                break;
+            } else {
+                cell.innerText = date;
+                if (date === 17) cell.className = 'today';
+                date++;
+            }
+            row.appendChild(cell);
+        }
+        tbody.appendChild(row);
+        if (date > daysInMonth) break;
+    }
+}
+
+function drawAnalogClock() {
+    var canvas = document.getElementById('analogClockCanvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var radius = canvas.height / 2;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.beginPath();
+    ctx.arc(radius, radius, radius - 4, 0, 2 * Math.PI);
+    ctx.fillStyle = '#fff'; ctx.fill();
+    ctx.strokeStyle = '#808080'; ctx.lineWidth = 2; ctx.stroke();
+    
+    for (var i = 0; i < 12; i++) {
+        var angle = (i * Math.PI) / 6;
+        ctx.beginPath();
+        ctx.moveTo(radius + Math.cos(angle) * (radius - 12), radius + Math.sin(angle) * (radius - 12));
+        ctx.lineTo(radius + Math.cos(angle) * (radius - 6), radius + Math.sin(angle) * (radius - 6));
+        ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5; ctx.stroke();
+    }
+    
+    var now = new Date();
+    var hr = now.getHours() % 12, min = now.getMinutes(), sec = now.getSeconds();
+    
+    var hrAngle = (hr * Math.PI) / 6 + (min * Math.PI) / (6 * 60);
+    drawHand(ctx, radius, radius, hrAngle, radius * 0.5, 3, '#000');
+    var minAngle = (min * Math.PI) / 30 + (sec * Math.PI) / (30 * 60);
+    drawHand(ctx, radius, radius, minAngle, radius * 0.75, 2, '#000');
+    var secAngle = (sec * Math.PI) / 30;
+    drawHand(ctx, radius, radius, secAngle, radius * 0.85, 1, '#d00000');
+    
+    document.getElementById('dtDigitalTime').value = now.toLocaleTimeString();
+}
+
+function drawHand(ctx, cx, cy, angle, length, width, color) {
+    ctx.beginPath();
+    ctx.lineWidth = width; ctx.lineCap = 'round'; ctx.strokeStyle = color;
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.sin(angle) * length, cy - Math.cos(angle) * length);
+    ctx.stroke();
+}
+setInterval(drawAnalogClock, 1000);
+
+/* AVAST */
+var avastScanTimer = null;
+function startAvastScan() {
+    var bar = document.getElementById('avastBar');
+    var status = document.getElementById('avastStatusText');
+    var fileTxt = document.getElementById('avastScannedFile');
+    var pct = 0;
+    clearInterval(avastScanTimer);
+    status.innerText = "Durum: Sistem taranıyor...";
+    
+    var files = ["C:\\WINDOWS\\system32\\ntdll.dll", "C:\\Belgelerim\\cv.pdf", "C:\\Program Files\\Winamp\\winamp.exe"];
+    avastScanTimer = setInterval(function() {
+        pct += 20;
+        if (pct > 100) pct = 100;
+        bar.style.width = pct + "%";
+        fileTxt.innerText = files[Math.floor(Math.random() * files.length)];
+        if (pct >= 100) {
+            clearInterval(avastScanTimer);
+            status.innerText = "Tarama Tamamlandı: 0 Virüs Bulundu! Sistem güvende.";
+            fileTxt.innerText = "Taranan: 14,280 dosya.";
+        }
+    }, 250);
+}
+
+/* WINAMP 2.9 */
+function renderPlaylistUI() {
+    var c = document.getElementById('winampPlaylistContainer');
+    if (!c) return;
+    c.innerHTML = '';
+    playlist.forEach(function(trk, i) {
+        var row = document.createElement('div');
+        row.style.padding = '2px 4px';
+        row.style.cursor = 'pointer';
+        row.style.color = (i === currentTrackIdx) ? '#00ff00' : '#888';
+        row.style.whiteSpace = 'nowrap';
+        row.style.overflow = 'hidden';
+        row.style.textOverflow = 'ellipsis';
+        row.innerText = (i + 1) + '. ' + trk.name;
+        row.ondblclick = function() { loadTrack(i); playWinamp(); };
+        c.appendChild(row);
+    });
+    var tc = document.getElementById('winampTrackCount');
+    if (tc) tc.innerText = '[' + (currentTrackIdx + 1) + '/' + playlist.length + ']';
+}
+
+function loadTrack(idx) {
+    currentTrackIdx = (idx + playlist.length) % playlist.length;
+    var trk = playlist[currentTrackIdx];
+    document.getElementById('winampTitle').innerText = (currentTrackIdx + 1) + '. ' + trk.name;
+    var a = document.getElementById('winampAudio');
+    a.src = trk.url;
+    renderPlaylistUI();
+}
+
+function playWinamp() {
+    var a = document.getElementById('winampAudio');
+    if (!a.src || a.src === window.location.href) loadTrack(currentTrackIdx);
+    a.play().catch(function() {});
+    clearInterval(winampInterval);
+    winampInterval = setInterval(function() {
+        document.querySelectorAll('.winamp-eq-bar').forEach(function(b) {
+            b.style.height = (Math.random() * 14 + 2) + 'px';
+        });
+    }, 150);
+}
+
+function pauseWinamp() {
+    document.getElementById('winampAudio').pause();
+    clearInterval(winampInterval);
+}
+
+function stopWinamp() {
+    var a = document.getElementById('winampAudio');
+    a.pause(); a.currentTime = 0;
+    clearInterval(winampInterval);
+    document.querySelectorAll('.winamp-eq-bar').forEach(function(b) { b.style.height = '4px'; });
+}
+
+function nextTrack() { loadTrack(currentTrackIdx + 1); playWinamp(); }
+function prevTrack() { loadTrack(currentTrackIdx - 1); playWinamp(); }
+
+function updateWinampTime() {
+    var a = document.getElementById('winampAudio');
+    var cur = Math.floor(a.currentTime);
+    var m = Math.floor(cur / 60).toString().padStart(2, '0');
+    var s = (cur % 60).toString().padStart(2, '0');
+    var el = document.getElementById('winampTime');
+    if (el) el.innerText = m + ':' + s;
+}
+
+function handleUserMusic(e) {
+    var file = e.target.files[0];
+    if (file) {
+        playlist.unshift({ name: file.name.replace(/\.[^/.]+$/, ""), url: URL.createObjectURL(file) });
+        loadTrack(0);
+        playWinamp();
+    }
+}
+
+/* EXPLORER (DİZİN MOTORU) */
+function renderXpFolder(pathKey) {
+    var folder = folderTree[pathKey] || { title: pathKey, parent: 'network', items: [] };
+    currentPath = pathKey;
+    document.getElementById('expTitle').innerText = folder.title;
+    document.getElementById('expAddressText').innerText = folder.title;
+    document.getElementById('expDetailTitle').innerText = folder.title;
+    document.getElementById('xpItemCount').innerText = folder.items.length + ' nesne';
+
+    var grid = document.getElementById('xpFolderGrid');
+    grid.innerHTML = '';
+
+    if (folder.items.length === 0) {
+        grid.innerHTML = '<div style="color:#777; font-size:12px; grid-column:1/-1; padding:20px;">Bu klasör boş.</div>';
+        return;
+    }
+
+    folder.items.forEach(function(item) {
+        var el = document.createElement('div');
+        el.className = 'xp-file-item';
+        var icon = 'https://win98icons.alexmeub.com/icons/png/directory_closed-4.png';
+        if (item.type === 'printer') icon = 'https://win98icons.alexmeub.com/icons/png/printer-0.png';
+        if (item.type === 'cv') icon = 'https://win98icons.alexmeub.com/icons/png/write_wordpad-1.png';
+        if (item.type === 'file') icon = 'https://win98icons.alexmeub.com/icons/png/notepad_file-0.png';
+
+        el.innerHTML = '<img src="' + icon + '" width="32" height="32"><span style="word-break:break-word;">' + item.name + '</span>';
+        el.ondblclick = function() {
+            if (item.type === 'folder') {
+                historyStack.push(currentPath);
+                renderXpFolder(item.target);
+            } else if (item.type === 'cv') {
+                openWindow('cvWindow');
+            }
+        };
+        grid.appendChild(el);
+    });
+}
+function goBackFolder() { if (historyStack.length > 0) renderXpFolder(historyStack.pop()); }
+function goUpFolder() {
+    var cur = folderTree[currentPath];
+    if (cur && cur.parent) { historyStack.push(currentPath); renderXpFolder(cur.parent); }
+}
+function createMockFolder() {
+    var cur = folderTree[currentPath];
+    if (!cur) return;
+    cur.items.push({ name: 'Yeni Klasör (' + (cur.items.length + 1) + ')', type: 'folder', target: 'empty' });
+    renderXpFolder(currentPath);
+}
+
+/* INTERNET EXPLORER */
+var ieHistoryStack = ['google'];
+function navIE(view) {
+    openWindow('ieWindow');
+    if (ieHistoryStack[ieHistoryStack.length - 1] !== view) ieHistoryStack.push(view);
+    
+    document.getElementById('googleView').style.display = 'none';
+    document.getElementById('wikiArticleView').style.display = 'none';
+    document.getElementById('githubView').style.display = 'none';
+
+    if (view === 'google') {
+        document.getElementById('ieUrl').value = 'http://www.google.com/';
+        document.getElementById('ieHeaderTitle').innerText = 'Microsoft Internet Explorer - Google (1998)';
+        document.getElementById('googleView').style.display = 'block';
+    } else if (view === 'github') {
+        document.getElementById('ieUrl').value = 'https://github.com/MuhammedCanCeylan';
+        document.getElementById('ieHeaderTitle').innerText = 'GitHub: Where the world builds software';
+        document.getElementById('githubView').style.display = 'block';
+    }
+}
+function ieGoHome() { navIE('google'); }
+function ieGoBack() {
+    if (ieHistoryStack.length > 1) {
+        ieHistoryStack.pop();
+        var prev = ieHistoryStack[ieHistoryStack.length - 1];
+        navIE(prev);
+    }
+}
+
+function executeLiveSearch() {
+    var q = document.getElementById('internalSearch').value.trim();
+    if (!q) return;
+    var resBox = document.getElementById('searchResults');
+    var list = document.getElementById('resultsList');
+    resBox.style.display = 'block';
+    list.innerHTML = '<p style="color:#666;">Web aranıyor...</p>';
+
+    fetch('https://tr.wikipedia.org/w/api.php?action=query&list=search&srsearch=' + encodeURIComponent(q) + '&format=json&origin=*')
+        .then(res => res.json())
+        .then(data => {
+            list.innerHTML = '';
+            if (data.query && data.query.search && data.query.search.length > 0) {
+                data.query.search.slice(0, 5).forEach(item => {
+                    var div = document.createElement('div');
+                    div.style.marginBottom = '12px';
+                    div.innerHTML = `
+                        <p style="color:#0000cc; font-size:13px; font-weight:bold; cursor:pointer; text-decoration:underline;" onclick="openWikiArticle('${item.title.replace(/'/g, "\\'")}')">${item.title}</p>
+                        <p style="color:#008000; font-size:11px;">https://tr.wikipedia.org/wiki/${encodeURIComponent(item.title)}</p>
+                        <p style="color:#444; font-size:11px; margin-top:2px;">${item.snippet.replace(/<\/?[^>]+(>|$)/g, "")}...</p>
+                    `;
+                    list.appendChild(div);
+                });
+            } else {
+                list.innerHTML = '<p style="color:#666;">Sonuç bulunamadı.</p>';
+            }
+        });
+}
+
+function openWikiArticle(title) {
+    document.getElementById('googleView').style.display = 'none';
+    document.getElementById('searchResults').style.display = 'none';
+    var art = document.getElementById('wikiArticleView');
+    art.style.display = 'block';
+    document.getElementById('wikiArticleTitle').innerText = title;
+    document.getElementById('wikiArticleContent').innerHTML = '<p style="color:#666;">Sayfa yükleniyor...</p>';
+    document.getElementById('ieUrl').value = 'https://tr.wikipedia.org/wiki/' + encodeURIComponent(title);
+    document.getElementById('ieHeaderTitle').innerText = title + ' - Vikipedi';
+    ieHistoryStack.push('wiki');
+
+    fetch('https://tr.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=1&explaintext=1&titles=' + encodeURIComponent(title) + '&format=json&origin=*')
+        .then(res => res.json())
+        .then(data => {
+            var pages = data.query.pages;
+            var pageId = Object.keys(pages)[0];
+            var extract = pages[pageId].extract;
+            document.getElementById('wikiArticleContent').innerHTML = '<p>' + (extract || 'Makale özeti bulunamadı.') + '</p>';
+        })
+        .catch(() => {
+            document.getElementById('wikiArticleContent').innerHTML = '<p style="color:red;">Sayfa yüklenirken hata oluştu.</p>';
+        });
+}
+
+function toggleCv() {
+    var p = document.getElementById('cvPdf');
+    var w = document.getElementById('cvWordpad');
+    if (p.style.display === 'none') { p.style.display = 'block'; w.style.display = 'none'; }
+    else { p.style.display = 'none'; w.style.display = 'block'; }
+}
+
+/* =========================================================
+   NOT DEFTERİ
+   ========================================================= */
+var notepadDirty = false;
+function onNotepadInput() {
+    if (!notepadDirty) {
+        notepadDirty = true;
+        document.getElementById('notepadTitle').innerText = '*Adsız - Not Defteri';
+    }
+    var ta = document.getElementById('notepadText');
+    var textUpToCursor = ta.value.substring(0, ta.selectionStart);
+    var lines = textUpToCursor.split('\n');
+    var line = lines.length;
+    var col = lines[lines.length - 1].length + 1;
+    document.getElementById('notepadStatus').innerText = 'Satır ' + line + ', Sütun ' + col;
+}
+function newNotepad() {
+    if (notepadDirty && !confirm('Değişiklikleri kaydetmeden yeni bir belge açmak istiyor musunuz?')) return;
+    document.getElementById('notepadText').value = '';
+    notepadDirty = false;
+    document.getElementById('notepadTitle').innerText = 'Adsız - Not Defteri';
+    document.getElementById('notepadText').focus();
+}
+function saveNotepadFile() {
+    var text = document.getElementById('notepadText').value;
+    var blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'notlar.txt';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    notepadDirty = false;
+    document.getElementById('notepadTitle').innerText = 'notlar.txt - Not Defteri';
+    clippyComment("Notların notlar.txt olarak indirildi!");
+}
+
+/* =========================================================
+   HESAP MAKİNESİ
+   ========================================================= */
+var calcCurrent = '0', calcPrevious = null, calcOperator = null, calcResetNext = false, calcMemoryVal = 0;
+function calcRefreshDisplay() {
+    var d = document.getElementById('calcDisplay');
+    var val = calcCurrent;
+    if (val.length > 16) val = parseFloat(val).toPrecision(12).toString();
+    d.innerText = val;
+    document.getElementById('calcMemFlag').innerText = calcMemoryVal !== 0 ? 'M' : '';
+}
+function calcInput(ch) {
+    if (calcResetNext) { calcCurrent = '0'; calcResetNext = false; }
+    if (ch === '.' && calcCurrent.includes('.')) return;
+    if (calcCurrent === '0' && ch !== '.') calcCurrent = ch;
+    else calcCurrent += ch;
+    calcRefreshDisplay();
+}
+function calcOp(op) {
+    if (calcOperator && !calcResetNext) calcEquals();
+    calcPrevious = parseFloat(calcCurrent);
+    calcOperator = op;
+    calcResetNext = true;
+}
+function calcEquals() {
+    if (calcOperator === null || calcPrevious === null) return;
+    var a = calcPrevious, b = parseFloat(calcCurrent), r = 0;
+    switch (calcOperator) {
+        case '+': r = a + b; break;
+        case '-': r = a - b; break;
+        case '*': r = a * b; break;
+        case '/': r = b === 0 ? NaN : a / b; break;
+    }
+    calcCurrent = isNaN(r) ? 'Sıfıra bölme hatası' : String(Math.round(r * 1e10) / 1e10);
+    calcOperator = null; calcPrevious = null; calcResetNext = true;
+    calcRefreshDisplay();
+}
+function clearAllCalc() {
+    calcCurrent = '0'; calcPrevious = null; calcOperator = null; calcResetNext = false;
+    calcRefreshDisplay();
+}
+function calcClearEntry() { calcCurrent = '0'; calcRefreshDisplay(); }
+function calcBackspace() {
+    if (calcResetNext) return;
+    calcCurrent = calcCurrent.length > 1 ? calcCurrent.slice(0, -1) : '0';
+    calcRefreshDisplay();
+}
+function calcSqrt() {
+    var v = Math.sqrt(parseFloat(calcCurrent));
+    calcCurrent = isNaN(v) ? 'Hata' : String(v); calcResetNext = true; calcRefreshDisplay();
+}
+function calcPercent() {
+    var base = calcPrevious !== null ? calcPrevious : parseFloat(calcCurrent);
+    calcCurrent = String((base * parseFloat(calcCurrent)) / 100);
+    calcRefreshDisplay();
+}
+function calcInverse() {
+    var v = parseFloat(calcCurrent);
+    calcCurrent = v === 0 ? 'Sıfıra bölme hatası' : String(1 / v);
+    calcResetNext = true; calcRefreshDisplay();
+}
+function calcMemory(action) {
+    var v = parseFloat(calcCurrent) || 0;
+    if (action === 'MC') calcMemoryVal = 0;
+    else if (action === 'MR') { calcCurrent = String(calcMemoryVal); calcResetNext = true; }
+    else if (action === 'MS') calcMemoryVal = v;
+    else if (action === 'M+') calcMemoryVal += v;
+    calcRefreshDisplay();
+}
+
+/* =========================================================
+   GERİ DÖNÜŞÜM KUTUSU
+   ========================================================= */
+var recycleItems = [
+    { name: 'eski_cv_taslagi.docx', icon: 'https://win98icons.alexmeub.com/icons/png/write_wordpad-1.png' },
+    { name: 'vize_notlarim_2023.txt', icon: 'https://win98icons.alexmeub.com/icons/png/notepad-0.png' },
+    { name: 'proje_fikri_taslak.txt', icon: 'https://win98icons.alexmeub.com/icons/png/notepad-0.png' },
+    { name: 'ekran_goruntusu_eski.bmp', icon: 'https://win98icons.alexmeub.com/icons/png/paint_file-3.png' },
+    { name: 'Internet Explorer Kısayolu.lnk', icon: 'https://win98icons.alexmeub.com/icons/png/msie2-2.png' }
+];
+function renderRecycleBin() {
+    var body = document.getElementById('recycleBinBody');
+    var icon = document.getElementById('recycleBinIcon');
+    var titleIcon = document.getElementById('recycleBinTitleIcon');
+    body.innerHTML = '';
+    if (recycleItems.length === 0) {
+        body.innerHTML = '<div class="rb-empty-msg" style="grid-column:1/-1;"><img src="https://win98icons.alexmeub.com/icons/png/recycle_bin_empty-0.png" width="48"><span>Bu klasör boş.</span></div>';
+        if (icon) icon.src = 'https://win98icons.alexmeub.com/icons/png/recycle_bin_empty-0.png';
+        if (titleIcon) titleIcon.src = 'https://win98icons.alexmeub.com/icons/png/recycle_bin_empty-0.png';
+        return;
+    }
+    if (icon) icon.src = 'https://win98icons.alexmeub.com/icons/png/recycle_bin_full-0.png';
+    if (titleIcon) titleIcon.src = 'https://win98icons.alexmeub.com/icons/png/recycle_bin_full-0.png';
+    recycleItems.forEach(function(item, idx) {
+        var div = document.createElement('div');
+        div.className = 'rb-item';
+        div.innerHTML = '<img src="' + item.icon + '" width="32" height="32" onerror="this.src=\'https://win98icons.alexmeub.com/icons/png/file_lines-0.png\'"><span>' + item.name + '</span>';
+        div.ondblclick = function() { clippyComment("'" + item.name + "' geri yüklenmeden açılamaz. Önce geri yüklemeyi dene!"); };
+        body.appendChild(div);
+    });
+}
+function emptyRecycleBin() {
+    if (recycleItems.length === 0) { clippyComment("Geri Dönüşüm Kutusu zaten boş!"); return; }
+    if (!confirm(recycleItems.length + ' öğeyi kalıcı olarak silmek istediğinizden emin misiniz?')) return;
+    recycleItems = [];
+    renderRecycleBin();
+    clippyComment("Geri Dönüşüm Kutusu boşaltıldı!");
+}
+function restoreAllRecycle() {
+    if (recycleItems.length === 0) { clippyComment("Geri yüklenecek öğe yok."); return; }
+    clippyComment(recycleItems.length + " öğe eski konumuna geri yüklendi (simülasyon).");
+    recycleItems = [];
+    renderRecycleBin();
+}
+
+/* MINESWEEPER */
+var ROWS = 9, COLS = 9, MINES = 10;
+var msGrid = [], msGameOver = false, msTimer = null, msTime = 0, msInitialized = false;
+var revealedSafe = 0, TOTAL_SAFE = (ROWS * COLS) - MINES;
+
+function initMinesweeper() {
+    msInitialized = true; clearInterval(msTimer);
+    msTime = 0; msGameOver = false; revealedSafe = 0;
+    document.getElementById('ms-timer').innerText = '000';
+    document.getElementById('ms-mines-count').innerText = '010';
+    document.getElementById('ms-face').innerText = '🙂';
+    var grid = document.getElementById('ms-grid');
+    grid.innerHTML = '';
+    msGrid = Array(ROWS).fill().map(function() {
+        return Array(COLS).fill().map(function() { return { mine: false, revealed: false, flagged: false, count: 0 }; });
+    });
+    var placed = 0;
+    while (placed < MINES) {
+        var r = Math.floor(Math.random() * ROWS), cl = Math.floor(Math.random() * COLS);
+        if (!msGrid[r][cl].mine) { msGrid[r][cl].mine = true; placed++; }
+    }
+    for (var r = 0; r < ROWS; r++) {
+        for (var cl = 0; cl < COLS; cl++) {
+            if (msGrid[r][cl].mine) continue;
+            var cnt = 0;
+            for (var dr = -1; dr <= 1; dr++) {
+                for (var dc = -1; dc <= 1; dc++) {
+                    var nr = r + dr, nc = cl + dc;
+                    if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && msGrid[nr][nc].mine) cnt++;
+                }
+            }
+            msGrid[r][cl].count = cnt;
+        }
+    }
+    for (var r = 0; r < ROWS; r++) {
+        for (var cl = 0; cl < COLS; cl++) {
+            (function(row, col) {
+                var cell = document.createElement('div');
+                cell.className = 'ms-cell';
+                cell.id = 'cell-' + row + '-' + col;
+                cell.onmousedown = function(e) {
+                    if (e.button === 2) toggleFlag(row, col);
+                    else clickCell(row, col);
+                };
+                cell.oncontextmenu = function(e) { e.preventDefault(); };
+                grid.appendChild(cell);
+            })(r, cl);
+        }
+    }
+}
+
+function clickCell(r, cl) {
+    if (msGameOver || msGrid[r][cl].revealed || msGrid[r][cl].flagged) return;
+    if (!msTimer) msTimer = setInterval(function() { msTime++; document.getElementById('ms-timer').innerText = msTime.toString().padStart(3,'0'); }, 1000);
+    var d = msGrid[r][cl];
+    d.revealed = true;
+    var el = document.getElementById('cell-' + r + '-' + cl);
+    el.classList.add('revealed');
+    if (d.mine) {
+        el.innerText = '💣'; el.style.background = '#f00';
+        document.getElementById('ms-face').innerText = '😵';
+        msGameOver = true; clearInterval(msTimer); revealAllMines(); return;
+    }
+    revealedSafe++;
+    if (d.count > 0) {
+        el.innerText = d.count;
+        var colors = ['', '#0000ff', '#008000', '#ff0000', '#000080', '#800000', '#008080'];
+        el.style.color = colors[d.count] || '#000';
+    } else {
+        for (var dr = -1; dr <= 1; dr++) {
+            for (var dc = -1; dc <= 1; dc++) {
+                var nr = r + dr, nc = cl + dc;
+                if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS) clickCell(nr, nc);
+            }
+        }
+    }
+    if (revealedSafe === TOTAL_SAFE) {
+        msGameOver = true; clearInterval(msTimer);
+        document.getElementById('ms-face').innerText = '😎';
+        document.getElementById('ms-mines-count').innerText = '000';
+    }
+}
+
+function toggleFlag(r, cl) {
+    if (msGameOver || msGrid[r][cl].revealed) return;
+    var d = msGrid[r][cl];
+    d.flagged = !d.flagged;
+    document.getElementById('cell-' + r + '-' + cl).innerText = d.flagged ? '🚩' : '';
+}
+
+function revealAllMines() {
+    for (var r = 0; r < ROWS; r++) {
+        for (var cl = 0; cl < COLS; cl++) {
+            if (msGrid[r][cl].mine) document.getElementById('cell-' + r + '-' + cl).innerText = '💣';
+        }
+    }
+}
+
+/* 3D PIPES */
+var ssCanvas = document.getElementById('screensaverCanvas');
+var ssCtx = ssCanvas.getContext('2d');
+var idleTime = 0, ssRunning = false;
+
+function resetIdle() {
+    idleTime = 0;
+    if (ssRunning) { ssRunning = false; ssCanvas.style.display = 'none'; }
+}
+window.addEventListener('mousemove', resetIdle);
+window.addEventListener('keydown', resetIdle);
+
+setInterval(function() {
+    idleTime++;
+    if (idleTime === 15 && !ssRunning) {
+        clippyComment("Hala orada mısın? Sana yardım etmek için buradayım!");
+    }
+    if (idleTime >= 45 && !ssRunning) startScreensaver();
+}, 1000);
+
+function startScreensaver() {
+    ssRunning = true;
+    ssCanvas.width = window.innerWidth;
+    ssCanvas.height = window.innerHeight;
+    ssCanvas.style.display = 'block';
+    var x = ssCanvas.width / 2, y = ssCanvas.height / 2;
+    var colors = ['#00ff00', '#0000ff', '#ff0000', '#ffff00', '#ff00ff', '#00ffff'];
+    var color = colors[Math.floor(Math.random() * colors.length)];
+    
+    function drawPipe() {
+        if (!ssRunning) return;
+        ssCtx.strokeStyle = color; ssCtx.lineWidth = 14; ssCtx.lineCap = 'round';
+        ssCtx.beginPath(); ssCtx.moveTo(x, y);
+        var dir = Math.floor(Math.random() * 4);
+        if (dir === 0) x += 25; else if (dir === 1) x -= 25; else if (dir === 2) y += 25; else y -= 25;
+        if (x < 0 || x > ssCanvas.width || y < 0 || y > ssCanvas.height) {
+            x = Math.random() * ssCanvas.width; y = Math.random() * ssCanvas.height;
+            color = colors[Math.floor(Math.random() * colors.length)];
+        }
+        ssCtx.lineTo(x, y); ssCtx.stroke();
+        setTimeout(drawPipe, 40);
+    }
+    drawPipe();
+}
+
+/* CLOCK */
+setInterval(function() {
+    var d = new Date();
+    document.getElementById('clock').innerText = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+}, 1000);
+</script>
+</body>
+</html>

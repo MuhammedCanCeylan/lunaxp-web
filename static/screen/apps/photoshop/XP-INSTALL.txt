@@ -1,0 +1,24 @@
+﻿Adobe Photoshop - Windows XP Web Simulator
+
+Gercek Adobe Photoshop binary'si kullanilmaz.
+
+Motor:
+miniPaint
+
+Kaynak:
+https://github.com/viliusle/miniPaint
+
+Lisans:
+MIT
+
+XP uygulama yolu:
+static/screen/apps/photoshop/
+
+Ana dosya:
+index.html
+
+Masaustu ikonu:
+icon.png
+
+Kurulum:
+09/20/2026 10:27:49

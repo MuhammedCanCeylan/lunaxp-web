@@ -1,0 +1,3930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+>
+<title>Ares</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    font-family: Tahoma, Arial, sans-serif;
+    font-size: 11px;
+    color: #111;
+    background: #d4d0c8;
+}
+
+button,
+input,
+select {
+    font-family: Tahoma, Arial, sans-serif;
+    font-size: 11px;
+}
+
+button {
+    min-height: 22px;
+    padding: 2px 10px;
+    color: #111;
+    background:
+        linear-gradient(
+            #ffffff 0%,
+            #f7f6ef 45%,
+            #e3e0d5 50%,
+            #d4d0c8 100%
+        );
+    border-top: 1px solid #ffffff;
+    border-left: 1px solid #ffffff;
+    border-right: 1px solid #404040;
+    border-bottom: 1px solid #404040;
+    cursor: default;
+}
+
+button:active {
+    border-top: 1px solid #404040;
+    border-left: 1px solid #404040;
+    border-right: 1px solid #ffffff;
+    border-bottom: 1px solid #ffffff;
+    padding: 3px 9px 1px 11px;
+}
+
+button:disabled {
+    color: #888;
+}
+
+input,
+select {
+    height: 21px;
+    border: 1px solid #7f9db9;
+    background: white;
+    padding: 2px 4px;
+}
+
+#app {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-width: 560px;
+    background: #d4d0c8;
+}
+
+/* -------------------------------------------------------
+   ARES TOP NAVIGATION
+------------------------------------------------------- */
+
+.ares-tabs {
+    flex: 0 0 55px;
+    display: flex;
+    align-items: stretch;
+    padding: 4px 5px 0;
+    gap: 2px;
+    background:
+        linear-gradient(
+            #343434 0%,
+            #1a1a1a 48%,
+            #050505 51%,
+            #181818 100%
+        );
+    border-bottom: 1px solid #5d5d5d;
+    user-select: none;
+}
+
+.ares-tab {
+    min-width: 84px;
+    height: 49px;
+    padding: 3px 8px;
+    border: 1px solid transparent;
+    border-radius: 3px 3px 0 0;
+    color: #f5f5f5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    cursor: default;
+    text-shadow: 1px 1px #000;
+}
+
+.ares-tab:hover {
+    background:
+        linear-gradient(
+            rgba(255,255,255,.13),
+            rgba(255,255,255,.02)
+        );
+}
+
+.ares-tab.active {
+    border-color: #5895cb;
+    background:
+        linear-gradient(
+            #4b91d1 0%,
+            #276aa7 48%,
+            #19588d 52%,
+            #347ebd 100%
+        );
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.25);
+}
+
+.tab-icon {
+    font-size: 19px;
+    line-height: 19px;
+    filter: drop-shadow(1px 1px 0 #000);
+}
+
+.tab-label {
+    line-height: 13px;
+    white-space: nowrap;
+}
+
+/* -------------------------------------------------------
+   CONTENT
+------------------------------------------------------- */
+
+.workspace {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    background: #ece9d8;
+}
+
+.page {
+    position: absolute;
+    inset: 0;
+    display: none;
+    overflow: hidden;
+}
+
+.page.active {
+    display: flex;
+}
+
+.toolbar {
+    min-height: 31px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 5px;
+    border-bottom: 1px solid #aaa69a;
+    background:
+        linear-gradient(
+            #faf9f4,
+            #e7e5da
+        );
+}
+
+.toolbar-sep {
+    height: 21px;
+    width: 1px;
+    margin: 0 3px;
+    background: #aaa69a;
+    border-right: 1px solid #fff;
+}
+
+.tool-btn {
+    min-height: 24px;
+    padding: 2px 7px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tool-symbol {
+    width: 16px;
+    text-align: center;
+    font-size: 14px;
+}
+
+/* -------------------------------------------------------
+   GENERIC TREE / LIST
+------------------------------------------------------- */
+
+.split {
+    flex: 1;
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+}
+
+.sidebar {
+    flex: 0 0 190px;
+    min-width: 135px;
+    background: #ece9d8;
+    border-right: 1px solid #aaa69a;
+    overflow: auto;
+}
+
+.main-pane {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+}
+
+.panel-caption {
+    padding: 5px 7px;
+    font-weight: bold;
+    border-bottom: 1px solid #aaa69a;
+    background:
+        linear-gradient(#ffffff, #ddd9ca);
+}
+
+.tree {
+    padding: 5px 3px;
+}
+
+.tree-item {
+    padding: 3px 5px;
+    white-space: nowrap;
+    cursor: default;
+}
+
+.tree-item:hover {
+    background: #ddd9ca;
+}
+
+.tree-item.selected {
+    color: white;
+    background: #316ac5;
+}
+
+.tree-indent {
+    display: inline-block;
+    width: 15px;
+}
+
+/* -------------------------------------------------------
+   TABLES
+------------------------------------------------------- */
+
+.list-container {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    background: #fff;
+}
+
+table {
+    width: 100%;
+    min-width: 650px;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+    background: #fff;
+}
+
+th {
+    position: sticky;
+    z-index: 2;
+    top: 0;
+    height: 20px;
+    padding: 2px 5px;
+    text-align: left;
+    font-weight: normal;
+    white-space: nowrap;
+    overflow: hidden;
+    background:
+        linear-gradient(
+            #ffffff,
+            #e5e5df
+        );
+    border-right: 1px solid #aaa69a;
+    border-bottom: 1px solid #aaa69a;
+}
+
+td {
+    height: 20px;
+    padding: 2px 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+tbody tr {
+    cursor: default;
+}
+
+tbody tr:hover {
+    background: #eef4fb;
+}
+
+tbody tr.selected {
+    color: #fff;
+    background: #316ac5;
+}
+
+tbody tr.selected .progress-cell {
+    color: #111;
+}
+
+.file-symbol {
+    width: 18px;
+    text-align: center;
+    display: inline-block;
+}
+
+/* -------------------------------------------------------
+   LIBRARY
+------------------------------------------------------- */
+
+#page-library {
+    flex-direction: column;
+}
+
+.library-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+}
+
+.library-tree {
+    flex: 0 0 185px;
+    border-right: 1px solid #aaa69a;
+    background: #ece9d8;
+    overflow: auto;
+}
+
+.library-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background: white;
+}
+
+.library-empty {
+    padding: 30px;
+    text-align: center;
+    color: #666;
+}
+
+/* -------------------------------------------------------
+   SCREEN / PLAYER
+------------------------------------------------------- */
+
+#page-screen {
+    flex-direction: column;
+    background: #111;
+}
+
+.screen-area {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        radial-gradient(circle at center, #292929, #070707 68%);
+    color: #cfcfcf;
+}
+
+#mediaVideo {
+    display: none;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+}
+
+.screen-logo {
+    text-align: center;
+    opacity: .9;
+    user-select: none;
+}
+
+.screen-logo-main {
+    color: #5ea6dc;
+    font-weight: bold;
+    font-size: 42px;
+    letter-spacing: -3px;
+    text-shadow:
+        0 1px #fff,
+        2px 2px 3px #000;
+}
+
+.screen-logo-sub {
+    margin-top: 3px;
+    color: #aaa;
+    font-size: 11px;
+}
+
+.player-controls {
+    flex: 0 0 54px;
+    display: flex;
+    align-items: center;
+    padding: 6px;
+    gap: 5px;
+    color: white;
+    border-top: 1px solid #595959;
+    background:
+        linear-gradient(#343434, #111);
+}
+
+.round-player {
+    width: 29px;
+    height: 29px;
+    min-height: 29px;
+    padding: 0;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 14px;
+    background:
+        radial-gradient(circle at 35% 25%, #888, #333 48%, #111 70%);
+    border: 1px solid #777;
+    box-shadow: inset 0 0 2px #bbb;
+}
+
+.player-track {
+    flex: 1;
+    min-width: 80px;
+}
+
+.player-track input[type="range"] {
+    width: 100%;
+    height: 15px;
+    border: 0;
+    background: transparent;
+}
+
+.now-playing {
+    width: 220px;
+    max-width: 28vw;
+    color: #b9dffb;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* -------------------------------------------------------
+   SEARCH
+------------------------------------------------------- */
+
+#page-search {
+    flex-direction: column;
+}
+
+.search-body {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+}
+
+.search-sidebar {
+    flex: 0 0 190px;
+    border-right: 1px solid #aaa69a;
+    background: #ece9d8;
+    padding: 8px;
+}
+
+.search-title {
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.form-label {
+    display: block;
+    margin: 7px 0 2px;
+}
+
+.full {
+    width: 100%;
+}
+
+.search-actions {
+    display: flex;
+    gap: 5px;
+    margin-top: 9px;
+}
+
+.search-actions button {
+    flex: 1;
+}
+
+.category-options {
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px solid #aaa69a;
+}
+
+.category-options label {
+    display: block;
+    margin: 4px 0;
+}
+
+.search-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background: white;
+}
+
+.result-tabs {
+    flex: 0 0 25px;
+    display: flex;
+    align-items: end;
+    padding-left: 4px;
+    border-bottom: 1px solid #aaa69a;
+    background: #ece9d8;
+}
+
+.result-tab {
+    height: 22px;
+    min-width: 120px;
+    padding: 3px 8px;
+    background: #fff;
+    border: 1px solid #aaa69a;
+    border-bottom: 0;
+}
+
+.search-footer {
+    min-height: 27px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 3px 6px;
+    border-top: 1px solid #aaa69a;
+    background: #ece9d8;
+}
+
+.search-footer input {
+    width: 180px;
+}
+
+/* -------------------------------------------------------
+   TRANSFER
+------------------------------------------------------- */
+
+#page-transfer {
+    flex-direction: column;
+}
+
+.transfer-section {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.transfer-downloads {
+    flex: 1;
+}
+
+.transfer-uploads {
+    flex: 0 0 120px;
+    border-top: 2px groove #fff;
+}
+
+.transfer-caption {
+    flex: 0 0 20px;
+    padding: 3px 6px;
+    background: #ece9d8;
+    border-bottom: 1px solid #aaa69a;
+}
+
+.progress-wrap {
+    position: relative;
+    height: 13px;
+    border: 1px solid #777;
+    background: #fff;
+}
+
+.progress-bar {
+    position: absolute;
+    inset: 1px auto 1px 1px;
+    width: 0;
+    background:
+        linear-gradient(
+            90deg,
+            #087b14,
+            #54c15b,
+            #087b14
+        );
+}
+
+.progress-text {
+    position: relative;
+    z-index: 1;
+    height: 11px;
+    line-height: 11px;
+    text-align: center;
+    font-size: 9px;
+}
+
+/* -------------------------------------------------------
+   CHAT
+------------------------------------------------------- */
+
+#page-chat {
+    flex-direction: column;
+}
+
+.chat-searchbar {
+    flex: 0 0 33px;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    padding: 5px;
+    border-bottom: 1px solid #aaa69a;
+    background: #ece9d8;
+}
+
+.chat-searchbar input {
+    width: 220px;
+}
+
+.chat-layout {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+}
+
+.channel-list {
+    flex: 0 0 180px;
+    border-right: 1px solid #aaa69a;
+    background: white;
+    overflow: auto;
+}
+
+.channel-item {
+    padding: 5px 7px;
+    border-bottom: 1px solid #eee;
+}
+
+.channel-item.selected {
+    color: #fff;
+    background: #316ac5;
+}
+
+.chat-center {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-log {
+    flex: 1;
+    padding: 7px;
+    overflow: auto;
+    background: #fff;
+    line-height: 17px;
+}
+
+.chat-users {
+    flex: 0 0 150px;
+    border-left: 1px solid #aaa69a;
+    background: #fff;
+    overflow: auto;
+}
+
+.chat-user {
+    padding: 3px 5px;
+}
+
+.chat-compose-toolbar {
+    min-height: 25px;
+    padding: 2px 4px;
+    border-top: 1px solid #aaa69a;
+    background: #ece9d8;
+}
+
+.chat-compose {
+    min-height: 50px;
+    display: flex;
+    padding: 4px;
+    gap: 4px;
+    border-top: 1px solid #aaa69a;
+    background: #ece9d8;
+}
+
+.chat-compose textarea {
+    flex: 1;
+    resize: none;
+    font: 11px Tahoma, sans-serif;
+    border: 1px solid #7f9db9;
+}
+
+.chat-compose button {
+    width: 65px;
+}
+
+.chat-system {
+    color: #666;
+}
+
+.chat-self {
+    color: #0057a8;
+}
+
+.chat-other {
+    color: #128312;
+}
+
+/* -------------------------------------------------------
+   CONTROL PANEL
+------------------------------------------------------- */
+
+#page-control {
+    flex-direction: column;
+}
+
+.cp-tabs {
+    flex: 0 0 27px;
+    padding: 4px 4px 0;
+    display: flex;
+    gap: 2px;
+    background: #ece9d8;
+    border-bottom: 1px solid #aaa69a;
+}
+
+.cp-tab {
+    min-width: 75px;
+    padding: 3px 10px;
+    border: 1px solid #aaa69a;
+    border-bottom: 0;
+    background: #dfdcd0;
+    cursor: default;
+}
+
+.cp-tab.active {
+    position: relative;
+    top: 1px;
+    background: #fff;
+}
+
+.cp-content {
+    flex: 1;
+    overflow: auto;
+    padding: 11px;
+    background: #fff;
+}
+
+.groupbox {
+    position: relative;
+    max-width: 650px;
+    margin-bottom: 13px;
+    padding: 15px 10px 10px;
+    border: 1px solid #aaa69a;
+}
+
+.groupbox-title {
+    position: absolute;
+    top: -7px;
+    left: 8px;
+    padding: 0 4px;
+    background: #fff;
+}
+
+.setting-row {
+    min-height: 27px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.setting-row > label:first-child {
+    width: 150px;
+}
+
+.setting-row input[type="text"],
+.setting-row input[type="number"],
+.setting-row select {
+    width: 180px;
+}
+
+/* -------------------------------------------------------
+   BOTTOM ARES PLAYER / STATUS
+------------------------------------------------------- */
+
+.bottom-bar {
+    flex: 0 0 37px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 5px;
+    color: #eee;
+    border-top: 1px solid #555;
+    background:
+        linear-gradient(
+            #3b3b3b,
+            #171717
+        );
+    user-select: none;
+}
+
+.bottom-control {
+    width: 26px;
+    height: 26px;
+    min-height: 26px;
+    padding: 0;
+    border-radius: 50%;
+    color: white;
+    background:
+        radial-gradient(circle at 35% 25%, #888, #333 50%, #111 70%);
+    border: 1px solid #777;
+}
+
+.connection-light {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #62c75b;
+    box-shadow: 0 0 4px #62c75b;
+}
+
+.bottom-status {
+    width: 126px;
+    white-space: nowrap;
+}
+
+.bottom-now {
+    flex: 1;
+    min-width: 0;
+    height: 22px;
+    padding: 3px 7px;
+    color: #9ed5ff;
+    border: 1px solid #020202;
+    background: #050505;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* -------------------------------------------------------
+   STATUS LINE
+------------------------------------------------------- */
+
+.statusline {
+    flex: 0 0 20px;
+    display: flex;
+    align-items: center;
+    padding: 2px 5px;
+    border-top: 1px solid #aaa69a;
+    color: #333;
+    background: #ece9d8;
+}
+
+.status-left {
+    flex: 1;
+}
+
+.status-right {
+    padding-left: 9px;
+    border-left: 1px solid #aaa69a;
+}
+
+/* -------------------------------------------------------
+   XP DIALOG
+------------------------------------------------------- */
+
+.dialog-overlay {
+    position: absolute;
+    z-index: 5000;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,.12);
+}
+
+.dialog-overlay.visible {
+    display: flex;
+}
+
+.xp-dialog {
+    width: 365px;
+    max-width: calc(100% - 30px);
+    border: 2px solid #0054e3;
+    border-radius: 7px 7px 3px 3px;
+    overflow: hidden;
+    background: #ece9d8;
+    box-shadow: 4px 4px 12px rgba(0,0,0,.35);
+}
+
+.xp-dialog-title {
+    height: 27px;
+    padding: 5px 7px;
+    color: #fff;
+    font-weight: bold;
+    background:
+        linear-gradient(
+            90deg,
+            #0058e6,
+            #3a93ff,
+            #0062d6
+        );
+    text-shadow: 1px 1px #003a9c;
+}
+
+.xp-dialog-body {
+    min-height: 83px;
+    padding: 14px 14px 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+}
+
+.dialog-icon {
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    line-height: 31px;
+    text-align: center;
+    color: #fff;
+    font-size: 22px;
+    font-weight: bold;
+    background: #3577d3;
+    border: 1px solid #124b9c;
+}
+
+.dialog-message {
+    flex: 1;
+    padding-top: 4px;
+    line-height: 16px;
+}
+
+.xp-dialog-actions {
+    min-height: 42px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 7px;
+    padding: 5px;
+}
+
+.xp-dialog-actions button {
+    min-width: 75px;
+}
+
+/* -------------------------------------------------------
+   MISC
+------------------------------------------------------- */
+
+.hidden-input {
+    display: none;
+}
+
+.muted {
+    color: #777;
+}
+
+.good {
+    color: #078413;
+}
+
+.bad {
+    color: #a60000;
+}
+
+.small-note {
+    color: #555;
+    line-height: 16px;
+}
+
+@media (max-width: 700px) {
+    .ares-tab {
+        min-width: 68px;
+        padding-left: 4px;
+        padding-right: 4px;
+    }
+
+    .tab-label {
+        font-size: 10px;
+    }
+
+    .search-sidebar {
+        flex-basis: 155px;
+    }
+
+    .chat-users {
+        display: none;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+    <!-- =================================================
+         ARES INTERNAL NAVIGATION
+         No Windows title bar intentionally.
+    ================================================== -->
+
+    <div class="ares-tabs">
+
+        <div class="ares-tab" data-page="library">
+            <div class="tab-icon">📚</div>
+            <div class="tab-label">Library</div>
+        </div>
+
+        <div class="ares-tab" data-page="screen">
+            <div class="tab-icon">▶</div>
+            <div class="tab-label">Screen</div>
+        </div>
+
+        <div class="ares-tab active" data-page="search">
+            <div class="tab-icon">🔎</div>
+            <div class="tab-label">Search</div>
+        </div>
+
+        <div class="ares-tab" data-page="transfer">
+            <div class="tab-icon">⇅</div>
+            <div class="tab-label">Transfer</div>
+        </div>
+
+        <div class="ares-tab" data-page="chat">
+            <div class="tab-icon">👥</div>
+            <div class="tab-label">Chat</div>
+        </div>
+
+        <div class="ares-tab" data-page="control">
+            <div class="tab-icon">🛠</div>
+            <div class="tab-label">Control Panel</div>
+        </div>
+
+    </div>
+
+    <div class="workspace">
+
+        <!-- =================================================
+             LIBRARY
+        ================================================== -->
+
+        <section class="page" id="page-library">
+
+            <div class="toolbar">
+
+                <button class="tool-btn" id="btnLibraryPlay">
+                    <span class="tool-symbol">▶</span>
+                    Play
+                </button>
+
+                <button class="tool-btn" id="btnAddLocal">
+                    <span class="tool-symbol">＋</span>
+                    Add local files
+                </button>
+
+                <button class="tool-btn" id="btnRemoveLibrary">
+                    <span class="tool-symbol">✖</span>
+                    Remove
+                </button>
+
+                <div class="toolbar-sep"></div>
+
+                <span class="muted">
+                    My Library
+                </span>
+
+                <input
+                    id="localFileInput"
+                    class="hidden-input"
+                    type="file"
+                    multiple
+                    accept="audio/*,video/*"
+                >
+            </div>
+
+            <div class="library-body">
+
+                <div class="library-tree">
+                    <div class="panel-caption">My Library</div>
+
+                    <div class="tree">
+                        <div class="tree-item selected" data-library-filter="all">
+                            📁 All
+                        </div>
+
+                        <div class="tree-item" data-library-filter="audio">
+                            <span class="tree-indent"></span>🎵 Audio
+                        </div>
+
+                        <div class="tree-item" data-library-filter="video">
+                            <span class="tree-indent"></span>🎞 Video
+                        </div>
+
+                        <div class="tree-item" data-library-filter="image">
+                            <span class="tree-indent"></span>🖼 Images
+                        </div>
+
+                        <div class="tree-item" data-library-filter="document">
+                            <span class="tree-indent"></span>📄 Documents
+                        </div>
+
+                        <div class="tree-item" data-library-filter="software">
+                            <span class="tree-indent"></span>💾 Software
+                        </div>
+
+                        <div class="tree-item" data-library-filter="other">
+                            <span class="tree-indent"></span>📦 Other
+                        </div>
+                    </div>
+                </div>
+
+                <div class="library-main">
+
+                    <div class="list-container">
+
+                        <table id="libraryTable">
+                            <thead>
+                            <tr>
+                                <th style="width:31%">Title</th>
+                                <th style="width:14%">Artist</th>
+                                <th style="width:13%">Type</th>
+                                <th style="width:12%">Size</th>
+                                <th style="width:17%">Date</th>
+                                <th style="width:13%">Source</th>
+                            </tr>
+                            </thead>
+
+                            <tbody id="libraryRows"></tbody>
+                        </table>
+
+                        <div
+                            class="library-empty"
+                            id="libraryEmpty"
+                        >
+                            Your library is empty.<br><br>
+                            Add a local audio/video file or complete a simulated transfer.
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- =================================================
+             SCREEN / PLAYER
+        ================================================== -->
+
+        <section class="page" id="page-screen">
+
+            <div class="screen-area">
+
+                <video id="mediaVideo"></video>
+
+                <div class="screen-logo" id="screenPlaceholder">
+                    <div class="screen-logo-main">ares</div>
+                    <div class="screen-logo-sub">
+                        integrated audio / video player
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="player-controls">
+
+                <button class="round-player" id="playerPrevious">
+                    ◀|
+                </button>
+
+                <button class="round-player" id="playerToggle">
+                    ▶
+                </button>
+
+                <button class="round-player" id="playerStop">
+                    ■
+                </button>
+
+                <div class="now-playing" id="playerNowPlaying">
+                    No media selected
+                </div>
+
+                <div class="player-track">
+                    <input
+                        type="range"
+                        id="playerSeek"
+                        min="0"
+                        max="1000"
+                        value="0"
+                    >
+                </div>
+
+                <span id="playerTime">
+                    00:00 / 00:00
+                </span>
+
+            </div>
+
+        </section>
+
+        <!-- =================================================
+             SEARCH
+        ================================================== -->
+
+        <section class="page active" id="page-search">
+
+            <div class="search-body">
+
+                <aside class="search-sidebar">
+
+                    <div class="search-title">
+                        Search for files
+                    </div>
+
+                    <label class="form-label" for="searchQuery">
+                        Search:
+                    </label>
+
+                    <input
+                        class="full"
+                        id="searchQuery"
+                        autocomplete="off"
+                        value=""
+                    >
+
+                    <label class="form-label" for="searchType">
+                        Type:
+                    </label>
+
+                    <select class="full" id="searchType">
+                        <option value="audio">Audio</option>
+                        <option value="video">Video</option>
+                        <option value="image">Image</option>
+                        <option value="document">Document</option>
+                        <option value="software">Software</option>
+                        <option value="other">Other</option>
+                    </select>
+
+                    <div class="search-actions">
+
+                        <button id="btnSearch">
+                            Search Now
+                        </button>
+
+                        <button id="btnStopSearch" disabled>
+                            Stop
+                        </button>
+
+                    </div>
+
+                    <div class="category-options">
+
+                        <strong>Advanced search</strong>
+
+                        <label>
+                            <input type="checkbox" id="searchHighAvailability">
+                            High availability
+                        </label>
+
+                        <label>
+                            <input type="checkbox" id="searchSmallFiles">
+                            Smaller files
+                        </label>
+
+                        <div
+                            class="small-note"
+                            style="margin-top:9px"
+                        >
+                            Browser recreation mode:
+                            search results emulate the classic Ares network.
+                        </div>
+
+                    </div>
+
+                </aside>
+
+                <div class="search-main">
+
+                    <div class="result-tabs">
+                        <div class="result-tab" id="searchTabTitle">
+                            New search
+                        </div>
+                    </div>
+
+                    <div class="list-container">
+
+                        <table id="searchResultsTable">
+
+                            <thead>
+                            <tr>
+                                <th style="width:31%">Title</th>
+                                <th style="width:12%">Type</th>
+                                <th style="width:12%">Size</th>
+                                <th style="width:10%">Sources</th>
+                                <th style="width:17%">User</th>
+                                <th style="width:18%">Filename</th>
+                            </tr>
+                            </thead>
+
+                            <tbody id="searchRows"></tbody>
+
+                        </table>
+
+                    </div>
+
+                    <div class="search-footer">
+
+                        <span id="searchCount">
+                            0 results
+                        </span>
+
+                        <span style="margin-left:auto">
+                            Filter:
+                        </span>
+
+                        <input
+                            id="searchFilter"
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- =================================================
+             TRANSFER
+        ================================================== -->
+
+        <section class="page" id="page-transfer">
+
+            <div class="toolbar">
+
+                <button class="tool-btn" id="btnCancelTransfer">
+                    <span class="tool-symbol">✖</span>
+                    Cancel
+                </button>
+
+                <button class="tool-btn" id="btnPauseTransfer">
+                    <span class="tool-symbol">Ⅱ</span>
+                    Pause
+                </button>
+
+                <button class="tool-btn" id="btnResumeTransfer">
+                    <span class="tool-symbol">▶</span>
+                    Resume
+                </button>
+
+                <button class="tool-btn" id="btnTransferPlay">
+                    <span class="tool-symbol">▷</span>
+                    Play / Preview
+                </button>
+
+                <div class="toolbar-sep"></div>
+
+                <button class="tool-btn" id="btnClearIdle">
+                    Clear Idle
+                </button>
+
+            </div>
+
+            <div class="transfer-section transfer-downloads">
+
+                <div class="transfer-caption" id="downloadCaption">
+                    Download: 0 KB received
+                </div>
+
+                <div class="list-container">
+
+                    <table>
+                        <thead>
+                        <tr>
+                            <th style="width:25%">File</th>
+                            <th style="width:10%">Type</th>
+                            <th style="width:11%">Users</th>
+                            <th style="width:12%">Status</th>
+                            <th style="width:27%">Progress</th>
+                            <th style="width:15%">Speed</th>
+                        </tr>
+                        </thead>
+
+                        <tbody id="transferRows"></tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <div class="transfer-section transfer-uploads">
+
+                <div class="transfer-caption">
+                    Upload: 0 KB sent
+                </div>
+
+                <div class="list-container">
+
+                    <table>
+                        <thead>
+                        <tr>
+                            <th style="width:32%">File</th>
+                            <th style="width:16%">Type</th>
+                            <th style="width:20%">User</th>
+                            <th style="width:16%">Status</th>
+                            <th style="width:16%">Speed</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <tr>
+                            <td colspan="5" class="muted">
+                                No active uploads
+                            </td>
+                        </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- =================================================
+             CHAT
+        ================================================== -->
+
+        <section class="page" id="page-chat">
+
+            <div class="chat-searchbar">
+
+                <span>Channel Search:</span>
+
+                <input
+                    id="channelSearch"
+                    value=""
+                    autocomplete="off"
+                >
+
+                <select id="channelLanguage">
+                    <option>All</option>
+                    <option>English</option>
+                    <option>Türkçe</option>
+                    <option>Español</option>
+                </select>
+
+                <button id="btnChannelSearch">
+                    🔎 Search
+                </button>
+
+            </div>
+
+            <div class="chat-layout">
+
+                <div class="channel-list" id="channelList">
+
+                    <div class="panel-caption">
+                        Channels
+                    </div>
+
+                </div>
+
+                <div class="chat-center">
+
+                    <div class="chat-log" id="chatLog"></div>
+
+                    <div class="chat-compose-toolbar">
+                        <button><b>B</b></button>
+                        <button><i>I</i></button>
+                        <button><u>U</u></button>
+                        <button>☺</button>
+                    </div>
+
+                    <div class="chat-compose">
+
+                        <textarea
+                            id="chatInput"
+                            placeholder="Type a message..."
+                        ></textarea>
+
+                        <button id="btnChatSend">
+                            Send
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div class="chat-users" id="chatUsers">
+                    <div class="panel-caption">
+                        Users
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- =================================================
+             CONTROL PANEL
+        ================================================== -->
+
+        <section class="page" id="page-control">
+
+            <div class="cp-tabs">
+
+                <div class="cp-tab active" data-cp="general">
+                    General
+                </div>
+
+                <div class="cp-tab" data-cp="network">
+                    Network
+                </div>
+
+                <div class="cp-tab" data-cp="skin">
+                    Skin
+                </div>
+
+                <div class="cp-tab" data-cp="files">
+                    Filesharing
+                </div>
+
+            </div>
+
+            <div class="cp-content" id="cp-general">
+
+                <div class="groupbox">
+
+                    <div class="groupbox-title">
+                        Identity
+                    </div>
+
+                    <div class="setting-row">
+                        <label>Nickname:</label>
+
+                        <input
+                            type="text"
+                            id="nicknameInput"
+                            value="Guest@Ares"
+                        >
+                    </div>
+
+                    <div class="setting-row">
+                        <label>Language:</label>
+
+                        <select id="languageSelect">
+                            <option>English</option>
+                            <option>Türkçe</option>
+                            <option>Español</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="groupbox">
+
+                    <div class="groupbox-title">
+                        Startup
+                    </div>
+
+                    <div class="setting-row">
+                        <label>
+                            <input type="checkbox" id="rememberSettings" checked>
+                            Remember browser settings
+                        </label>
+                    </div>
+
+                    <div class="setting-row">
+                        <label>
+                            <input type="checkbox" id="playSounds" checked>
+                            Interface sounds
+                        </label>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="cp-content" id="cp-network" style="display:none">
+
+                <div class="groupbox">
+
+                    <div class="groupbox-title">
+                        Network
+                    </div>
+
+                    <div class="setting-row">
+                        <label>Status:</label>
+                        <span class="good">
+                            Browser recreation mode
+                        </span>
+                    </div>
+
+                    <div class="setting-row">
+                        <label>Incoming port:</label>
+                        <input type="number" value="16967" disabled>
+                    </div>
+
+                    <div class="small-note">
+                        Direct access to the original Ares supernode protocol
+                        is not available from a normal static browser page.
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="cp-content" id="cp-skin" style="display:none">
+
+                <div class="groupbox">
+
+                    <div class="groupbox-title">
+                        Ares skin
+                    </div>
+
+                    <div class="setting-row">
+                        <label>Top bar style:</label>
+
+                        <select id="skinSelect">
+                            <option value="classic">Classic dark</option>
+                            <option value="blue">Blue</option>
+                        </select>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="cp-content" id="cp-files" style="display:none">
+
+                <div class="groupbox">
+
+                    <div class="groupbox-title">
+                        Shared files
+                    </div>
+
+                    <div class="setting-row">
+                        <button id="btnAddLocalControl">
+                            Add local media...
+                        </button>
+                    </div>
+
+                    <div class="small-note">
+                        For browser security, this recreation never scans your
+                        computer automatically. Files are available only when
+                        you explicitly choose them.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- =================================================
+             CUSTOM XP DIALOG
+        ================================================== -->
+
+        <div class="dialog-overlay" id="dialogOverlay">
+
+            <div class="xp-dialog">
+
+                <div class="xp-dialog-title" id="dialogTitle">
+                    Ares
+                </div>
+
+                <div class="xp-dialog-body">
+
+                    <div class="dialog-icon" id="dialogIcon">
+                        ?
+                    </div>
+
+                    <div class="dialog-message" id="dialogMessage"></div>
+
+                </div>
+
+                <div
+                    class="xp-dialog-actions"
+                    id="dialogActions"
+                ></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- =================================================
+         ORIGINAL-STYLE BOTTOM PLAYER
+    ================================================== -->
+
+    <div class="bottom-bar">
+
+        <button
+            class="bottom-control"
+            id="bottomPrevious"
+            title="Previous"
+        >
+            |◀
+        </button>
+
+        <button
+            class="bottom-control"
+            id="bottomPlay"
+            title="Play / Pause"
+        >
+            ▶
+        </button>
+
+        <button
+            class="bottom-control"
+            id="bottomNext"
+            title="Next"
+        >
+            ▶|
+        </button>
+
+        <button
+            class="bottom-control"
+            id="bottomStop"
+            title="Stop"
+        >
+            ■
+        </button>
+
+        <span>🔊</span>
+
+        <div class="connection-light"></div>
+
+        <div class="bottom-status">
+            <span id="networkStatus">
+                Online
+            </span>
+        </div>
+
+        <div class="bottom-now" id="bottomNowPlaying">
+            Ares — ready
+        </div>
+
+    </div>
+
+    <div class="statusline">
+
+        <div class="status-left" id="globalStatus">
+            Ready
+        </div>
+
+        <div class="status-right">
+            Browser edition
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+"use strict";
+
+/* =========================================================
+   ARES BROWSER RECREATION
+   ---------------------------------------------------------
+   This is intentionally NOT connected to the historical
+   Ares Galaxy peer-to-peer network.
+
+   Browser-safe functionality:
+   - UI recreation
+   - simulated search
+   - simulated multi-source transfers
+   - library
+   - local audio/video loading
+   - actual local media playback
+   - local chat simulation
+   - preferences
+   - synthetic UI sounds
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   BASIC STATE
+--------------------------------------------------------- */
+
+const state = {
+    page: "search",
+    searchResults: [],
+    selectedSearchId: null,
+
+    transfers: [],
+    selectedTransferId: null,
+
+    library: [],
+    selectedLibraryId: null,
+    libraryFilter: "all",
+
+    player: {
+        libraryId: null,
+        objectUrl: null
+    },
+
+    nickname: "Guest@Ares",
+
+    selectedChannel: "Lobby",
+
+    channels: [
+        {
+            name: "Lobby",
+            users: 38,
+            language: "English"
+        },
+        {
+            name: "Music Lovers",
+            users: 26,
+            language: "English"
+        },
+        {
+            name: "Retro Computers",
+            users: 19,
+            language: "English"
+        },
+        {
+            name: "Türkiye Sohbet",
+            users: 17,
+            language: "Türkçe"
+        },
+        {
+            name: "Classic Games",
+            users: 13,
+            language: "English"
+        }
+    ],
+
+    chatMessages: {
+        "Lobby": [
+            ["system", "Connecting to host, please wait..."],
+            ["system", "Connected, handshaking..."],
+            ["system", "Logged in, retrieving user's list..."],
+            ["other", "RetroFan", "Welcome to the Ares browser recreation."],
+            ["other", "GalaxyUser", "This chat is local and simulated."]
+        ],
+
+        "Music Lovers": [
+            ["system", "Joined Music Lovers"],
+            ["other", "AudioKid", "Anyone listening to something good?"]
+        ],
+
+        "Retro Computers": [
+            ["system", "Joined Retro Computers"],
+            ["other", "XPForever", "Windows XP still looks great."]
+        ],
+
+        "Türkiye Sohbet": [
+            ["system", "Türkiye Sohbet kanalına bağlanıldı."],
+            ["other", "RetroTR", "Selam millet 👋"]
+        ],
+
+        "Classic Games": [
+            ["system", "Joined Classic Games"],
+            ["other", "OldSchool", "RTS games forever."]
+        ]
+    },
+
+    users: {
+        "Lobby": [
+            "RetroFan",
+            "GalaxyUser",
+            "XPForever",
+            "MusicBox",
+            "Guest_42"
+        ],
+
+        "Music Lovers": [
+            "AudioKid",
+            "VinylFan",
+            "ClassicMP3",
+            "RadioHead"
+        ],
+
+        "Retro Computers": [
+            "XPForever",
+            "Pentium4",
+            "CRT_Master",
+            "OldHardware"
+        ],
+
+        "Türkiye Sohbet": [
+            "RetroTR",
+            "WinXP",
+            "AnadoluPC",
+            "EskiKafa"
+        ],
+
+        "Classic Games": [
+            "OldSchool",
+            "RTS_Fan",
+            "LANParty",
+            "DirectX9"
+        ]
+    }
+};
+
+
+/* ---------------------------------------------------------
+   ELEMENT HELPERS
+--------------------------------------------------------- */
+
+const $ = (selector) => document.querySelector(selector);
+
+const $$ = (selector) => Array.from(
+    document.querySelectorAll(selector)
+);
+
+const uid = () =>
+    Date.now().toString(36) +
+    Math.random().toString(36).slice(2, 7);
+
+
+/* ---------------------------------------------------------
+   AUDIO BEEPS
+--------------------------------------------------------- */
+
+let audioContext = null;
+
+function beep(frequency = 620, duration = 0.045) {
+
+    if (!$("#playSounds").checked) {
+        return;
+    }
+
+    try {
+
+        if (!audioContext) {
+            audioContext = new (
+                window.AudioContext ||
+                window.webkitAudioContext
+            )();
+        }
+
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+
+        oscillator.type = "square";
+        oscillator.frequency.value = frequency;
+
+        gain.gain.value = 0.035;
+
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+
+        oscillator.start();
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.0001,
+            audioContext.currentTime + duration
+        );
+
+        oscillator.stop(
+            audioContext.currentTime + duration
+        );
+
+    } catch (error) {
+        /* Audio is optional. */
+    }
+}
+
+
+/* ---------------------------------------------------------
+   CUSTOM XP DIALOG
+--------------------------------------------------------- */
+
+function showDialog({
+    title = "Ares",
+    message = "",
+    icon = "?",
+    buttons = [
+        {
+            text: "OK",
+            value: true
+        }
+    ]
+}) {
+
+    return new Promise((resolve) => {
+
+        $("#dialogTitle").textContent = title;
+        $("#dialogMessage").textContent = message;
+        $("#dialogIcon").textContent = icon;
+
+        const actions = $("#dialogActions");
+        actions.innerHTML = "";
+
+        buttons.forEach((buttonInfo) => {
+
+            const button = document.createElement("button");
+
+            button.textContent = buttonInfo.text;
+
+            button.addEventListener("click", () => {
+
+                $("#dialogOverlay")
+                    .classList.remove("visible");
+
+                beep(720, 0.035);
+
+                resolve(buttonInfo.value);
+            });
+
+            actions.appendChild(button);
+        });
+
+        $("#dialogOverlay")
+            .classList.add("visible");
+
+        beep(470, 0.07);
+    });
+}
+
+
+/* ---------------------------------------------------------
+   PAGE NAVIGATION
+--------------------------------------------------------- */
+
+function switchPage(name) {
+
+    state.page = name;
+
+    $$(".ares-tab").forEach((tab) => {
+        tab.classList.toggle(
+            "active",
+            tab.dataset.page === name
+        );
+    });
+
+    $$(".page").forEach((page) => {
+        page.classList.remove("active");
+    });
+
+    const target = $("#page-" + name);
+
+    if (target) {
+        target.classList.add("active");
+    }
+
+    if (name === "library") {
+        renderLibrary();
+    }
+
+    if (name === "transfer") {
+        renderTransfers();
+    }
+
+    if (name === "chat") {
+        renderChat();
+    }
+
+    beep(660, 0.025);
+}
+
+
+$$(".ares-tab").forEach((tab) => {
+
+    tab.addEventListener("click", () => {
+        switchPage(tab.dataset.page);
+    });
+
+});
+
+
+/* ---------------------------------------------------------
+   SEARCH
+--------------------------------------------------------- */
+
+const safeWords = {
+    audio: [
+        "demo track",
+        "live recording",
+        "instrumental",
+        "remix",
+        "sample audio",
+        "sound collection",
+        "archive recording",
+        "studio session"
+    ],
+
+    video: [
+        "video clip",
+        "documentary sample",
+        "retro video",
+        "demo reel",
+        "video archive",
+        "short film"
+    ],
+
+    image: [
+        "wallpaper",
+        "photo collection",
+        "image pack",
+        "desktop background",
+        "artwork"
+    ],
+
+    document: [
+        "manual",
+        "documentation",
+        "guide",
+        "text archive",
+        "reference"
+    ],
+
+    software: [
+        "open source package",
+        "demo software",
+        "utility",
+        "source archive",
+        "freeware setup"
+    ],
+
+    other: [
+        "archive",
+        "collection",
+        "data package",
+        "backup",
+        "misc file"
+    ]
+};
+
+
+function randomFrom(array) {
+    return array[
+        Math.floor(Math.random() * array.length)
+    ];
+}
+
+
+function extensionFor(type) {
+
+    const map = {
+        audio: ["mp3", "ogg", "wav"],
+        video: ["avi", "mpg", "wmv"],
+        image: ["jpg", "png", "bmp"],
+        document: ["pdf", "txt", "doc"],
+        software: ["zip", "exe"],
+        other: ["zip", "rar", "dat"]
+    };
+
+    return randomFrom(map[type] || map.other);
+}
+
+
+function formatSize(bytes) {
+
+    if (!Number.isFinite(bytes)) {
+        return "";
+    }
+
+    if (bytes < 1024) {
+        return bytes + " B";
+    }
+
+    if (bytes < 1024 * 1024) {
+        return (
+            bytes / 1024
+        ).toFixed(1) + " KB";
+    }
+
+    if (bytes < 1024 * 1024 * 1024) {
+        return (
+            bytes /
+            1024 /
+            1024
+        ).toFixed(1) + " MB";
+    }
+
+    return (
+        bytes /
+        1024 /
+        1024 /
+        1024
+    ).toFixed(2) + " GB";
+}
+
+
+function createSearchResult(query, type, index) {
+
+    const ext = extensionFor(type);
+
+    const suffix = randomFrom(
+        safeWords[type] || safeWords.other
+    );
+
+    const title = index === 0
+        ? query
+        : query + " - " + suffix;
+
+    let bytes;
+
+    if (type === "audio") {
+        bytes = (
+            3 +
+            Math.random() * 9
+        ) * 1024 * 1024;
+    } else if (type === "video") {
+        bytes = (
+            40 +
+            Math.random() * 600
+        ) * 1024 * 1024;
+    } else if (type === "image") {
+        bytes = (
+            200 +
+            Math.random() * 5000
+        ) * 1024;
+    } else {
+        bytes = (
+            1 +
+            Math.random() * 70
+        ) * 1024 * 1024;
+    }
+
+    const cleanName = title
+        .replace(/[\\/:*?"<>|]/g, "_")
+        .replace(/\s+/g, "_");
+
+    return {
+        id: uid(),
+        title,
+        type,
+        bytes: Math.round(bytes),
+        sources: Math.floor(1 + Math.random() * 86),
+        user: randomFrom([
+            "MusicFan@Ares",
+            "GalaxyUser",
+            "RetroShare",
+            "XP_User",
+            "OpenMedia",
+            "ArchiveNode",
+            "Peer_2006"
+        ]),
+        filename: cleanName + "." + ext
+    };
+}
+
+
+function performSearch() {
+
+    const query = $("#searchQuery")
+        .value
+        .trim();
+
+    const type = $("#searchType").value;
+
+    if (!query) {
+
+        showDialog({
+            title: "Ares",
+            message: "Please enter something to search for.",
+            icon: "!"
+        });
+
+        return;
+    }
+
+    state.searchResults = [];
+    state.selectedSearchId = null;
+
+    $("#searchRows").innerHTML = "";
+    $("#searchCount").textContent = "Searching...";
+    $("#searchTabTitle").textContent = query;
+
+    $("#btnSearch").disabled = true;
+    $("#btnStopSearch").disabled = false;
+
+    $("#globalStatus").textContent =
+        "Searching the Ares network...";
+
+    beep(760, 0.04);
+
+    let count = 0;
+
+    const wanted = 10 + Math.floor(Math.random() * 10);
+
+    const timer = setInterval(() => {
+
+        if ($("#btnStopSearch").disabled) {
+            clearInterval(timer);
+            return;
+        }
+
+        const result = createSearchResult(
+            query,
+            type,
+            count
+        );
+
+        state.searchResults.push(result);
+
+        count++;
+
+        renderSearchResults();
+
+        if (count >= wanted) {
+
+            clearInterval(timer);
+
+            $("#btnSearch").disabled = false;
+            $("#btnStopSearch").disabled = true;
+
+            $("#globalStatus").textContent =
+                "Search completed";
+        }
+
+    }, 110 + Math.random() * 120);
+
+    $("#btnStopSearch").onclick = () => {
+
+        clearInterval(timer);
+
+        $("#btnSearch").disabled = false;
+        $("#btnStopSearch").disabled = true;
+
+        $("#globalStatus").textContent =
+            "Search stopped";
+    };
+}
+
+
+function renderSearchResults() {
+
+    const tbody = $("#searchRows");
+
+    const filter = $("#searchFilter")
+        .value
+        .trim()
+        .toLowerCase();
+
+    tbody.innerHTML = "";
+
+    const visible = state.searchResults.filter(
+        (item) =>
+            !filter ||
+            item.title.toLowerCase().includes(filter) ||
+            item.filename.toLowerCase().includes(filter) ||
+            item.user.toLowerCase().includes(filter)
+    );
+
+    visible.forEach((item) => {
+
+        const row = document.createElement("tr");
+
+        row.dataset.id = item.id;
+
+        if (state.selectedSearchId === item.id) {
+            row.classList.add("selected");
+        }
+
+        row.innerHTML = `
+            <td>
+                <span class="file-symbol">📄</span>
+                ${escapeHtml(item.title)}
+            </td>
+            <td>${escapeHtml(capitalize(item.type))}</td>
+            <td>${formatSize(item.bytes)}</td>
+            <td>${item.sources} Users</td>
+            <td>${escapeHtml(item.user)}</td>
+            <td>${escapeHtml(item.filename)}</td>
+        `;
+
+        row.addEventListener("click", () => {
+            state.selectedSearchId = item.id;
+            renderSearchResults();
+        });
+
+        row.addEventListener("dblclick", () => {
+            startTransfer(item);
+        });
+
+        tbody.appendChild(row);
+    });
+
+    $("#searchCount").textContent =
+        `${visible.length} (${state.searchResults.length}) results`;
+}
+
+
+function capitalize(text) {
+    return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+
+function escapeHtml(text) {
+
+    return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+$("#btnSearch").addEventListener(
+    "click",
+    performSearch
+);
+
+
+$("#searchQuery").addEventListener(
+    "keydown",
+    (event) => {
+
+        if (event.key === "Enter") {
+            performSearch();
+        }
+    }
+);
+
+
+$("#searchFilter").addEventListener(
+    "input",
+    renderSearchResults
+);
+
+
+/* ---------------------------------------------------------
+   TRANSFERS
+--------------------------------------------------------- */
+
+function startTransfer(searchResult) {
+
+    const existing = state.transfers.find(
+        (transfer) =>
+            transfer.filename === searchResult.filename &&
+            transfer.status !== "Cancelled"
+    );
+
+    if (existing) {
+
+        showDialog({
+            title: "Ares",
+            message: "This file is already in the transfer list.",
+            icon: "!"
+        });
+
+        return;
+    }
+
+    const transfer = {
+        id: uid(),
+        title: searchResult.title,
+        filename: searchResult.filename,
+        type: searchResult.type,
+        bytes: searchResult.bytes,
+        users: searchResult.sources,
+        progress: 0,
+        status: "Connecting",
+        speed: 0,
+        addedToLibrary: false
+    };
+
+    state.transfers.push(transfer);
+
+    state.selectedTransferId = transfer.id;
+
+    $("#globalStatus").textContent =
+        `Added ${transfer.filename} to transfers`;
+
+    beep(820, 0.04);
+
+    switchPage("transfer");
+    renderTransfers();
+}
+
+
+function renderTransfers() {
+
+    const tbody = $("#transferRows");
+    tbody.innerHTML = "";
+
+    let received = 0;
+
+    state.transfers.forEach((transfer) => {
+
+        received += (
+            transfer.bytes *
+            transfer.progress /
+            100
+        );
+
+        const row = document.createElement("tr");
+
+        row.dataset.id = transfer.id;
+
+        if (state.selectedTransferId === transfer.id) {
+            row.classList.add("selected");
+        }
+
+        const statusClass =
+            transfer.status === "Completed"
+                ? "good"
+                : transfer.status === "Cancelled"
+                    ? "bad"
+                    : "";
+
+        row.innerHTML = `
+            <td>
+                <span class="file-symbol">
+                    ${transfer.status === "Completed" ? "✔" : "↘"}
+                </span>
+                ${escapeHtml(transfer.filename)}
+            </td>
+
+            <td>
+                ${escapeHtml(capitalize(transfer.type))}
+            </td>
+
+            <td>
+                ${transfer.users} Users
+            </td>
+
+            <td class="${statusClass}">
+                ${escapeHtml(transfer.status)}
+            </td>
+
+            <td class="progress-cell">
+                <div class="progress-wrap">
+                    <div
+                        class="progress-bar"
+                        style="width:${Math.max(0, Math.min(100, transfer.progress))}%"
+                    ></div>
+
+                    <div class="progress-text">
+                        ${Math.floor(transfer.progress)}%
+                    </div>
+                </div>
+            </td>
+
+            <td>
+                ${
+                    transfer.status === "Downloading"
+                        ? transfer.speed.toFixed(1) + " KB/s"
+                        : ""
+                }
+            </td>
+        `;
+
+        row.addEventListener("click", () => {
+            state.selectedTransferId = transfer.id;
+            renderTransfers();
+        });
+
+        row.addEventListener("dblclick", () => {
+
+            if (transfer.status === "Completed") {
+
+                const libraryItem = state.library.find(
+                    (item) =>
+                        item.transferId === transfer.id
+                );
+
+                if (libraryItem) {
+                    state.selectedLibraryId = libraryItem.id;
+                    switchPage("library");
+                    renderLibrary();
+                }
+            }
+        });
+
+        tbody.appendChild(row);
+    });
+
+    $("#downloadCaption").textContent =
+        "Download: " +
+        formatSize(received) +
+        " received";
+}
+
+
+function transferTick() {
+
+    let changed = false;
+
+    state.transfers.forEach((transfer) => {
+
+        if (
+            transfer.status === "Completed" ||
+            transfer.status === "Paused" ||
+            transfer.status === "Cancelled"
+        ) {
+            return;
+        }
+
+        if (transfer.status === "Connecting") {
+
+            if (Math.random() > 0.55) {
+                transfer.status = "Downloading";
+            }
+
+            changed = true;
+            return;
+        }
+
+        if (transfer.status === "Downloading") {
+
+            const speed =
+                10 +
+                Math.random() * 115;
+
+            transfer.speed = speed;
+
+            const speedFactor =
+                transfer.bytes > 300 * 1024 * 1024
+                    ? 0.2
+                    : transfer.bytes > 50 * 1024 * 1024
+                        ? 0.45
+                        : 1;
+
+            transfer.progress += (
+                0.3 +
+                Math.random() * 1.4
+            ) * speedFactor;
+
+            if (transfer.progress >= 100) {
+
+                transfer.progress = 100;
+                transfer.status = "Completed";
+                transfer.speed = 0;
+
+                addCompletedTransferToLibrary(transfer);
+
+                beep(930, 0.11);
+            }
+
+            changed = true;
+        }
+    });
+
+    if (changed && state.page === "transfer") {
+        renderTransfers();
+    }
+}
+
+
+setInterval(
+    transferTick,
+    500
+);
+
+
+function addCompletedTransferToLibrary(transfer) {
+
+    if (transfer.addedToLibrary) {
+        return;
+    }
+
+    transfer.addedToLibrary = true;
+
+    state.library.push({
+        id: uid(),
+        transferId: transfer.id,
+        title: transfer.title,
+        filename: transfer.filename,
+        type: transfer.type,
+        bytes: transfer.bytes,
+        source: "Ares demo",
+        date: new Date(),
+        artist: "",
+        localFile: null,
+        objectUrl: null
+    });
+
+    saveMetadata();
+}
+
+
+function getSelectedTransfer() {
+
+    return state.transfers.find(
+        (transfer) =>
+            transfer.id === state.selectedTransferId
+    );
+}
+
+
+$("#btnPauseTransfer").addEventListener(
+    "click",
+    () => {
+
+        const transfer = getSelectedTransfer();
+
+        if (
+            transfer &&
+            transfer.status === "Downloading"
+        ) {
+            transfer.status = "Paused";
+            transfer.speed = 0;
+            renderTransfers();
+            beep(580, 0.03);
+        }
+    }
+);
+
+
+$("#btnResumeTransfer").addEventListener(
+    "click",
+    () => {
+
+        const transfer = getSelectedTransfer();
+
+        if (
+            transfer &&
+            transfer.status === "Paused"
+        ) {
+            transfer.status = "Connecting";
+            renderTransfers();
+            beep(680, 0.03);
+        }
+    }
+);
+
+
+$("#btnCancelTransfer").addEventListener(
+    "click",
+    async () => {
+
+        const transfer = getSelectedTransfer();
+
+        if (!transfer) {
+            return;
+        }
+
+        if (transfer.status === "Completed") {
+            return;
+        }
+
+        const answer = await showDialog({
+            title: "Ares",
+            message:
+                `Cancel download "${transfer.filename}"?`,
+            icon: "?",
+            buttons: [
+                {
+                    text: "Yes",
+                    value: true
+                },
+                {
+                    text: "No",
+                    value: false
+                }
+            ]
+        });
+
+        if (answer) {
+            transfer.status = "Cancelled";
+            transfer.speed = 0;
+            renderTransfers();
+        }
+    }
+);
+
+
+$("#btnClearIdle").addEventListener(
+    "click",
+    () => {
+
+        state.transfers = state.transfers.filter(
+            (transfer) =>
+                transfer.status !== "Completed" &&
+                transfer.status !== "Cancelled"
+        );
+
+        state.selectedTransferId = null;
+
+        renderTransfers();
+    }
+);
+
+
+/* ---------------------------------------------------------
+   LIBRARY
+--------------------------------------------------------- */
+
+function addLocalFiles(fileList) {
+
+    Array.from(fileList).forEach((file) => {
+
+        let type = "other";
+
+        if (file.type.startsWith("audio/")) {
+            type = "audio";
+        }
+
+        if (file.type.startsWith("video/")) {
+            type = "video";
+        }
+
+        const item = {
+            id: uid(),
+            transferId: null,
+            title: file.name.replace(/\.[^.]+$/, ""),
+            filename: file.name,
+            type,
+            bytes: file.size,
+            source: "Local file",
+            date: new Date(file.lastModified || Date.now()),
+            artist: "",
+            localFile: file,
+            objectUrl: null
+        };
+
+        state.library.push(item);
+    });
+
+    renderLibrary();
+
+    $("#globalStatus").textContent =
+        `${fileList.length} local file(s) added`;
+
+    beep(840, 0.04);
+}
+
+
+function renderLibrary() {
+
+    const tbody = $("#libraryRows");
+
+    tbody.innerHTML = "";
+
+    const items = state.library.filter(
+        (item) =>
+            state.libraryFilter === "all" ||
+            item.type === state.libraryFilter
+    );
+
+    $("#libraryEmpty").style.display =
+        items.length
+            ? "none"
+            : "block";
+
+    items.forEach((item) => {
+
+        const row = document.createElement("tr");
+
+        if (state.selectedLibraryId === item.id) {
+            row.classList.add("selected");
+        }
+
+        const icon =
+            item.type === "audio"
+                ? "🎵"
+                : item.type === "video"
+                    ? "🎞"
+                    : item.type === "image"
+                        ? "🖼"
+                        : item.type === "software"
+                            ? "💾"
+                            : "📄";
+
+        row.innerHTML = `
+            <td>
+                <span class="file-symbol">${icon}</span>
+                ${escapeHtml(item.title)}
+            </td>
+
+            <td>${escapeHtml(item.artist || "")}</td>
+
+            <td>${escapeHtml(capitalize(item.type))}</td>
+
+            <td>${formatSize(item.bytes)}</td>
+
+            <td>${formatDate(item.date)}</td>
+
+            <td>${escapeHtml(item.source)}</td>
+        `;
+
+        row.addEventListener("click", () => {
+
+            state.selectedLibraryId = item.id;
+            renderLibrary();
+        });
+
+        row.addEventListener("dblclick", () => {
+            playLibraryItem(item);
+        });
+
+        tbody.appendChild(row);
+    });
+}
+
+
+function formatDate(dateValue) {
+
+    const date = new Date(dateValue);
+
+    if (Number.isNaN(date.getTime())) {
+        return "";
+    }
+
+    return date.toLocaleDateString() +
+        " " +
+        date.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+}
+
+
+function getSelectedLibraryItem() {
+
+    return state.library.find(
+        (item) =>
+            item.id === state.selectedLibraryId
+    );
+}
+
+
+$("#btnAddLocal").addEventListener(
+    "click",
+    () => {
+        $("#localFileInput").click();
+    }
+);
+
+
+$("#btnAddLocalControl").addEventListener(
+    "click",
+    () => {
+        $("#localFileInput").click();
+    }
+);
+
+
+$("#localFileInput").addEventListener(
+    "change",
+    (event) => {
+
+        addLocalFiles(event.target.files);
+
+        event.target.value = "";
+    }
+);
+
+
+$("#btnLibraryPlay").addEventListener(
+    "click",
+    () => {
+
+        const item = getSelectedLibraryItem();
+
+        if (item) {
+            playLibraryItem(item);
+        }
+    }
+);
+
+
+$("#btnRemoveLibrary").addEventListener(
+    "click",
+    async () => {
+
+        const item = getSelectedLibraryItem();
+
+        if (!item) {
+            return;
+        }
+
+        const answer = await showDialog({
+            title: "Ares",
+            message:
+                `Remove "${item.title}" from the library?`,
+            icon: "?",
+            buttons: [
+                {
+                    text: "Yes",
+                    value: true
+                },
+                {
+                    text: "No",
+                    value: false
+                }
+            ]
+        });
+
+        if (!answer) {
+            return;
+        }
+
+        if (item.objectUrl) {
+            URL.revokeObjectURL(item.objectUrl);
+        }
+
+        state.library = state.library.filter(
+            (candidate) =>
+                candidate.id !== item.id
+        );
+
+        state.selectedLibraryId = null;
+
+        renderLibrary();
+        saveMetadata();
+    }
+);
+
+
+$$("[data-library-filter]").forEach((node) => {
+
+    node.addEventListener("click", () => {
+
+        state.libraryFilter =
+            node.dataset.libraryFilter;
+
+        $$("[data-library-filter]").forEach(
+            (candidate) =>
+                candidate.classList.remove("selected")
+        );
+
+        node.classList.add("selected");
+
+        renderLibrary();
+    });
+});
+
+
+/* ---------------------------------------------------------
+   PLAYER
+--------------------------------------------------------- */
+
+const media = $("#mediaVideo");
+
+
+async function playLibraryItem(item) {
+
+    if (
+        !["audio", "video"].includes(item.type)
+    ) {
+
+        showDialog({
+            title: "Ares Player",
+            message:
+                "This file type cannot be played by the integrated browser player.",
+            icon: "!"
+        });
+
+        return;
+    }
+
+    if (!item.localFile) {
+
+        showDialog({
+            title: "Ares Player",
+            message:
+                "This is a simulated network result. No real media data was downloaded.",
+            icon: "!"
+        });
+
+        return;
+    }
+
+    if (state.player.objectUrl) {
+        URL.revokeObjectURL(
+            state.player.objectUrl
+        );
+    }
+
+    item.objectUrl =
+        URL.createObjectURL(item.localFile);
+
+    state.player.objectUrl =
+        item.objectUrl;
+
+    state.player.libraryId =
+        item.id;
+
+    media.src = item.objectUrl;
+
+    $("#playerNowPlaying").textContent =
+        item.filename;
+
+    $("#bottomNowPlaying").textContent =
+        item.filename;
+
+    if (item.type === "video") {
+
+        media.style.display = "block";
+        $("#screenPlaceholder").style.display =
+            "none";
+
+    } else {
+
+        media.style.display = "none";
+        $("#screenPlaceholder").style.display =
+            "block";
+    }
+
+    switchPage("screen");
+
+    try {
+
+        await media.play();
+
+        updatePlayIcons(true);
+
+    } catch (error) {
+
+        updatePlayIcons(false);
+    }
+}
+
+
+function updatePlayIcons(isPlaying) {
+
+    $("#playerToggle").textContent =
+        isPlaying
+            ? "Ⅱ"
+            : "▶";
+
+    $("#bottomPlay").textContent =
+        isPlaying
+            ? "Ⅱ"
+            : "▶";
+}
+
+
+function togglePlayback() {
+
+    if (!media.src) {
+        return;
+    }
+
+    if (media.paused) {
+
+        media.play()
+            .then(() => {
+                updatePlayIcons(true);
+            })
+            .catch(() => {});
+
+    } else {
+
+        media.pause();
+
+        updatePlayIcons(false);
+    }
+}
+
+
+function stopPlayback() {
+
+    media.pause();
+
+    try {
+        media.currentTime = 0;
+    } catch (error) {}
+
+    updatePlayIcons(false);
+}
+
+
+$("#playerToggle").addEventListener(
+    "click",
+    togglePlayback
+);
+
+$("#bottomPlay").addEventListener(
+    "click",
+    togglePlayback
+);
+
+$("#playerStop").addEventListener(
+    "click",
+    stopPlayback
+);
+
+$("#bottomStop").addEventListener(
+    "click",
+    stopPlayback
+);
+
+
+media.addEventListener(
+    "timeupdate",
+    () => {
+
+        if (
+            Number.isFinite(media.duration) &&
+            media.duration > 0
+        ) {
+
+            $("#playerSeek").value =
+                Math.round(
+                    media.currentTime /
+                    media.duration *
+                    1000
+                );
+
+            $("#playerTime").textContent =
+                formatTime(media.currentTime) +
+                " / " +
+                formatTime(media.duration);
+        }
+    }
+);
+
+
+media.addEventListener(
+    "ended",
+    () => {
+        updatePlayIcons(false);
+    }
+);
+
+
+$("#playerSeek").addEventListener(
+    "input",
+    () => {
+
+        if (
+            Number.isFinite(media.duration) &&
+            media.duration > 0
+        ) {
+
+            media.currentTime =
+                (
+                    Number($("#playerSeek").value) /
+                    1000
+                ) *
+                media.duration;
+        }
+    }
+);
+
+
+function formatTime(seconds) {
+
+    if (!Number.isFinite(seconds)) {
+        return "00:00";
+    }
+
+    seconds = Math.max(
+        0,
+        Math.floor(seconds)
+    );
+
+    const minutes =
+        Math.floor(seconds / 60);
+
+    const remainder =
+        seconds % 60;
+
+    return (
+        String(minutes).padStart(2, "0") +
+        ":" +
+        String(remainder).padStart(2, "0")
+    );
+}
+
+
+$("#btnTransferPlay").addEventListener(
+    "click",
+    () => {
+
+        const transfer = getSelectedTransfer();
+
+        if (!transfer) {
+            return;
+        }
+
+        const libraryItem =
+            state.library.find(
+                (item) =>
+                    item.transferId === transfer.id
+            );
+
+        if (libraryItem) {
+
+            playLibraryItem(libraryItem);
+
+        } else {
+
+            showDialog({
+                title: "Ares Player",
+                message:
+                    "Preview data is not available for this simulated network transfer.",
+                icon: "!"
+            });
+        }
+    }
+);
+
+
+/* ---------------------------------------------------------
+   NEXT / PREVIOUS PLAYER
+--------------------------------------------------------- */
+
+function playableItems() {
+
+    return state.library.filter(
+        (item) =>
+            item.localFile &&
+            (
+                item.type === "audio" ||
+                item.type === "video"
+            )
+    );
+}
+
+
+function movePlayer(direction) {
+
+    const items = playableItems();
+
+    if (!items.length) {
+        return;
+    }
+
+    let index = items.findIndex(
+        (item) =>
+            item.id === state.player.libraryId
+    );
+
+    if (index < 0) {
+        index = 0;
+    } else {
+
+        index =
+            (
+                index +
+                direction +
+                items.length
+            ) %
+            items.length;
+    }
+
+    state.selectedLibraryId =
+        items[index].id;
+
+    playLibraryItem(items[index]);
+}
+
+
+$("#bottomPrevious").addEventListener(
+    "click",
+    () => movePlayer(-1)
+);
+
+$("#playerPrevious").addEventListener(
+    "click",
+    () => movePlayer(-1)
+);
+
+$("#bottomNext").addEventListener(
+    "click",
+    () => movePlayer(1)
+);
+
+
+/* ---------------------------------------------------------
+   CHAT
+--------------------------------------------------------- */
+
+function renderChannels(filter = "") {
+
+    const container = $("#channelList");
+
+    container.innerHTML =
+        `<div class="panel-caption">Channels</div>`;
+
+    const language =
+        $("#channelLanguage").value;
+
+    state.channels
+        .filter((channel) => {
+
+            const queryMatch =
+                !filter ||
+                channel.name
+                    .toLowerCase()
+                    .includes(filter.toLowerCase());
+
+            const languageMatch =
+                language === "All" ||
+                channel.language === language;
+
+            return queryMatch && languageMatch;
+        })
+        .forEach((channel) => {
+
+            const row = document.createElement("div");
+
+            row.className = "channel-item";
+
+            if (
+                state.selectedChannel === channel.name
+            ) {
+                row.classList.add("selected");
+            }
+
+            row.innerHTML =
+                `💬 ${escapeHtml(channel.name)}
+                 <span class="muted">
+                    (${channel.users})
+                 </span>`;
+
+            row.addEventListener("click", () => {
+
+                state.selectedChannel =
+                    channel.name;
+
+                renderChat();
+                beep(650, 0.02);
+            });
+
+            container.appendChild(row);
+        });
+}
+
+
+function renderChat() {
+
+    renderChannels(
+        $("#channelSearch").value.trim()
+    );
+
+    const log =
+        $("#chatLog");
+
+    log.innerHTML = "";
+
+    const messages =
+        state.chatMessages[
+            state.selectedChannel
+        ] || [];
+
+    messages.forEach((message) => {
+
+        const line =
+            document.createElement("div");
+
+        if (message[0] === "system") {
+
+            line.className = "chat-system";
+            line.textContent = message[1];
+
+        } else {
+
+            const own =
+                message[1] === state.nickname;
+
+            line.className =
+                own
+                    ? "chat-self"
+                    : "chat-other";
+
+            const name =
+                document.createElement("b");
+
+            name.textContent =
+                "<" + message[1] + "> ";
+
+            line.appendChild(name);
+
+            line.appendChild(
+                document.createTextNode(
+                    message[2]
+                )
+            );
+        }
+
+        log.appendChild(line);
+    });
+
+    log.scrollTop =
+        log.scrollHeight;
+
+    const users =
+        $("#chatUsers");
+
+    users.innerHTML =
+        `<div class="panel-caption">Users</div>`;
+
+    [
+        state.nickname,
+        ...(state.users[state.selectedChannel] || [])
+    ].forEach((name) => {
+
+        const node =
+            document.createElement("div");
+
+        node.className =
+            "chat-user";
+
+        node.textContent =
+            "👤 " + name;
+
+        users.appendChild(node);
+    });
+}
+
+
+function sendChat() {
+
+    const input =
+        $("#chatInput");
+
+    const message =
+        input.value.trim();
+
+    if (!message) {
+        return;
+    }
+
+    const list =
+        state.chatMessages[
+            state.selectedChannel
+        ] || (
+            state.chatMessages[
+                state.selectedChannel
+            ] = []
+        );
+
+    list.push([
+        "self",
+        state.nickname,
+        message
+    ]);
+
+    input.value = "";
+
+    renderChat();
+
+    beep(700, 0.025);
+
+    window.setTimeout(() => {
+
+        const possibleUsers =
+            state.users[
+                state.selectedChannel
+            ] || ["RetroUser"];
+
+        list.push([
+            "other",
+            randomFrom(possibleUsers),
+            randomFrom([
+                "Nice!",
+                "Yep.",
+                "Classic Ares vibes.",
+                "I remember that.",
+                "Cool 😄",
+                "Good old days.",
+                "Welcome!"
+            ])
+        ]);
+
+        if (state.page === "chat") {
+            renderChat();
+        }
+
+    }, 900 + Math.random() * 1500);
+}
+
+
+$("#btnChatSend").addEventListener(
+    "click",
+    sendChat
+);
+
+
+$("#chatInput").addEventListener(
+    "keydown",
+    (event) => {
+
+        if (
+            event.key === "Enter" &&
+            !event.shiftKey
+        ) {
+
+            event.preventDefault();
+            sendChat();
+        }
+    }
+);
+
+
+$("#btnChannelSearch").addEventListener(
+    "click",
+    () => {
+        renderChannels(
+            $("#channelSearch")
+                .value
+                .trim()
+        );
+    }
+);
+
+
+$("#channelSearch").addEventListener(
+    "input",
+    () => {
+        renderChannels(
+            $("#channelSearch")
+                .value
+                .trim()
+        );
+    }
+);
+
+
+$("#channelLanguage").addEventListener(
+    "change",
+    () => {
+        renderChannels(
+            $("#channelSearch")
+                .value
+                .trim()
+        );
+    }
+);
+
+
+/* ---------------------------------------------------------
+   CONTROL PANEL
+--------------------------------------------------------- */
+
+$$(".cp-tab").forEach((tab) => {
+
+    tab.addEventListener("click", () => {
+
+        $$(".cp-tab").forEach(
+            (candidate) =>
+                candidate.classList.remove("active")
+        );
+
+        tab.classList.add("active");
+
+        [
+            "general",
+            "network",
+            "skin",
+            "files"
+        ].forEach((name) => {
+
+            $("#cp-" + name).style.display =
+                tab.dataset.cp === name
+                    ? "block"
+                    : "none";
+        });
+
+        beep(620, 0.02);
+    });
+
+});
+
+
+$("#nicknameInput").addEventListener(
+    "change",
+    () => {
+
+        const value =
+            $("#nicknameInput")
+                .value
+                .trim();
+
+        state.nickname =
+            value ||
+            "Guest@Ares";
+
+        $("#nicknameInput").value =
+            state.nickname;
+
+        saveSettings();
+
+        if (state.page === "chat") {
+            renderChat();
+        }
+    }
+);
+
+
+$("#skinSelect").addEventListener(
+    "change",
+    () => {
+
+        const tabs =
+            $(".ares-tabs");
+
+        if (
+            $("#skinSelect").value === "blue"
+        ) {
+
+            tabs.style.background =
+                "linear-gradient(#4386c5,#1d4f83)";
+
+        } else {
+
+            tabs.style.background = "";
+        }
+
+        saveSettings();
+    }
+);
+
+
+/* ---------------------------------------------------------
+   STORAGE
+--------------------------------------------------------- */
+
+function saveSettings() {
+
+    if (!$("#rememberSettings").checked) {
+        return;
+    }
+
+    const settings = {
+        nickname: state.nickname,
+        playSounds: $("#playSounds").checked,
+        skin: $("#skinSelect").value
+    };
+
+    try {
+
+        localStorage.setItem(
+            "ares-browser-settings",
+            JSON.stringify(settings)
+        );
+
+    } catch (error) {}
+}
+
+
+function loadSettings() {
+
+    try {
+
+        const raw =
+            localStorage.getItem(
+                "ares-browser-settings"
+            );
+
+        if (!raw) {
+            return;
+        }
+
+        const settings =
+            JSON.parse(raw);
+
+        if (settings.nickname) {
+
+            state.nickname =
+                settings.nickname;
+
+            $("#nicknameInput").value =
+                settings.nickname;
+        }
+
+        if (
+            typeof settings.playSounds ===
+            "boolean"
+        ) {
+
+            $("#playSounds").checked =
+                settings.playSounds;
+        }
+
+        if (settings.skin) {
+
+            $("#skinSelect").value =
+                settings.skin;
+
+            $("#skinSelect")
+                .dispatchEvent(
+                    new Event("change")
+                );
+        }
+
+    } catch (error) {}
+}
+
+
+function saveMetadata() {
+
+    const metadata =
+        state.library
+            .filter(
+                (item) =>
+                    !item.localFile
+            )
+            .map((item) => ({
+                id: item.id,
+                transferId: item.transferId,
+                title: item.title,
+                filename: item.filename,
+                type: item.type,
+                bytes: item.bytes,
+                source: item.source,
+                date: item.date,
+                artist: item.artist
+            }));
+
+    try {
+
+        localStorage.setItem(
+            "ares-browser-library",
+            JSON.stringify(metadata)
+        );
+
+    } catch (error) {}
+}
+
+
+function loadMetadata() {
+
+    try {
+
+        const raw =
+            localStorage.getItem(
+                "ares-browser-library"
+            );
+
+        if (!raw) {
+            return;
+        }
+
+        const items =
+            JSON.parse(raw);
+
+        if (!Array.isArray(items)) {
+            return;
+        }
+
+        state.library =
+            items.map((item) => ({
+                ...item,
+                date: new Date(item.date),
+                localFile: null,
+                objectUrl: null
+            }));
+
+    } catch (error) {}
+}
+
+
+$("#playSounds").addEventListener(
+    "change",
+    saveSettings
+);
+
+$("#rememberSettings").addEventListener(
+    "change",
+    saveSettings
+);
+
+
+/* ---------------------------------------------------------
+   SAFETY: DISABLE NATIVE POPUPS
+--------------------------------------------------------- */
+
+/*
+   Deliberately no alert(), confirm() or prompt().
+   All application messages use showDialog().
+*/
+
+
+/* ---------------------------------------------------------
+   STARTUP
+--------------------------------------------------------- */
+
+function initialize() {
+
+    loadMetadata();
+    loadSettings();
+
+    renderSearchResults();
+    renderTransfers();
+    renderLibrary();
+    renderChat();
+
+    $("#networkStatus").textContent =
+        "Online  " +
+        new Date()
+            .toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit"
+            });
+
+    $("#globalStatus").textContent =
+        "Connected - browser recreation mode";
+
+    switchPage("search");
+}
+
+
+initialize();
+
+</script>
+
+</body>
+</html>

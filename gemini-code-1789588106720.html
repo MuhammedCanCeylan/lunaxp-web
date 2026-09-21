@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro OS - Muhammed Can Ceylan</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&family=Tahoma&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Tahoma', sans-serif;
+            color: #fff;
+        }
+
+        /* CRT TV Frame */
+        .tv-container {
+            width: 90vw;
+            height: 80vh;
+            max-width: 1024px;
+            max-height: 768px;
+            background: #111;
+            border: 20px solid #222;
+            border-radius: 30px;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.8), 0 0 20px rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* XP Background */
+        .desktop {
+            width: 100%;
+            height: 100%;
+            /* XP Bliss tarzı basit bir gradient */
+            background: linear-gradient(to bottom, #2989cc 0%, #3a97d4 50%, #589c36 50.1%, #6eb344 100%);
+            position: relative;
+        }
+
+        /* Scanlines Effect */
+        .scanlines {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        /* Vignette */
+        .vignette {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(0,0,0,0.8) 100%);
+            pointer-events: none;
+            z-index: 99;
+        }
+
+        /* Windows XP Window Style */
+        .window {
+            position: absolute;
+            background: #ece9d8;
+            border: 3px solid #0055e5;
+            border-radius: 5px 5px 0 0;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+            color: #000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .title-bar {
+            background: linear-gradient(to right, #0058e6 0%, #3a93ff 100%);
+            color: white;
+            padding: 3px 5px;
+            font-weight: bold;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: grab;
+        }
+
+        .close-btn {
+            background: #e5534b;
+            color: white;
+            border: 1px solid #fff;
+            border-radius: 3px;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            line-height: 18px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 10px;
+            background: #fff;
+            flex-grow: 1;
+            border: 1px solid #7f9db9;
+            margin: 2px;
+            overflow-y: auto;
+        }
+
+        /* Terminal Style Text */
+        .terminal-text {
+            font-family: 'VT323', monospace;
+            background: #000;
+            color: #0f0;
+            padding: 10px;
+            font-size: 18px;
+            height: 100%;
+            box-sizing: border-box;
+            text-shadow: 0 0 5px #0f0;
+        }
+
+        /* Minesweeper Grid */
+        #minesweeper {
+            display: grid;
+            grid-template-columns: repeat(10, 25px);
+            gap: 2px;
+            background: #bdbdbd;
+            padding: 5px;
+            border: 3px inset #fff;
+        }
+
+        .cell {
+            width: 25px;
+            height: 25px;
+            background: #bdbdbd;
+            border-top: 2px solid #fff;
+            border-left: 2px solid #fff;
+            border-bottom: 2px solid #7b7b7b;
+            border-right: 2px solid #7b7b7b;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .cell.revealed {
+            border: 1px solid #7b7b7b;
+            background: #c0c0c0;
+        }
+
+        /* XP Taskbar */
+        .taskbar {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%;
+            height: 30px;
+            background: linear-gradient(to bottom, #245edb 0%, #3f8cf3 9%, #245edb 18%, #245edb 92%, #333 100%);
+            display: flex;
+            align-items: center;
+            z-index: 90;
+        }
+
+        .start-btn {
+            background: linear-gradient(to bottom, #3b9e4a 0%, #44bd4c 50%, #328f3a 100%);
+            color: white;
+            font-weight: bold;
+            font-style: italic;
+            height: 100%;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            border-radius: 0 10px 10px 0;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+    </style>
+</head>
+<body>
+
+<div class="tv-container">
+    <div class="desktop" id="desktop">
+        
+        <!-- Hakkımda Penceresi -->
+        <div class="window" style="width: 450px; height: 350px; top: 20px; left: 20px;" id="win-about">
+            <div class="title-bar" onmousedown="startDrag(event, 'win-about')">
+                <span>C:\WINDOWS\system32\cmd.exe - profili_getir.bat</span>
+                <div class="close-btn">X</div>
+            </div>
+            <div class="content" style="padding: 0; background: #000;">
+                <div class="terminal-text">
+                    > SİSTEM BAŞLATILIYOR...<br>
+                    > KULLANICI BULUNDU: Muhammed Can Ceylan.<br>
+                    > LOKASYON VERİSİ: Tuzla, İstanbul / Bartın Mehmet Rıfat Efendi KYK Hattı.<br>
+                    > AKTİF GÖREVLER: Siber Vatan ulusal siber güvenlik programı analizi, TEKNOFEST otonom sistemler ve yapay zeka projeleri.<br>
+                    > YAZILIM ALTYAPISI: LeetCode algoritma testleri, GitHub versiyon kontrolü, Unity oyun motoru öğrenci lisansı aktif.<br>
+                    > DONANIM MODÜLLERİ: Mavi burst Ibanez elektro gitar ve dijital kombo amfi. LS2 yazlık motosiklet eldiveni ve telefon tutucu eklendi.<br>
+                    > YAŞAM FORMU TESPİT EDİLDİ: Kaplumbağa (Sera Raffy I ve Tetra ReptoMin ile destekleniyor).<br>
+                    > SİSTEM DURUMU: Stabil. Komut bekleniyor..._
+                </div>
+            </div>
+        </div>
+
+        <!-- Mayın Tarlası Penceresi -->
+        <div class="window" style="width: auto; top: 100px; left: 500px;" id="win-game">
+            <div class="title-bar" onmousedown="startDrag(event, 'win-game')">
+                <span>Minesweeper</span>
+                <div class="close-btn">X</div>
+            </div>
+            <div class="content">
+                <div style="display: flex; justify-content: space-between; background: #c0c0c0; border: 2px inset #fff; padding: 5px; margin-bottom: 5px;">
+                    <span style="color: red; background: black; padding: 2px 5px; font-family: monospace; font-size: 20px;" id="mine-count">10</span>
+                    <button onclick="initGame()" style="font-size: 16px; padding: 2px 10px;">🙂</button>
+                    <span style="color: red; background: black; padding: 2px 5px; font-family: monospace; font-size: 20px;">000</span>
+                </div>
+                <div id="minesweeper"></div>
+            </div>
+        </div>
+
+        <div class="taskbar">
+            <div class="start-btn">start</div>
+        </div>
+    </div>
+    <div class="scanlines"></div>
+    <div class="vignette"></div>
+</div>
+
+<script>
+    // --- Pencere Sürükleme Mantığı ---
+    let draggedElement = null;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    function startDrag(e, id) {
+        draggedElement = document.getElementById(id);
+        const rect = draggedElement.getBoundingClientRect();
+        const parentRect = document.getElementById('desktop').getBoundingClientRect();
+        offsetX = e.clientX - (rect.left - parentRect.left);
+        offsetY = e.clientY - (rect.top - parentRect.top);
+        document.addEventListener('mousemove', onDrag);
+        document.addEventListener('mouseup', stopDrag);
+        
+        // Öne getir
+        document.querySelectorAll('.window').forEach(w => w.style.zIndex = 10);
+        draggedElement.style.zIndex = 20;
+    }
+
+    function onDrag(e) {
+        if (!draggedElement) return;
+        const parentRect = document.getElementById('desktop').getBoundingClientRect();
+        let x = e.clientX - parentRect.left - offsetX;
+        let y = e.clientY - parentRect.top - offsetY;
+        draggedElement.style.left = x + 'px';
+        draggedElement.style.top = y + 'px';
+    }
+
+    function stopDrag() {
+        document.removeEventListener('mousemove', onDrag);
+        document.removeEventListener('mouseup', stopDrag);
+        draggedElement = null;
+    }
+
+    // --- Mayın Tarlası Mantığı ---
+    const rows = 10;
+    const cols = 10;
+    const totalMines = 10;
+    let board = [];
+    let gameOver = false;
+    let minesLeft = totalMines;
+
+    const gridElement = document.getElementById('minesweeper');
+    const mineCountElement = document.getElementById('mine-count');
+
+    function initGame() {
+        gridElement.innerHTML = '';
+        board = [];
+        gameOver = false;
+        minesLeft = totalMines;
+        mineCountElement.innerText = minesLeft;
+
+        // Board oluştur
+        for (let r = 0; r < rows; r++) {
+            let row = [];
+            for (let c = 0; c < cols; c++) {
+                row.push({ mine: false, revealed: false, flagged: false, count: 0 });
+                let cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.id = `cell-${r}-${c}`;
+                cell.addEventListener('click', () => revealCell(r, c));
+                cell.addEventListener('contextmenu', (e) => { e.preventDefault(); toggleFlag(r, c); });
+                gridElement.appendChild(cell);
+            }
+            board.push(row);
+        }
+
+        // Mayınları yerleştir
+        let placed = 0;
+        while (placed < totalMines) {
+            let r = Math.floor(Math.random() * rows);
+            let c = Math.floor(Math.random() * cols);
+            if (!board[r][c].mine) {
+                board[r][c].mine = true;
+                placed++;
+            }
+        }
+
+        // Sayıları hesapla
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                if (!board[r][c].mine) {
+                    let count = 0;
+                    for (let i = -1; i <= 1; i++) {
+                        for (let j = -1; j <= 1; j++) {
+                            if (r + i >= 0 && r + i < rows && c + j >= 0 && c + j < cols) {
+                                if (board[r + i][c + j].mine) count++;
+                            }
+                        }
+                    }
+                    board[r][c].count = count;
+                }
+            }
+        }
+    }
+
+    function revealCell(r, c) {
+        if (gameOver || board[r][c].revealed || board[r][c].flagged) return;
+        
+        let cellData = board[r][c];
+        cellData.revealed = true;
+        let cellElement = document.getElementById(`cell-${r}-${c}`);
+        cellElement.classList.add('revealed');
+
+        if (cellData.mine) {
+            cellElement.innerText = '💣';
+            cellElement.style.backgroundColor = 'red';
+            gameOver = true;
+            revealAllMines();
+            alert("BOMBA PATLADI! Sistem çöktü.");
+        } else {
+            if (cellData.count > 0) {
+                cellElement.innerText = cellData.count;
+                let colors = ['', 'blue', 'green', 'red', 'purple', 'maroon', 'turquoise', 'black', 'gray'];
+                cellElement.style.color = colors[cellData.count];
+            } else {
+                // Boşsa etrafını aç (Flood Fill)
+                for (let i = -1; i <= 1; i++) {
+                    for (let j = -1; j <= 1; j++) {
+                        if (r + i >= 0 && r + i < rows && c + j >= 0 && c + j < cols) {
+                            revealCell(r + i, c + j);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    function toggleFlag(r, c) {
+        if (gameOver || board[r][c].revealed) return;
+        
+        let cellData = board[r][c];
+        let cellElement = document.getElementById(`cell-${r}-${c}`);
+        
+        if (!cellData.flagged) {
+            cellData.flagged = true;
+            cellElement.innerText = '🚩';
+            minesLeft--;
+        } else {
+            cellData.flagged = false;
+            cellElement.innerText = '';
+            minesLeft++;
+        }
+        mineCountElement.innerText = minesLeft;
+    }
+
+    function revealAllMines() {
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                if (board[r][c].mine) {
+                    let el = document.getElementById(`cell-${r}-${c}`);
+                    el.innerText = '💣';
+                    el.classList.add('revealed');
+                }
+            }
+        }
+    }
+
+    // Oyunu başlat
+    initGame();
+</script>
+</body>
+</html>

@@ -1,0 +1,2754 @@
+<!--
+CALL OF DUTY 2 - NOSTALGIC LAUNCHER / CINEMATIC SHOWCASE - ASSET LISTESI
+
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama |
+|------------|----------------------|------------|----------------------|
+| icon.png   | 32x32                | Zorunlu    | XP masaustu ikonu    |
+
+NOT:
+- Uygulama içerisinde harici görsel kullanılmaz.
+- Arka planlar, sis, film grain, tracer ve sinematik sahneler CSS/JS ile üretilir.
+- Orijinal telifli oyun müziği/sesi kullanılmaz.
+- Ses efektleri Web Audio API ile sentetik olarak üretilir.
+- Bu sayfa WindowManager tarafından iframe içinde çalıştırılmak üzere tasarlanmıştır.
+- İkinci Windows başlık çubuğu / görev çubuğu oluşturmaz.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
+>
+<title>Call of Duty 2</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+        user-select: none;
+    }
+
+    html,
+    body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: #050604;
+        color: #ddd9c9;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    button,
+    input {
+        font: inherit;
+    }
+
+    button {
+        color: inherit;
+    }
+
+    #app {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        min-height: 420px;
+        overflow: hidden;
+        background:
+            radial-gradient(
+                ellipse at 65% 45%,
+                rgba(119, 111, 78, .18),
+                transparent 35%
+            ),
+            radial-gradient(
+                ellipse at 50% 100%,
+                rgba(86, 77, 49, .22),
+                transparent 50%
+            ),
+            linear-gradient(
+                110deg,
+                #11130f,
+                #090a08 43%,
+                #17160f 70%,
+                #050604
+            );
+    }
+
+    #app.grain-off .grain {
+        display: none;
+    }
+
+    .atmosphere,
+    .grain,
+    .vignette,
+    .battlefield {
+        pointer-events: none;
+        position: absolute;
+        inset: 0;
+    }
+
+    .battlefield {
+        overflow: hidden;
+    }
+
+    .battlefield::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 35%;
+        background:
+            linear-gradient(
+                167deg,
+                transparent 0 47%,
+                rgba(0,0,0,.7) 48% 100%
+            );
+        clip-path: polygon(
+            0 57%,
+            11% 48%,
+            22% 61%,
+            34% 36%,
+            46% 58%,
+            58% 31%,
+            70% 46%,
+            83% 27%,
+            100% 43%,
+            100% 100%,
+            0 100%
+        );
+    }
+
+    .battlefield::after {
+        content: "";
+        position: absolute;
+        width: 230px;
+        height: 250px;
+        right: 12%;
+        bottom: 16%;
+        opacity: .23;
+        background:
+            linear-gradient(
+                90deg,
+                transparent 45%,
+                #000 46% 54%,
+                transparent 55%
+            ),
+            linear-gradient(
+                15deg,
+                transparent 43%,
+                #000 44% 50%,
+                transparent 51%
+            );
+        transform: rotate(-5deg);
+        filter: blur(.2px);
+    }
+
+    .atmosphere::before,
+    .atmosphere::after {
+        content: "";
+        position: absolute;
+        width: 80%;
+        height: 60%;
+        border-radius: 50%;
+        filter: blur(50px);
+        opacity: .18;
+        animation: smoke 16s ease-in-out infinite alternate;
+    }
+
+    .atmosphere::before {
+        left: -25%;
+        bottom: -10%;
+        background: #94866c;
+    }
+
+    .atmosphere::after {
+        right: -30%;
+        top: 0;
+        background: #4b4e3d;
+        animation-duration: 22s;
+        animation-direction: alternate-reverse;
+    }
+
+    @keyframes smoke {
+        from {
+            transform: translate3d(-3%, 3%, 0) scale(1);
+        }
+
+        to {
+            transform: translate3d(9%, -6%, 0) scale(1.18);
+        }
+    }
+
+    .grain {
+        opacity: .075;
+        background-image:
+            repeating-radial-gradient(
+                circle at 20% 30%,
+                #fff 0 1px,
+                transparent 1px 4px
+            );
+        background-size: 6px 7px;
+        mix-blend-mode: screen;
+        animation: grainMove .18s steps(2) infinite;
+    }
+
+    @keyframes grainMove {
+        0% {
+            transform: translate(0, 0);
+        }
+
+        25% {
+            transform: translate(-3px, 2px);
+        }
+
+        50% {
+            transform: translate(2px, -2px);
+        }
+
+        75% {
+            transform: translate(2px, 3px);
+        }
+
+        100% {
+            transform: translate(-1px, -3px);
+        }
+    }
+
+    .vignette {
+        box-shadow:
+            inset 0 0 110px #000,
+            inset 0 0 220px rgba(0,0,0,.75);
+    }
+
+    #brand {
+        position: absolute;
+        left: 54px;
+        top: 42px;
+        z-index: 5;
+        line-height: .82;
+        text-shadow:
+            0 2px 2px #000,
+            0 0 10px #000;
+    }
+
+    #brand .small {
+        display: block;
+        margin-left: 4px;
+        font-size: clamp(11px, 1.3vw, 16px);
+        letter-spacing: 7px;
+        color: #aaa897;
+    }
+
+    #brand .main {
+        display: block;
+        font-family: Impact, "Arial Narrow", sans-serif;
+        font-size: clamp(40px, 7vw, 82px);
+        letter-spacing: 1px;
+        color: #d1cfbe;
+        transform: scaleX(.82);
+        transform-origin: left center;
+    }
+
+    #brand .two {
+        color: #9a1e16;
+        margin-left: 7px;
+    }
+
+    #brand .tag {
+        display: block;
+        margin-top: 10px;
+        font-size: 9px;
+        letter-spacing: 2px;
+        color: #807d70;
+    }
+
+    #content {
+        position: absolute;
+        inset: 0;
+        z-index: 4;
+    }
+
+    .screen {
+        display: none;
+        position: absolute;
+        inset: 0;
+    }
+
+    .screen.active {
+        display: block;
+        animation: screenIn .24s ease-out;
+    }
+
+    @keyframes screenIn {
+        from {
+            opacity: 0;
+            transform: translateX(-7px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .menu-panel {
+        position: absolute;
+        left: 55px;
+        top: 190px;
+        width: min(340px, 41vw);
+    }
+
+    .section-title {
+        margin: 0 0 18px;
+        padding-bottom: 6px;
+        color: #b8b39f;
+        font-size: 14px;
+        font-weight: normal;
+        letter-spacing: 4px;
+        border-bottom: 1px solid rgba(209,204,180,.3);
+        text-transform: uppercase;
+    }
+
+    .menu-button {
+        position: relative;
+        display: block;
+        width: 100%;
+        height: 34px;
+        margin: 2px 0;
+        padding: 0 13px 0 25px;
+        border: 0;
+        outline: none;
+        background: transparent;
+        color: #b9b7a7;
+        text-align: left;
+        cursor: pointer;
+        font-size: 13px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        text-shadow: 0 1px 2px #000;
+        transition:
+            background .1s,
+            color .1s,
+            padding .1s;
+    }
+
+    .menu-button::before {
+        content: "";
+        position: absolute;
+        left: 7px;
+        top: 50%;
+        width: 7px;
+        height: 7px;
+        border-left: 1px solid transparent;
+        border-bottom: 1px solid transparent;
+        transform:
+            translateY(-50%)
+            rotate(-45deg);
+        transition: border .1s;
+    }
+
+    .menu-button:hover,
+    .menu-button:focus-visible {
+        color: #fff;
+        padding-left: 31px;
+        background:
+            linear-gradient(
+                90deg,
+                rgba(126,24,18,.8),
+                rgba(126,24,18,.18) 72%,
+                transparent
+            );
+    }
+
+    .menu-button:hover::before,
+    .menu-button:focus-visible::before {
+        border-color: #ddd6bb;
+    }
+
+    .menu-button.danger:hover {
+        background:
+            linear-gradient(
+                90deg,
+                rgba(106,22,17,.75),
+                transparent
+            );
+    }
+
+    .description {
+        position: absolute;
+        right: 6%;
+        bottom: 9%;
+        width: min(450px, 43vw);
+        padding: 14px 18px;
+        border-left: 2px solid rgba(190,184,154,.34);
+        color: #8f8c7e;
+        font-size: 11px;
+        line-height: 1.55;
+        text-shadow: 0 1px #000;
+    }
+
+    .description strong {
+        color: #c6c2ae;
+    }
+
+    .cards {
+        display: grid;
+        gap: 7px;
+    }
+
+    .mission-card {
+        position: relative;
+        width: 100%;
+        padding: 10px 11px 10px 28px;
+        border: 1px solid rgba(171,168,145,.14);
+        background: rgba(6,7,5,.32);
+        color: #aaa898;
+        cursor: pointer;
+        text-align: left;
+    }
+
+    .mission-card:hover,
+    .mission-card.selected {
+        border-color: rgba(183,171,139,.4);
+        color: #f2edd7;
+        background:
+            linear-gradient(
+                90deg,
+                rgba(106,25,17,.72),
+                rgba(25,23,17,.5)
+            );
+    }
+
+    .mission-card::before {
+        content: "◆";
+        position: absolute;
+        left: 9px;
+        top: 10px;
+        color: #736b54;
+    }
+
+    .mission-card.selected::before {
+        color: #e0d9b8;
+    }
+
+    .mission-card b {
+        display: block;
+        font-size: 12px;
+        letter-spacing: 1px;
+    }
+
+    .mission-card span {
+        display: block;
+        margin-top: 4px;
+        color: #777568;
+        font-size: 10px;
+    }
+
+    .bottom-actions {
+        display: flex;
+        gap: 5px;
+        margin-top: 13px;
+    }
+
+    .small-button {
+        min-width: 86px;
+        padding: 7px 12px;
+        border: 1px solid #625f51;
+        outline: none;
+        background:
+            linear-gradient(#4d4b42, #25251f);
+        color: #d4d0bb;
+        cursor: pointer;
+        font-size: 10px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        box-shadow:
+            inset 0 1px rgba(255,255,255,.07),
+            0 1px 2px #000;
+    }
+
+    .small-button:hover,
+    .small-button:focus-visible {
+        border-color: #aaa283;
+        background:
+            linear-gradient(#655f4d, #302c24);
+        color: #fff;
+    }
+
+    .small-button.primary {
+        border-color: #7e4139;
+        background:
+            linear-gradient(#74352d, #341612);
+    }
+
+    .option-row {
+        display: grid;
+        grid-template-columns: 130px 1fr 38px;
+        align-items: center;
+        min-height: 37px;
+        border-bottom: 1px solid rgba(255,255,255,.05);
+        color: #b4b09d;
+        font-size: 11px;
+    }
+
+    input[type="range"] {
+        width: 100%;
+        accent-color: #7c2921;
+    }
+
+    .toggle {
+        justify-self: start;
+        min-width: 85px;
+        border: 1px solid #605d50;
+        padding: 5px 9px;
+        background: #25251f;
+        color: #aaa691;
+        cursor: pointer;
+        font-size: 10px;
+    }
+
+    .toggle.on {
+        color: #e0dbc5;
+        border-color: #7c6657;
+        background: #4e3027;
+    }
+
+    #console-screen {
+        background: rgba(0,0,0,.86);
+    }
+
+    .console-wrap {
+        position: absolute;
+        inset: 30px;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #45453d;
+        background: rgba(3,4,3,.95);
+        box-shadow: 0 0 50px #000;
+    }
+
+    .console-head {
+        padding: 8px 10px;
+        border-bottom: 1px solid #35362f;
+        color: #a9a68d;
+        font-size: 11px;
+        letter-spacing: 1px;
+    }
+
+    #console-output {
+        flex: 1;
+        overflow: auto;
+        padding: 10px;
+        white-space: pre-wrap;
+        color: #aaa997;
+        font: 11px Consolas, "Courier New", monospace;
+        user-select: text;
+    }
+
+    .console-input-row {
+        display: flex;
+        border-top: 1px solid #383930;
+    }
+
+    .console-prompt {
+        padding: 9px 0 9px 10px;
+        color: #8e392f;
+        font: bold 12px Consolas, monospace;
+    }
+
+    #console-input {
+        flex: 1;
+        min-width: 0;
+        border: 0;
+        outline: 0;
+        padding: 8px 7px;
+        background: transparent;
+        color: #e0ddca;
+        font: 11px Consolas, monospace;
+        user-select: text;
+    }
+
+    #cinematic-screen {
+        background: #000;
+    }
+
+    #cinema {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        background:
+            radial-gradient(
+                ellipse at center,
+                #414337,
+                #151712 55%,
+                #030403
+            );
+        transition: background 1s ease;
+    }
+
+    #cinema[data-theme="snow"] {
+        background:
+            radial-gradient(
+                circle at 70% 16%,
+                rgba(220,225,214,.3),
+                transparent 20%
+            ),
+            linear-gradient(
+                #69706c,
+                #383e39 40%,
+                #171b18 75%,
+                #080908
+            );
+    }
+
+    #cinema[data-theme="desert"] {
+        background:
+            radial-gradient(
+                circle at 75% 15%,
+                #d2b37c,
+                transparent 17%
+            ),
+            linear-gradient(
+                #7e7157,
+                #5d4e37 45%,
+                #2e291f 75%,
+                #11110e
+            );
+    }
+
+    #cinema[data-theme="normandy"] {
+        background:
+            radial-gradient(
+                ellipse at 50% 0,
+                #6f756a,
+                transparent 45%
+            ),
+            linear-gradient(
+                #4f574f,
+                #343930 50%,
+                #10130f
+            );
+    }
+
+    .cinema-ground {
+        position: absolute;
+        left: -10%;
+        right: -10%;
+        bottom: -8%;
+        height: 45%;
+        background: #090b08;
+        clip-path: polygon(
+            0 36%,
+            12% 28%,
+            21% 38%,
+            35% 21%,
+            48% 36%,
+            62% 18%,
+            75% 33%,
+            88% 16%,
+            100% 29%,
+            100% 100%,
+            0 100%
+        );
+    }
+
+    .cinema-smoke {
+        position: absolute;
+        width: 350px;
+        height: 250px;
+        border-radius: 50%;
+        background: rgba(125,125,109,.17);
+        filter: blur(45px);
+        animation: cinemaSmoke 7s ease-in-out infinite alternate;
+    }
+
+    .cinema-smoke.a {
+        left: 3%;
+        bottom: 8%;
+    }
+
+    .cinema-smoke.b {
+        right: 5%;
+        top: 15%;
+        animation-delay: -3s;
+    }
+
+    @keyframes cinemaSmoke {
+        to {
+            transform:
+                translate(90px, -35px)
+                scale(1.25);
+            opacity: .07;
+        }
+    }
+
+    #tracers {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+    }
+
+    .tracer {
+        position: absolute;
+        width: 110px;
+        height: 1px;
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                #f2d49b,
+                #fff,
+                transparent
+            );
+        filter: drop-shadow(0 0 3px #d59252);
+        transform: rotate(-12deg);
+        animation: tracer .38s linear forwards;
+    }
+
+    @keyframes tracer {
+        from {
+            transform:
+                translate(-200px, 120px)
+                rotate(-12deg);
+            opacity: 0;
+        }
+
+        20% {
+            opacity: 1;
+        }
+
+        to {
+            transform:
+                translate(900px, -80px)
+                rotate(-12deg);
+            opacity: 0;
+        }
+    }
+
+    .cinema-copy {
+        position: absolute;
+        left: 7%;
+        bottom: 12%;
+        width: min(560px, 75vw);
+        text-shadow:
+            0 2px 5px #000,
+            0 0 15px #000;
+    }
+
+    #cinema-kicker {
+        color: #a9291e;
+        font-size: 11px;
+        letter-spacing: 4px;
+    }
+
+    #cinema-title {
+        margin: 8px 0 5px;
+        color: #eeeada;
+        font: 42px/1 Impact, "Arial Narrow", sans-serif;
+        letter-spacing: 1px;
+    }
+
+    #cinema-text {
+        max-width: 500px;
+        color: #aaa89a;
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    .cinema-controls {
+        position: absolute;
+        right: 18px;
+        bottom: 16px;
+        display: flex;
+        gap: 6px;
+    }
+
+    #cinema-progress {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        height: 3px;
+        width: 0;
+        background: #8f2a21;
+        transition: width 4.2s linear;
+    }
+
+    .briefing-box {
+        margin-top: 12px;
+        padding: 13px;
+        border: 1px solid rgba(172,168,145,.2);
+        background: rgba(4,5,4,.45);
+        font-size: 11px;
+        line-height: 1.6;
+        color: #999687;
+    }
+
+    .briefing-box b {
+        color: #d5cfb8;
+    }
+
+    .credits {
+        color: #a3a08e;
+        line-height: 1.7;
+        font-size: 11px;
+    }
+
+    .credits strong {
+        color: #d0cab2;
+    }
+
+    #status-line {
+        position: absolute;
+        z-index: 7;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 23px;
+        padding: 5px 11px;
+        color: #5f6057;
+        background: rgba(0,0,0,.24);
+        border-top: 1px solid rgba(255,255,255,.035);
+        font-size: 9px;
+        letter-spacing: .5px;
+    }
+
+    .key {
+        display: inline-block;
+        min-width: 18px;
+        margin: 0 3px;
+        padding: 1px 4px;
+        border: 1px solid #57564c;
+        background: #20211d;
+        color: #a9a691;
+        text-align: center;
+    }
+
+    #dialog-layer {
+        display: none;
+        position: absolute;
+        inset: 0;
+        z-index: 100;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0,0,0,.66);
+    }
+
+    #dialog-layer.visible {
+        display: flex;
+    }
+
+    .xp-dialog {
+        width: min(390px, 88%);
+        color: #111;
+        background: #ece9d8;
+        border: 1px solid #0a246a;
+        font: 11px Tahoma, sans-serif;
+        box-shadow:
+            5px 7px 30px #000,
+            inset 1px 1px #fff;
+    }
+
+    .xp-dialog-title {
+        padding: 4px 6px;
+        color: #fff;
+        background:
+            linear-gradient(
+                90deg,
+                #0a246a,
+                #a6caf0
+            );
+        font-weight: bold;
+    }
+
+    .xp-dialog-content {
+        padding: 18px 18px 12px;
+        line-height: 1.45;
+    }
+
+    .xp-dialog-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 7px;
+        padding: 0 12px 12px;
+    }
+
+    .xp-dialog button {
+        min-width: 76px;
+        padding: 4px 9px;
+        border: 2px outset #fff;
+        background: #ece9d8;
+        cursor: pointer;
+        color: #111;
+    }
+
+    .xp-dialog button:active {
+        border-style: inset;
+    }
+
+    @media (max-width: 700px) {
+        #brand {
+            left: 25px;
+            top: 25px;
+        }
+
+        .menu-panel {
+            left: 25px;
+            top: 150px;
+            width: calc(100% - 50px);
+        }
+
+        .description {
+            display: none;
+        }
+
+        .console-wrap {
+            inset: 10px;
+        }
+
+        #cinema-title {
+            font-size: 30px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+    <div class="battlefield"></div>
+    <div class="atmosphere"></div>
+    <div class="grain"></div>
+    <div class="vignette"></div>
+
+    <div id="brand">
+        <span class="small">CALL OF DUTY</span>
+        <span class="main">
+            CALL OF DUTY<span class="two">2</span>
+        </span>
+        <span class="tag">
+            WWII CINEMATIC EXPERIENCE
+        </span>
+    </div>
+
+    <main id="content">
+
+        <!-- MAIN MENU -->
+        <section id="main-screen" class="screen active">
+            <div class="menu-panel">
+
+                <h2 class="section-title">Main Menu</h2>
+
+                <button
+                    class="menu-button"
+                    data-open="campaign-screen">
+                    New Game
+                </button>
+
+                <button
+                    class="menu-button"
+                    data-open="missions-screen">
+                    Mission Select
+                </button>
+
+                <button
+                    class="menu-button"
+                    id="cinematic-main">
+                    Cinematic Showcase
+                </button>
+
+                <button
+                    class="menu-button"
+                    data-open="options-screen">
+                    Options
+                </button>
+
+                <button
+                    class="menu-button"
+                    data-open="console-screen">
+                    Developer Console
+                </button>
+
+                <button
+                    class="menu-button"
+                    data-open="credits-screen">
+                    Credits
+                </button>
+
+                <button
+                    class="menu-button danger"
+                    id="quit-button">
+                    Quit
+                </button>
+
+            </div>
+
+            <div class="description">
+                <strong>CALL OF DUTY 2</strong><br><br>
+                A browser-safe nostalgic showcase inspired by the
+                2005 World War II PC experience.
+
+                <br><br>
+
+                No streaming, local game executable, external server,
+                WebAssembly runtime or copyrighted game assets are
+                required.
+            </div>
+        </section>
+
+        <!-- CAMPAIGN -->
+        <section id="campaign-screen" class="screen">
+            <div class="menu-panel">
+
+                <h2 class="section-title">New Game</h2>
+
+                <div class="cards">
+
+                    <button
+                        class="mission-card selected"
+                        data-campaign="Soviet Campaign"
+                        data-theme="snow">
+                        <b>SOVIET CAMPAIGN</b>
+                        <span>
+                            Eastern Front · Winter warfare
+                        </span>
+                    </button>
+
+                    <button
+                        class="mission-card"
+                        data-campaign="British Campaign"
+                        data-theme="desert">
+                        <b>BRITISH CAMPAIGN</b>
+                        <span>
+                            North Africa · Desert warfare
+                        </span>
+                    </button>
+
+                    <button
+                        class="mission-card"
+                        data-campaign="American Campaign"
+                        data-theme="normandy">
+                        <b>AMERICAN CAMPAIGN</b>
+                        <span>
+                            Normandy · Western Front
+                        </span>
+                    </button>
+
+                </div>
+
+                <div class="briefing-box">
+                    <b id="campaign-name">
+                        Soviet Campaign
+                    </b>
+
+                    <br>
+
+                    Select a campaign and begin the cinematic
+                    showcase.
+                </div>
+
+                <div class="bottom-actions">
+                    <button
+                        class="small-button"
+                        data-open="main-screen">
+                        Back
+                    </button>
+
+                    <button
+                        class="small-button primary"
+                        id="begin-campaign">
+                        Begin
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- MISSIONS -->
+        <section id="missions-screen" class="screen">
+            <div class="menu-panel">
+
+                <h2 class="section-title">
+                    Mission Select
+                </h2>
+
+                <div class="cards">
+
+                    <button
+                        class="mission-card mission"
+                        data-title="The Eastern Front"
+                        data-theme="snow">
+                        <b>THE EASTERN FRONT</b>
+                        <span>
+                            Snow · Infantry assault
+                        </span>
+                    </button>
+
+                    <button
+                        class="mission-card mission"
+                        data-title="North Africa"
+                        data-theme="desert">
+                        <b>NORTH AFRICA</b>
+                        <span>
+                            Desert · Armoured advance
+                        </span>
+                    </button>
+
+                    <button
+                        class="mission-card mission"
+                        data-title="Normandy"
+                        data-theme="normandy">
+                        <b>NORMANDY</b>
+                        <span>
+                            Western Europe · Allied assault
+                        </span>
+                    </button>
+
+                    <button
+                        class="mission-card mission"
+                        data-title="Urban Counterattack"
+                        data-theme="snow">
+                        <b>URBAN COUNTERATTACK</b>
+                        <span>
+                            Ruined city · Defensive combat
+                        </span>
+                    </button>
+
+                </div>
+
+                <div class="bottom-actions">
+                    <button
+                        class="small-button"
+                        data-open="main-screen">
+                        Back
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- OPTIONS -->
+        <section id="options-screen" class="screen">
+            <div class="menu-panel">
+
+                <h2 class="section-title">Options</h2>
+
+                <div class="option-row">
+                    <span>Master Volume</span>
+
+                    <input
+                        id="volume"
+                        type="range"
+                        min="0"
+                        max="100"
+                        value="45">
+
+                    <span id="volume-value">45</span>
+                </div>
+
+                <div class="option-row">
+                    <span>Mouse Sensitivity</span>
+
+                    <input
+                        id="sensitivity"
+                        type="range"
+                        min="1"
+                        max="20"
+                        value="8">
+
+                    <span id="sensitivity-value">8</span>
+                </div>
+
+                <div class="option-row">
+                    <span>Film Grain</span>
+
+                    <button
+                        id="grain-toggle"
+                        class="toggle on">
+                        ENABLED
+                    </button>
+
+                    <span></span>
+                </div>
+
+                <div class="option-row">
+                    <span>Subtitles</span>
+
+                    <button
+                        id="subtitle-toggle"
+                        class="toggle on">
+                        ENABLED
+                    </button>
+
+                    <span></span>
+                </div>
+
+                <div class="bottom-actions">
+                    <button
+                        class="small-button"
+                        data-open="main-screen">
+                        Back
+                    </button>
+
+                    <button
+                        class="small-button primary"
+                        id="save-options">
+                        Apply
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- CONSOLE -->
+        <section id="console-screen" class="screen">
+
+            <div class="console-wrap">
+
+                <div class="console-head">
+                    CALL OF DUTY 2 // SIMULATION CONSOLE
+                    &nbsp; — &nbsp;
+                    type "help"
+                </div>
+
+                <div id="console-output"></div>
+
+                <div class="console-input-row">
+                    <div class="console-prompt">]</div>
+
+                    <input
+                        id="console-input"
+                        type="text"
+                        autocomplete="off"
+                        spellcheck="false"
+                        aria-label="Console command">
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- CREDITS -->
+        <section id="credits-screen" class="screen">
+            <div class="menu-panel">
+
+                <h2 class="section-title">Credits</h2>
+
+                <div class="credits">
+
+                    <strong>
+                        CALL OF DUTY 2 NOSTALGIC SHOWCASE
+                    </strong>
+
+                    <br><br>
+
+                    Independent browser recreation designed for
+                    a Windows XP desktop simulator.
+
+                    <br><br>
+
+                    <strong>Rendering:</strong>
+                    HTML / CSS / JavaScript
+
+                    <br>
+
+                    <strong>Audio:</strong>
+                    Generated in real time using Web Audio API
+
+                    <br>
+
+                    <strong>Runtime:</strong>
+                    Browser iframe
+
+                    <br><br>
+
+                    This project does not contain or distribute
+                    Call of Duty 2 game files, maps, models,
+                    textures, recordings or executable code.
+
+                    <br><br>
+
+                    Call of Duty is a trademark of its respective
+                    rights holders.
+
+                </div>
+
+                <div class="bottom-actions">
+                    <button
+                        class="small-button"
+                        data-open="main-screen">
+                        Back
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- CINEMATIC -->
+        <section id="cinematic-screen" class="screen">
+
+            <div id="cinema" data-theme="snow">
+
+                <div class="cinema-smoke a"></div>
+                <div class="cinema-smoke b"></div>
+                <div class="cinema-ground"></div>
+
+                <div id="tracers"></div>
+
+                <div class="cinema-copy">
+
+                    <div id="cinema-kicker">
+                        DECEMBER 1941
+                    </div>
+
+                    <div id="cinema-title">
+                        THE EASTERN FRONT
+                    </div>
+
+                    <div id="cinema-text">
+                        The battlefield awakens.
+                    </div>
+
+                </div>
+
+                <div class="cinema-controls">
+
+                    <button
+                        class="small-button"
+                        id="cinema-next">
+                        Next Scene
+                    </button>
+
+                    <button
+                        class="small-button"
+                        id="cinema-exit">
+                        Exit
+                    </button>
+
+                </div>
+
+                <div id="cinema-progress"></div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <div id="status-line">
+        <span class="key">ESC</span>
+        BACK
+        &nbsp;&nbsp;
+        <span class="key">`</span>
+        CONSOLE
+        &nbsp;&nbsp;|&nbsp;&nbsp;
+        Browser-safe cinematic simulation
+    </div>
+
+    <!-- XP STYLE INTERNAL DIALOG -->
+    <div id="dialog-layer">
+
+        <div class="xp-dialog">
+
+            <div
+                class="xp-dialog-title"
+                id="dialog-title">
+                Call of Duty 2
+            </div>
+
+            <div
+                class="xp-dialog-content"
+                id="dialog-content">
+            </div>
+
+            <div
+                class="xp-dialog-buttons"
+                id="dialog-buttons">
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+(() => {
+    "use strict";
+
+    const app = document.getElementById("app");
+
+    const screens =
+        Array.from(document.querySelectorAll(".screen"));
+
+    const state = {
+        currentScreen: "main-screen",
+        previousScreen: "main-screen",
+
+        campaign: "Soviet Campaign",
+        cinematicTheme: "snow",
+
+        grain: true,
+        subtitles: true,
+
+        volume: 45,
+        sensitivity: 8,
+
+        sceneIndex: 0,
+        cinemaTimer: null,
+
+        god: false,
+        noclip: false,
+        fov: 65
+    };
+
+    /*
+     * ---------------------------------------------------------
+     * SCREEN ROUTER
+     * ---------------------------------------------------------
+     */
+
+    function openScreen(id) {
+        const target =
+            document.getElementById(id);
+
+        if (!target) {
+            return;
+        }
+
+        state.previousScreen =
+            state.currentScreen;
+
+        state.currentScreen = id;
+
+        screens.forEach(screen => {
+            screen.classList.toggle(
+                "active",
+                screen.id === id
+            );
+        });
+
+        document.getElementById("brand").style.display =
+            (
+                id === "cinematic-screen" ||
+                id === "console-screen"
+            )
+                ? "none"
+                : "";
+
+        document.getElementById("status-line").style.display =
+            id === "cinematic-screen"
+                ? "none"
+                : "";
+
+        if (id === "console-screen") {
+            setTimeout(() => {
+                document
+                    .getElementById("console-input")
+                    .focus();
+            }, 10);
+        }
+    }
+
+    document
+        .querySelectorAll("[data-open]")
+        .forEach(button => {
+
+            button.addEventListener("click", () => {
+                playClick();
+                openScreen(button.dataset.open);
+            });
+
+        });
+
+
+    /*
+     * ---------------------------------------------------------
+     * XP INTERNAL DIALOG SYSTEM
+     * ---------------------------------------------------------
+     */
+
+    const dialogLayer =
+        document.getElementById("dialog-layer");
+
+    const dialogTitle =
+        document.getElementById("dialog-title");
+
+    const dialogContent =
+        document.getElementById("dialog-content");
+
+    const dialogButtons =
+        document.getElementById("dialog-buttons");
+
+
+    function closeDialog() {
+        dialogLayer.classList.remove("visible");
+    }
+
+
+    function showDialog(
+        title,
+        html,
+        buttons = [
+            {
+                label: "OK",
+                action: closeDialog
+            }
+        ]
+    ) {
+        dialogTitle.textContent = title;
+        dialogContent.innerHTML = html;
+        dialogButtons.innerHTML = "";
+
+        buttons.forEach(config => {
+
+            const button =
+                document.createElement("button");
+
+            button.textContent =
+                config.label;
+
+            button.addEventListener(
+                "click",
+                () => {
+                    playClick();
+
+                    if (config.action) {
+                        config.action();
+                    }
+                }
+            );
+
+            dialogButtons.appendChild(button);
+        });
+
+        dialogLayer.classList.add("visible");
+    }
+
+
+    /*
+     * ---------------------------------------------------------
+     * SYNTHETIC AUDIO
+     * ---------------------------------------------------------
+     */
+
+    let audioContext = null;
+    let masterGain = null;
+
+
+    function ensureAudio() {
+        if (!audioContext) {
+
+            const AudioCtx =
+                window.AudioContext ||
+                window.webkitAudioContext;
+
+            if (!AudioCtx) {
+                return false;
+            }
+
+            audioContext =
+                new AudioCtx();
+
+            masterGain =
+                audioContext.createGain();
+
+            masterGain.gain.value =
+                state.volume / 100 * 0.22;
+
+            masterGain.connect(
+                audioContext.destination
+            );
+        }
+
+        if (
+            audioContext.state === "suspended"
+        ) {
+            audioContext.resume();
+        }
+
+        return true;
+    }
+
+
+    function tone(
+        frequency,
+        duration = .07,
+        volume = .06,
+        type = "square"
+    ) {
+        if (!ensureAudio()) {
+            return;
+        }
+
+        const oscillator =
+            audioContext.createOscillator();
+
+        const gain =
+            audioContext.createGain();
+
+        oscillator.type = type;
+        oscillator.frequency.value =
+            frequency;
+
+        gain.gain.setValueAtTime(
+            volume,
+            audioContext.currentTime
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+            .0001,
+            audioContext.currentTime + duration
+        );
+
+        oscillator.connect(gain);
+        gain.connect(masterGain);
+
+        oscillator.start();
+
+        oscillator.stop(
+            audioContext.currentTime +
+            duration
+        );
+    }
+
+
+    function playClick() {
+        tone(
+            190,
+            .045,
+            .045,
+            "square"
+        );
+    }
+
+
+    function playImpact() {
+        if (!ensureAudio()) {
+            return;
+        }
+
+        const length =
+            Math.floor(
+                audioContext.sampleRate * .12
+            );
+
+        const buffer =
+            audioContext.createBuffer(
+                1,
+                length,
+                audioContext.sampleRate
+            );
+
+        const data =
+            buffer.getChannelData(0);
+
+        for (
+            let i = 0;
+            i < length;
+            i++
+        ) {
+            data[i] =
+                (Math.random() * 2 - 1) *
+                (1 - i / length);
+        }
+
+        const source =
+            audioContext.createBufferSource();
+
+        const gain =
+            audioContext.createGain();
+
+        gain.gain.value = .12;
+
+        source.buffer = buffer;
+
+        source.connect(gain);
+        gain.connect(masterGain);
+
+        source.start();
+    }
+
+
+    /*
+     * ---------------------------------------------------------
+     * CAMPAIGN
+     * ---------------------------------------------------------
+     */
+
+    const campaignName =
+        document.getElementById("campaign-name");
+
+    document
+        .querySelectorAll(
+            "#campaign-screen .mission-card"
+        )
+        .forEach(card => {
+
+            card.addEventListener(
+                "click",
+                () => {
+
+                    document
+                        .querySelectorAll(
+                            "#campaign-screen " +
+                            ".mission-card"
+                        )
+                        .forEach(other => {
+                            other.classList.remove(
+                                "selected"
+                            );
+                        });
+
+                    card.classList.add(
+                        "selected"
+                    );
+
+                    state.campaign =
+                        card.dataset.campaign;
+
+                    state.cinematicTheme =
+                        card.dataset.theme;
+
+                    campaignName.textContent =
+                        state.campaign;
+
+                    playClick();
+                }
+            );
+
+        });
+
+
+    document
+        .getElementById("begin-campaign")
+        .addEventListener(
+            "click",
+            () => {
+                startCinematic(
+                    state.cinematicTheme
+                );
+            }
+        );
+
+
+    /*
+     * ---------------------------------------------------------
+     * MISSION SELECT
+     * ---------------------------------------------------------
+     */
+
+    document
+        .querySelectorAll(
+            ".mission-card.mission"
+        )
+        .forEach(card => {
+
+            card.addEventListener(
+                "click",
+                () => {
+
+                    state.campaign =
+                        card.dataset.title;
+
+                    startCinematic(
+                        card.dataset.theme
+                    );
+                }
+            );
+
+        });
+
+
+    /*
+     * ---------------------------------------------------------
+     * OPTIONS
+     * ---------------------------------------------------------
+     */
+
+    const volume =
+        document.getElementById("volume");
+
+    const volumeValue =
+        document.getElementById("volume-value");
+
+    const sensitivity =
+        document.getElementById(
+            "sensitivity"
+        );
+
+    const sensitivityValue =
+        document.getElementById(
+            "sensitivity-value"
+        );
+
+    const grainToggle =
+        document.getElementById(
+            "grain-toggle"
+        );
+
+    const subtitleToggle =
+        document.getElementById(
+            "subtitle-toggle"
+        );
+
+
+    function updateToggle(
+        element,
+        enabled
+    ) {
+        element.classList.toggle(
+            "on",
+            enabled
+        );
+
+        element.textContent =
+            enabled
+                ? "ENABLED"
+                : "DISABLED";
+    }
+
+
+    volume.addEventListener(
+        "input",
+        () => {
+
+            state.volume =
+                Number(volume.value);
+
+            volumeValue.textContent =
+                state.volume;
+
+            if (masterGain) {
+                masterGain.gain.value =
+                    state.volume /
+                    100 *
+                    .22;
+            }
+        }
+    );
+
+
+    sensitivity.addEventListener(
+        "input",
+        () => {
+
+            state.sensitivity =
+                Number(
+                    sensitivity.value
+                );
+
+            sensitivityValue.textContent =
+                state.sensitivity;
+        }
+    );
+
+
+    grainToggle.addEventListener(
+        "click",
+        () => {
+
+            state.grain =
+                !state.grain;
+
+            app.classList.toggle(
+                "grain-off",
+                !state.grain
+            );
+
+            updateToggle(
+                grainToggle,
+                state.grain
+            );
+
+            playClick();
+        }
+    );
+
+
+    subtitleToggle.addEventListener(
+        "click",
+        () => {
+
+            state.subtitles =
+                !state.subtitles;
+
+            updateToggle(
+                subtitleToggle,
+                state.subtitles
+            );
+
+            playClick();
+        }
+    );
+
+
+    document
+        .getElementById("save-options")
+        .addEventListener(
+            "click",
+            () => {
+
+                try {
+                    localStorage.setItem(
+                        "cod2-showcase-options",
+                        JSON.stringify({
+                            volume:
+                                state.volume,
+
+                            sensitivity:
+                                state.sensitivity,
+
+                            grain:
+                                state.grain,
+
+                            subtitles:
+                                state.subtitles
+                        })
+                    );
+                }
+                catch (error) {
+                    /*
+                     * localStorage may be blocked
+                     * in some iframe configurations.
+                     */
+                }
+
+                showDialog(
+                    "Options",
+                    "Settings have been applied.",
+                    [
+                        {
+                            label: "OK",
+                            action: () => {
+                                closeDialog();
+                                openScreen(
+                                    "main-screen"
+                                );
+                            }
+                        }
+                    ]
+                );
+            }
+        );
+
+
+    function loadOptions() {
+        try {
+
+            const saved =
+                JSON.parse(
+                    localStorage.getItem(
+                        "cod2-showcase-options"
+                    )
+                );
+
+            if (!saved) {
+                return;
+            }
+
+            if (
+                Number.isFinite(
+                    saved.volume
+                )
+            ) {
+                state.volume =
+                    saved.volume;
+            }
+
+            if (
+                Number.isFinite(
+                    saved.sensitivity
+                )
+            ) {
+                state.sensitivity =
+                    saved.sensitivity;
+            }
+
+            if (
+                typeof saved.grain ===
+                "boolean"
+            ) {
+                state.grain =
+                    saved.grain;
+            }
+
+            if (
+                typeof saved.subtitles ===
+                "boolean"
+            ) {
+                state.subtitles =
+                    saved.subtitles;
+            }
+
+        }
+        catch (error) {
+            return;
+        }
+
+        volume.value =
+            state.volume;
+
+        volumeValue.textContent =
+            state.volume;
+
+        sensitivity.value =
+            state.sensitivity;
+
+        sensitivityValue.textContent =
+            state.sensitivity;
+
+        app.classList.toggle(
+            "grain-off",
+            !state.grain
+        );
+
+        updateToggle(
+            grainToggle,
+            state.grain
+        );
+
+        updateToggle(
+            subtitleToggle,
+            state.subtitles
+        );
+    }
+
+
+    /*
+     * ---------------------------------------------------------
+     * CINEMATIC SHOWCASE
+     * ---------------------------------------------------------
+     */
+
+    const cinema =
+        document.getElementById("cinema");
+
+    const cinemaKicker =
+        document.getElementById(
+            "cinema-kicker"
+        );
+
+    const cinemaTitle =
+        document.getElementById(
+            "cinema-title"
+        );
+
+    const cinemaText =
+        document.getElementById(
+            "cinema-text"
+        );
+
+    const cinemaProgress =
+        document.getElementById(
+            "cinema-progress"
+        );
+
+    const tracers =
+        document.getElementById(
+            "tracers"
+        );
+
+
+    const scenes = [
+        {
+            theme: "snow",
+            kicker: "DECEMBER 1941",
+            title: "THE EASTERN FRONT",
+            text:
+                "Snow, smoke and ruined streets. " +
+                "Infantry units prepare to advance " +
+                "through a shattered defensive line."
+        },
+
+        {
+            theme: "snow",
+            kicker: "SOVIET CAMPAIGN",
+            title: "HOLD THE LINE",
+            text:
+                "Artillery echoes through the city. " +
+                "The squad moves from cover to cover " +
+                "under sustained enemy fire."
+        },
+
+        {
+            theme: "desert",
+            kicker: "NORTH AFRICA",
+            title: "DESERT WAR",
+            text:
+                "Heat and dust obscure the horizon " +
+                "as Allied armour advances across " +
+                "open ground."
+        },
+
+        {
+            theme: "desert",
+            kicker: "BRITISH CAMPAIGN",
+            title: "BREAKTHROUGH",
+            text:
+                "Machine-gun positions are marked. " +
+                "The attack begins under the cover " +
+                "of smoke and artillery."
+        },
+
+        {
+            theme: "normandy",
+            kicker: "1944",
+            title: "NORMANDY",
+            text:
+                "Hedgerows, villages and fortified " +
+                "positions stand between the Allied " +
+                "forces and their objective."
+        },
+
+        {
+            theme: "normandy",
+            kicker: "AMERICAN CAMPAIGN",
+            title: "ADVANCE",
+            text:
+                "The squad pushes inland while " +
+                "tracer fire cuts across the " +
+                "darkened battlefield."
+        }
+    ];
+
+
+    function spawnTracer() {
+        const tracer =
+            document.createElement("div");
+
+        tracer.className =
+            "tracer";
+
+        tracer.style.top =
+            (
+                20 +
+                Math.random() * 60
+            ) + "%";
+
+        tracer.style.left =
+            (
+                -15 +
+                Math.random() * 20
+            ) + "%";
+
+        tracers.appendChild(
+            tracer
+        );
+
+        setTimeout(
+            () => tracer.remove(),
+            500
+        );
+    }
+
+
+    function renderScene() {
+        const scene =
+            scenes[
+                state.sceneIndex %
+                scenes.length
+            ];
+
+        cinema.dataset.theme =
+            scene.theme;
+
+        cinemaKicker.textContent =
+            scene.kicker;
+
+        cinemaTitle.textContent =
+            scene.title;
+
+        cinemaText.textContent =
+            state.subtitles
+                ? scene.text
+                : "";
+
+        cinemaProgress.style.transition =
+            "none";
+
+        cinemaProgress.style.width =
+            "0%";
+
+        requestAnimationFrame(
+            () => {
+
+                requestAnimationFrame(
+                    () => {
+
+                        cinemaProgress
+                            .style
+                            .transition =
+                                "width 4.2s linear";
+
+                        cinemaProgress
+                            .style
+                            .width =
+                                "100%";
+                    }
+                );
+
+            }
+        );
+
+        playImpact();
+
+        spawnTracer();
+
+        setTimeout(
+            spawnTracer,
+            500
+        );
+
+        setTimeout(
+            spawnTracer,
+            1100
+        );
+    }
+
+
+    function nextScene() {
+        state.sceneIndex =
+            (
+                state.sceneIndex + 1
+            ) %
+            scenes.length;
+
+        renderScene();
+    }
+
+
+    function stopCinemaTimer() {
+        if (
+            state.cinemaTimer !== null
+        ) {
+            clearInterval(
+                state.cinemaTimer
+            );
+
+            state.cinemaTimer =
+                null;
+        }
+    }
+
+
+    function startCinematic(
+        preferredTheme = null
+    ) {
+        ensureAudio();
+
+        stopCinemaTimer();
+
+        if (preferredTheme) {
+
+            const index =
+                scenes.findIndex(
+                    scene =>
+                        scene.theme ===
+                        preferredTheme
+                );
+
+            state.sceneIndex =
+                index >= 0
+                    ? index
+                    : 0;
+        }
+        else {
+            state.sceneIndex = 0;
+        }
+
+        openScreen(
+            "cinematic-screen"
+        );
+
+        renderScene();
+
+        state.cinemaTimer =
+            setInterval(
+                nextScene,
+                4400
+            );
+    }
+
+
+    function exitCinematic() {
+        stopCinemaTimer();
+
+        openScreen(
+            "main-screen"
+        );
+    }
+
+
+    document
+        .getElementById(
+            "cinematic-main"
+        )
+        .addEventListener(
+            "click",
+            () => {
+                startCinematic();
+            }
+        );
+
+
+    document
+        .getElementById(
+            "cinema-next"
+        )
+        .addEventListener(
+            "click",
+            () => {
+                nextScene();
+            }
+        );
+
+
+    document
+        .getElementById(
+            "cinema-exit"
+        )
+        .addEventListener(
+            "click",
+            exitCinematic
+        );
+
+
+    /*
+     * ---------------------------------------------------------
+     * DEVELOPER CONSOLE
+     * ---------------------------------------------------------
+     */
+
+    const consoleOutput =
+        document.getElementById(
+            "console-output"
+        );
+
+    const consoleInput =
+        document.getElementById(
+            "console-input"
+        );
+
+
+    function log(text) {
+        consoleOutput.textContent +=
+            text + "\n";
+
+        consoleOutput.scrollTop =
+            consoleOutput.scrollHeight;
+    }
+
+
+    function executeCommand(raw) {
+
+        const value =
+            raw.trim();
+
+        if (!value) {
+            return;
+        }
+
+        log("] " + value);
+
+        const parts =
+            value.split(/\s+/);
+
+        const command =
+            parts.shift().toLowerCase();
+
+        const argument =
+            parts.join(" ");
+
+
+        switch (command) {
+
+            case "help":
+
+                log(
+                    "Commands:\n" +
+                    " help\n" +
+                    " clear\n" +
+                    " status\n" +
+                    " god\n" +
+                    " noclip\n" +
+                    " give all\n" +
+                    " cg_fov <40-120>\n" +
+                    " map snow\n" +
+                    " map desert\n" +
+                    " map normandy\n" +
+                    " cinematic\n" +
+                    " quit"
+                );
+
+                break;
+
+
+            case "clear":
+
+                consoleOutput.textContent =
+                    "";
+
+                break;
+
+
+            case "status":
+
+                log(
+                    "Renderer: browser/CSS\n" +
+                    "Streaming: disabled\n" +
+                    "WASM runtime: disabled\n" +
+                    "FOV: " +
+                    state.fov +
+                    "\nGod: " +
+                    state.god +
+                    "\nNoclip: " +
+                    state.noclip
+                );
+
+                break;
+
+
+            case "god":
+
+                state.god =
+                    !state.god;
+
+                log(
+                    "god mode " +
+                    (
+                        state.god
+                            ? "ON"
+                            : "OFF"
+                    )
+                );
+
+                break;
+
+
+            case "noclip":
+
+                state.noclip =
+                    !state.noclip;
+
+                log(
+                    "noclip " +
+                    (
+                        state.noclip
+                            ? "ON"
+                            : "OFF"
+                    )
+                );
+
+                break;
+
+
+            case "give":
+
+                if (
+                    argument.toLowerCase() ===
+                    "all"
+                ) {
+                    log(
+                        "All showcase equipment " +
+                        "flags enabled."
+                    );
+                }
+                else {
+                    log(
+                        "usage: give all"
+                    );
+                }
+
+                break;
+
+
+            case "cg_fov": {
+
+                const fov =
+                    Number(argument);
+
+                if (
+                    Number.isFinite(fov) &&
+                    fov >= 40 &&
+                    fov <= 120
+                ) {
+                    state.fov = fov;
+
+                    log(
+                        "cg_fov set to " +
+                        state.fov
+                    );
+                }
+                else {
+                    log(
+                        "cg_fov must be " +
+                        "between 40 and 120."
+                    );
+                }
+
+                break;
+            }
+
+
+            case "map": {
+
+                const map =
+                    argument.toLowerCase();
+
+                const accepted =
+                    [
+                        "snow",
+                        "desert",
+                        "normandy"
+                    ];
+
+                if (
+                    accepted.includes(map)
+                ) {
+                    log(
+                        "Loading showcase: " +
+                        map
+                    );
+
+                    setTimeout(
+                        () => {
+                            startCinematic(
+                                map
+                            );
+                        },
+                        220
+                    );
+                }
+                else {
+                    log(
+                        "Available maps: " +
+                        "snow, desert, normandy"
+                    );
+                }
+
+                break;
+            }
+
+
+            case "cinematic":
+
+                startCinematic();
+
+                break;
+
+
+            case "quit":
+
+                openScreen(
+                    "main-screen"
+                );
+
+                break;
+
+
+            default:
+
+                log(
+                    "Unknown command \"" +
+                    command +
+                    "\"."
+                );
+
+                log(
+                    "Type help for a " +
+                    "command list."
+                );
+        }
+    }
+
+
+    consoleInput.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key === "Enter"
+            ) {
+                executeCommand(
+                    consoleInput.value
+                );
+
+                consoleInput.value = "";
+            }
+
+        }
+    );
+
+
+    log(
+        "Call of Duty 2 Showcase Console"
+    );
+
+    log(
+        "Browser simulation runtime initialized."
+    );
+
+    log(
+        "Type help for available commands."
+    );
+
+
+    /*
+     * ---------------------------------------------------------
+     * QUIT
+     * ---------------------------------------------------------
+     */
+
+    document
+        .getElementById(
+            "quit-button"
+        )
+        .addEventListener(
+            "click",
+            () => {
+
+                showDialog(
+                    "Call of Duty 2",
+                    "Exit the Call of Duty 2 " +
+                    "showcase?",
+                    [
+                        {
+                            label: "Yes",
+                            action: () => {
+
+                                closeDialog();
+
+                                /*
+                                 * Parent WindowManager may
+                                 * optionally listen for this.
+                                 */
+                                window.parent.postMessage(
+                                    {
+                                        type:
+                                            "xp-app-request-close",
+
+                                        app:
+                                            "cod2"
+                                    },
+                                    "*"
+                                );
+
+                                showDialog(
+                                    "Call of Duty 2",
+                                    "Close request sent to " +
+                                    "the Windows XP " +
+                                    "WindowManager.<br><br>" +
+                                    "If your WindowManager " +
+                                    "does not handle the " +
+                                    "message, use the outer " +
+                                    "XP window close button."
+                                );
+                            }
+                        },
+
+                        {
+                            label: "No",
+                            action: closeDialog
+                        }
+                    ]
+                );
+
+            }
+        );
+
+
+    /*
+     * ---------------------------------------------------------
+     * KEYBOARD
+     * ---------------------------------------------------------
+     */
+
+    document.addEventListener(
+        "keydown",
+        event => {
+
+            const active =
+                document.activeElement;
+
+            const typing =
+                active === consoleInput;
+
+
+            if (
+                event.key === "`" ||
+                event.key === "Dead"
+            ) {
+                if (typing) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                if (
+                    state.currentScreen ===
+                    "console-screen"
+                ) {
+                    openScreen(
+                        "main-screen"
+                    );
+                }
+                else {
+                    openScreen(
+                        "console-screen"
+                    );
+                }
+
+                return;
+            }
+
+
+            if (
+                event.key === "Escape"
+            ) {
+                if (
+                    dialogLayer.classList
+                        .contains("visible")
+                ) {
+                    closeDialog();
+                    return;
+                }
+
+                if (
+                    state.currentScreen ===
+                    "cinematic-screen"
+                ) {
+                    exitCinematic();
+                    return;
+                }
+
+                if (
+                    state.currentScreen !==
+                    "main-screen"
+                ) {
+                    openScreen(
+                        "main-screen"
+                    );
+                }
+            }
+
+        }
+    );
+
+
+    /*
+     * ---------------------------------------------------------
+     * STARTUP
+     * ---------------------------------------------------------
+     */
+
+    loadOptions();
+
+})();
+</script>
+
+</body>
+</html>

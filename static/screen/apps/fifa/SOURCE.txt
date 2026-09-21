@@ -1,0 +1,20 @@
+﻿FIFA-style Soccer for Windows XP Web Simulator
+
+Selected community project:
+https://github.com/luketas/soccer-ai
+
+License:
+MIT (as stated by the upstream README)
+
+Features:
+- Three.js 3D football
+- 5v5
+- CPU opponent
+- Three AI difficulty levels
+- Passing / shooting / sprint
+- Broadcast-style camera
+- Stamina
+- Procedural graphics and sounds
+- Firefox support stated by upstream
+
+This is NOT an EA/FIFA game and contains no EA game assets.

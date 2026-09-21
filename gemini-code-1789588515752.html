@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muhammed Can Ceylan - Windows XP CRT Edition</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tahoma:wght@400;700&family=Courier+Prime&family=VT323&display=swap');
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #09090c;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Tahoma', sans-serif;
+            overflow: hidden;
+        }
+
+        /* RETRO CRT TV FRAME */
+        .tv-chassis {
+            position: relative;
+            background: #252321;
+            padding: 24px 30px 40px 30px;
+            border-radius: 35px;
+            box-shadow: 
+                0 25px 60px rgba(0,0,0,0.95),
+                inset 2px 2px 5px rgba(255,255,255,0.1),
+                inset -3px -3px 10px rgba(0,0,0,0.8);
+            border: 4px solid #181716;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .tv-screen-bezel {
+            position: relative;
+            background: #111;
+            padding: 12px;
+            border-radius: 28px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        .crt-monitor {
+            position: relative;
+            width: 1024px;
+            height: 640px;
+            background: #000;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: inset 0 0 45px rgba(0,0,0,0.85);
+        }
+
+        /* WINDOWS XP DESKTOP & WALLPAPER */
+        .desktop {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            /* Bliss Gradient Emulation */
+            background: radial-gradient(circle at 50% 10%, #4da7eb 0%, #1e62c0 48%, #114c99 50%, #4f9621 51%, #79ba33 75%, #46841a 100%);
+            overflow: hidden;
+        }
+
+        /* CRT SCANLINES & INTERLACING */
+        .crt-scanlines {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
+            background-size: 100% 3px, 3px 100%;
+            pointer-events: none;
+            z-index: 998;
+        }
+
+        /* CRT ROLLING SCAN BAR */
+        .crt-scanbar {
+            position: absolute;
+            top: -150px; left: 0; width: 100%; height: 120px;
+            background: linear-gradient(to bottom, transparent 0%, rgba(255, 255, 255, 0.07) 50%, rgba(255, 70, 70, 0.05) 75%, transparent 100%);
+            animation: crtRoll 7s linear infinite;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        @keyframes crtRoll {
+            0% { top: -150px; }
+            100% { top: 100%; }
+        }
+
+        /* CRT FLICKER */
+        .crt-flicker {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            animation: flicker 0.12s infinite;
+            pointer-events: none;
+            z-index: 997;
+            background: rgba(255, 255, 255, 0.015);
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.96; }
+            50% { opacity: 1.02; }
+            100% { opacity: 0.98; }
+        }
+
+        /* AMBIENT ROOM LIGHT REFLECTION FROM BACK-RIGHT */
+        .crt-glare-reflection {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            /* Soft lamp/window glare positioned at the top-right / back-right */
+            background: radial-gradient(ellipse at 88% 18%, rgba(255, 255, 255, 0.28) 0%, rgba(255, 245, 230, 0.12) 20%, rgba(255, 255, 255, 0.02) 45%, transparent 70%);
+            pointer-events: none;
+            z-index: 1000;
+            mix-blend-mode: screen;
+        }
+
+        /* TUBE GLASS CURVATURE & VIGNETTE */
+        .crt-curvature {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            box-shadow: inset 0 0 90px rgba(0,0,0,0.85), inset 0 0 15px rgba(0,0,0,0.9);
+            border-radius: 18px;
+            pointer-events: none;
+            z-index: 1001;
+        }
+
+        /* DESKTOP ICONS */
+        .desktop-icons {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 10;
+        }
+
+        .desktop-icon {
+            width: 75px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background 0.1s;
+        }
+
+        .desktop-icon:hover {
+            background: rgba(49, 106, 197, 0.4);
+        }
+
+        .desktop-icon:active {
+            background: rgba(49, 106, 197, 0.7);
+        }
+
+        .icon-img {
+            font-size: 32px;
+            filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.7));
+            margin-bottom: 4px;
+        }
+
+        .icon-label {
+            color: #ffffff;
+            font-size: 11px;
+            text-shadow: 1px 1px 2px #000, 0 0 4px #000;
+            line-height: 1.2;
+            word-break: break-word;
+        }
+
+        /* XP TASKBAR */
+        .taskbar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 32px;
+            background: linear-gradient(to bottom, #1f2f86 0%, #315ddb 9%, #235bd8 18%, #1f4cb8 92%, #18388c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 800;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
+        }
+
+        .taskbar-left {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            gap: 4px;
+        }
+
+        /* XP GREEN START BUTTON */
+        .start-button {
+            height: 100%;
+            background: linear-gradient(to bottom, #44ab31 0%, #3a9726 45%, #2a7c1b 50%, #2e881e 85%, #349622 100%);
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 14px;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 16px 0 10px;
+            border-radius: 0 12px 12px 0;
+            box-shadow: 2px 0 4px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.6);
+            cursor: pointer;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+
+        .start-button:hover {
+            filter: brightness(1.08);
+        }
+
+        .start-button:active {
+            background: linear-gradient(to bottom, #236916 0%, #2e881e 50%, #3a9726 100%);
+        }
+
+        .start-flag {
+            display: grid;
+            grid-template-columns: 7px 7px;
+            grid-gap: 1px;
+        }
+
+        .flag-red { background: #f25022; width: 7px; height: 7px; border-radius: 1px; }
+        .flag-green { background: #7fba00; width: 7px; height: 7px; border-radius: 1px; }
+        .flag-blue { background: #00a4ef; width: 7px; height: 7px; border-radius: 1px; }
+        .flag-yellow { background: #ffb900; width: 7px; height: 7px; border-radius: 1px; }
+
+        .taskbar-tasks {
+            display: flex;
+            gap: 3px;
+            margin-left: 6px;
+        }
+
+        .task-item {
+            height: 25px;
+            min-width: 130px;
+            max-width: 170px;
+            background: linear-gradient(to bottom, #3b74e6 0%, #2659c8 50%, #1f4cb8 100%);
+            border: 1px solid #143580;
+            border-radius: 3px;
+            color: white;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            gap: 6px;
+            cursor: pointer;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+
+        .task-item.active {
+            background: linear-gradient(to bottom, #193a86 0%, #1f49a3 50%, #2354bd 100%);
+            box-shadow: inset 1px 1px 3px rgba(0,0,0,0.6);
+        }
+
+        .taskbar-tray {
+            height: 100%;
+            background: linear-gradient(to bottom, #0c59bf 0%, #0d9df3 8%, #095bc5 20%, #0947a5 90%, #083377 100%);
+            border-left: 1px solid #062f6d;
+            box-shadow: inset 1px 0 1px rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            gap: 8px;
+            color: white;
+            font-size: 11px;
+        }
+
+        /* START MENU */
+        .start-menu {
+            position: absolute;
+            bottom: 32px;
+            left: 0;
+            width: 380px;
+            background: #fff;
+            border-radius: 6px 6px 0 0;
+            box-shadow: 3px 3px 15px rgba(0,0,0,0.7);
+            border: 2px solid #0055ea;
+            border-bottom: none;
+            display: none;
+            flex-direction: column;
+            z-index: 850;
+            overflow: hidden;
+        }
+
+        .start-menu.open {
+            display: flex;
+        }
+
+        .start-header {
+            background: linear-gradient(to right, #0055ea 0%, #3a93ff 100%);
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #fff;
+        }
+
+        .start-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 4px;
+            border: 2px solid #fff;
+            background: #252830;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+        }
+
+        .start-username {
+            font-weight: bold;
+            font-size: 15px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+        }
+
+        .start-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 290px;
+        }
+
+        .start-left {
+            background: #ffffff;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .start-right {
+            background: #d3e5fa;
+            border-left: 1px solid #95bdee;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 11px;
+            color: #222;
+        }
+
+        .menu-item:hover {
+            background: #2f71cd;
+            color: #ffffff;
+        }
+
+        .start-footer {
+            background: linear-gradient(to bottom, #3980f4 0%, #1f5ed8 100%);
+            padding: 8px 12px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .shutdown-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 11px;
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: 3px;
+        }
+
+        .shutdown-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* WINDOWS XP LUNA WINDOW */
+        .xp-window {
+            position: absolute;
+            background: #ece9d8;
+            border: 3px solid #0055ea;
+            border-radius: 7px 7px 0 0;
+            box-shadow: 3px 5px 20px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+            z-index: 50;
+            min-width: 280px;
+        }
+
+        .xp-title-bar {
+            background: linear-gradient(to right, #0058e6 0%, #2e8bff 60%, #0058e6 100%);
+            color: white;
+            padding: 4px 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: grab;
+            user-select: none;
+            border-radius: 4px 4px 0 0;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
+        }
+
+        .xp-title-bar:active {
+            cursor: grabbing;
+        }
+
+        .window-ctrls {
+            display: flex;
+            gap: 2px;
+        }
+
+        .win-btn {
+            width: 21px;
+            height: 21px;
+            border-radius: 3px;
+            border: 1px solid #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            background: linear-gradient(to bottom, #4c8cf5 0%, #1e5cd8 100%);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+        }
+
+        .win-btn.close {
+            background: linear-gradient(to bottom, #e87a6d 0%, #d83a2a 100%);
+        }
+
+        .win-btn:hover {
+            filter: brightness(1.2);
+        }
+
+        .win-btn:active {
+            filter: brightness(0.9);
+        }
+
+        /* PDF / PORTFOLIO VIEWER WINDOW */
+        .pdf-toolbar {
+            background: #ebe7d6;
+            border-bottom: 1px solid #aca899;
+            padding: 4px 8px;
+            display: flex;
+            gap: 12px;
+            font-size: 11px;
+            align-items: center;
+            color: #333;
+        }
+
+        .pdf-viewport {
+            background: #525659;
+            padding: 16px;
+            overflow-y: auto;
+            flex-grow: 1;
+            height: 430px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .pdf-sheet {
+            background: #ffffff;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            padding: 30px;
+            color: #222;
+            font-family: 'Tahoma', sans-serif;
+        }
+
+        .pdf-header {
+            display: flex;
+            gap: 20px;
+            border-bottom: 2px solid #204a87;
+            padding-bottom: 16px;
+            margin-bottom: 18px;
+        }
+
+        .pdf-avatar-box {
+            width: 90px;
+            height: 110px;
+            border: 1px solid #999;
+            background: #eee;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .pdf-avatar-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .pdf-intro h1 {
+            margin: 0 0 4px 0;
+            font-size: 22px;
+            color: #11366b;
+        }
+
+        .pdf-intro .title-tag {
+            font-size: 12px;
+            color: #555;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .pdf-contact-row {
+            font-size: 11px;
+            color: #444;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .pdf-section-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #204a87;
+            border-bottom: 1px solid #ccd5e4;
+            padding-bottom: 3px;
+            margin: 14px 0 8px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .pdf-content {
+            font-size: 11.5px;
+            line-height: 1.5;
+            color: #333;
+        }
+
+        .skills-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .skill-badge {
+            background: #e9f0f8;
+            border: 1px solid #bcd0ea;
+            border-radius: 3px;
+            padding: 2px 6px;
+            font-size: 10.5px;
+            color: #19437d;
+            font-weight: bold;
+        }
+
+        .project-card {
+            margin-bottom: 8px;
+            padding-left: 8px;
+            border-left: 2px solid #5b87c7;
+        }
+
+        .project-name {
+            font-weight: bold;
+            color: #11366b;
+            font-size: 11.5px;
+        }
+
+        .project-desc {
+            font-size: 10.5px;
+            color: #555;
+        }
+
+        /* MINESWEEPER */
+        .minesweeper-box {
+            background: #bdbdbd;
+            padding: 6px;
+            border: 3px outset #eee;
+        }
+
+        .ms-scoreboard {
+            background: #bdbdbd;
+            border: 3px inset #fff;
+            padding: 4px 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .ms-digit {
+            background: #000;
+            color: #ff0000;
+            font-family: 'Courier Prime', monospace;
+            font-size: 22px;
+            font-weight: bold;
+            padding: 0 4px;
+            letter-spacing: 2px;
+            border: 1px inset #888;
+        }
+
+        .ms-face-btn {
+            width: 28px;
+            height: 28px;
+            border: 2px outset #fff;
+            background: #c0c0c0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .ms-face-btn:active {
+            border-style: inset;
+        }
+
+        .ms-grid {
+            display: grid;
+            grid-template-columns: repeat(9, 22px);
+            grid-template-rows: repeat(9, 22px);
+            gap: 1px;
+            border: 3px inset #fff;
+            background: #7b7b7b;
+        }
+
+        .ms-cell {
+            width: 22px;
+            height: 22px;
+            background: #bdbdbd;
+            border: 2px outset #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .ms-cell.opened {
+            border: 1px solid #7b7b7b;
+            background: #c0c0c0;
+        }
+
+        /* TV LOWER CONSOLE / HARDWARE */
+        .tv-bottom-controls {
+            margin-top: 14px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .tv-brand {
+            color: #8c827a;
+            font-weight: bold;
+            letter-spacing: 3px;
+            font-size: 13px;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.8);
+        }
+
+        .tv-power-knob {
+            width: 28px;
+            height: 28px;
+            background: radial-gradient(circle at 35% 35%, #444, #1a1a1a);
+            border-radius: 50%;
+            border: 2px solid #0e0e0e;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.8);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .power-indicator {
+            width: 6px;
+            height: 6px;
+            background: #00ff44;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #00ff44;
+            position: absolute;
+            top: -12px;
+            left: 11px;
+        }
+
+        /* TV OFF STATE */
+        .crt-monitor.turned-off .desktop,
+        .crt-monitor.turned-off .crt-scanlines,
+        .crt-monitor.turned-off .crt-scanbar,
+        .crt-monitor.turned-off .crt-flicker {
+            display: none !important;
+        }
+        .crt-monitor.turned-off {
+            background: #060608 !important;
+        }
+    </style>
+</head>
+<body>
+
+<div class="tv-chassis">
+    <div class="tv-screen-bezel">
+        <div class="crt-monitor" id="monitor">
+            
+            <!-- CRT EFFECTS -->
+            <div class="crt-scanlines"></div>
+            <div class="crt-scanbar"></div>
+            <div class="crt-flicker"></div>
+            <div class="crt-glare-reflection"></div>
+            <div class="crt-curvature"></div>
+
+            <!-- XP DESKTOP -->
+            <div class="desktop" id="desktop" onclick="handleDesktopClick(event)">
+                
+                <!-- DESKTOP ICONS -->
+                <div class="desktop-icons">
+                    <div class="desktop-icon" onclick="openWindow('win-pdf')">
+                        <div class="icon-img">📄</div>
+                        <div class="icon-label">Benim Hakkımda (CV.pdf)</div>
+                    </div>
+                    <div class="desktop-icon" onclick="openWindow('win-minesweeper')">
+                        <div class="icon-img">💣</div>
+                        <div class="icon-label">Mayın Tarlası</div>
+                    </div>
+                    <div class="desktop-icon" onclick="alert('Bilgisayarım: C: (Sistem 2004) - 40GB Boş')">
+                        <div class="icon-img">💻</div>
+                        <div class="icon-label">Bilgisayarım</div>
+                    </div>
+                    <div class="desktop-icon" onclick="alert('Geri Dönüşüm Kutusu Boş.')">
+                        <div class="icon-img">🗑️</div>
+                        <div class="icon-label">Geri Dönüşüm Kutusu</div>
+                    </div>
+                </div>
+
+                <!-- WINDOW 1: PORTFOLIO / CV (PDF VIEW) -->
+                <div class="xp-window" id="win-pdf" style="top: 30px; left: 160px; width: 620px; display: none;">
+                    <div class="xp-title-bar" id="drag-pdf">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span>📕</span>
+                            <span>Adobe Reader 6.0 - [Muhammed_Can_Ceylan_Portfolyo.pdf]</span>
+                        </div>
+                        <div class="window-ctrls">
+                            <div class="win-btn" onclick="minimizeWindow('win-pdf')">_</div>
+                            <div class="win-btn" onclick="alert('Pencere boyutu sabitlendi.')">□</div>
+                            <div class="win-btn close" onclick="closeWindow('win-pdf')">✕</div>
+                        </div>
+                    </div>
+                    
+                    <div class="pdf-toolbar">
+                        <span>💾 Kaydet</span>
+                        <span>🖨️ Yazdır</span>
+                        <span>🔍 %100</span>
+                        <span>📄 Sayfa 1 / 1</span>
+                    </div>
+
+                    <div class="pdf-viewport">
+                        <div class="pdf-sheet">
+                            
+                            <div class="pdf-header">
+                                <div class="pdf-avatar-box">
+                                    <!-- Profil Fotoğrafı (Kendi resmini eklemek istersen src kısmına yolunu yazabilirsin) -->
+                                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=250&q=80" alt="Muhammed Can Ceylan" style="filter: contrast(1.05);">
+                                </div>
+                                <div class="pdf-intro">
+                                    <h1>Muhammed Can Ceylan</h1>
+                                    <div class="title-tag">Computer Engineering Student / Software Developer</div>
+                                    <div class="pdf-contact-row">
+                                        <span>📍 Bartın & Tuzla, İstanbul</span>
+                                        <span>🌐 github.com/MuhammedCanCeylan</span>
+                                    </div>
+                                    <div style="margin-top: 8px; font-size: 11px; color: #444;">
+                                        Yazılım mühendisliği, modern sistem mimarileri, siber güvenlik ve otonom teknolojiler üzerine geliştirmeler yapıyorum.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pdf-section-title">Teknik Yetenekler & Teknolojiler</div>
+                            <div class="pdf-content">
+                                <strong>Diller:</strong> Python, C, C++, C#, Java, JavaScript, TypeScript, Rust, SQL, HTML/CSS.<br>
+                                <strong>Araçlar & Frameworks:</strong> React, Flutter, Node.js, Git, Linux, Docker, Unity.
+                                <div class="skills-pills">
+                                    <span class="skill-badge">Python</span>
+                                    <span class="skill-badge">TypeScript</span>
+                                    <span class="skill-badge">C++</span>
+                                    <span class="skill-badge">React</span>
+                                    <span class="skill-badge">Docker</span>
+                                    <span class="skill-badge">CyberSecurity</span>
+                                </div>
+                            </div>
+
+                            <div class="pdf-section-title">Öne Çıkan Projeler (GitHub)</div>
+                            <div class="pdf-content">
+                                <div class="project-card">
+                                    <div class="project-name">🏍️ MotoWeather</div>
+                                    <div class="project-desc">Motosiklet sürücülerinin yolculuk güvenliği için özel olarak geliştirilmiş hava durumu ve yol analiz servisi.</div>
+                                </div>
+                                <div class="project-card">
+                                    <div class="project-name">📚 quizlet-clone-pro</div>
+                                    <div class="project-desc">Aralıklı tekrar (spaced repetition) ve kart algoritması barındıran tam teşekküllü öğrenme uygulaması.</div>
+                                </div>
+                                <div class="project-card">
+                                    <div class="project-name">🛡️ ShadowTrade & Desktop-Sentinel</div>
+                                    <div class="project-desc">Uçtan uca güvenli işlem ve masaüstü güvenlik / sistem analiz aracı.</div>
+                                </div>
+                                <div class="project-card">
+                                    <div class="project-name">🎯 Monopoly Machine Learning & amazon-plus</div>
+                                    <div class="project-desc">Pekiştirmeli öğrenme modelleriyle Monopoly oyun simülasyonu ve e-ticaret geliştirme modülleri.</div>
+                                </div>
+                            </div>
+
+                            <div class="pdf-section-title">Programlar & Etkinlikler</div>
+                            <div class="pdf-content">
+                                <strong>Siber Vatan:</strong> Ulusal siber güvenlik eğitim modülleri ve analiz çalışmaları.<br>
+                                <strong>TEKNOFEST:</strong> Otonom sistemler ve yapay zeka yarışma projeleri.
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- WINDOW 2: MINESWEEPER -->
+                <div class="xp-window" id="win-minesweeper" style="top: 80px; left: 450px; width: 226px; display: none;">
+                    <div class="xp-title-bar" id="drag-ms">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <span>💣</span>
+                            <span>Mayın Tarlası</span>
+                        </div>
+                        <div class="window-ctrls">
+                            <div class="win-btn" onclick="minimizeWindow('win-minesweeper')">_</div>
+                            <div class="win-btn close" onclick="closeWindow('win-minesweeper')">✕</div>
+                        </div>
+                    </div>
+
+                    <div class="minesweeper-box">
+                        <div class="ms-scoreboard">
+                            <div class="ms-digit" id="ms-mines">010</div>
+                            <div class="ms-face-btn" id="ms-face" onclick="initMinesweeper()">🙂</div>
+                            <div class="ms-digit" id="ms-timer">000</div>
+                        </div>
+                        <div class="ms-grid" id="ms-board"></div>
+                    </div>
+                </div>
+
+                <!-- START MENU -->
+                <div class="start-menu" id="startMenu">
+                    <div class="start-header">
+                        <div class="start-avatar">👤</div>
+                        <div class="start-username">Muhammed Can Ceylan</div>
+                    </div>
+                    <div class="start-body">
+                        <div class="start-left">
+                            <div class="menu-item" onclick="openWindow('win-pdf'); toggleStartMenu();">
+                                <span>📕</span>
+                                <div>
+                                    <strong>CV - Portfolyo (PDF)</strong>
+                                    <div style="color: #666; font-size: 9px;">Hakkımda & Projelerim</div>
+                                </div>
+                            </div>
+                            <div class="menu-item" onclick="openWindow('win-minesweeper'); toggleStartMenu();">
+                                <span>💣</span>
+                                <div>
+                                    <strong>Mayın Tarlası</strong>
+                                    <div style="color: #666; font-size: 9px;">Klasik Bomba Oyunu</div>
+                                </div>
+                            </div>
+                            <div class="menu-item" onclick="alert('Not Defteri açılıyor...'); toggleStartMenu();">
+                                <span>📝</span>
+                                <div>Not Defteri</div>
+                            </div>
+                        </div>
+                        <div class="start-right">
+                            <div class="menu-item" onclick="alert('Belgelerim klasörü boş.')">📁 Belgelerim</div>
+                            <div class="menu-item" onclick="alert('Resimlerim klasörü boş.')">🖼️ Resimlerim</div>
+                            <div class="menu-item" onclick="alert('Denetim Masası: Sistem kusursuz çalışıyor.')">⚙️ Denetim Masası</div>
+                        </div>
+                    </div>
+                    <div class="start-footer">
+                        <button class="shutdown-btn" onclick="toggleCRT()">
+                            <span>🔌</span>
+                            <span>Ekranı Kapat</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- XP TASKBAR -->
+                <div class="taskbar">
+                    <div class="taskbar-left">
+                        <div class="start-button" onclick="toggleStartMenu(event)">
+                            <div class="start-flag">
+                                <div class="flag-red"></div>
+                                <div class="flag-green"></div>
+                                <div class="flag-blue"></div>
+                                <div class="flag-yellow"></div>
+                            </div>
+                            <span>başlat</span>
+                        </div>
+                        
+                        <div class="taskbar-tasks">
+                            <div class="task-item" id="task-pdf" style="display: none;" onclick="toggleWindowFromTask('win-pdf')">
+                                <span>📕</span>
+                                <span>Muhammed_Can...</span>
+                            </div>
+                            <div class="task-item" id="task-minesweeper" style="display: none;" onclick="toggleWindowFromTask('win-minesweeper')">
+                                <span>💣</span>
+                                <span>Mayın Tarlası</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="taskbar-tray">
+                        <span>🛡️</span>
+                        <span>🔊</span>
+                        <span id="tray-clock">22:45</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- TV BOTTOM CONSOLE -->
+    <div class="tv-bottom-controls">
+        <div class="tv-brand">TRINITRON CRT-XP</div>
+        <div class="tv-power-knob" onclick="toggleCRT()" title="Monitörü Aç/Kapat">
+            <div class="power-indicator" id="powerIndicator"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* ----------------------------------------------------
+       1. SAĞA UÇMAYAN SAĞLAM PENCERE SÜRÜKLEME (DELTA DRAG)
+       ---------------------------------------------------- */
+    let isDragging = false;
+    let currentWin = null;
+    let startMouseX = 0;
+    let startMouseY = 0;
+    let startLeft = 0;
+    let startTop = 0;
+    let topZIndex = 100;
+
+    function attachWindowDrag(handleId, winId) {
+        const handle = document.getElementById(handleId);
+        const win = document.getElementById(winId);
+
+        handle.addEventListener('mousedown', (e) => {
+            if (e.target.closest('.win-btn')) return; // butonlara basıldıysa sürükleme
+            
+            isDragging = true;
+            currentWin = win;
+            bringToFront(win);
+
+            // Başlangıç fare koordinatları ve pencerenin piksel ofseti
+            startMouseX = e.clientX;
+            startMouseY = e.clientY;
+            startLeft = win.offsetLeft;
+            startTop = win.offsetTop;
+
+            e.preventDefault();
+        });
+    }
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isDragging || !currentWin) return;
+        
+        // Sağa veya sola kayma hatasını önleyen doğrudan delta matematiği:
+        const deltaX = e.clientX - startMouseX;
+        const deltaY = e.clientY - startMouseY;
+
+        let newX = startLeft + deltaX;
+        let newY = startTop + deltaY;
+
+        // Ekran dışına çok kaçmaması için sınırlandırma
+        if (newY < 0) newY = 0;
+        if (newY > 580) newY = 580;
+
+        currentWin.style.left = newX + 'px';
+        currentWin.style.top = newY + 'px';
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+        currentWin = null;
+    });
+
+    function bringToFront(win) {
+        topZIndex++;
+        win.style.zIndex = topZIndex;
+        // aktif taskbar durumunu güncelle
+        document.querySelectorAll('.task-item').forEach(el => el.classList.remove('active'));
+        if (win.id === 'win-pdf') document.getElementById('task-pdf').classList.add('active');
+        if (win.id === 'win-minesweeper') document.getElementById('task-minesweeper').classList.add('active');
+    }
+
+    attachWindowDrag('drag-pdf', 'win-pdf');
+    attachWindowDrag('drag-ms', 'win-minesweeper');
+
+    /* ----------------------------------------------------
+       2. WINDOWS & TASKBAR MANAGEMENT
+       ---------------------------------------------------- */
+    function openWindow(id) {
+        const win = document.getElementById(id);
+        win.style.display = 'flex';
+        bringToFront(win);
+
+        if (id === 'win-pdf') document.getElementById('task-pdf').style.display = 'flex';
+        if (id === 'win-minesweeper') document.getElementById('task-minesweeper').style.display = 'flex';
+    }
+
+    function closeWindow(id) {
+        const win = document.getElementById(id);
+        win.style.display = 'none';
+
+        if (id === 'win-pdf') document.getElementById('task-pdf').style.display = 'none';
+        if (id === 'win-minesweeper') document.getElementById('task-minesweeper').style.display = 'none';
+    }
+
+    function minimizeWindow(id) {
+        const win = document.getElementById(id);
+        win.style.display = 'none';
+        if (id === 'win-pdf') document.getElementById('task-pdf').classList.remove('active');
+        if (id === 'win-minesweeper') document.getElementById('task-minesweeper').classList.remove('active');
+    }
+
+    function toggleWindowFromTask(id) {
+        const win = document.getElementById(id);
+        if (win.style.display === 'none') {
+            win.style.display = 'flex';
+            bringToFront(win);
+        } else {
+            if (win.style.zIndex == topZIndex) {
+                minimizeWindow(id);
+            } else {
+                bringToFront(win);
+            }
+        }
+    }
+
+    /* ----------------------------------------------------
+       3. BAŞLAT MENÜSÜ & SAAT
+       ---------------------------------------------------- */
+    function toggleStartMenu(e) {
+        if (e) e.stopPropagation();
+        const menu = document.getElementById('startMenu');
+        menu.classList.toggle('open');
+    }
+
+    function handleDesktopClick(e) {
+        const menu = document.getElementById('startMenu');
+        if (!e.target.closest('.start-button') && !e.target.closest('.start-menu')) {
+            menu.classList.remove('open');
+        }
+    }
+
+    function updateClock() {
+        const now = new Date();
+        const h = String(now.getHours()).padStart(2, '0');
+        const m = String(now.getMinutes()).padStart(2, '0');
+        document.getElementById('tray-clock').innerText = `${h}:${m}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    /* ----------------------------------------------------
+       4. MONİTÖR GÜÇ DÜĞMESİ (CRT POWER TOGGLE)
+       ---------------------------------------------------- */
+    let isTvOn = true;
+    function toggleCRT() {
+        isTvOn = !isTvOn;
+        const monitor = document.getElementById('monitor');
+        const ind = document.getElementById('powerIndicator');
+        if (isTvOn) {
+            monitor.classList.remove('turned-off');
+            ind.style.background = '#00ff44';
+            ind.style.boxShadow = '0 0 8px #00ff44';
+        } else {
+            monitor.classList.add('turned-off');
+            ind.style.background = '#333';
+            ind.style.boxShadow = 'none';
+        }
+    }
+
+    /* ----------------------------------------------------
+       5. GERÇEK MAYIN TARLASI (MINESWEEPER) OYUN MOTORU
+       ---------------------------------------------------- */
+    const MS_ROWS = 9;
+    const MS_COLS = 9;
+    const MS_MINES = 10;
+    let msGrid = [];
+    let msGameOver = false;
+    let msTimerInterval = null;
+    let msSeconds = 0;
+    let msFlagsPlaced = 0;
+
+    function initMinesweeper() {
+        const board = document.getElementById('ms-board');
+        board.innerHTML = '';
+        msGrid = [];
+        msGameOver = false;
+        msSeconds = 0;
+        msFlagsPlaced = 0;
+        clearInterval(msTimerInterval);
+        document.getElementById('ms-timer').innerText = '000';
+        document.getElementById('ms-mines').innerText = '010';
+        document.getElementById('ms-face').innerText = '🙂';
+
+        // Boş ızgara yapısı
+        for (let r = 0; r < MS_ROWS; r++) {
+            let row = [];
+            for (let c = 0; c < MS_COLS; c++) {
+                row.push({ mine: false, opened: false, flagged: false, count: 0 });
+                const cell = document.createElement('div');
+                cell.classList.add('ms-cell');
+                cell.id = `ms-${r}-${c}`;
+                cell.addEventListener('click', () => clickCell(r, c));
+                cell.addEventListener('contextmenu', (e) => { e.preventDefault(); flagCell(r, c); });
+                board.appendChild(cell);
+            }
+            msGrid.push(row);
+        }
+
+        // Mayınları saç
+        let placed = 0;
+        while (placed < MS_MINES) {
+            let rr = Math.floor(Math.random() * MS_ROWS);
+            let cc = Math.floor(Math.random() * MS_COLS);
+            if (!msGrid[rr][cc].mine) {
+                msGrid[rr][cc].mine = true;
+                placed++;
+            }
+        }
+
+        // Komşu mayın sayılarını hesapla
+        for (let r = 0; r < MS_ROWS; r++) {
+            for (let c = 0; c < MS_COLS; c++) {
+                if (!msGrid[r][c].mine) {
+                    let count = 0;
+                    for (let dr = -1; dr <= 1; dr++) {
+                        for (let dc = -1; dc <= 1; dc++) {
+                            let nr = r + dr;
+                            let nc = c + dc;
+                            if (nr >= 0 && nr < MS_ROWS && nc >= 0 && nc < MS_COLS) {
+                                if (msGrid[nr][nc].mine) count++;
+                            }
+                        }
+                    }
+                    msGrid[r][c].count = count;
+                }
+            }
+        }
+    }
+
+    function startMsTimer() {
+        if (!msTimerInterval) {
+            msTimerInterval = setInterval(() => {
+                if (!msGameOver && msSeconds < 999) {
+                    msSeconds++;
+                    document.getElementById('ms-timer').innerText = String(msSeconds).padStart(3, '0');
+                }
+            }, 1000);
+        }
+    }
+
+    function clickCell(r, c) {
+        if (msGameOver || msGrid[r][c].opened || msGrid[r][c].flagged) return;
+        startMsTimer();
+
+        const data = msGrid[r][c];
+        const el = document.getElementById(`ms-${r}-${c}`);
+        data.opened = true;
+        el.classList.add('opened');
+
+        if (data.mine) {
+            // Patlama
+            el.innerText = '💣';
+            el.style.background = '#f00';
+            document.getElementById('ms-face').innerText = '😵';
+            msGameOver = true;
+            clearInterval(msTimerInterval);
+            revealAllMines();
+            return;
+        }
+
+        if (data.count > 0) {
+            el.innerText = data.count;
+            const colors = ['', '#0000ff', '#007b00', '#ff0000', '#00007b', '#7b0000', '#007b7b', '#000000', '#7b7b7b'];
+            el.style.color = colors[data.count];
+        } else {
+            // 0 ise komşuları aç (Flood Fill)
+            for (let dr = -1; dr <= 1; dr++) {
+                for (let dc = -1; dc <= 1; dc++) {
+                    let nr = r + dr;
+                    let nc = c + dc;
+                    if (nr >= 0 && nr < MS_ROWS && nc >= 0 && nc < MS_COLS) {
+                        clickCell(nr, nc);
+                    }
+                }
+            }
+        }
+
+        checkMsWin();
+    }
+
+    function flagCell(r, c) {
+        if (msGameOver || msGrid[r][c].opened) return;
+        const data = msGrid[r][c];
+        const el = document.getElementById(`ms-${r}-${c}`);
+
+        data.flagged = !data.flagged;
+        if (data.flagged) {
+            el.innerText = '🚩';
+            msFlagsPlaced++;
+        } else {
+            el.innerText = '';
+            msFlagsPlaced--;
+        }
+        let remaining = MS_MINES - msFlagsPlaced;
+        document.getElementById('ms-mines').innerText = String(remaining).padStart(3, '0');
+    }
+
+    function revealAllMines() {
+        for (let r = 0; r < MS_ROWS; r++) {
+            for (let c = 0; c < MS_COLS; c++) {
+                if (msGrid[r][c].mine) {
+                    const el = document.getElementById(`ms-${r}-${c}`);
+                    el.innerText = '💣';
+                    el.classList.add('opened');
+                }
+            }
+        }
+    }
+
+    function checkMsWin() {
+        let openedCount = 0;
+        for (let r = 0; r < MS_ROWS; r++) {
+            for (let c = 0; c < MS_COLS; c++) {
+                if (msGrid[r][c].opened && !msGrid[r][c].mine) openedCount++;
+            }
+        }
+        if (openedCount === (MS_ROWS * MS_COLS - MS_MINES)) {
+            msGameOver = true;
+            clearInterval(msTimerInterval);
+            document.getElementById('ms-face').innerText = '😎';
+            alert('Tebrikler! Mayın Tarlası temizlendi.');
+        }
+    }
+
+    // Başlangıçta Mayın Tarlasını kur
+    initMinesweeper();
+</script>
+</body>
+</html>

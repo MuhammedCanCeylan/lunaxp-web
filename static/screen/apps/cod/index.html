@@ -1,0 +1,478 @@
+<!--
+CALL OF DUTY (2003) - XP NOSTALGIA LAUNCHER / MINI FPS SIMULATOR - ASSET LISTESI
+Bu dosya iframe icinde tek basina calisir. Harici kutuphane, CDN, font, ses veya sunucu servisi gerekmez.
+
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama |
+|---|---:|---|---|
+| icon.png | 32x32 | ZORUNLU (ana XP masaustu kaydi icin) | Uygulama/oyun masaustu ikonu. Seffaf PNG tavsiye edilir. |
+| menu-bg.jpg | 1280x720 | Opsiyonel | Istersen CSS ile uretilen savas arka planinin yerine kullanabilirsin. |
+| logo.png | 420x120 | Opsiyonel | Istersen metin tabanli basligin yerine kendi lisansli/fan logo gorselini kullanabilirsin. |
+
+NOTLAR:
+- index.html icindeki tek <img> kullanimi icon.png icindir ve sonsuz 404 dongusunu onleyen onerror + SVG Data URI fallback icerir.
+- Oyundaki tum sahne, efektler, hedefler ve HUD Canvas/CSS ile prosedurel uretilir.
+- Muzik ve efektler Web Audio API ile sentetik uretilir; orijinal telifli oyun muzigi/ses dosyasi gomulu degildir.
+- alert(), confirm(), prompt() KULLANILMAZ. Tum mesajlar sayfa ici .xp-dialog ile gosterilir.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<title>Call of Duty - XP Nostalgia Simulator</title>
+<style>
+  :root{
+    --xp-bg:#ECE9D8; --xp-blue:#316AC5; --xp-border:#ACA899; --xp-input:#7F9DB9;
+    --ink:#ece8d8; --muted:#b8b29d; --gold:#b9a16b; --dark:#080906; --panel:rgba(12,13,10,.84);
+  }
+  *{box-sizing:border-box}
+  html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#000;font-family:Tahoma,Arial,sans-serif;font-size:11px}
+  body{user-select:none}
+  button,input,select{font:11px Tahoma,Arial,sans-serif}
+  button{cursor:default}
+
+  /* App surface only: no second OS title bar/taskbar. */
+  #app{position:relative;width:100%;height:100%;overflow:hidden;background:#050603;color:#eee}
+  #menuScreen{position:absolute;inset:0;display:flex;overflow:hidden;background:
+    radial-gradient(circle at 67% 37%,rgba(190,180,140,.18),transparent 24%),
+    linear-gradient(90deg,#050604 0 32%,rgba(5,6,4,.78) 52%,rgba(10,11,8,.3) 100%),
+    linear-gradient(#5b5a4a 0 35%,#2a2b22 36% 39%,#0d0e0b 40% 100%)}
+  #menuScreen::before{content:"";position:absolute;inset:0;opacity:.35;pointer-events:none;background:
+    repeating-linear-gradient(0deg,rgba(255,255,255,.02),rgba(255,255,255,.02) 1px,transparent 1px,transparent 3px),
+    radial-gradient(ellipse at 70% 72%,rgba(0,0,0,.85),transparent 42%)}
+  #menuScreen::after{content:"";position:absolute;right:-8%;bottom:-16%;width:68%;height:85%;opacity:.78;filter:drop-shadow(-22px 8px 24px #000);background:
+    radial-gradient(circle at 48% 12%,#202018 0 5%,transparent 5.6%),
+    linear-gradient(83deg,transparent 0 42%,#171811 43% 47%,transparent 48%) 49% 23%/66% 16% no-repeat,
+    linear-gradient(100deg,transparent 0 44%,#171811 45% 55%,transparent 56%) 50% 42%/34% 56% no-repeat,
+    linear-gradient(78deg,transparent 0 45%,#171811 46% 55%,transparent 56%) 42% 72%/18% 55% no-repeat,
+    linear-gradient(102deg,transparent 0 45%,#171811 46% 55%,transparent 56%) 58% 72%/18% 55% no-repeat;transform:rotate(-4deg)}
+
+  .menu-column{position:relative;z-index:3;width:min(430px,46vw);height:100%;padding:clamp(28px,5vh,64px) 24px 24px clamp(26px,5vw,74px);display:flex;flex-direction:column}
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:5vh;filter:drop-shadow(0 2px 1px #000)}
+  .brand img{width:40px;height:40px;object-fit:contain;image-rendering:auto}
+  .brand-title{font-family:Impact,"Arial Narrow",sans-serif;font-stretch:condensed;letter-spacing:1px;font-size:clamp(34px,5.4vw,69px);line-height:.78;color:#d8d3bd;text-transform:uppercase;text-shadow:0 2px 0 #15150f,0 0 8px #000}
+  .brand-sub{font-size:10px;letter-spacing:3px;color:#a59f8a;margin-top:6px;text-transform:uppercase}
+  .main-menu{width:min(300px,90%);display:flex;flex-direction:column;gap:3px}
+  .menu-btn{position:relative;border:0;background:transparent;color:#d8d3c1;text-align:left;text-transform:uppercase;letter-spacing:1.7px;font-weight:bold;font-size:14px;padding:9px 15px 9px 27px;text-shadow:0 1px 2px #000}
+  .menu-btn::before{content:"";position:absolute;left:6px;top:50%;width:8px;height:8px;border:1px solid transparent;transform:translateY(-50%) rotate(45deg)}
+  .menu-btn:hover,.menu-btn:focus{outline:0;color:#fff;background:linear-gradient(90deg,rgba(152,139,91,.34),rgba(152,139,91,.04),transparent)}
+  .menu-btn:hover::before,.menu-btn:focus::before{border-color:#d5c483;background:#75683d;box-shadow:0 0 8px #c2ae69}
+  .menu-btn:active{transform:translateX(1px)}
+  .version{margin-top:auto;color:#797666;font-size:10px;line-height:1.5;text-shadow:0 1px #000}
+  .legal{position:absolute;right:18px;bottom:13px;z-index:4;color:#898675;font-size:9px;text-align:right;max-width:45%;line-height:1.4}
+
+  .smoke{position:absolute;border-radius:50%;background:rgba(175,175,155,.08);filter:blur(18px);animation:drift 12s linear infinite;pointer-events:none}
+  .s1{width:180px;height:100px;left:48%;top:14%}.s2{width:260px;height:130px;left:61%;top:29%;animation-delay:-5s}.s3{width:160px;height:90px;left:73%;top:8%;animation-delay:-9s}
+  @keyframes drift{0%{transform:translate(-15px,8px) scale(.9);opacity:.1}50%{opacity:.7}100%{transform:translate(55px,-28px) scale(1.35);opacity:.05}}
+
+  /* XP-style in-app dialogs only. */
+  #dialogLayer{position:absolute;inset:0;z-index:50;pointer-events:none}
+  .shade{position:absolute;inset:0;background:rgba(0,0,0,.38);display:none;pointer-events:auto}
+  .shade.show{display:block}
+  .xp-dialog{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(560px,92vw);max-height:88vh;overflow:auto;background:var(--xp-bg);color:#111;border:1px solid #0831d9;box-shadow:0 0 0 1px #001b85,4px 5px 16px #000;padding:3px;pointer-events:auto}
+  .xp-dialog.hidden{display:none}
+  .xp-dialog-title{height:24px;display:flex;align-items:center;padding:0 7px;color:#fff;font-weight:bold;background:linear-gradient(#0a65df,#0054d8 44%,#003db3 50%,#004fd6);text-shadow:1px 1px #083276}
+  .xp-dialog-title .mini{margin-left:auto;color:#dceaff;font-weight:normal;font-size:10px}
+  .xp-body{padding:14px 14px 12px;background:var(--xp-bg);line-height:1.45}
+  .xp-sep{height:1px;background:#c8c4b6;border-bottom:1px solid #fff;margin:10px 0}
+  .xp-row{display:flex;align-items:center;gap:8px;margin:8px 0}.xp-row label{min-width:115px}
+  .xp-select,.xp-input{height:23px;border:1px solid var(--xp-input);background:#fff;color:#111;padding:2px 5px;min-width:180px}
+  .xp-range{accent-color:#316ac5;width:220px}
+  .xp-button{min-width:76px;padding:3px 12px;background:#ece9d8;color:#000;border:2px outset #fff;border-right-color:#777;border-bottom-color:#777}
+  .xp-button:active{border-style:inset}.xp-button.primary{font-weight:bold}
+  .xp-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:13px}
+  .xp-list{border:1px solid #7f9db9;background:#fff;padding:4px;height:190px;overflow:auto}
+  .mission-item{padding:7px 8px;border:1px solid transparent;display:grid;grid-template-columns:100px 1fr;gap:9px;cursor:default}
+  .mission-item:hover,.mission-item.selected{background:#316ac5;color:#fff;border-color:#174b9c}
+  .mission-thumb{height:58px;border:1px solid #777;background:linear-gradient(#777,#b0ab8d 44%,#4d4c3c 45%,#171812);position:relative;overflow:hidden}
+  .mission-thumb::after{content:"";position:absolute;left:7px;right:7px;bottom:6px;height:18px;background:repeating-linear-gradient(90deg,#111 0 14px,#2f3026 14px 24px)}
+  .mission-name{font-weight:bold;margin-bottom:4px}.mission-desc{font-size:10px;line-height:1.35}
+  .codebox{font-family:"Lucida Console",monospace;background:#111;color:#b7d6a1;border:2px inset #fff;padding:8px;white-space:pre-line;line-height:1.5;height:128px;overflow:auto}
+  .status-msg{margin-top:8px;min-height:17px;padding:2px 5px;border:1px solid #c8c4b6;background:#f8f7ef}
+
+  /* Game */
+  #gameScreen{position:absolute;inset:0;display:none;background:#000;z-index:10}
+  #gameCanvas{display:block;width:100%;height:100%;background:#111;cursor:crosshair}
+  #gameHud{position:absolute;inset:0;pointer-events:none;color:#f1eee0;text-shadow:1px 1px 2px #000;font-family:Tahoma,sans-serif}
+  .hud-top{position:absolute;left:14px;top:12px;right:14px;display:flex;justify-content:space-between;font-size:11px}
+  .objective{background:rgba(0,0,0,.52);border-left:3px solid #c0aa70;padding:6px 9px;max-width:55%}
+  .score{background:rgba(0,0,0,.45);padding:5px 8px}
+  .hud-bottom{position:absolute;left:16px;right:16px;bottom:14px;display:flex;justify-content:space-between;align-items:end}
+  .health-wrap{width:180px}.hud-label{font-size:9px;letter-spacing:1.2px;color:#d0cbbb;margin-bottom:3px}.bar{height:12px;border:1px solid rgba(255,255,255,.5);background:rgba(0,0,0,.65);padding:1px}.bar>i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#5b742f,#adb659)}
+  .ammo{text-align:right}.ammo b{font-size:25px;font-weight:normal}.ammo span{font-size:13px;color:#bbb}
+  #message{position:absolute;left:50%;top:19%;transform:translateX(-50%);font-size:17px;font-weight:bold;letter-spacing:1px;text-align:center;opacity:0;transition:opacity .2s;text-shadow:0 2px 4px #000}
+  #message.show{opacity:1}
+  #damageFlash{position:absolute;inset:0;background:radial-gradient(circle,transparent 30%,rgba(120,0,0,.55));opacity:0;transition:opacity .12s}
+  #hitMarker{position:absolute;left:50%;top:50%;width:24px;height:24px;transform:translate(-50%,-50%);opacity:0}
+  #hitMarker::before,#hitMarker::after{content:"";position:absolute;left:11px;top:1px;width:2px;height:22px;background:#fff;box-shadow:0 0 2px #000}
+  #hitMarker::before{transform:rotate(45deg)}#hitMarker::after{transform:rotate(-45deg)}
+  #helpOverlay{position:absolute;left:50%;bottom:60px;transform:translateX(-50%);background:rgba(0,0,0,.55);padding:5px 10px;color:#d8d4c8;font-size:10px;white-space:nowrap}
+  #pausePanel,#endPanel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);min-width:280px;background:rgba(8,9,7,.94);border:1px solid #7d755c;box-shadow:0 6px 22px #000;padding:18px;display:none;pointer-events:auto;text-align:center}
+  #pausePanel h2,#endPanel h2{margin:0 0 15px;font:26px Impact,"Arial Narrow",sans-serif;letter-spacing:2px;color:#d9d2bb}
+  .game-btn{display:block;width:210px;margin:5px auto;border:1px solid #8c846b;background:linear-gradient(#4e4b3d,#23231c);color:#eee;padding:7px 10px;text-transform:uppercase;letter-spacing:1px}
+  .game-btn:hover{background:linear-gradient(#6b6247,#302d22)}
+
+  /* Firefox + WebKit scrollbars, XP-ish */
+  *{scrollbar-color:#9db9df #ece9d8;scrollbar-width:auto}
+  *::-webkit-scrollbar{width:16px;height:16px}*::-webkit-scrollbar-track{background:#ece9d8;border:1px solid #aca899}
+  *::-webkit-scrollbar-thumb{background:linear-gradient(90deg,#c7d8ec,#8fb0d8);border:1px solid #557eae}*::-webkit-scrollbar-button{background:#d6e2f1;border:1px solid #7f9db9}
+
+  @media (max-width:650px){.menu-column{width:70vw;padding-left:24px}.legal{display:none}.brand-title{font-size:40px}.mission-item{grid-template-columns:75px 1fr}.mission-thumb{height:50px}}
+</style>
+</head>
+<body>
+<div id="app">
+  <section id="menuScreen" aria-label="Call of Duty nostalgia launcher">
+    <div class="smoke s1"></div><div class="smoke s2"></div><div class="smoke s3"></div>
+    <div class="menu-column">
+      <div class="brand">
+        <img src="icon.png" alt="" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%223%22 fill=%22%23242620%22/%3E%3Cpath d=%22M6 25L12 7h8l6 18h-6l-1.4-5h-5.5L12 25zm8.4-10h3l-1.6-5.7z%22 fill=%22%23d8d3bd%22/%3E%3C/svg%3E'" />
+        <div><div class="brand-title">Call of Duty</div><div class="brand-sub">XP Nostalgia Simulator</div></div>
+      </div>
+      <nav class="main-menu">
+        <button class="menu-btn" data-action="new">New Game</button>
+        <button class="menu-btn" data-action="missions">Mission Select</button>
+        <button class="menu-btn" data-action="options">Options</button>
+        <button class="menu-btn" data-action="cheats">Cheats / Console</button>
+        <button class="menu-btn" data-action="credits">Credits</button>
+      </nav>
+      <div class="version">Build XP-2003-SIM 1.0<br>Local single-file edition • No streaming • No emulator</div>
+    </div>
+    <div class="legal">Unofficial non-commercial nostalgia simulation. No original Call of Duty game data, music, maps or executables are included.</div>
+  </section>
+
+  <section id="gameScreen">
+    <canvas id="gameCanvas" tabindex="0"></canvas>
+    <div id="gameHud">
+      <div class="hud-top"><div class="objective" id="objectiveText">OBJECTIVE: Hold the line</div><div class="score" id="scoreText">SCORE 0000</div></div>
+      <div id="message"></div><div id="damageFlash"></div><div id="hitMarker"></div>
+      <div id="helpOverlay">WASD move • Mouse look • LMB fire • R reload • ESC pause</div>
+      <div class="hud-bottom">
+        <div class="health-wrap"><div class="hud-label">HEALTH</div><div class="bar"><i id="healthBar"></i></div></div>
+        <div class="ammo"><div class="hud-label">M1 CARBINE — SIMULATION</div><b id="ammoNow">30</b> <span>/ <span id="ammoReserve">90</span></span></div>
+      </div>
+      <div id="pausePanel"><h2>PAUSED</h2><button class="game-btn" id="resumeBtn">Resume</button><button class="game-btn" id="restartBtn">Restart Mission</button><button class="game-btn" id="quitBtn">Main Menu</button></div>
+      <div id="endPanel"><h2 id="endTitle">MISSION COMPLETE</h2><div id="endStats" style="margin-bottom:14px;color:#c9c4b4"></div><button class="game-btn" id="nextBtn">Next Mission</button><button class="game-btn" id="endMenuBtn">Main Menu</button></div>
+    </div>
+  </section>
+
+  <div id="dialogLayer">
+    <div class="shade" id="shade"></div>
+
+    <div class="xp-dialog hidden" id="dlgMissions">
+      <div class="xp-dialog-title">Mission Select <span class="mini">Campaign Simulator</span></div>
+      <div class="xp-body">
+        <div style="margin-bottom:8px">Choose a lightweight procedural mission. These are original simulator scenarios, not extracted Call of Duty maps.</div>
+        <div class="xp-list" id="missionList"></div>
+        <div class="xp-actions"><button class="xp-button" data-close>Cancel</button><button class="xp-button primary" id="playMissionBtn">Play</button></div>
+      </div>
+    </div>
+
+    <div class="xp-dialog hidden" id="dlgOptions">
+      <div class="xp-dialog-title">Options</div>
+      <div class="xp-body">
+        <div class="xp-row"><label for="difficulty">Difficulty:</label><select class="xp-select" id="difficulty"><option value="easy">Recruit</option><option value="normal">Regular</option><option value="hard">Veteran</option></select></div>
+        <div class="xp-row"><label for="volume">Sound volume:</label><input class="xp-range" id="volume" type="range" min="0" max="100" value="55"></div>
+        <div class="xp-row"><label for="sensitivity">Mouse sensitivity:</label><input class="xp-range" id="sensitivity" type="range" min="25" max="150" value="72"></div>
+        <div class="xp-row"><label for="music">Menu ambience:</label><input id="music" type="checkbox" checked></div>
+        <div class="xp-sep"></div>
+        <div style="font-size:10px;color:#555">Tip: Click inside the game to capture the mouse. ESC releases pointer lock and opens pause.</div>
+        <div class="xp-actions"><button class="xp-button" data-close>Cancel</button><button class="xp-button primary" id="saveOptionsBtn">OK</button></div>
+      </div>
+    </div>
+
+    <div class="xp-dialog hidden" id="dlgCheats">
+      <div class="xp-dialog-title">Developer Console / Cheats</div>
+      <div class="xp-body">
+        <div class="codebox">SIMULATOR COMMANDS
+
+god          - invulnerability
+notarget     - enemies stop firing
+give all     - full ammo
+infiniteammo - ammo does not decrease
+normal       - disable all cheats
+
+These commands affect only this HTML mini-simulation.</div>
+        <div class="xp-row"><label for="cheatInput">Command:</label><input class="xp-input" id="cheatInput" autocomplete="off" spellcheck="false"><button class="xp-button" id="runCheatBtn">Execute</button></div>
+        <div class="status-msg" id="cheatStatus">Console ready.</div>
+        <div class="xp-actions"><button class="xp-button" data-close>Close</button></div>
+      </div>
+    </div>
+
+    <div class="xp-dialog hidden" id="dlgCredits">
+      <div class="xp-dialog-title">About This Simulator</div>
+      <div class="xp-body">
+        <b>Call of Duty - XP Nostalgia Simulator</b><br><br>
+        Lightweight fan-made menu and procedural mini FPS written as a single HTML file for an iframe-based Windows XP desktop simulation.<br><br>
+        Engine: HTML5 Canvas + JavaScript<br>Audio: Web Audio API procedural synthesis<br>Assets: none required beyond your desktop <b>icon.png</b><br><br>
+        Call of Duty is a trademark of its respective rightsholders. This project includes no original game executable, retail data, extracted maps, voices, cinematics, or music.
+        <div class="xp-actions"><button class="xp-button primary" data-close>OK</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const $ = s => document.querySelector(s);
+  const $$ = s => [...document.querySelectorAll(s)];
+  const menuScreen = $('#menuScreen'), gameScreen = $('#gameScreen'), shade = $('#shade');
+  const canvas = $('#gameCanvas'), ctx = canvas.getContext('2d', { alpha:false });
+
+  const missions = [
+    {name:'01 — Field Assault',desc:'Break through a muddy defensive line at dusk.',theme:'field',enemyCount:8,objective:'Clear the forward defensive line'},
+    {name:'02 — Frozen Square',desc:'Advance through a ruined winter town under fire.',theme:'snow',enemyCount:11,objective:'Secure the frozen town square'},
+    {name:'03 — Mountain Bunker',desc:'Push uphill and silence the bunker position.',theme:'mountain',enemyCount:14,objective:'Neutralize the bunker defenders'}
+  ];
+  let selectedMission = 0;
+
+  let savedSettings={}; try{savedSettings=JSON.parse(localStorage.getItem('codXpSettings')||'{}')||{}}catch(_){savedSettings={}}
+  const settings = Object.assign({difficulty:'normal',volume:55,sensitivity:72,music:true}, savedSettings);
+  const cheats = {god:false,notarget:false,infiniteAmmo:false};
+
+  /* ---------- Web Audio: synthetic only ---------- */
+  let audioCtx=null, master=null, ambienceTimer=null;
+  function ensureAudio(){
+    if(!audioCtx){
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      master = audioCtx.createGain(); master.gain.value = settings.volume/100 * .22; master.connect(audioCtx.destination);
+    }
+    if(audioCtx.state==='suspended') audioCtx.resume();
+    startAmbience();
+  }
+  function tone(freq=220,dur=.08,type='square',gain=.08,slide=0){
+    if(!audioCtx || !master) return;
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.type=type; o.frequency.setValueAtTime(freq,audioCtx.currentTime);
+    if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(20,freq+slide),audioCtx.currentTime+dur);
+    g.gain.setValueAtTime(gain,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+dur);
+    o.connect(g); g.connect(master); o.start(); o.stop(audioCtx.currentTime+dur+.02);
+  }
+  function noise(dur=.08,gain=.13){
+    if(!audioCtx || !master) return;
+    const n=Math.max(1,Math.floor(audioCtx.sampleRate*dur)), b=audioCtx.createBuffer(1,n,audioCtx.sampleRate), d=b.getChannelData(0);
+    for(let i=0;i<n;i++) d[i]=(Math.random()*2-1)*(1-i/n);
+    const s=audioCtx.createBufferSource(), g=audioCtx.createGain(); s.buffer=b; g.gain.value=gain; s.connect(g); g.connect(master); s.start();
+  }
+  function uiClick(){ensureAudio();tone(150,.045,'square',.045,35)}
+  function shotSound(){noise(.07,.2);tone(86,.09,'sawtooth',.06,-30)}
+  function hitSound(){tone(930,.035,'square',.045,-180)}
+  function reloadSound(){tone(520,.035,'square',.03,-100);setTimeout(()=>tone(370,.05,'square',.03,110),180)}
+  function startAmbience(){
+    if(ambienceTimer){clearInterval(ambienceTimer);ambienceTimer=null}
+    if(!audioCtx || !settings.music || gameScreen.style.display==='block') return;
+    const pulse=()=>{tone(55,.65,'sine',.015,-5);setTimeout(()=>tone(82,.18,'triangle',.012,-15),260)};
+    pulse(); ambienceTimer=setInterval(pulse,2800);
+  }
+  function stopAmbience(){if(ambienceTimer){clearInterval(ambienceTimer);ambienceTimer=null}}
+
+  /* ---------- Dialog system ---------- */
+  const dialogs = $$('.xp-dialog');
+  function openDialog(id){ensureAudio();uiClick();dialogs.forEach(d=>d.classList.add('hidden'));shade.classList.add('show');$('#'+id).classList.remove('hidden')}
+  function closeDialogs(){dialogs.forEach(d=>d.classList.add('hidden'));shade.classList.remove('show')}
+  $$('[data-close]').forEach(b=>b.addEventListener('click',()=>{uiClick();closeDialogs()}));
+  shade.addEventListener('click',e=>{if(e.target===shade){uiClick();closeDialogs()}});
+
+  function buildMissionList(){
+    const list=$('#missionList'); list.innerHTML='';
+    missions.forEach((m,i)=>{
+      const row=document.createElement('div'); row.className='mission-item'+(i===selectedMission?' selected':'');
+      row.innerHTML=`<div class="mission-thumb"></div><div><div class="mission-name">${m.name}</div><div class="mission-desc">${m.desc}<br><b>Objective:</b> ${m.objective}</div></div>`;
+      row.addEventListener('click',()=>{uiClick();selectedMission=i;buildMissionList()}); list.appendChild(row);
+    });
+  }
+  buildMissionList();
+
+  $$('.menu-btn').forEach(btn=>btn.addEventListener('click',()=>{
+    ensureAudio();uiClick();
+    const a=btn.dataset.action;
+    if(a==='new'){selectedMission=0;startGame(0)}
+    if(a==='missions'){buildMissionList();openDialog('dlgMissions')}
+    if(a==='options'){loadOptionsUI();openDialog('dlgOptions')}
+    if(a==='cheats'){openDialog('dlgCheats');setTimeout(()=>$('#cheatInput').focus(),0)}
+    if(a==='credits')openDialog('dlgCredits');
+  }));
+  $('#playMissionBtn').addEventListener('click',()=>{uiClick();closeDialogs();startGame(selectedMission)});
+
+  function loadOptionsUI(){
+    $('#difficulty').value=settings.difficulty;$('#volume').value=settings.volume;$('#sensitivity').value=settings.sensitivity;$('#music').checked=!!settings.music;
+  }
+  $('#saveOptionsBtn').addEventListener('click',()=>{
+    uiClick(); settings.difficulty=$('#difficulty').value;settings.volume=+$('#volume').value;settings.sensitivity=+$('#sensitivity').value;settings.music=$('#music').checked;
+    localStorage.setItem('codXpSettings',JSON.stringify(settings)); if(master)master.gain.value=settings.volume/100*.22; closeDialogs(); startAmbience();
+  });
+
+  function runCheat(){
+    ensureAudio();uiClick(); const cmd=$('#cheatInput').value.trim().toLowerCase(); let msg='Unknown command.';
+    if(cmd==='god'){cheats.god=!cheats.god;msg='God mode '+(cheats.god?'ON':'OFF')+'.'}
+    else if(cmd==='notarget'){cheats.notarget=!cheats.notarget;msg='No-target '+(cheats.notarget?'ON':'OFF')+'.'}
+    else if(cmd==='give all'){game.ammo=30;game.reserve=999;msg='Ammo supplied.'}
+    else if(cmd==='infiniteammo'){cheats.infiniteAmmo=!cheats.infiniteAmmo;msg='Infinite ammo '+(cheats.infiniteAmmo?'ON':'OFF')+'.'}
+    else if(cmd==='normal'){cheats.god=cheats.notarget=cheats.infiniteAmmo=false;msg='All cheats disabled.'}
+    $('#cheatStatus').textContent=msg;$('#cheatInput').value='';updateHUD();
+  }
+  $('#runCheatBtn').addEventListener('click',runCheat);$('#cheatInput').addEventListener('keydown',e=>{if(e.key==='Enter')runCheat()});
+
+  /* ---------- Mini FPS ---------- */
+  const keys={};
+  const game={running:false,paused:false,ended:false,mission:0,x:0,z:0,yaw:0,health:100,ammo:30,reserve:90,score:0,kills:0,shots:0,hits:0,reloading:false,lastTime:0,enemies:[],particles:[],cameraKick:0,messageTimer:0};
+  const diff={easy:{damage:.55,enemyRate:1.35},normal:{damage:1,enemyRate:1},hard:{damage:1.45,enemyRate:.72}};
+
+  function resize(){
+    const dpr=Math.min(window.devicePixelRatio||1,2), r=canvas.getBoundingClientRect();
+    canvas.width=Math.max(1,Math.floor(r.width*dpr));canvas.height=Math.max(1,Math.floor(r.height*dpr));ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  window.addEventListener('resize',resize);
+
+  function spawnEnemies(count){
+    game.enemies=[];
+    for(let i=0;i<count;i++){
+      const lane=(i%5)-2;
+      game.enemies.push({x:lane*3.3+(Math.random()-.5)*2,z:18+i*3.5+Math.random()*6,hp: i>count*.72?2:1,alive:true,phase:Math.random()*6.2,fire:1.2+Math.random()*2.2,flash:0,screen:null});
+    }
+  }
+  function startGame(index){
+    ensureAudio();stopAmbience();closeDialogs();selectedMission=index; const m=missions[index];
+    Object.assign(game,{running:true,paused:false,ended:false,mission:index,x:0,z:0,yaw:0,health:100,ammo:30,reserve:90,score:0,kills:0,shots:0,hits:0,reloading:false,lastTime:performance.now(),particles:[],cameraKick:0});
+    spawnEnemies(m.enemyCount); menuScreen.style.display='none';gameScreen.style.display='block';$('#pausePanel').style.display='none';$('#endPanel').style.display='none';$('#helpOverlay').style.display='block';
+    $('#objectiveText').textContent='OBJECTIVE: '+m.objective; resize();updateHUD();showMessage(m.name+'\n'+m.objective,2100);canvas.focus();
+    setTimeout(()=>{if(game.running)$('#helpOverlay').style.display='none'},5000); requestAnimationFrame(loop);
+  }
+  function quitToMenu(){
+    game.running=false;game.paused=false;game.ended=false;if(document.pointerLockElement===canvas)document.exitPointerLock();gameScreen.style.display='none';menuScreen.style.display='flex';startAmbience();
+  }
+  function restart(){startGame(game.mission)}
+
+  $('#resumeBtn').addEventListener('click',()=>{uiClick();togglePause(false);canvas.focus()});
+  $('#restartBtn').addEventListener('click',()=>{uiClick();restart()});
+  $('#quitBtn').addEventListener('click',()=>{uiClick();quitToMenu()});
+  $('#endMenuBtn').addEventListener('click',()=>{uiClick();quitToMenu()});
+  $('#nextBtn').addEventListener('click',()=>{uiClick();startGame((game.mission+1)%missions.length)});
+
+  function togglePause(force){
+    if(!game.running||game.ended)return; game.paused=typeof force==='boolean'?force:!game.paused;$('#pausePanel').style.display=game.paused?'block':'none';
+    if(game.paused && document.pointerLockElement===canvas)document.exitPointerLock(); game.lastTime=performance.now();
+  }
+
+  document.addEventListener('keydown',e=>{
+    if(game.running){
+      if(['KeyW','KeyA','KeyS','KeyD','KeyR','Escape'].includes(e.code))e.preventDefault();
+      if(e.code==='Escape'){togglePause();return}
+      if(e.code==='KeyR')reload(); keys[e.code]=true;
+    }
+  });
+  document.addEventListener('keyup',e=>{keys[e.code]=false});
+
+  canvas.addEventListener('click',()=>{
+    if(!game.running||game.paused||game.ended)return; ensureAudio();
+    if(document.pointerLockElement!==canvas && canvas.requestPointerLock){canvas.requestPointerLock();return}
+    if(!canvas.requestPointerLock)fire();
+  });
+  canvas.addEventListener('mousedown',e=>{if(document.pointerLockElement===canvas && e.button===0){e.preventDefault();fire()}});
+  document.addEventListener('mousemove',e=>{
+    if(!game.running||game.paused||game.ended)return;
+    if(document.pointerLockElement===canvas)game.yaw += e.movementX * 0.00145 * (settings.sensitivity/72);
+  });
+
+  function reload(){
+    if(game.reloading||game.ammo>=30||game.reserve<=0||game.ended)return;game.reloading=true;reloadSound();showMessage('RELOADING...',850);
+    setTimeout(()=>{if(!game.running)return;const need=30-game.ammo,take=Math.min(need,game.reserve);game.ammo+=take;game.reserve-=take;game.reloading=false;updateHUD()},780);
+  }
+
+  function fire(){
+    if(game.reloading||game.ended)return;
+    if(game.ammo<=0){tone(110,.04,'square',.03,-15);showMessage('RELOAD',500);return}
+    if(!cheats.infiniteAmmo)game.ammo--;game.shots++;game.cameraKick=.035;shotSound();updateHUD();
+    let target=null,best=1e9;
+    for(const e of game.enemies){
+      if(!e.alive||!e.screen)continue; const s=e.screen; const cx=innerWidth/2,cy=innerHeight/2; const dx=Math.abs(cx-s.x),dy=Math.abs(cy-s.y);
+      if(dx<s.w*.52 && dy<s.h*.55 && s.depth<best){best=s.depth;target=e}
+    }
+    if(target){target.hp--;target.flash=.12;game.hits++;hitSound();$('#hitMarker').style.opacity='1';setTimeout(()=>$('#hitMarker').style.opacity='0',70);
+      if(target.hp<=0){target.alive=false;game.kills++;game.score+=100+Math.max(0,Math.floor(260-target.screen.depth*6));burst(target.x,target.z);if(game.kills===game.enemies.length)endMission(true)}
+    }
+  }
+
+  function burst(x,z){for(let i=0;i<9;i++)game.particles.push({x,z,y:.7+Math.random()*1.4,vx:(Math.random()-.5)*2,vy:1+Math.random()*2,vz:(Math.random()-.5)*2,t:.7+Math.random()*.5})}
+
+  function enemyShoot(e,dt){
+    if(cheats.notarget||!e.alive||game.ended)return;e.fire-=dt; if(e.fire>0)return; e.fire=(1.25+Math.random()*1.8)*diff[settings.difficulty].enemyRate;
+    if(!e.screen||e.screen.depth>34)return; e.flash=.08;tone(260,.035,'sawtooth',.016,-80);
+    if(Math.random()<.58){const dmg=(4+Math.random()*6)*diff[settings.difficulty].damage;if(!cheats.god)game.health=Math.max(0,game.health-dmg);$('#damageFlash').style.opacity='.72';setTimeout(()=>$('#damageFlash').style.opacity='0',90);updateHUD();if(game.health<=0)endMission(false)}
+  }
+
+  function endMission(win){
+    if(game.ended)return;game.ended=true;game.paused=false;if(document.pointerLockElement===canvas)document.exitPointerLock();
+    const acc=game.shots?Math.round(game.hits/game.shots*100):0;$('#endTitle').textContent=win?'MISSION COMPLETE':'MISSION FAILED';$('#endStats').innerHTML=`Score: <b>${game.score}</b><br>Kills: <b>${game.kills}/${game.enemies.length}</b><br>Accuracy: <b>${acc}%</b>`;
+    $('#nextBtn').style.display=win?'block':'none';$('#endPanel').style.display='block';showMessage(win?'OBJECTIVE COMPLETE':'YOU WERE KILLED',1400);
+  }
+
+  function showMessage(text,ms=900){const el=$('#message');el.innerHTML=text.replace(/\n/g,'<br>');el.classList.add('show');clearTimeout(game.messageTimer);game.messageTimer=setTimeout(()=>el.classList.remove('show'),ms)}
+  function updateHUD(){
+    $('#healthBar').style.width=Math.max(0,Math.min(100,game.health))+'%';$('#ammoNow').textContent=cheats.infiniteAmmo?'∞':game.ammo;$('#ammoReserve').textContent=game.reserve;$('#scoreText').textContent='SCORE '+String(game.score).padStart(4,'0');
+  }
+
+  function project(wx,wz,height=1){
+    const dx=wx-game.x,dz=wz-game.z,sy=Math.sin(game.yaw),cy=Math.cos(game.yaw);const depth=dx*sy+dz*cy; if(depth<.6)return null;const side=dx*cy-dz*sy;
+    const W=canvas.clientWidth,H=canvas.clientHeight,focal=W*.72;const x=W/2+(side/depth)*focal;const ground=H*.63 + (1/depth)*H*1.2;const h=(height/depth)*focal;return{x,y:ground-h,w:h*.42,h,depth,ground};
+  }
+
+  function drawBackground(m,t){
+    const W=canvas.clientWidth,H=canvas.clientHeight;let sky1='#7a7967',sky2='#b7b09a',ground='#3b3a2d';
+    if(m.theme==='snow'){sky1='#8f9aa0';sky2='#d9d7cf';ground='#b9b9ae'}
+    if(m.theme==='mountain'){sky1='#586066';sky2='#9a9586';ground='#37372e'}
+    const g=ctx.createLinearGradient(0,0,0,H*.65);g.addColorStop(0,sky1);g.addColorStop(1,sky2);ctx.fillStyle=g;ctx.fillRect(0,0,W,H*.66);
+    ctx.fillStyle=ground;ctx.fillRect(0,H*.60,W,H*.40);
+    ctx.fillStyle='rgba(30,31,26,.75)';
+    const off=((game.yaw*120)%140+140)%140;for(let i=-2;i<12;i++){const x=i*140-off;ctx.fillRect(x,H*.42,90,H*.19);ctx.fillRect(x+18,H*.36,34,H*.07);ctx.beginPath();ctx.moveTo(x,H*.42);ctx.lineTo(x+45,H*.36);ctx.lineTo(x+90,H*.42);ctx.fill()}
+    ctx.fillStyle='rgba(20,20,16,.35)';for(let i=0;i<9;i++){const y=H*.61+i*i*2.4;ctx.fillRect(0,y,W,1)}
+    if(m.theme==='snow'){ctx.fillStyle='rgba(255,255,255,.72)';for(let i=0;i<75;i++){const x=(i*97+t*.04*(1+i%3))%W,y=(i*53+t*.075*(1+i%4))%H;ctx.fillRect(x,y,1+(i%2),1+(i%2))}}
+    else{ctx.fillStyle='rgba(24,24,18,.26)';for(let i=0;i<5;i++){const x=(W*.58+i*91+Math.sin(t*.0004+i)*30)%W,y=H*.23-i*13;ctx.beginPath();ctx.arc(x,y,25+i*4,0,Math.PI*2);ctx.fill()}}
+  }
+
+  function drawWorld(t){
+    const m=missions[game.mission],W=canvas.clientWidth,H=canvas.clientHeight;drawBackground(m,t);
+    const items=[];
+    for(let i=0;i<11;i++){
+      const side=i%2?1:-1,x=side*(6.5+(i%3)*2.2),z=10+i*5.4;const p=project(x,z,2.7+(i%2));if(p)items.push({kind:'cover',p,x,z,side})
+    }
+    for(const e of game.enemies){
+      if(!e.alive){e.screen=null;continue}e.x += Math.sin(t*.0011+e.phase)*.0025;const p=project(e.x,e.z,1.8);e.screen=p;if(p)items.push({kind:'enemy',p,e});
+    }
+    items.sort((a,b)=>b.p.depth-a.p.depth);
+    for(const it of items){
+      const p=it.p;if(p.x+p.w*2<0||p.x-p.w*2>W)continue;
+      if(it.kind==='cover'){
+        ctx.fillStyle=m.theme==='snow'?'#75766e':'#37382d';ctx.fillRect(p.x-p.w*1.2,p.y+p.h*.35,p.w*2.4,p.h*.65);ctx.strokeStyle='rgba(0,0,0,.55)';ctx.strokeRect(p.x-p.w*1.2,p.y+p.h*.35,p.w*2.4,p.h*.65);
+      } else {
+        const e=it.e,flash=e.flash>0;ctx.save();ctx.translate(p.x,p.y);ctx.fillStyle=flash?'#fff3cf':'#26271f';ctx.fillRect(-p.w*.34,p.h*.29,p.w*.68,p.h*.47);ctx.fillStyle=flash?'#fff':'#8d8067';ctx.beginPath();ctx.arc(0,p.h*.19,p.w*.22,0,Math.PI*2);ctx.fill();ctx.fillStyle='#33342a';ctx.fillRect(-p.w*.27,p.h*.05,p.w*.54,p.h*.10);ctx.fillStyle='#171812';ctx.fillRect(p.w*.12,p.h*.40,p.w*.55,p.h*.08);
+        if(e.flash>0){ctx.fillStyle='rgba(255,210,100,.8)';ctx.beginPath();ctx.arc(p.w*.72,p.h*.44,p.w*.16,0,Math.PI*2);ctx.fill()}ctx.restore();
+      }
+    }
+    for(const p of game.particles){const q=project(p.x,p.z,p.y);if(q){ctx.fillStyle='rgba(145,45,25,.8)';ctx.fillRect(q.x,q.y,3,3)}}
+    // weapon silhouette
+    ctx.save();ctx.translate(W*.54,H*.79+game.cameraKick*H);ctx.rotate(-.06);ctx.fillStyle='#181915';ctx.fillRect(0,0,W*.26,H*.055);ctx.fillStyle='#3a3328';ctx.fillRect(W*.05,H*.035,W*.105,H*.06);ctx.fillStyle='#0c0d0b';ctx.fillRect(W*.19,-H*.008,W*.20,H*.018);ctx.restore();
+    // crosshair
+    ctx.strokeStyle='rgba(245,245,235,.92)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(W/2-12,H/2);ctx.lineTo(W/2-4,H/2);ctx.moveTo(W/2+4,H/2);ctx.lineTo(W/2+12,H/2);ctx.moveTo(W/2,H/2-12);ctx.lineTo(W/2,H/2-4);ctx.moveTo(W/2,H/2+4);ctx.lineTo(W/2,H/2+12);ctx.stroke();
+    ctx.fillStyle='rgba(0,0,0,.10)';for(let y=0;y<H;y+=3)ctx.fillRect(0,y,W,1);
+  }
+
+  function update(dt,t){
+    if(game.paused||game.ended)return;const speed=4.4,sy=Math.sin(game.yaw),cy=Math.cos(game.yaw);let f=0,s=0;if(keys.KeyW)f+=1;if(keys.KeyS)f-=1;if(keys.KeyD)s+=1;if(keys.KeyA)s-=1;const len=Math.hypot(f,s)||1;f/=len;s/=len;
+    game.x += (sy*f+cy*s)*speed*dt;game.z += (cy*f-sy*s)*speed*dt;game.x=Math.max(-9,Math.min(9,game.x));game.z=Math.max(-4,Math.min(22,game.z));
+    for(const e of game.enemies){if(!e.alive)continue;e.flash=Math.max(0,e.flash-dt);enemyShoot(e,dt)}
+    for(const p of game.particles){p.t-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.z+=p.vz*dt;p.vy-=4.5*dt}game.particles=game.particles.filter(p=>p.t>0&&p.y>0);
+    game.cameraKick*=Math.pow(.02,dt);updateHUD();
+  }
+
+  function loop(t){
+    if(!game.running)return;const dt=Math.min(.035,(t-game.lastTime)/1000||0);game.lastTime=t;update(dt,t);drawWorld(t);requestAnimationFrame(loop);
+  }
+
+  // Start focus and menu ambience after first user interaction (browser autoplay policy).
+  document.addEventListener('pointerdown',ensureAudio,{once:true});
+})();
+</script>
+</body>
+</html>

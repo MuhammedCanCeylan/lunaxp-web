@@ -1,0 +1,3004 @@
+<!--
+WINDOWS MESSENGER 4.7 WEB SIMULATION - ASSET LISTESI
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama |
+| icon.png  | 32x32                | Zorunlu    | XP Masaustu ikonu   |
+
+NOTLAR
+- Uygulama WindowManager tarafindan iframe icinde acilacak sekilde tasarlanmistir.
+- Iceride ikinci Windows baslik cubugu veya gorev cubugu YOKTUR.
+- alert(), confirm(), prompt() KULLANILMAZ.
+- Harici CDN, font, API veya sunucu gerektirmez.
+- Tum veriler sadece localStorage icinde tutulur.
+- Gercek Microsoft/Passport/MSN sunucularina baglanmaz.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Windows Messenger</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+body {
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    color: #000;
+    background: #ECE9D8;
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+}
+
+button {
+    color: #000;
+}
+
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 1px dotted #000;
+    outline-offset: -3px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* =========================================================
+   MAIN APP
+   ========================================================= */
+
+#messenger {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-width: 280px;
+    background: #ECE9D8;
+}
+
+/* =========================================================
+   MENU
+   ========================================================= */
+
+.menu-bar {
+    position: relative;
+    display: flex;
+    height: 22px;
+    flex: 0 0 22px;
+    padding-left: 2px;
+    align-items: center;
+    background: #ECE9D8;
+    border-bottom: 1px solid #ACA899;
+    z-index: 30;
+}
+
+.menu-button {
+    height: 20px;
+    border: 1px solid transparent;
+    background: transparent;
+    padding: 1px 7px 2px;
+    cursor: default;
+}
+
+.menu-button:hover,
+.menu-button.active {
+    border: 1px solid #316AC5;
+    background: #C1D2EE;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 21px;
+    min-width: 170px;
+    padding: 2px;
+    background: #fff;
+    border-top: 1px solid #F1EFE2;
+    border-left: 1px solid #F1EFE2;
+    border-right: 1px solid #404040;
+    border-bottom: 1px solid #404040;
+    box-shadow: 1px 1px 2px rgba(0,0,0,.2);
+    z-index: 100;
+}
+
+.dropdown-menu button {
+    width: 100%;
+    height: 22px;
+    padding: 2px 24px 2px 23px;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    white-space: nowrap;
+    cursor: default;
+}
+
+.dropdown-menu button:hover {
+    color: #fff;
+    background: #316AC5;
+}
+
+.dropdown-menu button:disabled {
+    color: #ACA899;
+    background: transparent;
+}
+
+.menu-separator {
+    height: 1px;
+    margin: 3px 2px;
+    background: #ACA899;
+}
+
+/* =========================================================
+   TOOLBAR
+   ========================================================= */
+
+.toolbar {
+    display: flex;
+    align-items: stretch;
+    min-height: 57px;
+    padding: 3px 4px;
+    gap: 1px;
+    flex: 0 0 auto;
+    background:
+        linear-gradient(#fff 0, #F7F6F2 10%, #ECE9D8 100%);
+    border-bottom: 1px solid #ACA899;
+}
+
+.tool {
+    min-width: 52px;
+    height: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 2px 5px;
+    border: 1px solid transparent;
+    background: transparent;
+    cursor: default;
+}
+
+.tool:hover {
+    border: 1px solid #316AC5;
+    background: #D9E8FB;
+}
+
+.tool:active {
+    padding-top: 3px;
+    padding-left: 6px;
+    background: #BFD5F2;
+}
+
+.tool-icon {
+    position: relative;
+    width: 28px;
+    height: 27px;
+}
+
+.tool-label {
+    line-height: 13px;
+}
+
+/* Add contact icon */
+.icon-add::before,
+.icon-add::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+}
+
+.icon-add::before {
+    width: 10px;
+    height: 10px;
+    left: 5px;
+    top: 2px;
+    background: #3A8BD1;
+    border: 1px solid #155F9B;
+}
+
+.icon-add::after {
+    width: 17px;
+    height: 12px;
+    left: 1px;
+    top: 13px;
+    border-radius: 9px 9px 5px 5px;
+    background: #72B7E6;
+    border: 1px solid #155F9B;
+}
+
+.add-plus {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #6ABC45;
+    border: 1px solid #347D23;
+    color: white;
+    font: bold 12px/10px Arial;
+    text-align: center;
+    z-index: 5;
+}
+
+/* Envelope */
+.icon-send {
+    width: 28px;
+    height: 20px;
+    margin-top: 4px;
+    border: 1px solid #5B7895;
+    background: #FDFDFD;
+}
+
+.icon-send::before,
+.icon-send::after {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 1px;
+    top: 11px;
+    background: #7B92AA;
+}
+
+.icon-send::before {
+    left: 3px;
+    transform: rotate(32deg);
+}
+
+.icon-send::after {
+    right: 3px;
+    transform: rotate(-32deg);
+}
+
+/* Phone */
+.icon-call::before {
+    content: "☎";
+    position: absolute;
+    inset: 0;
+    color: #27853A;
+    font: bold 27px/27px "Arial";
+    text-align: center;
+    text-shadow: 1px 1px #fff;
+}
+
+.toolbar-separator {
+    width: 1px;
+    margin: 3px 5px;
+    background: #ACA899;
+}
+
+/* =========================================================
+   USER AREA
+   ========================================================= */
+
+.user-strip {
+    display: flex;
+    align-items: center;
+    min-height: 64px;
+    flex: 0 0 auto;
+    padding: 7px 8px;
+    background: #fff;
+    border-bottom: 1px solid #ACA899;
+}
+
+.people-logo {
+    position: relative;
+    width: 51px;
+    height: 48px;
+    flex: 0 0 51px;
+    margin-right: 8px;
+}
+
+.person {
+    position: absolute;
+}
+
+.person .head {
+    position: absolute;
+    border-radius: 50%;
+}
+
+.person .body {
+    position: absolute;
+    border-radius: 50% 50% 30% 30%;
+}
+
+.person.green {
+    width: 32px;
+    height: 42px;
+    right: 0;
+    top: 1px;
+    opacity: .75;
+}
+
+.person.green .head {
+    width: 13px;
+    height: 13px;
+    top: 1px;
+    left: 9px;
+    background: #7AC769;
+    border: 1px solid #438D35;
+}
+
+.person.green .body {
+    width: 29px;
+    height: 24px;
+    top: 16px;
+    left: 1px;
+    background: #A7D89A;
+    border: 1px solid #438D35;
+}
+
+.person.blue {
+    width: 34px;
+    height: 43px;
+    left: 0;
+    top: 5px;
+}
+
+.person.blue .head {
+    width: 14px;
+    height: 14px;
+    top: 0;
+    left: 8px;
+    background: #5EAFE1;
+    border: 1px solid #2C75A9;
+}
+
+.person.blue .body {
+    width: 31px;
+    height: 25px;
+    top: 17px;
+    left: 0;
+    background: #8DC8EA;
+    border: 1px solid #2C75A9;
+}
+
+.user-info {
+    min-width: 0;
+    flex: 1;
+}
+
+.display-name {
+    font-weight: bold;
+    margin-bottom: 3px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.user-email {
+    color: #555;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.status-link {
+    display: inline-block;
+    margin-top: 3px;
+    color: #0645AD;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.status-select {
+    width: 92px;
+    height: 22px;
+    border: 1px solid #7F9DB9;
+    background: white;
+}
+
+/* =========================================================
+   INFORMATION STRIP
+   ========================================================= */
+
+.info-strip {
+    min-height: 30px;
+    flex: 0 0 auto;
+    padding: 6px 8px;
+    background: #FFFFE1;
+    border-bottom: 1px solid #ACA899;
+    line-height: 16px;
+}
+
+.info-strip a {
+    color: #0645AD;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* =========================================================
+   CONTENT
+   ========================================================= */
+
+.main-content {
+    min-height: 0;
+    flex: 1 1 auto;
+    position: relative;
+    overflow: hidden;
+    background: #fff;
+}
+
+/* Contact view */
+
+.contacts-view {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background: #fff;
+}
+
+.quick-links {
+    padding: 7px 9px 4px;
+    line-height: 18px;
+}
+
+.quick-link {
+    color: #0645AD;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.group {
+    margin: 0;
+}
+
+.group-title {
+    min-height: 22px;
+    display: flex;
+    align-items: center;
+    padding: 3px 6px;
+    font-weight: bold;
+    cursor: default;
+    user-select: none;
+    border-top: 1px solid #fff;
+}
+
+.group-title:hover {
+    background: #F3F7FC;
+}
+
+.group-arrow {
+    width: 14px;
+    font-family: Arial, sans-serif;
+}
+
+.group-count {
+    margin-left: 4px;
+    color: #777;
+    font-weight: normal;
+}
+
+.contact-list {
+    padding: 1px 3px 4px;
+}
+
+.contact {
+    display: flex;
+    align-items: center;
+    min-height: 31px;
+    padding: 3px 5px;
+    border: 1px solid transparent;
+    cursor: default;
+}
+
+.contact:hover {
+    background: #E8F1FC;
+    border-color: #C6D8EF;
+}
+
+.contact.selected {
+    color: #fff;
+    background: #316AC5;
+    border-color: #316AC5;
+}
+
+.contact-avatar {
+    position: relative;
+    width: 22px;
+    height: 23px;
+    margin-right: 6px;
+    flex: 0 0 22px;
+}
+
+.contact-avatar::before {
+    content: "";
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    left: 7px;
+    top: 1px;
+    border-radius: 50%;
+}
+
+.contact-avatar::after {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 12px;
+    left: 2px;
+    top: 10px;
+    border-radius: 9px 9px 4px 4px;
+}
+
+.contact-avatar.online::before {
+    background: #62AC48;
+    border: 1px solid #317B23;
+}
+
+.contact-avatar.online::after {
+    background: #A2D291;
+    border: 1px solid #317B23;
+}
+
+.contact-avatar.away::before,
+.contact-avatar.busy::before {
+    background: #E5A83A;
+    border: 1px solid #A56F15;
+}
+
+.contact-avatar.away::after,
+.contact-avatar.busy::after {
+    background: #F2CB79;
+    border: 1px solid #A56F15;
+}
+
+.contact-avatar.offline::before {
+    background: #BABABA;
+    border: 1px solid #777;
+}
+
+.contact-avatar.offline::after {
+    background: #DDD;
+    border: 1px solid #888;
+}
+
+.contact-text {
+    min-width: 0;
+    flex: 1;
+}
+
+.contact-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.contact-email {
+    color: #777;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.contact.selected .contact-email {
+    color: #DCEAFF;
+}
+
+.empty-contacts {
+    padding: 20px;
+    color: #666;
+    text-align: center;
+}
+
+/* =========================================================
+   CHAT
+   ========================================================= */
+
+.chat-view {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #ECE9D8;
+}
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    min-height: 49px;
+    flex: 0 0 auto;
+    padding: 5px 7px;
+    background: #fff;
+    border-bottom: 1px solid #ACA899;
+}
+
+.back-button {
+    width: 55px;
+    height: 25px;
+    margin-right: 7px;
+    background: #ECE9D8;
+    border: 2px outset #fff;
+}
+
+.back-button:active {
+    border-style: inset;
+}
+
+.chat-person {
+    min-width: 0;
+    flex: 1;
+}
+
+.chat-name {
+    font-weight: bold;
+}
+
+.chat-status {
+    margin-top: 2px;
+    color: #666;
+}
+
+.chat-actions {
+    display: flex;
+    gap: 3px;
+}
+
+.small-button {
+    min-width: 54px;
+    height: 24px;
+    background: #ECE9D8;
+    border: 2px outset #fff;
+}
+
+.small-button:active {
+    border-style: inset;
+}
+
+.transcript {
+    flex: 1 1 auto;
+    min-height: 60px;
+    overflow: auto;
+    margin: 6px 6px 3px;
+    padding: 6px;
+    background: #fff;
+    border: 1px solid #7F9DB9;
+}
+
+.message {
+    margin-bottom: 9px;
+    line-height: 15px;
+}
+
+.message-meta {
+    margin-bottom: 2px;
+    font-weight: bold;
+}
+
+.message.them .message-meta {
+    color: #004E98;
+}
+
+.message.me .message-meta {
+    color: #17810E;
+}
+
+.message-time {
+    color: #888;
+    font-weight: normal;
+    margin-left: 4px;
+}
+
+.message-body {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.system-message {
+    margin: 5px 0 9px;
+    color: #777;
+    font-style: italic;
+}
+
+.compose {
+    flex: 0 0 auto;
+    padding: 0 6px 6px;
+}
+
+.compose-label {
+    height: 19px;
+    line-height: 19px;
+}
+
+.compose-row {
+    display: flex;
+    gap: 5px;
+}
+
+#messageInput {
+    flex: 1;
+    height: 57px;
+    resize: none;
+    padding: 4px;
+    border: 1px solid #7F9DB9;
+    background: #fff;
+}
+
+.send-button {
+    width: 66px;
+    background: #ECE9D8;
+    border: 2px outset #fff;
+}
+
+.send-button:active {
+    border-style: inset;
+}
+
+/* =========================================================
+   SIGNED OUT PAGE
+   ========================================================= */
+
+.signed-out {
+    width: 100%;
+    height: 100%;
+    padding: 38px 15px;
+    text-align: center;
+    background: #fff;
+}
+
+.signed-out-logo {
+    margin: 0 auto 12px;
+    transform: scale(1.25);
+}
+
+.signin-title {
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.signin-link {
+    color: #0645AD;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* =========================================================
+   STATUS BAR
+   ========================================================= */
+
+.status-bar {
+    display: flex;
+    min-height: 22px;
+    flex: 0 0 22px;
+    padding: 2px;
+    background: #ECE9D8;
+    border-top: 1px solid #fff;
+}
+
+.status-panel {
+    display: flex;
+    align-items: center;
+    padding: 1px 6px;
+    border: 1px inset #fff;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.status-panel:first-child {
+    flex: 1;
+}
+
+.status-panel:last-child {
+    width: 95px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    margin-right: 5px;
+    border-radius: 50%;
+    background: #65B64D;
+    border: 1px solid #347D23;
+}
+
+/* =========================================================
+   MODALS / XP DIALOGS
+   ========================================================= */
+
+.dialog-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    background: rgba(0,0,0,.18);
+}
+
+.xp-dialog {
+    width: min(335px, calc(100% - 8px));
+    max-height: calc(100% - 20px);
+    overflow: auto;
+    padding: 12px;
+    background: #ECE9D8;
+    border: 2px outset #fff;
+    box-shadow: 3px 4px 10px rgba(0,0,0,.32);
+}
+
+.xp-dialog-title {
+    font-weight: bold;
+    font-size: 12px;
+    margin-bottom: 9px;
+}
+
+.xp-dialog p {
+    margin: 5px 0 10px;
+    line-height: 16px;
+}
+
+.dialog-icon-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.dialog-symbol {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    border-radius: 50%;
+    color: #fff;
+    background: #316AC5;
+    border: 2px solid #14498E;
+    text-align: center;
+    font: bold 22px/27px Arial;
+}
+
+.dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-top: 12px;
+}
+
+.xp-button {
+    min-width: 74px;
+    height: 25px;
+    padding: 2px 8px;
+    background: #ECE9D8;
+    border: 2px outset #fff;
+}
+
+.xp-button:active {
+    border-style: inset;
+}
+
+.form-row {
+    margin: 8px 0;
+}
+
+.form-row label {
+    display: block;
+    margin-bottom: 3px;
+}
+
+.form-row input,
+.form-row select {
+    width: 100%;
+    height: 23px;
+    padding: 2px 4px;
+    border: 1px solid #7F9DB9;
+    background: white;
+}
+
+.option-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 7px 0;
+}
+
+.option-row input {
+    margin: 0;
+}
+
+.about-logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+.about-people {
+    transform: scale(1.2);
+}
+
+.about-title {
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.about-version {
+    text-align: center;
+    color: #555;
+    margin: 4px 0 10px;
+}
+
+/* =========================================================
+   SMALL WINDOW SUPPORT
+   ========================================================= */
+
+@media (max-width: 340px) {
+    .toolbar {
+        min-height: 53px;
+    }
+
+    .tool {
+        min-width: 45px;
+    }
+
+    .tool-label {
+        font-size: 10px;
+    }
+
+    .user-strip {
+        min-height: 57px;
+    }
+
+    .people-logo {
+        transform: scale(.85);
+        transform-origin: left center;
+        width: 44px;
+        flex-basis: 44px;
+    }
+
+    .chat-actions .small-button:first-child {
+        display: none;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="messenger">
+
+    <!-- Application menu only. No duplicated OS titlebar. -->
+    <div class="menu-bar" id="menuBar">
+        <button class="menu-button" data-menu="file">File</button>
+        <button class="menu-button" data-menu="actions">Actions</button>
+        <button class="menu-button" data-menu="tools">Tools</button>
+        <button class="menu-button" data-menu="help">Help</button>
+
+        <div class="dropdown-menu hidden" id="menu-file">
+            <button data-action="signin">Sign In...</button>
+            <button data-action="signout">Sign Out</button>
+            <div class="menu-separator"></div>
+            <button data-action="status-online">Online</button>
+            <button data-action="status-away">Away</button>
+            <button data-action="status-busy">Busy</button>
+            <button data-action="status-offline">Appear Offline</button>
+            <div class="menu-separator"></div>
+            <button data-action="close">Exit</button>
+        </div>
+
+        <div class="dropdown-menu hidden" id="menu-actions">
+            <button data-action="send">Send an Instant Message...</button>
+            <button data-action="add">Add a Contact...</button>
+            <div class="menu-separator"></div>
+            <button data-action="call">Start a Voice Conversation...</button>
+            <button data-action="file">Send a File...</button>
+        </div>
+
+        <div class="dropdown-menu hidden" id="menu-tools">
+            <button data-action="audio">Audio Tuning Wizard...</button>
+            <button data-action="options">Options...</button>
+        </div>
+
+        <div class="dropdown-menu hidden" id="menu-help">
+            <button data-action="help">Help Topics</button>
+            <div class="menu-separator"></div>
+            <button data-action="about">About Windows Messenger</button>
+        </div>
+    </div>
+
+    <div class="toolbar">
+        <button class="tool" data-action="add">
+            <span class="tool-icon icon-add">
+                <span class="add-plus">+</span>
+            </span>
+            <span class="tool-label">Add</span>
+        </button>
+
+        <button class="tool" data-action="send">
+            <span class="tool-icon icon-send"></span>
+            <span class="tool-label">Send</span>
+        </button>
+
+        <button class="tool" data-action="call">
+            <span class="tool-icon icon-call"></span>
+            <span class="tool-label">Call</span>
+        </button>
+
+        <div class="toolbar-separator"></div>
+    </div>
+
+    <div class="user-strip" id="userStrip">
+        <div class="people-logo" aria-hidden="true">
+            <div class="person green">
+                <div class="head"></div>
+                <div class="body"></div>
+            </div>
+            <div class="person blue">
+                <div class="head"></div>
+                <div class="body"></div>
+            </div>
+        </div>
+
+        <div class="user-info">
+            <div class="display-name" id="displayName">Windows XP User</div>
+            <div class="user-email" id="userEmail">user@example.com</div>
+            <span class="status-link" id="statusLink">Online</span>
+        </div>
+
+        <select class="status-select" id="statusSelect" title="My Status">
+            <option value="online">Online</option>
+            <option value="away">Away</option>
+            <option value="busy">Busy</option>
+            <option value="offline">Appear Offline</option>
+        </select>
+    </div>
+
+    <div class="info-strip" id="infoStrip">
+        You are signed in.
+        <a id="inboxLink">Go to my e-mail inbox</a>
+    </div>
+
+    <main class="main-content">
+
+        <div class="contacts-view" id="contactsView">
+            <div class="quick-links">
+                <div>
+                    <span class="quick-link" data-action="send">
+                        Send an Instant Message
+                    </span>
+                </div>
+                <div>
+                    <span class="quick-link" data-action="add">
+                        Add a Contact
+                    </span>
+                </div>
+            </div>
+
+            <div id="groupsContainer"></div>
+        </div>
+
+        <div class="chat-view hidden" id="chatView">
+            <div class="chat-header">
+                <button class="back-button" id="backButton">Back</button>
+
+                <div class="chat-person">
+                    <div class="chat-name" id="chatName"></div>
+                    <div class="chat-status" id="chatStatus"></div>
+                </div>
+
+                <div class="chat-actions">
+                    <button class="small-button" id="fileButton">Send File</button>
+                    <button class="small-button" id="callButton">Call</button>
+                </div>
+            </div>
+
+            <div class="transcript" id="transcript"></div>
+
+            <div class="compose">
+                <div class="compose-label">Type your message:</div>
+                <div class="compose-row">
+                    <textarea
+                        id="messageInput"
+                        maxlength="1000"
+                        spellcheck="true"
+                    ></textarea>
+
+                    <button class="send-button" id="sendButton">
+                        Send
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="signed-out hidden" id="signedOutView">
+            <div class="people-logo signed-out-logo">
+                <div class="person green">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <div class="person blue">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+            </div>
+
+            <div class="signin-title">
+                Welcome to Windows Messenger
+            </div>
+
+            <p>
+                You are currently not signed in.
+            </p>
+
+            <span class="signin-link" id="signInLink">
+                Click here to sign in
+            </span>
+        </div>
+
+        <div class="dialog-overlay hidden" id="dialogOverlay">
+            <div
+                class="xp-dialog"
+                id="xpDialog"
+                role="dialog"
+                aria-modal="true"
+            ></div>
+        </div>
+    </main>
+
+    <div class="status-bar">
+        <div class="status-panel">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="bottomStatus">Online</span>
+        </div>
+
+        <div class="status-panel" id="contactCounter">
+            0 contacts
+        </div>
+    </div>
+
+</div>
+
+<script>
+(() => {
+    "use strict";
+
+    const STORAGE_PREFIX = "xp_windows_messenger_";
+
+    const defaultProfile = {
+        name: "Windows XP User",
+        email: "user@example.com",
+        status: "online"
+    };
+
+    const defaultContacts = [
+        {
+            id: "alex@example.com",
+            name: "Alex",
+            email: "alex@example.com",
+            status: "online",
+            builtin: true
+        },
+        {
+            id: "jordan@example.com",
+            name: "Jordan",
+            email: "jordan@example.com",
+            status: "online",
+            builtin: true
+        },
+        {
+            id: "sam@example.com",
+            name: "Sam",
+            email: "sam@example.com",
+            status: "away",
+            builtin: true
+        },
+        {
+            id: "chris@example.com",
+            name: "Chris",
+            email: "chris@example.com",
+            status: "offline",
+            builtin: true
+        },
+        {
+            id: "taylor@example.com",
+            name: "Taylor",
+            email: "taylor@example.com",
+            status: "offline",
+            builtin: true
+        }
+    ];
+
+    const defaultOptions = {
+        sounds: true,
+        showOffline: true
+    };
+
+    let profile = loadJSON(
+        STORAGE_PREFIX + "profile",
+        defaultProfile
+    );
+
+    let contacts = loadJSON(
+        STORAGE_PREFIX + "contacts",
+        defaultContacts
+    );
+
+    let messages = loadJSON(
+        STORAGE_PREFIX + "messages",
+        {}
+    );
+
+    let options = loadJSON(
+        STORAGE_PREFIX + "options",
+        defaultOptions
+    );
+
+    let signedIn =
+        localStorage.getItem(STORAGE_PREFIX + "signed_in") !== "false";
+
+    let selectedContactId = null;
+    let openedGroup = {
+        online: true,
+        offline: true
+    };
+
+    let audioContext = null;
+
+    const menuBar = document.getElementById("menuBar");
+    const contactsView = document.getElementById("contactsView");
+    const chatView = document.getElementById("chatView");
+    const signedOutView = document.getElementById("signedOutView");
+
+    const groupsContainer =
+        document.getElementById("groupsContainer");
+
+    const displayName =
+        document.getElementById("displayName");
+
+    const userEmail =
+        document.getElementById("userEmail");
+
+    const statusLink =
+        document.getElementById("statusLink");
+
+    const statusSelect =
+        document.getElementById("statusSelect");
+
+    const infoStrip =
+        document.getElementById("infoStrip");
+
+    const bottomStatus =
+        document.getElementById("bottomStatus");
+
+    const contactCounter =
+        document.getElementById("contactCounter");
+
+    const statusDot =
+        document.getElementById("statusDot");
+
+    const chatName =
+        document.getElementById("chatName");
+
+    const chatStatus =
+        document.getElementById("chatStatus");
+
+    const transcript =
+        document.getElementById("transcript");
+
+    const messageInput =
+        document.getElementById("messageInput");
+
+    const dialogOverlay =
+        document.getElementById("dialogOverlay");
+
+    const xpDialog =
+        document.getElementById("xpDialog");
+
+    function clone(value) {
+        return JSON.parse(JSON.stringify(value));
+    }
+
+    function loadJSON(key, fallback) {
+        try {
+            const value = localStorage.getItem(key);
+
+            if (!value) {
+                return clone(fallback);
+            }
+
+            return JSON.parse(value);
+        } catch {
+            return clone(fallback);
+        }
+    }
+
+    function saveState() {
+        localStorage.setItem(
+            STORAGE_PREFIX + "profile",
+            JSON.stringify(profile)
+        );
+
+        localStorage.setItem(
+            STORAGE_PREFIX + "contacts",
+            JSON.stringify(contacts)
+        );
+
+        localStorage.setItem(
+            STORAGE_PREFIX + "messages",
+            JSON.stringify(messages)
+        );
+
+        localStorage.setItem(
+            STORAGE_PREFIX + "options",
+            JSON.stringify(options)
+        );
+
+        localStorage.setItem(
+            STORAGE_PREFIX + "signed_in",
+            String(signedIn)
+        );
+    }
+
+    function statusText(status) {
+        const map = {
+            online: "Online",
+            away: "Away",
+            busy: "Busy",
+            offline: "Appear Offline"
+        };
+
+        return map[status] || "Online";
+    }
+
+    function contactStatusText(status) {
+        const map = {
+            online: "Online",
+            away: "Away",
+            busy: "Busy",
+            offline: "Not Online"
+        };
+
+        return map[status] || "Not Online";
+    }
+
+    function render() {
+        renderProfile();
+        renderContacts();
+
+        if (!signedIn) {
+            contactsView.classList.add("hidden");
+            chatView.classList.add("hidden");
+            signedOutView.classList.remove("hidden");
+
+            infoStrip.textContent =
+                "You are not signed in.";
+
+            bottomStatus.textContent =
+                "Not signed in";
+
+            statusDot.style.background = "#AAA";
+            statusDot.style.borderColor = "#777";
+
+            return;
+        }
+
+        signedOutView.classList.add("hidden");
+
+        if (!selectedContactId) {
+            contactsView.classList.remove("hidden");
+            chatView.classList.add("hidden");
+        }
+
+        infoStrip.innerHTML = "";
+
+        const text = document.createTextNode(
+            "You are signed in. "
+        );
+
+        const inbox = document.createElement("a");
+
+        inbox.textContent = "Go to my e-mail inbox";
+        inbox.href = "#";
+
+        inbox.addEventListener("click", event => {
+            event.preventDefault();
+            showInbox();
+        });
+
+        infoStrip.append(text, inbox);
+
+        bottomStatus.textContent =
+            statusText(profile.status);
+
+        if (profile.status === "offline") {
+            statusDot.style.background = "#AAA";
+            statusDot.style.borderColor = "#777";
+        } else if (
+            profile.status === "away" ||
+            profile.status === "busy"
+        ) {
+            statusDot.style.background = "#E8AA33";
+            statusDot.style.borderColor = "#A56F15";
+        } else {
+            statusDot.style.background = "#65B64D";
+            statusDot.style.borderColor = "#347D23";
+        }
+    }
+
+    function renderProfile() {
+        displayName.textContent =
+            profile.name || defaultProfile.name;
+
+        userEmail.textContent =
+            profile.email || defaultProfile.email;
+
+        statusLink.textContent =
+            statusText(profile.status);
+
+        statusSelect.value =
+            profile.status || "online";
+
+        statusSelect.disabled = !signedIn;
+    }
+
+    function renderContacts() {
+        groupsContainer.innerHTML = "";
+
+        const onlineContacts = contacts.filter(contact =>
+            contact.status !== "offline"
+        );
+
+        const offlineContacts = contacts.filter(contact =>
+            contact.status === "offline"
+        );
+
+        createGroup(
+            "online",
+            "Online",
+            onlineContacts
+        );
+
+        if (options.showOffline) {
+            createGroup(
+                "offline",
+                "Not Online",
+                offlineContacts
+            );
+        }
+
+        contactCounter.textContent =
+            contacts.length +
+            (contacts.length === 1
+                ? " contact"
+                : " contacts");
+    }
+
+    function createGroup(key, title, list) {
+        const group = document.createElement("section");
+        group.className = "group";
+
+        const groupTitle =
+            document.createElement("div");
+
+        groupTitle.className = "group-title";
+
+        const arrow =
+            document.createElement("span");
+
+        arrow.className = "group-arrow";
+        arrow.textContent =
+            openedGroup[key] ? "▼" : "▶";
+
+        const name =
+            document.createElement("span");
+
+        name.textContent = title;
+
+        const count =
+            document.createElement("span");
+
+        count.className = "group-count";
+        count.textContent = `(${list.length})`;
+
+        groupTitle.append(
+            arrow,
+            name,
+            count
+        );
+
+        const contactList =
+            document.createElement("div");
+
+        contactList.className = "contact-list";
+
+        if (!openedGroup[key]) {
+            contactList.classList.add("hidden");
+        }
+
+        if (list.length === 0) {
+            const empty =
+                document.createElement("div");
+
+            empty.className = "empty-contacts";
+            empty.textContent = "None";
+            contactList.appendChild(empty);
+        } else {
+            list.forEach(contact => {
+                contactList.appendChild(
+                    createContactElement(contact)
+                );
+            });
+        }
+
+        groupTitle.addEventListener("click", () => {
+            openedGroup[key] = !openedGroup[key];
+            renderContacts();
+        });
+
+        group.append(
+            groupTitle,
+            contactList
+        );
+
+        groupsContainer.appendChild(group);
+    }
+
+    function createContactElement(contact) {
+        const row =
+            document.createElement("div");
+
+        row.className = "contact";
+        row.dataset.id = contact.id;
+
+        if (selectedContactId === contact.id) {
+            row.classList.add("selected");
+        }
+
+        const avatar =
+            document.createElement("div");
+
+        avatar.className =
+            "contact-avatar " + contact.status;
+
+        const content =
+            document.createElement("div");
+
+        content.className = "contact-text";
+
+        const name =
+            document.createElement("div");
+
+        name.className = "contact-name";
+        name.textContent =
+            contact.name +
+            " (" +
+            contactStatusText(contact.status) +
+            ")";
+
+        const email =
+            document.createElement("div");
+
+        email.className = "contact-email";
+        email.textContent = contact.email;
+
+        content.append(name, email);
+        row.append(avatar, content);
+
+        row.addEventListener("click", () => {
+            selectedContactId = contact.id;
+            renderContacts();
+        });
+
+        row.addEventListener("dblclick", () => {
+            openChat(contact.id);
+        });
+
+        row.addEventListener("contextmenu", event => {
+            event.preventDefault();
+            showContactDialog(contact);
+        });
+
+        return row;
+    }
+
+    function getSelectedContact() {
+        if (!selectedContactId) {
+            return null;
+        }
+
+        return contacts.find(
+            contact => contact.id === selectedContactId
+        ) || null;
+    }
+
+    function openChat(contactId) {
+        if (!signedIn) {
+            showDialog(
+                "Windows Messenger",
+                "You must sign in before starting a conversation."
+            );
+            return;
+        }
+
+        const contact = contacts.find(
+            item => item.id === contactId
+        );
+
+        if (!contact) {
+            return;
+        }
+
+        selectedContactId = contactId;
+
+        chatName.textContent =
+            contact.name;
+
+        chatStatus.textContent =
+            contact.email +
+            " — " +
+            contactStatusText(contact.status);
+
+        contactsView.classList.add("hidden");
+        signedOutView.classList.add("hidden");
+        chatView.classList.remove("hidden");
+
+        renderTranscript();
+        messageInput.focus();
+    }
+
+    function closeChat() {
+        chatView.classList.add("hidden");
+        contactsView.classList.remove("hidden");
+        renderContacts();
+    }
+
+    function renderTranscript() {
+        transcript.innerHTML = "";
+
+        const contact = getSelectedContact();
+
+        if (!contact) {
+            return;
+        }
+
+        const history =
+            messages[contact.id] || [];
+
+        if (history.length === 0) {
+            const system =
+                document.createElement("div");
+
+            system.className = "system-message";
+
+            system.textContent =
+                contact.status === "offline"
+                ? `${contact.name} is currently not online.`
+                : `Conversation with ${contact.name}.`;
+
+            transcript.appendChild(system);
+        }
+
+        history.forEach(message => {
+            const row =
+                document.createElement("div");
+
+            row.className =
+                "message " +
+                (message.from === "me"
+                    ? "me"
+                    : "them");
+
+            const meta =
+                document.createElement("div");
+
+            meta.className = "message-meta";
+
+            const sender =
+                message.from === "me"
+                ? profile.name
+                : contact.name;
+
+            meta.textContent = sender;
+
+            const time =
+                document.createElement("span");
+
+            time.className = "message-time";
+            time.textContent =
+                formatTime(message.time);
+
+            meta.appendChild(time);
+
+            const body =
+                document.createElement("div");
+
+            body.className = "message-body";
+            body.textContent = message.text;
+
+            row.append(meta, body);
+            transcript.appendChild(row);
+        });
+
+        transcript.scrollTop =
+            transcript.scrollHeight;
+    }
+
+    function sendMessage() {
+        if (!signedIn) {
+            return;
+        }
+
+        const contact = getSelectedContact();
+
+        if (!contact) {
+            return;
+        }
+
+        const text =
+            messageInput.value.trim();
+
+        if (!text) {
+            return;
+        }
+
+        if (!messages[contact.id]) {
+            messages[contact.id] = [];
+        }
+
+        messages[contact.id].push({
+            from: "me",
+            text,
+            time: Date.now()
+        });
+
+        messageInput.value = "";
+
+        saveState();
+        renderTranscript();
+        beep(620, 0.045);
+
+        if (contact.status === "offline") {
+            setTimeout(() => {
+                const system =
+                    document.createElement("div");
+
+                system.className =
+                    "system-message";
+
+                system.textContent =
+                    `${contact.name} is not online. ` +
+                    "This simulation cannot deliver the message.";
+
+                transcript.appendChild(system);
+                transcript.scrollTop =
+                    transcript.scrollHeight;
+            }, 300);
+
+            return;
+        }
+
+        if (contact.builtin) {
+            window.setTimeout(() => {
+                simulatedReply(contact, text);
+            }, 850 + Math.random() * 900);
+        }
+    }
+
+    function simulatedReply(contact, userMessage) {
+        if (!signedIn) {
+            return;
+        }
+
+        const lower =
+            userMessage.toLowerCase();
+
+        let reply;
+
+        if (
+            lower.includes("hello") ||
+            lower.includes("hi") ||
+            lower.includes("hey")
+        ) {
+            reply = "hey :)";
+        } else if (
+            lower.includes("how are you") ||
+            lower.includes("how r u")
+        ) {
+            reply = "I'm good, how about you?";
+        } else if (
+            lower.includes("lol")
+        ) {
+            reply = "lol :D";
+        } else if (
+            lower.includes("bye")
+        ) {
+            reply = "cya later!";
+        } else {
+            const replies = [
+                "cool :)",
+                "haha yeah",
+                "brb in a minute",
+                "sounds good!",
+                "nice :D",
+                "okay :)"
+            ];
+
+            reply =
+                replies[
+                    Math.floor(
+                        Math.random() *
+                        replies.length
+                    )
+                ];
+        }
+
+        if (!messages[contact.id]) {
+            messages[contact.id] = [];
+        }
+
+        messages[contact.id].push({
+            from: "them",
+            text: reply,
+            time: Date.now()
+        });
+
+        saveState();
+
+        if (selectedContactId === contact.id) {
+            renderTranscript();
+        }
+
+        beep(830, 0.06);
+    }
+
+    function formatTime(timestamp) {
+        const date = new Date(timestamp);
+
+        return date.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+    }
+
+    function beep(frequency, duration) {
+        if (!options.sounds) {
+            return;
+        }
+
+        try {
+            audioContext =
+                audioContext ||
+                new (
+                    window.AudioContext ||
+                    window.webkitAudioContext
+                )();
+
+            const oscillator =
+                audioContext.createOscillator();
+
+            const gain =
+                audioContext.createGain();
+
+            oscillator.type = "sine";
+            oscillator.frequency.value =
+                frequency;
+
+            gain.gain.setValueAtTime(
+                0.035,
+                audioContext.currentTime
+            );
+
+            gain.gain.exponentialRampToValueAtTime(
+                0.001,
+                audioContext.currentTime + duration
+            );
+
+            oscillator.connect(gain);
+            gain.connect(audioContext.destination);
+
+            oscillator.start();
+            oscillator.stop(
+                audioContext.currentTime +
+                duration
+            );
+        } catch {
+            /* Audio is optional. */
+        }
+    }
+
+    /* =====================================================
+       DIALOG SYSTEM
+       ===================================================== */
+
+    function clearDialog() {
+        xpDialog.innerHTML = "";
+    }
+
+    function openDialogContainer(title) {
+        clearDialog();
+
+        const heading =
+            document.createElement("div");
+
+        heading.className =
+            "xp-dialog-title";
+
+        heading.textContent = title;
+
+        xpDialog.appendChild(heading);
+
+        dialogOverlay.classList.remove("hidden");
+    }
+
+    function closeDialog() {
+        dialogOverlay.classList.add("hidden");
+        clearDialog();
+    }
+
+    function addDialogButtons(buttons) {
+        const area =
+            document.createElement("div");
+
+        area.className =
+            "dialog-buttons";
+
+        buttons.forEach(item => {
+            const button =
+                document.createElement("button");
+
+            button.className =
+                "xp-button";
+
+            button.textContent =
+                item.label;
+
+            button.addEventListener(
+                "click",
+                item.action
+            );
+
+            area.appendChild(button);
+        });
+
+        xpDialog.appendChild(area);
+    }
+
+    function showDialog(
+        title,
+        message,
+        buttons
+    ) {
+        openDialogContainer(title);
+
+        const row =
+            document.createElement("div");
+
+        row.className =
+            "dialog-icon-row";
+
+        const symbol =
+            document.createElement("div");
+
+        symbol.className =
+            "dialog-symbol";
+
+        symbol.textContent = "i";
+
+        const text =
+            document.createElement("p");
+
+        text.textContent = message;
+
+        row.append(symbol, text);
+        xpDialog.appendChild(row);
+
+        addDialogButtons(
+            buttons || [
+                {
+                    label: "OK",
+                    action: closeDialog
+                }
+            ]
+        );
+    }
+
+    function addContactDialog() {
+        if (!signedIn) {
+            showDialog(
+                "Add a Contact",
+                "You must sign in before adding contacts."
+            );
+            return;
+        }
+
+        openDialogContainer(
+            "Add a Contact"
+        );
+
+        const description =
+            document.createElement("p");
+
+        description.textContent =
+            "Enter the e-mail address and display name of the person you want to add.";
+
+        xpDialog.appendChild(description);
+
+        const nameRow =
+            createFormRow(
+                "Display name:",
+                "text",
+                "New Contact"
+            );
+
+        const emailRow =
+            createFormRow(
+                "E-mail address:",
+                "email",
+                ""
+            );
+
+        const statusRow =
+            document.createElement("div");
+
+        statusRow.className =
+            "form-row";
+
+        const statusLabel =
+            document.createElement("label");
+
+        statusLabel.textContent =
+            "Initial status:";
+
+        const status =
+            document.createElement("select");
+
+        [
+            ["online", "Online"],
+            ["away", "Away"],
+            ["offline", "Not Online"]
+        ].forEach(([value, label]) => {
+            const option =
+                document.createElement("option");
+
+            option.value = value;
+            option.textContent = label;
+            status.appendChild(option);
+        });
+
+        statusRow.append(
+            statusLabel,
+            status
+        );
+
+        xpDialog.append(
+            nameRow.wrapper,
+            emailRow.wrapper,
+            statusRow
+        );
+
+        addDialogButtons([
+            {
+                label: "Add",
+                action: () => {
+                    const name =
+                        nameRow.input.value.trim();
+
+                    const email =
+                        emailRow.input.value
+                            .trim()
+                            .toLowerCase();
+
+                    if (!email || !email.includes("@")) {
+                        showDialog(
+                            "Add a Contact",
+                            "Please enter a valid e-mail address."
+                        );
+                        return;
+                    }
+
+                    if (
+                        contacts.some(
+                            c =>
+                                c.email.toLowerCase() ===
+                                email
+                        )
+                    ) {
+                        showDialog(
+                            "Add a Contact",
+                            "That contact is already in your contact list."
+                        );
+                        return;
+                    }
+
+                    contacts.push({
+                        id: email,
+                        name:
+                            name ||
+                            email.split("@")[0],
+                        email,
+                        status:
+                            status.value,
+                        builtin: false
+                    });
+
+                    saveState();
+                    closeDialog();
+                    render();
+                    beep(740, 0.05);
+                }
+            },
+            {
+                label: "Cancel",
+                action: closeDialog
+            }
+        ]);
+
+        emailRow.input.focus();
+    }
+
+    function createFormRow(
+        labelText,
+        type,
+        value
+    ) {
+        const wrapper =
+            document.createElement("div");
+
+        wrapper.className =
+            "form-row";
+
+        const label =
+            document.createElement("label");
+
+        label.textContent = labelText;
+
+        const input =
+            document.createElement("input");
+
+        input.type = type;
+        input.value = value;
+
+        wrapper.append(label, input);
+
+        return {
+            wrapper,
+            input
+        };
+    }
+
+    function signinDialog() {
+        if (signedIn) {
+            showDialog(
+                "Windows Messenger",
+                "You are already signed in."
+            );
+            return;
+        }
+
+        openDialogContainer(
+            "Sign in to Windows Messenger"
+        );
+
+        const text =
+            document.createElement("p");
+
+        text.textContent =
+            "This is a local simulation. No password or account information is sent over the Internet.";
+
+        const name =
+            createFormRow(
+                "Display name:",
+                "text",
+                profile.name || "Windows XP User"
+            );
+
+        const email =
+            createFormRow(
+                "E-mail address:",
+                "email",
+                profile.email || "user@example.com"
+            );
+
+        xpDialog.append(
+            text,
+            name.wrapper,
+            email.wrapper
+        );
+
+        addDialogButtons([
+            {
+                label: "Sign In",
+                action: () => {
+                    const display =
+                        name.input.value.trim();
+
+                    const address =
+                        email.input.value.trim();
+
+                    if (!display || !address) {
+                        showDialog(
+                            "Windows Messenger",
+                            "Please enter a display name and e-mail address."
+                        );
+                        return;
+                    }
+
+                    profile.name = display;
+                    profile.email = address;
+                    profile.status = "online";
+
+                    signedIn = true;
+
+                    saveState();
+                    closeDialog();
+                    render();
+                    beep(670, 0.08);
+                }
+            },
+            {
+                label: "Cancel",
+                action: closeDialog
+            }
+        ]);
+
+        name.input.focus();
+    }
+
+    function signOut() {
+        if (!signedIn) {
+            return;
+        }
+
+        showDialog(
+            "Windows Messenger",
+            "Are you sure you want to sign out?",
+            [
+                {
+                    label: "Yes",
+                    action: () => {
+                        signedIn = false;
+                        selectedContactId = null;
+
+                        saveState();
+                        closeDialog();
+                        render();
+                    }
+                },
+                {
+                    label: "No",
+                    action: closeDialog
+                }
+            ]
+        );
+    }
+
+    function optionsDialog() {
+        openDialogContainer(
+            "Windows Messenger Options"
+        );
+
+        const text =
+            document.createElement("p");
+
+        text.textContent =
+            "Choose how this local Messenger simulation behaves.";
+
+        xpDialog.appendChild(text);
+
+        const soundRow =
+            document.createElement("label");
+
+        soundRow.className =
+            "option-row";
+
+        const sounds =
+            document.createElement("input");
+
+        sounds.type = "checkbox";
+        sounds.checked =
+            options.sounds;
+
+        const soundsLabel =
+            document.createElement("span");
+
+        soundsLabel.textContent =
+            "Play Messenger-style notification tones";
+
+        soundRow.append(
+            sounds,
+            soundsLabel
+        );
+
+        const offlineRow =
+            document.createElement("label");
+
+        offlineRow.className =
+            "option-row";
+
+        const showOffline =
+            document.createElement("input");
+
+        showOffline.type = "checkbox";
+        showOffline.checked =
+            options.showOffline;
+
+        const offlineLabel =
+            document.createElement("span");
+
+        offlineLabel.textContent =
+            "Show contacts who are not online";
+
+        offlineRow.append(
+            showOffline,
+            offlineLabel
+        );
+
+        xpDialog.append(
+            soundRow,
+            offlineRow
+        );
+
+        addDialogButtons([
+            {
+                label: "OK",
+                action: () => {
+                    options.sounds =
+                        sounds.checked;
+
+                    options.showOffline =
+                        showOffline.checked;
+
+                    saveState();
+                    closeDialog();
+                    renderContacts();
+                }
+            },
+            {
+                label: "Cancel",
+                action: closeDialog
+            }
+        ]);
+    }
+
+    function showContactDialog(contact) {
+        openDialogContainer(
+            contact.name
+        );
+
+        const text =
+            document.createElement("p");
+
+        text.textContent =
+            contact.email +
+            " — " +
+            contactStatusText(contact.status);
+
+        xpDialog.appendChild(text);
+
+        addDialogButtons([
+            {
+                label: "Message",
+                action: () => {
+                    closeDialog();
+                    openChat(contact.id);
+                }
+            },
+            {
+                label: "Remove",
+                action: () => {
+                    contacts =
+                        contacts.filter(
+                            c => c.id !== contact.id
+                        );
+
+                    if (
+                        selectedContactId ===
+                        contact.id
+                    ) {
+                        selectedContactId =
+                            null;
+                    }
+
+                    saveState();
+                    closeDialog();
+                    render();
+                }
+            },
+            {
+                label: "Close",
+                action: closeDialog
+            }
+        ]);
+    }
+
+    function callContact() {
+        if (!signedIn) {
+            showDialog(
+                "Voice Conversation",
+                "You must sign in first."
+            );
+            return;
+        }
+
+        let contact =
+            getSelectedContact();
+
+        if (!contact) {
+            contact =
+                contacts.find(
+                    c => c.status !== "offline"
+                );
+
+            if (contact) {
+                selectedContactId =
+                    contact.id;
+            }
+        }
+
+        if (!contact) {
+            showDialog(
+                "Voice Conversation",
+                "There are no online contacts available."
+            );
+            return;
+        }
+
+        if (contact.status === "offline") {
+            showDialog(
+                "Voice Conversation",
+                `${contact.name} is not online.`
+            );
+            return;
+        }
+
+        beep(520, 0.09);
+
+        showDialog(
+            "Voice Conversation",
+            `Calling ${contact.name}...\n\n` +
+            "Voice calling is simulated because this web module does not connect to the original Messenger network.",
+            [
+                {
+                    label: "Hang Up",
+                    action: closeDialog
+                }
+            ]
+        );
+    }
+
+    function sendFile() {
+        const contact =
+            getSelectedContact();
+
+        if (!contact) {
+            showDialog(
+                "Send a File",
+                "Select a contact first."
+            );
+            return;
+        }
+
+        openDialogContainer(
+            "Send a File"
+        );
+
+        const text =
+            document.createElement("p");
+
+        text.textContent =
+            "Choose a local file. The simulation will display it in the conversation but will not upload it anywhere.";
+
+        const row =
+            document.createElement("div");
+
+        row.className = "form-row";
+
+        const input =
+            document.createElement("input");
+
+        input.type = "file";
+
+        row.appendChild(input);
+
+        xpDialog.append(
+            text,
+            row
+        );
+
+        addDialogButtons([
+            {
+                label: "Send",
+                action: () => {
+                    if (
+                        !input.files ||
+                        input.files.length === 0
+                    ) {
+                        showDialog(
+                            "Send a File",
+                            "Select a file first."
+                        );
+                        return;
+                    }
+
+                    const filename =
+                        input.files[0].name;
+
+                    if (!messages[contact.id]) {
+                        messages[contact.id] = [];
+                    }
+
+                    messages[contact.id].push({
+                        from: "me",
+                        text:
+                            `[File transfer simulation: ${filename}]`,
+                        time: Date.now()
+                    });
+
+                    saveState();
+                    closeDialog();
+
+                    if (
+                        selectedContactId ===
+                        contact.id
+                    ) {
+                        renderTranscript();
+                    }
+
+                    beep(620, 0.05);
+                }
+            },
+            {
+                label: "Cancel",
+                action: closeDialog
+            }
+        ]);
+    }
+
+    function showInbox() {
+        showDialog(
+            "E-mail Inbox",
+            "The original Windows Messenger could link to the user's online mail account. This offline simulation does not connect to an e-mail service."
+        );
+    }
+
+    function audioWizard() {
+        openDialogContainer(
+            "Audio Tuning Wizard"
+        );
+
+        const text =
+            document.createElement("p");
+
+        text.textContent =
+            "Use the button below to test the simulated Messenger notification audio.";
+
+        xpDialog.appendChild(text);
+
+        addDialogButtons([
+            {
+                label: "Test Sound",
+                action: () => {
+                    beep(520, 0.08);
+
+                    setTimeout(
+                        () =>
+                            beep(
+                                720,
+                                0.08
+                            ),
+                        110
+                    );
+                }
+            },
+            {
+                label: "Close",
+                action: closeDialog
+            }
+        ]);
+    }
+
+    function helpDialog() {
+        showDialog(
+            "Windows Messenger Help",
+            "Double-click a contact to start an instant message conversation. Use Add to create contacts, Send to open a conversation, and Call to simulate a voice conversation. Right-click a contact for additional commands."
+        );
+    }
+
+    function aboutDialog() {
+        openDialogContainer(
+            "About Windows Messenger"
+        );
+
+        const logo =
+            document.createElement("div");
+
+        logo.className =
+            "about-logo";
+
+        logo.innerHTML = `
+            <div class="people-logo about-people">
+                <div class="person green">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <div class="person blue">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+            </div>
+        `;
+
+        const title =
+            document.createElement("div");
+
+        title.className =
+            "about-title";
+
+        title.textContent =
+            "Windows Messenger";
+
+        const version =
+            document.createElement("div");
+
+        version.className =
+            "about-version";
+
+        version.textContent =
+            "Windows XP 4.7-style Web Simulation";
+
+        const text =
+            document.createElement("p");
+
+        text.textContent =
+            "A browser-based recreation made for a Windows XP Luna desktop simulator. It does not contain Microsoft's original program code and does not connect to the original Messenger service.";
+
+        xpDialog.append(
+            logo,
+            title,
+            version,
+            text
+        );
+
+        addDialogButtons([
+            {
+                label: "OK",
+                action: closeDialog
+            }
+        ]);
+    }
+
+    function setStatus(status) {
+        if (!signedIn) {
+            return;
+        }
+
+        profile.status = status;
+        saveState();
+        render();
+        closeMenus();
+    }
+
+    function openSendAction() {
+        if (!signedIn) {
+            signinDialog();
+            return;
+        }
+
+        const selected =
+            getSelectedContact();
+
+        if (selected) {
+            openChat(selected.id);
+            return;
+        }
+
+        const firstOnline =
+            contacts.find(
+                c => c.status !== "offline"
+            );
+
+        if (firstOnline) {
+            selectedContactId =
+                firstOnline.id;
+
+            openChat(firstOnline.id);
+            return;
+        }
+
+        showDialog(
+            "Send an Instant Message",
+            "There are no contacts available. Add a contact first."
+        );
+    }
+
+    /* =====================================================
+       MENUS
+       ===================================================== */
+
+    function closeMenus() {
+        document
+            .querySelectorAll(".dropdown-menu")
+            .forEach(menu =>
+                menu.classList.add("hidden")
+            );
+
+        document
+            .querySelectorAll(".menu-button")
+            .forEach(button =>
+                button.classList.remove("active")
+            );
+    }
+
+    function toggleMenu(button) {
+        const name =
+            button.dataset.menu;
+
+        const target =
+            document.getElementById(
+                "menu-" + name
+            );
+
+        const wasHidden =
+            target.classList.contains("hidden");
+
+        closeMenus();
+
+        if (wasHidden) {
+            target.classList.remove("hidden");
+            button.classList.add("active");
+
+            const rect =
+                button.getBoundingClientRect();
+
+            const barRect =
+                menuBar.getBoundingClientRect();
+
+            target.style.left =
+                (rect.left - barRect.left) +
+                "px";
+        }
+    }
+
+    document
+        .querySelectorAll(".menu-button")
+        .forEach(button => {
+            button.addEventListener(
+                "click",
+                event => {
+                    event.stopPropagation();
+                    toggleMenu(button);
+                }
+            );
+        });
+
+    document.addEventListener(
+        "click",
+        event => {
+            if (
+                !event.target.closest(
+                    ".dropdown-menu"
+                )
+            ) {
+                closeMenus();
+            }
+        }
+    );
+
+    /* =====================================================
+       ACTION ROUTING
+       ===================================================== */
+
+    function performAction(action) {
+        closeMenus();
+
+        switch (action) {
+            case "signin":
+                signinDialog();
+                break;
+
+            case "signout":
+                signOut();
+                break;
+
+            case "status-online":
+                setStatus("online");
+                break;
+
+            case "status-away":
+                setStatus("away");
+                break;
+
+            case "status-busy":
+                setStatus("busy");
+                break;
+
+            case "status-offline":
+                setStatus("offline");
+                break;
+
+            case "add":
+                addContactDialog();
+                break;
+
+            case "send":
+                openSendAction();
+                break;
+
+            case "call":
+                callContact();
+                break;
+
+            case "file":
+                sendFile();
+                break;
+
+            case "audio":
+                audioWizard();
+                break;
+
+            case "options":
+                optionsDialog();
+                break;
+
+            case "help":
+                helpDialog();
+                break;
+
+            case "about":
+                aboutDialog();
+                break;
+
+            case "close":
+                try {
+                    window.parent.postMessage(
+                        {
+                            type:
+                                "xp-app-close",
+                            app:
+                                "windows-messenger"
+                        },
+                        "*"
+                    );
+                } catch {
+                    /* Optional parent integration. */
+                }
+
+                break;
+        }
+    }
+
+    document
+        .querySelectorAll("[data-action]")
+        .forEach(element => {
+            element.addEventListener(
+                "click",
+                event => {
+                    event.preventDefault();
+
+                    performAction(
+                        element.dataset.action
+                    );
+                }
+            );
+        });
+
+    /* =====================================================
+       DIRECT UI EVENTS
+       ===================================================== */
+
+    document
+        .getElementById("backButton")
+        .addEventListener(
+            "click",
+            closeChat
+        );
+
+    document
+        .getElementById("sendButton")
+        .addEventListener(
+            "click",
+            sendMessage
+        );
+
+    document
+        .getElementById("callButton")
+        .addEventListener(
+            "click",
+            callContact
+        );
+
+    document
+        .getElementById("fileButton")
+        .addEventListener(
+            "click",
+            sendFile
+        );
+
+    document
+        .getElementById("signInLink")
+        .addEventListener(
+            "click",
+            signinDialog
+        );
+
+    statusLink.addEventListener(
+        "click",
+        () => statusSelect.focus()
+    );
+
+    statusSelect.addEventListener(
+        "change",
+        () => {
+            setStatus(
+                statusSelect.value
+            );
+        }
+    );
+
+    messageInput.addEventListener(
+        "keydown",
+        event => {
+            if (
+                event.key === "Enter" &&
+                !event.shiftKey
+            ) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+    );
+
+    dialogOverlay.addEventListener(
+        "mousedown",
+        event => {
+            if (
+                event.target ===
+                dialogOverlay
+            ) {
+                /* Intentionally do nothing.
+                   XP dialogs should require a button. */
+            }
+        }
+    );
+
+    document.addEventListener(
+        "keydown",
+        event => {
+            if (
+                event.key === "Escape" &&
+                !dialogOverlay.classList.contains(
+                    "hidden"
+                )
+            ) {
+                closeDialog();
+                return;
+            }
+
+            if (
+                event.ctrlKey &&
+                event.key.toLowerCase() === "n"
+            ) {
+                event.preventDefault();
+                addContactDialog();
+            }
+        }
+    );
+
+    /* =====================================================
+       INITIALIZE
+       ===================================================== */
+
+    render();
+
+})();
+</script>
+
+</body>
+</html>

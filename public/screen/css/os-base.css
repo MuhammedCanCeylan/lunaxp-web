@@ -1,0 +1,308 @@
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    user-select: none; 
+    font-family: Tahoma, 'Segoe UI', sans-serif; 
+}
+
+html, body { 
+    width: 100%; 
+    height: 100%; 
+    overflow: hidden; 
+}
+
+body { 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: space-between; 
+    position: relative; 
+    background: #3a6ea5; 
+}
+
+body.wall-bliss { 
+    background: url('https://upload.wikimedia.org/wikipedia/en/2/27/Bliss_%28Windows_XP%29.png') no-repeat center center fixed; 
+    background-size: cover; 
+}
+body.wall-blue  { background: #1941a5; }
+body.wall-green { background: #14562d; }
+body.wall-red   { background: #7a1414; }
+
+/* ==================== BOOT, LOGIN & SHUTDOWN ==================== */
+#bootScreen { 
+    position: fixed; 
+    inset: 0; 
+    background: #000; 
+    z-index: 99999; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    color: #fff; 
+}
+.boot-logo { display: flex; align-items: center; gap: 14px; margin-bottom: 46px; }
+.boot-logo-text { font-size: 40px; font-weight: 300; letter-spacing: 1px; }
+.boot-bar-track { width: 220px; height: 14px; border: 1px solid #2a2a2a; border-radius: 3px; overflow: hidden; background: #111; }
+.boot-chunk { 
+    width: 30px; 
+    height: 100%; 
+    background: linear-gradient(to bottom, #4f9cf9, #0a3fae); 
+    margin-right: 4px; 
+    animation: bootMove 1.2s linear infinite; 
+}
+@keyframes bootMove { 
+    0% { transform: translateX(-140px); } 
+    100% { transform: translateX(260px); } 
+}
+
+#loginScreen { 
+    position: fixed; 
+    inset: 0; 
+    z-index: 99998; 
+    background: linear-gradient(120deg, #1a3faa 0%, #2f6fd6 45%, #6fb0f0 100%); 
+    display: none; 
+    flex-direction: column; 
+    color: #fff; 
+    overflow: hidden; 
+}
+.login-top { padding: 22px 34px 0; display: flex; align-items: center; gap: 12px; }
+.login-top .xp-title { font-size: 26px; font-style: italic; }
+.login-mid { flex: 1; display: flex; align-items: center; justify-content: center; gap: 60px; }
+.login-divider { width: 2px; height: 220px; background: rgba(255,255,255,0.5); }
+.user-tile { display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; padding: 14px 18px; border-radius: 8px; }
+.user-tile:hover { background: rgba(255,255,255,0.18); }
+.user-tile-pic { width: 72px; height: 72px; border-radius: 6px; border: 2px solid #fff; box-shadow: 2px 3px 8px rgba(0,0,0,0.5); object-fit: cover; background: #333; }
+
+#shutdownScreen { 
+    position: fixed; 
+    inset: 0; 
+    z-index: 99997; 
+    background: #000; 
+    color: #fff; 
+    display: none; 
+    align-items: center; 
+    justify-content: center; 
+    flex-direction: column; 
+    gap: 20px; 
+}
+.shutdown-btn { background: linear-gradient(to bottom, #4a90f2, #0d51c9); color: #fff; border: 1px solid #fff; padding: 8px 18px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+
+/* ==================== MASAÜSTÜ & SİMGELER ==================== */
+.desktop { flex: 1; position: relative; overflow: hidden; }
+.icon { 
+    position: absolute; 
+    width: 80px; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    cursor: pointer; 
+    text-align: center; 
+    padding: 6px 4px; 
+    border-radius: 3px; 
+    border: 1px solid transparent; 
+    touch-action: none; 
+    z-index: 5; 
+}
+.icon:hover { background-color: rgba(49, 106, 197, 0.2); }
+.icon.selected { background-color: rgba(49, 106, 197, 0.4); border: 1px solid rgba(49, 106, 197, 0.7); }
+.icon img { width: 38px; height: 38px; margin-bottom: 4px; filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.6)); pointer-events: none; }
+.icon span { color: #ffffff; font-size: 11px; text-shadow: 1px 1px 2px #000, -1px -1px 2px #000; pointer-events: none; }
+
+/* Sürükleyerek Seçim Dikdörtgeni */
+#selectionBox { 
+    position: absolute; 
+    display: none; 
+    background: rgba(49, 106, 197, 0.35); 
+    border: 1px dotted #002e8a; 
+    z-index: 4; 
+    pointer-events: none; 
+}
+
+/* Masaüstü İsim Düzenleme */
+.icon-rename-input {
+    width: 82px;
+    font-size: 11px;
+    font-family: Tahoma, sans-serif;
+    text-align: center;
+    border: 1px solid #000;
+    outline: none;
+    background: #fff;
+    color: #000;
+    padding: 1px 2px;
+    z-index: 10;
+}
+
+.xp-tooltip { 
+    position: fixed; 
+    background: #ffffe1; 
+    border: 1px solid #000; 
+    color: #000; 
+    padding: 3px 6px; 
+    font-size: 11px; 
+    box-shadow: 2px 2px 3px rgba(0,0,0,0.3); 
+    pointer-events: none; 
+    z-index: 50000; 
+    display: none; 
+    white-space: pre-wrap; 
+    max-width: 250px; 
+}
+
+/* ==================== GELİŞMİŞ SAĞ TIK MENÜSÜ ==================== */
+.xp-ctx-menu {
+    position: fixed;
+    background: #ffffff;
+    border: 1px solid #aca899;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.35);
+    padding: 2px 0;
+    min-width: 175px;
+    z-index: 250000;
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    color: #000;
+    display: none;
+}
+.xp-ctx-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 12px 4px 22px;
+    cursor: default;
+    white-space: nowrap;
+}
+.xp-ctx-item:hover { background: #316ac5; color: #ffffff; }
+.xp-ctx-item.disabled { color: #aca899; pointer-events: none; }
+.xp-ctx-sep { height: 1px; background: #aca899; margin: 3px 2px; }
+.xp-ctx-arrow { font-size: 9px; margin-left: 12px; }
+
+/* Alt Menüler (Submenus) */
+.xp-ctx-parent:hover > .xp-ctx-sub { display: block; }
+.xp-ctx-sub {
+    display: none;
+    position: absolute;
+    left: 100%;
+    top: -3px;
+    background: #ffffff;
+    border: 1px solid #aca899;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.35);
+    padding: 2px 0;
+    min-width: 165px;
+    z-index: 250001;
+}
+
+/* ==================== GÖREV ÇUBUĞU & BAŞLAT MENÜSÜ ==================== */
+.taskbar { 
+    height: 30px; 
+    background: linear-gradient(to bottom, #245edb 0%, #3f8cf3 9%, #245edb 18%, #245edb 92%, #1941a5 100%); 
+    display: flex; 
+    align-items: center; 
+    position: relative; 
+    z-index: 10000; 
+    border-top: 1px solid #3f8cf3; 
+}
+.start-btn { 
+    height: 30px; 
+    width: 105px; 
+    background: linear-gradient(to bottom, #388e3c 0%, #4caf50 15%, #2e7d32 85%, #1b5e20 100%); 
+    border-radius: 0 10px 10px 0; 
+    display: flex; 
+    align-items: center; 
+    padding-left: 8px; 
+    cursor: pointer; 
+}
+.start-btn span { color: #fff; font-weight: bold; font-style: italic; font-size: 14px; margin-left: 6px; }
+#taskbarApps { flex: 1; display: flex; align-items: center; gap: 4px; padding: 0 6px; overflow: hidden; height: 100%; }
+.tray { 
+    height: 100%; 
+    background: #095bc5; 
+    border-left: 1px solid #104193; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    padding: 0 10px; 
+    color: #fff; 
+    font-size: 11px; 
+}
+
+.start-menu { 
+    position: absolute; 
+    bottom: 30px; 
+    left: 0; 
+    width: 340px; 
+    background: #fff; 
+    border-radius: 6px 6px 0 0; 
+    box-shadow: 4px -4px 15px rgba(0,0,0,0.5); 
+    display: none; 
+    flex-direction: column; 
+    border: 2px solid #0055ea; 
+    z-index: 20000; 
+    overflow: hidden; 
+}
+.start-header { 
+    background: linear-gradient(to bottom, #1d6df2 0%, #0053ee 100%); 
+    padding: 8px 10px; 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    color: white; 
+    font-weight: bold; 
+    font-size: 13px; 
+    height: 56px; 
+}
+.start-body { display: flex; background: #fff; min-height: 260px; }
+.start-left { width: 55%; padding: 8px; display: flex; flex-direction: column; gap: 4px; }
+.start-right { width: 45%; padding: 8px; background: #d3e5fa; border-left: 1px solid #9bbcf0; display: flex; flex-direction: column; gap: 4px; font-size: 11px; }
+.menu-item { display: flex; align-items: center; gap: 8px; padding: 5px; cursor: pointer; border-radius: 3px; font-size: 11px; }
+.menu-item:hover { background: #316ac5; color: white !important; }
+.start-footer { background: linear-gradient(to bottom, #2f6fd6 0%, #1b4fbb 100%); display: flex; justify-content: flex-end; gap: 8px; padding: 6px 10px; }
+.start-footer-btn { color: #fff; font-size: 11px; font-weight: bold; cursor: pointer; padding: 4px 8px; border-radius: 3px; }
+
+/* ==================== SES ARAYÜZÜ (MIXER POPUP) ==================== */
+#volumePopup { 
+    position: absolute; 
+    bottom: 31px; 
+    right: 60px; 
+    width: 78px; 
+    height: 168px; 
+    background: #ece9d8; 
+    border: 2px outset #ffffff; 
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.5); 
+    display: none; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: space-between; 
+    padding: 10px 4px 8px; 
+    z-index: 25000; 
+}
+.vol-range-input { 
+    position: absolute; 
+    width: 90px; 
+    height: 28px; 
+    transform: rotate(-90deg); 
+    -webkit-appearance: none; 
+    background: transparent; 
+    cursor: pointer; 
+    margin: 0; 
+    outline: none; 
+    z-index: 5; 
+}
+.vol-range-input::-webkit-slider-thumb { 
+    -webkit-appearance: none; 
+    width: 11px; 
+    height: 26px; 
+    border-radius: 1px; 
+    background: linear-gradient(to right, #1dbb1d 0%, #1dbb1d 15%, #ece9d8 20%, #ffffff 50%, #b0b0b0 80%, #1dbb1d 85%, #1dbb1d 100%); 
+    border: 1px solid #000; 
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.4); 
+    cursor: pointer; 
+}
+
+/* ==================== DİĞER ==================== */
+#screensaverCanvas { 
+    position: fixed; 
+    inset: 0; 
+    z-index: 99990; 
+    display: none; 
+    background: #000; 
+    cursor: none; 
+}

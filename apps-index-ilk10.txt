@@ -1,0 +1,1165 @@
+﻿WINDOWS XP PROJESİ - APP INDEX.HTML İLK 10 SATIR RAPORU
+Olusturulma: 09/19/2026 23:55:14
+
+============================================================
+APP: _runtime
+[ index.html YOK ]
+
+============================================================
+APP: access2003
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\access2003\index.html
+BOYUT: 55460 byte
+SATIR SAYISI: 778
+------------------------------------------------------------
+<!--
+ACCESS 2003 XP SIMULATOR - ASSET LISTESI
+Bu dosyalar index.html ile AYNI KLASORE konulabilir. Hepsi opsiyoneldir; yuklenmezse CSS/Unicode fallback ikonlari kullanilir.
+
+| Dosya adi        | Tavsiye edilen boyut | Kullanim / Aciklama                         |
+|------------------|-----------------------|---------------------------------------------|
+| access2003.png   | 32x32                 | Access uygulama logosu                      |
+| database.png     | 24x24                 | Veritabani / Database ikonu                 |
+| table.png        | 16x16                 | Tables nesne ikonu                          |
+| query.png        | 16x16                 | Queries nesne ikonu                         |
+
+============================================================
+APP: adobereader
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\adobereader\index.html
+BOYUT: 26785 byte
+SATIR SAYISI: 1398
+------------------------------------------------------------
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!--
+============================================================
+GEREKLÄ° ASSETLER
+============================================================
+
+============================================================
+APP: airxonix
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\airxonix\index.html
+BOYUT: 1687 byte
+SATIR SAYISI: 65
+------------------------------------------------------------
+<!doctype html>
+<html>
+	<head>
+		<title>Xonix</title>
+		<meta charset="utf-8" />
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+      }
+
+============================================================
+APP: aoe2
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\aoe2\index.html
+BOYUT: 2148 byte
+SATIR SAYISI: 45
+------------------------------------------------------------
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Age of Epochs (Classic UI)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<link rel="stylesheet" href="classic-style.css">
+<!-- Cookieless, privacy-first traffic analytics (GoatCounter): referrer/UTM
+     acquisition data, no cookies, no IP stored, no consent banner needed. -->
+<script data-goatcounter="https://ageofepochs.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</head><body class="classic-ui">
+<!-- All shared markup (HUD, menus, overlays) lives in js/page-shell.js â€”
+     this page and classic.html are thin variant shells so the two skins
+
+============================================================
+APP: aom
+[ index.html YOK ]
+
+============================================================
+APP: ares
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\ares\index.html
+BOYUT: 86441 byte
+SATIR SAYISI: 3930
+------------------------------------------------------------
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+>
+<title>Ares</title>
+
+
+============================================================
+APP: avast
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\avast\index.html
+BOYUT: 30230 byte
+SATIR SAYISI: 739
+------------------------------------------------------------
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>avast! 4 Antivirus</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden}
+body{
+    font-family:Tahoma,Verdana,sans-serif;
+
+============================================================
+APP: bonzi
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\bonzi\index.html
+BOYUT: 14256 byte
+SATIR SAYISI: 464
+------------------------------------------------------------
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>BonziBUDDY</title>
+<link rel="stylesheet" href="clippy.js/build/clippy.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, sans-serif; }
+
+  /* ====== TAM SAYDAM ARKA PLAN ====== */
+
+============================================================
+APP: bsplayer
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\bsplayer\index.html
+BOYUT: 58940 byte
+SATIR SAYISI: 2467
+------------------------------------------------------------
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BS.Player</title>
+
+<style>
+* {
+    box-sizing: border-box;
+
+============================================================
+APP: bully
+[ index.html YOK ]
+
+============================================================
+APP: calculator
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\calculator\index.html
+BOYUT: 5894 byte
+SATIR SAYISI: 113
+------------------------------------------------------------
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Calculator</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: Tahoma, sans-serif; }
+html, body { width: 100%; height: 100%; background: #ece9d8; display: flex; flex-direction: column; }
+.calc-menu { background: #ece9d8; padding: 2px 6px; font-size: 11px; display: flex; gap: 12px; border-bottom: 1px solid #d4d0c8; }
+.calc-menu span { cursor: pointer; }
+
+============================================================
+APP: charmap
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\charmap\index.html
+BOYUT: 42777 byte
+SATIR SAYISI: 1663
+------------------------------------------------------------
+<!--
+GEREKLÄ° ASSETLER (index.html ile aynÄ± klasÃ¶re atÄ±lacak):
+
+| Dosya AdÄ± | Tavsiye Edilen Boyut | Format | AÃ§Ä±klama |
+| :--- | :--- | :--- | :--- |
+| icon.png | 32x32 | PNG (Åžeffaf) | MasaÃ¼stÃ¼ / kayÄ±t defteri Character Map simgesi (ZORUNLU) |
+
+NOTLAR:
+- Uygulama baÅŸka hiÃ§bir harici asset gerektirmez.
+- icon.png yÃ¼klenemezse sayfa iÃ§inde kullanÄ±lan gizli asset kontrolÃ¼
+
+============================================================
+APP: chickeninvaders
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\chickeninvaders\index.html
+BOYUT: 38133 byte
+SATIR SAYISI: 632
+------------------------------------------------------------
+<!--
+CHICKEN INVADERS XP - ENHANCED EDITION - ASSET LISTESI
+Bu dosya static/screen/apps/chickeninvaders/index.html olarak kullanilabilir.
+Mevcut Yol 2 kurulumundaki img/ ve audio/ klasorlerini kullanir. Tum assetler opsiyoneldir;
+yuklenmezlerse Canvas/CSS fallback cizimleri devreye girer.
+
+| Dosya adi                  | Tavsiye edilen boyut | Kullanim / Aciklama                         |
+|---------------------------|-----------------------|---------------------------------------------|
+| icon.png                  | 32x32 PNG             | XP masaustu kayit/uygulama ikonu            |
+| img/Small_Plane.png       | 64-128 px             | Oyuncu gemisi                               |
+
+============================================================
+APP: chrome
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\chrome\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: cleanmgr
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\cleanmgr\index.html
+BOYUT: 33903 byte
+SATIR SAYISI: 873
+------------------------------------------------------------
+<!--
+CLEANMGR / WINDOWS XP DISK CLEANUP SIMULATOR - ASSET LISTESI
+Bu dosyalar index.html ile AYNI KLASORE konulabilir. icon.png masaustu kayit defteri icin zorunludur.
+Uygulama calisirken icon.png bulunamazsa yerlesik SVG Data URI fallback'i kullanilir.
+
+| Dosya adi | Tavsiye edilen boyut | Format | Zorunlu | Kullanim / Aciklama |
+|------------|-----------------------|--------|---------|---------------------|
+| icon.png   | 32x32                 | PNG, seffaf | EVET | Masaustu/uygulama simgesi ve Disk Cleanup ana simgesi |
+
+NOTLAR:
+
+============================================================
+APP: cmd
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\cmd\index.html
+BOYUT: 31026 byte
+SATIR SAYISI: 569
+------------------------------------------------------------
+<!--
+WINDOWS XP COMMAND PROMPT SIMULATOR - ASSET LISTESI
+Bu dosya `static/screen/apps/cmd/index.html` olarak kullanilmak uzere tasarlanmistir.
+Uygulamanin kendi arayuzu harici gorsel gerektirmez; masaustu kayit defteri icin `icon.png` zorunludur.
+
+| Dosya adi | Tavsiye edilen boyut | Format | Kullanim / Aciklama |
+|------------|-----------------------|--------|----------------------|
+| icon.png   | 32x32                 | PNG, seffaf | Ana Windows XP masaustunde Command Prompt uygulama ikonu |
+
+NOTLAR:
+
+============================================================
+APP: cod
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\cod\index.html
+BOYUT: 35578 byte
+SATIR SAYISI: 478
+------------------------------------------------------------
+<!--
+CALL OF DUTY (2003) - XP NOSTALGIA LAUNCHER / MINI FPS SIMULATOR - ASSET LISTESI
+Bu dosya iframe icinde tek basina calisir. Harici kutuphane, CDN, font, ses veya sunucu servisi gerekmez.
+
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama |
+|---|---:|---|---|
+| icon.png | 32x32 | ZORUNLU (ana XP masaustu kaydi icin) | Uygulama/oyun masaustu ikonu. Seffaf PNG tavsiye edilir. |
+| menu-bg.jpg | 1280x720 | Opsiyonel | Istersen CSS ile uretilen savas arka planinin yerine kullanabilirsin. |
+| logo.png | 420x120 | Opsiyonel | Istersen metin tabanli basligin yerine kendi lisansli/fan logo gorselini kullanabilirsin. |
+
+
+============================================================
+APP: cod2
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\cod2\index.html
+BOYUT: 64698 byte
+SATIR SAYISI: 2754
+------------------------------------------------------------
+<!--
+CALL OF DUTY 2 - NOSTALGIC LAUNCHER / CINEMATIC SHOWCASE - ASSET LISTESI
+
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama |
+|------------|----------------------|------------|----------------------|
+| icon.png   | 32x32                | Zorunlu    | XP masaustu ikonu    |
+
+NOT:
+- Uygulama iÃ§erisinde harici gÃ¶rsel kullanÄ±lmaz.
+- Arka planlar, sis, film grain, tracer ve sinematik sahneler CSS/JS ile Ã¼retilir.
+
+============================================================
+APP: control
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\control\index.html
+BOYUT: 36485 byte
+SATIR SAYISI: 270
+------------------------------------------------------------
+<!--
+CONTROL // FBC TERMINAL EXPERIENCE - ASSET LISTESI
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama |
+|------------|----------------------|------------|----------------------------------------------|
+| icon.png   | 32x32                | Zorunlu    | XP masaustu / uygulama ikonu                 |
+
+NOTLAR:
+- Bu proje agir 3D oyunu taklit eden sahte bir canvas shooter DEGILDIR.
+- Control icin atmosferik launcher / Bureau terminal / cinematic showcase modudur.
+- Temel deneyim tamamen yereldir; YouTube veya harici CDN gerektirmez.
+
+============================================================
+APP: crazytaxi
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\crazytaxi\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: cs16
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\cs16\index.html
+BOYUT: 348 byte
+SATIR SAYISI: 13
+------------------------------------------------------------
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body, iframe { width:100%; height:100%; border:none; overflow:hidden; background:#000; }
+</style>
+</head>
+<body>
+
+============================================================
+APP: cssource
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\cssource\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: cv
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\cv\index.html
+BOYUT: 2879 byte
+SATIR SAYISI: 49
+------------------------------------------------------------
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, sans-serif; }
+html, body { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; background: #fff; }
+.cv-toolbar { background: #ece9d8; padding: 5px 8px; border-bottom: 1px solid #999; font-size: 11px; display: flex; gap: 16px; align-items: center; }
+.cv-toolbar a, .cv-toolbar span { color: #003c8f; font-weight: bold; text-decoration: none; cursor: pointer; }
+.cv-toolbar span:hover, .cv-toolbar a:hover { text-decoration: underline; }
+
+============================================================
+APP: defrag
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\defrag\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: diablo2
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\diablo2\index.html
+BOYUT: 349 byte
+SATIR SAYISI: 13
+------------------------------------------------------------
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body, iframe { width:100%; height:100%; border:none; overflow:hidden; background:#000; }
+</style>
+</head>
+<body>
+
+============================================================
+APP: doom
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\doom\index.html
+BOYUT: 430 byte
+SATIR SAYISI: 14
+------------------------------------------------------------
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>DOOM (1993)</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body, iframe { width:100%; height:100%; border:none; overflow:hidden; background:#000; }
+</style>
+</head>
+
+============================================================
+APP: doom3
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\doom3\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: dreamweaver
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\dreamweaver\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: emule
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\emule\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: excel2003
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\excel2003\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: explorer
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\explorer\index.html
+BOYUT: 48005 byte
+SATIR SAYISI: 974
+------------------------------------------------------------
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>BilgisayarÄ±m</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+body {
+    font-family: Tahoma, "MS Sans Serif", sans-serif;
+
+============================================================
+APP: farcry
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\farcry\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: feedingfrenzy
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\feedingfrenzy\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: fifa
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\fifa\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: firefox
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\firefox\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: flashmx
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\flashmx\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: flashplayer
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\flashplayer\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: flatout
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\flatout\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: fm
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\fm\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: freecell
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\freecell\index.html
+BOYUT: 335 byte
+SATIR SAYISI: 13
+------------------------------------------------------------
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body, iframe { width:100%; height:100%; border:none; overflow:hidden; background:#008000; }
+</style>
+</head>
+<body>
+
+============================================================
+APP: frontpage
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\frontpage\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: generals
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\generals\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: gtasa
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\gtasa\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: gtavc
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\gtavc\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: halflife
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\halflife\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: halflife2
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\halflife2\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: hearts
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\hearts\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: help
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\help\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: hitman_bm
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\hitman_bm\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: hitman2
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\hitman2\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: hyperterminal
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\hyperterminal\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: icq
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\icq\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: ie
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\ie\index.html
+BOYUT: 65193 byte
+SATIR SAYISI: 1771
+------------------------------------------------------------
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Internet Explorer</title>
+<style>
+/* ============================================================
+   TEMEL
+   ============================================================ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+============================================================
+APP: insaniquarium
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\insaniquarium\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: java
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\java\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: klite
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\klite\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: limewire
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\limewire\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: mafia
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\mafia\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: maxpayne
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\maxpayne\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: maxpayne2
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\maxpayne2\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: midtownmadness2
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\midtownmadness2\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: minesweeper
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\minesweeper\index.html
+BOYUT: 22639 byte
+SATIR SAYISI: 541
+------------------------------------------------------------
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>MayÄ±n TarlasÄ±</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+body {
+    font-family: Tahoma, "Segoe UI", Verdana, sans-serif;
+
+============================================================
+APP: mirc
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\mirc\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: mohaa
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\mohaa\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: moviemaker
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\moviemaker\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: msn
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\msn\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: mstsc
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\mstsc\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: neighboursfromhell
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\neighboursfromhell\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: nero
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\nero\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: nfsmw
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\nfsmw\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: nfsu
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\nfsu\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: nfsu2
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\nfsu2\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: notepad
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\notepad\index.html
+BOYUT: 53751 byte
+SATIR SAYISI: 1352
+------------------------------------------------------------
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AdsÄ±z - Not Defteri</title>
+<style>
+/* ============================================================
+   GENEL / TEMEL
+   ============================================================ */
+
+============================================================
+APP: opera
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\opera\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: outlook
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\outlook\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: paint
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\paint\index.html
+BOYUT: 328 byte
+SATIR SAYISI: 13
+------------------------------------------------------------
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body, iframe { width:100%; height:100%; border:none; overflow:hidden; }
+</style>
+</head>
+<body>
+
+============================================================
+APP: pes4
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\pes4\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: pes5
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\pes5\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: pes6
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\pes6\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: photoshop
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\photoshop\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: pinball
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\pinball\index.html
+BOYUT: 7939 byte
+SATIR SAYISI: 1
+------------------------------------------------------------
+<!doctypehtml><html lang=en-us><head><meta charset=utf-8><meta content="text/html; charset=utf-8"http-equiv=Content-Type><title>3D Pinball for Windows - Space Cadet</title><style>:root{--ActiveBorder:rgb(212, 208, 200);--ActiveTitle:rgb(10, 36, 106);--AppWorkspace:rgb(128, 128, 128);--Background:rgb(58, 110, 165);--ButtonAlternateFace:rgb(192, 192, 192);--ButtonDkShadow:rgb(64, 64, 64);--ButtonFace:rgb(212, 208, 200);--ButtonHilight:rgb(255, 255, 255);--ButtonLight:rgb(212, 208, 200);--ButtonShadow:rgb(128, 128, 128);--ButtonText:rgb(0, 0, 0);--GradientActiveTitle:rgb(166, 202, 240);--GradientInactiveTitle:rgb(192, 192, 192);--GrayText:rgb(128, 128, 128);--Hilight:rgb(10, 36, 106);--HilightText:rgb(255, 255, 255);--HotTrackingColor:rgb(0, 0, 128);--InactiveBorder:rgb(212, 208, 200);--InactiveTitle:rgb(128, 128, 128);--InactiveTitleText:rgb(212, 208, 200);--InfoText:rgb(0, 0, 0);--InfoWindow:rgb(255, 255, 225);--Menu:rgb(212, 208, 200);--MenuBar:rgb(192, 192, 192);--MenuHilight:rgb(0, 0, 128);--MenuText:rgb(0, 0, 0);--Scrollbar:rgb(212, 208, 200);--TitleText:rgb(255, 255, 255);--Window:rgb(255, 255, 255);--WindowFrame:rgb(0, 0, 0);--WindowText:rgb(0, 0, 0)}body{font-family:Tahoma,Geneva,Verdana,sans-serif;background-color:var(--Background);text-align:center}textarea.emscripten{font-family:monospace;width:80%}canvas.emscripten{border:0 none;background-color:#000}.titlebar{text-align:start;margin:0;padding:1px;position:relative;overflow:hidden;display:flex;user-select:none}.titlebar .titlebar-icon{width:16px;height:16px;padding:1px}.titlebar .titlebar-title{display:flex;padding:0 2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex-grow:1;font-weight:700;align-items:center}.titlebar .titlebar-wincontrols{display:inline-block;margin:0;padding:1px;min-width:fit-content}.titlebar-wincontrols .buttons-wrapper{display:inline-block;width:auto;margin:0;padding:1px}.titlebar-wincontrols .spacer{display:inline-block;margin:0;padding:0;width:2px}.titlebar-wincontrols .button{display:inline-block;min-width:12px;min-height:10px;width:12px;height:10px;text-align:center;vertical-align:middle;line-height:10px}.window{font-size:8pt;color:var(--WindowText);background-color:var(--ButtonFace);border:1px solid var(--ActiveBorder);box-shadow:-.5px -.5px 0 .5px var(--ButtonHilight),0 0 0 1px var(--ButtonShadow),-.5px -.5px 0 1.5px var(--ButtonLight),0 0 0 2px var(--ButtonDkShadow);padding-right:0;margin-left:auto;margin-right:auto;display:inline-block}.window.active{border:1px solid var(--ActiveBorder)}.window.active .titlebar .titlebar-icon{background-color:var(--ActiveTitle);color:var(--TitleText)}.window.active .titlebar .titlebar-title{background-color:var(--ActiveTitle);background-image:linear-gradient(to right,var(--ActiveTitle),var(--GradientActiveTitle));color:var(--TitleText)}.window.active .titlebar .titlebar-wincontrols,.window.active .titlebar .titlebar-wincontrols .buttons-wrapper{background-color:var(--GradientActiveTitle);font-size:8pt;font-weight:700}.button{margin:2px}.button span.button-content{display:inline-block}.button:active .button-content{transform:translate(1px,1px)}.button{background-color:var(--ButtonFace);color:var(--ButtonText);box-shadow:-.5px -.5px 0 .5px var(--ButtonLight),0 0 0 1px var(--ButtonShadow),-.5px -.5px 0 1.5px var(--ButtonHilight),0 0 0 2px var(--ButtonDkShadow)}.button:active{box-shadow:-.5px -.5px 0 .5px var(--ButtonShadow),0 0 0 1px var(--ButtonShadow),-.5px -.5px 0 1.5px var(--WindowFrame),0 0 0 2px var(--WindowFrame)}.button svg path{fill:var(--ButtonText)}.titlebar .button:active{box-shadow:-.5px -.5px 0 .5px var(--ButtonShadow),0 0 0 1px var(--ButtonLight),-.5px -.5px 0 1.5px var(--ButtonDkShadow),0 0 0 2px var(--ButtonHilight)}#status{margin:40px 32px}</style></head><body><div class="active window"><div class=titlebar><span class=titlebar-title>3D Pinball for Windows - Space Cadet</span><div class=titlebar-wincontrols><ul class=buttons-wrapper><li class="button minimize"><svg class="button-content replaced-svg"height=0.104181in width=0.125017in xmlns=http://www.w3.org/2000/svg viewBox="0 0 12 10"><path d="M 2.00,7.00            C 2.00,7.00 8.00,7.00 8.00,7.00              8.00,7.00 8.00,9.00 8.00,9.00              8.00,9.00 2.00,9.00 2.00,9.00              2.00,9.00 2.00,7.00 2.00,7.00 Z"fill=black id=Minimize stroke-width=0 stroke=black></path></svg></li><li class="button maximize"><svg class="button-content replaced-svg"height=0.104181in width=0.125017in xmlns=http://www.w3.org/2000/svg viewBox="0 0 12 10"><path d="M 2.00,2.00            C 2.00,2.00 9.00,2.00 9.00,2.00              9.00,2.00 9.00,8.00 9.00,8.00              9.00,8.00 2.00,8.00 2.00,8.00              2.00,8.00 2.00,2.00 2.00,2.00 Z            M 1.00,0.00            C 1.00,0.00 1.00,9.00 1.00,9.00              1.00,9.00 10.00,9.00 10.00,9.00              10.00,9.00 10.00,0.00 10.00,0.00              10.00,0.00 1.00,0.00 1.00,0.00 Z"fill=black id=Maximize stroke-width=0 stroke=black></path></svg></li><li class=spacer></li><li class="button close"><svg class="button-content replaced-svg"height=10 width=12 xmlns=http://www.w3.org/2000/svg version=1.1 xmlns:svg=http://www.w3.org/2000/svg><g id=layer1 transform=translate(0,-1042.3622)><path d="m 2.0025485,1043.3853 2.0198115,0 0,1.0185 0.984011,0 0,0.984 1.985286,0 0,-0.984 1.001274,0 0,-1.0185 2.002548,0 0,1.0013 0,0 0,0 -1.001274,0 0,1.0012 -1.001274,0 0,0.9841 -1.001274,0 0,1.0012 1.001274,0 0,1.0013 1.001274,0 0,1.0013 1.001274,0 0,1.0013 -2.002548,0 0,-1.0013 -1.001274,0 0,-0.984 -1.985286,0 0,0.984 -1.001274,0 0,1.0013 -2.0025485,0 0,-1.0013 1.0012745,0 0,-1.0013 1.001274,0 0,-1.0013 1.001274,0 0,-1.0012 -1.001274,0 0,-0.9841 -1.001274,0 0,-1.0012 -1.0012745,0 0,-1.0186 z"fill=black id=Close stroke-width=0></path></g></svg></li></ul></div></div><div class=emscripten id=status>Downloading...</div><div class=emscripten><progress hidden id=progress max=100 value=0></progress></div><canvas class=emscripten id=canvas oncontextmenu=event.preventDefault() style=display:none tabindex=-1></canvas></div><script>var statusElement=document.getElementById("status"),progressElement=document.getElementById("progress"),Module={preRun:[],postRun:[],print:function(){var e=document.getElementById("output");return e&&(e.value=""),function(e){arguments.length>1&&(e=Array.prototype.slice.call(arguments).join(" ")),console.log(e)}}(),printErr:function(e){arguments.length>1&&(e=Array.prototype.slice.call(arguments).join(" ")),console.error(e)},canvas:function(){var e=document.getElementById("canvas");return e.addEventListener("webglcontextlost",(function(e){alert("WebGL context lost. You will need to reload the page."),e.preventDefault()}),!1),e}(),setStatus:function(e){if(Module.setStatus.last||(Module.setStatus.last={time:Date.now(),text:""}),e!==Module.setStatus.last.text){var t=e.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/),n=Date.now();if(!(t&&n-Module.setStatus.last.time<30)){if(Module.setStatus.last.time=n,Module.setStatus.last.text=e,t)e=t[1],progressElement.value=100*parseInt(t[2]),progressElement.max=100*parseInt(t[4]),progressElement.hidden=!1;else progressElement.value=null,progressElement.max=null,progressElement.hidden=!0,document.getElementById("canvas").style.display="";statusElement.innerHTML=e,""===e?(statusElement.style.display="none",progressElement.style.display="none"):(statusElement.style.display="",progressElement.style.display="")}}},totalDependencies:0,monitorRunDependencies:function(e){this.totalDependencies=Math.max(this.totalDependencies,e),Module.setStatus(e?"Preparing... ("+(this.totalDependencies-e)+"/"+this.totalDependencies+")":"All downloads complete.")}};Module.setStatus("Downloading..."),window.onerror=function(){Module.setStatus("Exception thrown, see JavaScript console"),Module.setStatus=function(e){e&&Module.printErr("[post-exception status] "+e)}}</script><script async src=SpaceCadetPinball.js></script></body></html>
+
+============================================================
+APP: pop_sot
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\pop_sot\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: pop_t2t
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\pop_t2t\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: pop_ww
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\pop_ww\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: postal2
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\postal2\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: powerdvd
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\powerdvd\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: powerpoint2003
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\powerpoint2003\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: pvz
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\pvz\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: quake3
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\quake3\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: quicktime
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\quicktime\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: realplayer
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\realplayer\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: recyclebin
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\recyclebin\index.html
+BOYUT: 52621 byte
+SATIR SAYISI: 1285
+------------------------------------------------------------
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Geri DÃ¶nÃ¼ÅŸÃ¼m Kutusu</title>
+<style>
+/* =========================================================
+   GENEL
+   ========================================================= */
+
+============================================================
+APP: redalert2
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\redalert2\index.html
+BOYUT: 4798 byte
+SATIR SAYISI: 130
+------------------------------------------------------------
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.46875">
+  <meta name="description" content="An unofficial remake of the classic &quot;Command &amp; Conquer: Red Alert 2&quot; RTS game, playable online in the web browser." />
+  <title>Red Alert 2: Chrono Divide</title>
+  <script type="text/javascript">
+    var browserSupported = true;
+    try {
+
+============================================================
+APP: restore
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\restore\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: search
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\search\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: serioussam
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\serioussam\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: skype
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\skype\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: snake
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\snake\index.html
+BOYUT: 40100 byte
+SATIR SAYISI: 825
+------------------------------------------------------------
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>AxySnake 3D Enhanced - Windows XP Edition</title>
+<style>
+:root {
+  --xp-blue:#0a49b7;
+  --xp-light:#3b86ff;
+
+============================================================
+APP: solitaire
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\solitaire\index.html
+BOYUT: 336 byte
+SATIR SAYISI: 13
+------------------------------------------------------------
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body, iframe { width:100%; height:100%; border:none; overflow:hidden; background:#008000; }
+</style>
+</head>
+<body>
+
+============================================================
+APP: soundrecorder
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\soundrecorder\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: spidersolitaire
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\spidersolitaire\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: stronghold
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\stronghold\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: thesims
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\thesims\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: thesims2
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\thesims2\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: tour
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\tour\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: trackmania
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\trackmania\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: ut2004
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\ut2004\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: vlc
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\vlc\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: wab
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\wab\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: warcraft3
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\warcraft3\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: warcraft3_tft
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\warcraft3_tft\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: winamp
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\winamp\index.html
+BOYUT: 29570 byte
+SATIR SAYISI: 554
+------------------------------------------------------------
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Winamp</title>
+<style>
+/* ============================================================
+   WINAMP 2.x â€” WINDOWS XP SÃœRÃœMÃœ
+   ============================================================ */
+
+============================================================
+APP: winmessenger
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\winmessenger\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: winrar
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\winrar\index.html
+BOYUT: 48270 byte
+SATIR SAYISI: 1470
+------------------------------------------------------------
+<!--
+WINRAR XP IFRAME APP - REQUIRED / OPTIONAL ASSETS
+Place these files in the SAME folder as index.html.
+
+| File name            | Recommended size | Required? | Purpose |
+|----------------------|------------------|-----------|---------|
+| winrar.png           | 32x32 or 48x48   | Optional  | Main WinRAR archive icon used in toolbar/header areas |
+| add.png              | 24x24 or 32x32   | Optional  | "Add" toolbar icon |
+| extract.png          | 24x24 or 32x32   | Optional  | "Extract To" toolbar icon |
+| test.png             | 24x24 or 32x32   | Optional  | "Test" toolbar icon |
+
+============================================================
+APP: wmp
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\wmp\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: word2003
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\word2003\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: wordpad
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\wordpad\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: yahoomessenger
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\yahoomessenger\index.html
+BOYUT: 0 byte
+SATIR SAYISI: 0
+------------------------------------------------------------
+
+============================================================
+APP: zuma
+DOSYA: C:\Users\MUHAMMEDNEVA\Desktop\dwad\portfolio-website\static\screen\apps\zuma\index.html
+BOYUT: 44532 byte
+SATIR SAYISI: 1338
+------------------------------------------------------------
+<!DOCTYPE html>
+<!--
+===============================================================================
+WINDOWS XP ZUMA - GEREKLÄ° ASSET LÄ°STESÄ°
+Bu dosya iframe iÃ§inde baÄŸÄ±msÄ±z uygulama olarak Ã§alÄ±ÅŸÄ±r.
+
+| Dosya adÄ±       | Tavsiye edilen boyut | AÃ§Ä±klama                                  | Zorunlu? |
+|-----------------|-----------------------|--------------------------------------------|----------|
+| zuma_icon.png   | 32x32                 | Uygulama / araÃ§ Ã§ubuÄŸu ikonu               | HayÄ±r    |
+| frog.png        | 96x96                 | Ortadaki Zuma kurbaÄŸasÄ±                    | HayÄ±r    |
+

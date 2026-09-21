@@ -1,0 +1,14 @@
+﻿Microsoft Office FrontPage 2003 style module
+
+Engine:
+VvvebJs
+https://github.com/givanz/VvvebJs
+
+License:
+Apache 2.0
+
+The project supplies visual components, drag/drop page editing,
+undo/redo, file manager, code editor, HTML export and other page-builder features.
+
+This XP module wraps VvvebJs with a FrontPage 2003 style user interface.
+It is not Microsoft's original FrontPage executable.

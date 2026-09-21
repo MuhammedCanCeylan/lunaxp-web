@@ -1,0 +1,48 @@
+{
+  "name": "bonzibuddy",
+  "private": true,
+  "description": "Your very own desktop personal digital assistant",
+  "version": "5.0.0",
+  "author": "Leondro Lio <github@leondrolio.com>",
+  "dependencies": {
+    "clippyjs": "^0.0.3",
+    "electron": "^8.2.1",
+    "gatsby": "^2.20.14",
+    "gatsby-image": "^2.3.2",
+    "gatsby-plugin-manifest": "^2.3.3",
+    "gatsby-plugin-offline": "^3.1.2",
+    "gatsby-plugin-react-helmet": "^3.2.1",
+    "gatsby-plugin-sass": "^2.2.1",
+    "gatsby-plugin-sharp": "^2.5.4",
+    "gatsby-source-filesystem": "^2.2.2",
+    "gatsby-transformer-sharp": "^2.4.4",
+    "node-sass": "^4.14.1",
+    "prop-types": "^15.7.2",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-helmet": "^6.0.0"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.2",
+    "prettier": "^2.0.4"
+  },
+  "keywords": [
+    "bonzi"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "build": "gatsby build",
+    "develop": "gatsby develop",
+    "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
+    "bonzi": "cross-env NODE_ENV=production yarn electron electron",
+    "start": "cross-env NODE_ENV=development yarn electron electron",
+    "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing \""
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/7coil/BonziBuddy"
+  },
+  "bugs": {
+    "url": "https://github.com/7coil/BonziBuddy/issues"
+  }
+}

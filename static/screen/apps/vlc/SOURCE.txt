@@ -1,0 +1,17 @@
+﻿VLC media player - Windows XP Web Desktop Module
+
+Community project:
+https://github.com/addyosmani/webvlc
+
+Installed as a static production build.
+
+Important:
+- This is WebVLC, not the native VideoLAN VLC binary.
+- No Node.js server is required at runtime.
+- No COOP/COEP headers are required by this build.
+- No Moonlight/Sunshine/Parsec streaming is used.
+- Media remains local to the browser.
+- Actual codec support depends on the browser/media engine.
+
+Original VLC project:
+https://www.videolan.org/vlc/

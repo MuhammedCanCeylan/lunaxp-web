@@ -1,0 +1,160 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GTA San Andreas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500&family=Exo+2:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <script type="module" crossorigin src="./assets/index-BqVgjOvY.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-C33pyZFe.css">
+  <style id="xp-gtasa-compat">
+html,body,#root{
+    width:100% !important;
+    height:100% !important;
+    margin:0 !important;
+    min-width:0 !important;
+    min-height:0 !important;
+}
+html,body{
+    overflow:hidden !important;
+    background:#000 !important;
+}
+
+/* No second XP title bar or taskbar is created here.
+   Parent WindowManager owns the outer window chrome. */
+
+.xp-dialog-shade{
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:2147483646;
+    background:rgba(0,0,0,.28);
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+}
+.xp-dialog-shade.show{display:flex}
+.xp-dialog{
+    width:min(420px,92vw);
+    background:#ECE9D8;
+    color:#000;
+    border:2px outset #fff;
+    box-shadow:4px 5px 16px rgba(0,0,0,.55);
+    font:11px Tahoma,sans-serif;
+}
+.xp-dialog-title{
+    min-height:25px;
+    display:flex;
+    align-items:center;
+    padding:3px 7px;
+    color:#fff;
+    font-weight:bold;
+    background:linear-gradient(90deg,#0a246a,#3a6ea5);
+}
+.xp-dialog-body{
+    padding:12px;
+    white-space:pre-wrap;
+    line-height:1.4;
+}
+.xp-dialog-actions{
+    text-align:right;
+    padding:0 12px 11px;
+}
+.xp-dialog-actions button{
+    min-width:78px;
+    height:25px;
+    background:#ECE9D8;
+    border:2px outset #fff;
+    font:11px Tahoma,sans-serif;
+}
+.xp-dialog-actions button:active{
+    border-style:inset;
+}
+</style>
+
+<script id="xp-gtasa-runtime-shim">
+(function(){
+    function ensureDialog(){
+        var shade=document.getElementById('xpGtasaDialogShade');
+        if(shade) return shade;
+
+        shade=document.createElement('div');
+        shade.id='xpGtasaDialogShade';
+        shade.className='xp-dialog-shade';
+        shade.innerHTML=
+            '<div class="xp-dialog" role="dialog" aria-modal="true">'+
+              '<div class="xp-dialog-title">GTA San Andreas</div>'+
+              '<div class="xp-dialog-body" id="xpGtasaDialogMessage"></div>'+
+              '<div class="xp-dialog-actions">'+
+                '<button type="button" id="xpGtasaDialogOK">Tamam</button>'+
+              '</div>'+
+            '</div>';
+
+        document.body.appendChild(shade);
+        shade.querySelector('#xpGtasaDialogOK').onclick=function(){
+            shade.classList.remove('show');
+        };
+        return shade;
+    }
+
+    function showMessage(message){
+        var shade=ensureDialog();
+        var msg=shade.querySelector('#xpGtasaDialogMessage');
+        if(msg) msg.textContent=String(message == null ? '' : message);
+        shade.classList.add('show');
+    }
+
+    /* No browser-native popups inside the XP application iframe. */
+    window.alert=function(message){
+        showMessage(message);
+    };
+    window.confirm=function(message){
+        showMessage(message);
+        return false;
+    };
+    window.prompt=function(message){
+        showMessage(message);
+        return null;
+    };
+
+    /*
+      Required guarded image fallback, including React-created images.
+      The MutationObserver also covers images inserted after startup.
+    */
+    function guardImage(img){
+        if(!img || img.dataset.xpImgGuard==='1') return;
+        img.dataset.xpImgGuard='1';
+        img.addEventListener('error',function(){
+            if(this.dataset.xpFallbackUsed==='1') return;
+            this.dataset.xpFallbackUsed='1';
+            this.src='./icon.png';
+        });
+    }
+
+    function guardTree(root){
+        if(!root || !root.querySelectorAll) return;
+        if(root.tagName==='IMG') guardImage(root);
+        root.querySelectorAll('img').forEach(guardImage);
+    }
+
+    document.addEventListener('DOMContentLoaded',function(){
+        guardTree(document);
+        new MutationObserver(function(records){
+            records.forEach(function(record){
+                record.addedNodes.forEach(function(node){
+                    if(node && node.nodeType===1) guardTree(node);
+                });
+            });
+        }).observe(document.documentElement,{childList:true,subtree:true});
+    });
+})();
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
+

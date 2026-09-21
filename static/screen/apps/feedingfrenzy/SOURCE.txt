@@ -1,0 +1,23 @@
+﻿Feeding Frenzy browser game for Windows XP Web Simulator
+
+Selected project:
+https://github.com/Mk1499/Feeding-Frenzy
+
+Upstream describes the project as a JavaScript game with:
+- 3 levels
+- eat smaller fish / avoid larger fish
+- 30 points to complete a level
+- sea stars that contribute to extra lives
+- a special level-2 fish that makes large fish smaller
+- speed badges based on level completion time
+
+This installer:
+- downloads the public GitHub repository
+- installs it into static/screen/apps/feedingfrenzy/
+- keeps the original local images / CSS / JS / sound / video directories
+- adds XP iframe compatibility
+- adds recursion-safe <img> fallbacks
+- replaces browser-native alert/confirm/prompt with an in-page XP dialog
+- creates a 32x32 transparent icon.png
+
+This is a community JavaScript remake / interpretation and not the original PopCap executable.

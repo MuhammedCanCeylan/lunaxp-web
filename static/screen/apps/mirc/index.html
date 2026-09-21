@@ -1,0 +1,356 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Local mIRC-style chat simulator powered by LLM personas">
+    <meta name="author" content="mIRCvibes">
+    <title>mIRC</title>
+    <link rel="stylesheet" href="css/styles.css?v=20260305003">
+
+<style id="xp-iframe-integration">
+html,
+body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+}
+
+body {
+    font-family: Tahoma, Arial, sans-serif !important;
+}
+
+/*
+ Ana Windows XP WindowManager zaten dis pencereyi ciziyor.
+ Burada sadece mIRC'nin uygulama ici arayuzu bulunur.
+*/
+</style>
+
+
+<script id="xp-demo-bootstrap">
+(function () {
+    try {
+        const params = new URLSearchParams(window.location.search);
+
+        if (!params.has("demo")) {
+            params.set("demo", "true");
+
+            const next =
+                window.location.pathname +
+                "?" +
+                params.toString() +
+                window.location.hash;
+
+            window.location.replace(next);
+        }
+    } catch (e) {
+        console.warn("mIRC demo bootstrap:", e);
+    }
+})();
+</script>
+
+</head>
+<body>
+    <!-- Demo Mode Banner -->
+    <div id="demo-banner" class="demo-banner hidden">
+        <span class="demo-icon">⚠️</span>
+        <span class="demo-text">Connected - Retro IRC Simulation</span>
+        <span class="demo-icon">⚠️</span>
+    </div>
+
+    <!-- Server Connection Dialog -->
+    <div id="connection-dialog" class="modal">
+        <div class="modal-content connection-dialog">
+            <div class="dialog-header">
+                <div class="dialog-title">mIRC - Server Connection</div>
+                <div class="dialog-subtitle">mIRC v6.35 - Retro Edition</div>
+            </div>
+            <div class="dialog-body">
+                <div class="server-info">
+                    <label for="server-address">Server Address:</label>
+                    <input type="text" id="server-address" placeholder="http://localhost:5000" value="http://localhost:5000">
+                    <div class="input-hint">Enter IRC server address</div>
+                </div>
+                <div class="nickname-info">
+                    <label for="nickname">Nickname:</label>
+                    <input type="text" id="nickname" placeholder="User" maxlength="16" value="">
+                    <div class="input-hint">Choose your handle (max 16 characters)</div>
+                </div>
+                <div class="connection-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="remember-settings" checked>
+                        Remember these settings
+                    </label>
+                </div>
+            </div>
+            <div class="dialog-footer">
+                <button id="btn-connect" class="btn btn-primary">Connect</button>
+                <button id="btn-demo-mode" class="btn btn-secondary">Skip & Use Demo Mode</button>
+            </div>
+            <div id="connection-status" class="connection-status hidden"></div>
+        </div>
+    </div>
+
+    <!-- Main IRC Interface -->
+    <div id="main-container" class="main-container hidden">
+        <!-- Menu Bar -->
+        <div class="menu-bar">
+            <div class="menu-item">File</div>
+            <div class="menu-item">View</div>
+            <div class="menu-item">Favorites</div>
+            <div class="menu-item">Tools</div>
+            <div class="menu-item">Commands</div>
+            <div class="menu-item">Window</div>
+            <div class="menu-item">Help</div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="toolbar-group">
+                <button id="btn-disconnect" class="toolbar-btn" title="Disconnect">⚡</button>
+                <button id="btn-event-settings" class="toolbar-btn" title="Event Settings">🎛️</button>
+                <button id="btn-rpg-settings" class="toolbar-btn" title="RPG Settings">🎮</button>
+                <button class="toolbar-btn" title="Notify">🔔</button>
+                <button class="toolbar-btn" title="Favorites">⭐</button>
+            </div>
+            <div class="toolbar-separator"></div>
+            <div class="toolbar-group">
+                <button id="btn-minimize-all" class="toolbar-btn" title="Minimize All">🔽</button>
+                <button id="btn-cascade" class="toolbar-btn" title="Cascade Windows">⤵️</button>
+                <button id="btn-tile" class="toolbar-btn" title="Tile Windows">🔠</button>
+            </div>
+            <div class="toolbar-status">
+                <span id="status-icon" class="status-icon connected"></span>
+                <span id="status-text" class="status-text">Connected</span>
+                <span class="toolbar-divider">|</span>
+                <span id="current-nickname">User</span>
+                <span class="toolbar-divider">|</span>
+                <span id="current-server">localhost:5000</span>
+            </div>
+        </div>
+
+        <!-- Switchbar (Channel Tabs) -->
+        <div class="switchbar" id="switchbar">
+            <button class="switch-btn active" data-window="Status">
+                <span class="switch-icon">📊</span>
+                <span class="switch-label">Status</span>
+            </button>
+        </div>
+
+        <!-- MDI Container -->
+        <div class="mdi-container" id="mdi-container">
+            <!-- MDI Windows Area -->
+            <div class="mdi-workspace">
+                <!-- Status Window (default) -->
+                <div class="mdi-window active" id="window-Status" data-window="Status" style="top: 20px; left: 20px; width: 500px; height: 350px;">
+                    <div class="window-titlebar">
+                        <span class="window-icon">📊</span>
+                        <span class="window-title">Status</span>
+                        <div class="window-controls">
+                            <button class="window-btn minimize-btn" title="Minimize">_</button>
+                            <button class="window-btn maximize-btn" title="Maximize">□</button>
+                        </div>
+                    </div>
+                    <div class="window-content">
+                        <div class="window-main">
+                            <div class="message-area" id="messages-Status"></div>
+                            <div class="input-area">
+                                <input type="text" class="message-input window-input" placeholder="Type /help for commands..." autocomplete="off" data-window="Status">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="window-resize-handle"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Bar (Bottom) -->
+        <div class="status-bar">
+            <div class="status-section">
+                <span id="server-time">Server: 00:00:00</span>
+            </div>
+            <div class="status-section">
+                <span id="participation-count">Participation: 0 msg</span>
+            </div>
+            <div class="status-section">
+                <span id="current-window">Status</span>
+            </div>
+            <div class="status-section">
+                <span id="user-count">0 users</span>
+            </div>
+            <div class="status-section">
+                <span id="mode-indicator"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Settings Modal -->
+    <div id="event-settings-modal" class="event-modal">
+        <div class="event-modal-content">
+            <div class="window-titlebar">
+                <span class="window-icon">⚙</span>
+                <span class="window-title">Event Settings</span>
+                <div class="window-controls">
+                    <button id="minimize-settings-modal" class="window-btn minimize-btn" title="Minimize">_</button>
+                    <button id="close-settings-modal" class="window-btn close-btn" title="Close">×</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="event-section" style="margin-bottom: 16px;">
+                    <label for="preset-selector" style="font-family: 'MS Sans Serif', 'Tahoma', sans-serif; font-size: 12px; font-weight: bold; display: block; margin-bottom: 6px;">Activity Preset:</label>
+                    <select id="preset-selector" style="width: 100%; padding: 4px; font-family: 'MS Sans Serif', 'Tahoma', sans-serif; font-size: 12px; background: white; border: 2px inset #808080;">
+                        <option value="chaotic">Chaotic - Fast-paced, high activity</option>
+                        <option value="normal" selected>Normal - Balanced activity</option>
+                        <option value="chill">Chill - Relaxed, minimal activity</option>
+                        <option value="custom">Custom - User-defined settings</option>
+                    </select>
+                </div>
+                <div class="event-section">
+                    <h3>Global Events</h3>
+                    <div id="global-events-list" class="event-list"></div>
+                </div>
+                <div class="event-section">
+                    <h3>Channel Events</h3>
+                    <div id="channel-events-list" class="event-list"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="save-event-settings" class="modal-action-btn">Save</button>
+                <button id="cancel-event-settings" class="modal-action-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RPG Settings Modal -->
+    <div id="rpg-settings-modal" class="event-modal">
+        <div class="event-modal-content">
+            <div class="window-titlebar">
+                <span class="window-icon">🎮</span>
+                <span class="window-title">RPG Settings</span>
+                <div class="window-controls">
+                    <button id="minimize-rpg-modal" class="window-btn minimize-btn" title="Minimize">_</button>
+                    <button id="close-rpg-modal" class="window-btn close-btn" title="Close">×</button>
+                </div>
+            </div>
+            <div class="modal-body">
+
+                <!-- Scenario selector -->
+                <div class="event-section" style="margin-bottom: 16px;">
+                    <label for="rpg-scenario-selector" style="font-family: 'MS Sans Serif', 'Tahoma', sans-serif; font-size: 12px; font-weight: bold; display: block; margin-bottom: 6px;">RPG Scenario:</label>
+                    <select id="rpg-scenario-selector" style="width: 100%; padding: 4px; font-family: 'MS Sans Serif', 'Tahoma', sans-serif; font-size: 12px; background: white; border: 2px inset #808080;">
+                        <option value="time_travel">Time Travel Confidant</option>
+                        <option value="the_echo">The Echo</option>
+                    </select>
+
+                    <!-- Scenario action bar -->
+                    <div style="display: flex; gap: 4px; margin-top: 8px;">
+                        <button id="rpg-status-btn" title="Current scenario state" style="flex: 1; padding: 3px 2px; font-family: 'MS Sans Serif', 'Tahoma', sans-serif; font-size: 10px; cursor: default; border: 2px inset #808080; background: #d4d0c8; font-weight: bold; min-width: 0; overflow: hidden; white-space: nowrap;">Enabled</button>
+                        <button id="rpg-force-trigger-btn" title="Force-launch this scenario now" style="flex: 1; padding: 3px 2px; font-family: 'MS Sans Serif', 'Tahoma', sans-serif; font-size: 10px; cursor: pointer; border: 2px outset #ffffff; background: #c0c0c0; min-width: 0; overflow: hidden; white-space: nowrap;">Force Trigger</button>
+                        <button id="rpg-set-complete-btn" title="Skip to post-quest coda" style="flex: 1; padding: 3px 2px; font-family: 'MS Sans Serif', 'Tahoma', sans-serif; font-size: 10px; cursor: pointer; border: 2px outset #ffffff; background: #c0c0c0; min-width: 0; overflow: hidden; white-space: nowrap;">Set Complete</button>
+                        <button id="rpg-reset-btn" title="Reset quest to initial state" style="flex: 1; padding: 3px 2px; font-family: 'MS Sans Serif', 'Tahoma', sans-serif; font-size: 10px; cursor: pointer; border: 2px outset #ffffff; background: #c0c0c0; min-width: 0; overflow: hidden; white-space: nowrap;">Reset</button>
+                    </div>
+                </div>
+
+                <!-- ── Time Travel Confidant ───────────────────────────── -->
+                <div id="rpg-panel-time_travel" class="rpg-scenario-panel">
+                    <div class="event-section">
+                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 10px;">
+                            <input type="checkbox" id="tt-enabled" class="event-checkbox" style="width: 13px; height: 13px; cursor: pointer; margin: 0;">
+                            <label for="tt-enabled" style="font-weight: bold; font-size: 11px; cursor: pointer; font-family: 'Consolas', 'Courier New', monospace;">Enabled</label>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 8px; padding-left: 4px;">
+
+                            <div style="display: flex; flex-direction: column; gap: 3px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <span id="tt-time-indicator" style="width: 6px; height: 6px; border-radius: 50%; background: #ff0000; display: inline-block;" title="Not met"></span>
+                                        <label style="font-size: 11px; font-family: 'Consolas', 'Courier New', monospace;">Server Time:</label>
+                                    </div>
+                                    <label id="tt-servertime-label" style="font-size: 11px; font-family: 'Consolas', 'Courier New', monospace;">10 min</label>
+                                </div>
+                                <input type="range" id="tt-servertime" class="event-slider" min="5" max="30" value="10">
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 3px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <span id="tt-participation-indicator" style="width: 6px; height: 6px; border-radius: 50%; background: #ff0000; display: inline-block;" title="Not met"></span>
+                                        <label style="font-size: 11px; font-family: 'Consolas', 'Courier New', monospace;">Channel Participation:</label>
+                                    </div>
+                                    <label id="tt-participation-label" style="font-size: 11px; font-family: 'Consolas', 'Courier New', monospace;">25 msg</label>
+                                </div>
+                                <input type="range" id="tt-participation" class="event-slider" min="10" max="100" value="25">
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── The Echo ────────────────────────────────────────── -->
+                <div id="rpg-panel-the_echo" class="rpg-scenario-panel" style="display: none;">
+                    <div class="event-section">
+                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 10px;">
+                            <input type="checkbox" id="echo-enabled" class="event-checkbox" style="width: 13px; height: 13px; cursor: pointer; margin: 0;">
+                            <label for="echo-enabled" style="font-weight: bold; font-size: 11px; cursor: pointer; font-family: 'Consolas', 'Courier New', monospace;">Enabled</label>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 8px; padding-left: 4px;">
+
+                            <div style="display: flex; flex-direction: column; gap: 3px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <span id="echo-time-indicator" style="width: 6px; height: 6px; border-radius: 50%; background: #808080; display: inline-block;" title="Awaiting trigger"></span>
+                                        <label style="font-size: 11px; font-family: 'Consolas', 'Courier New', monospace;">Server Time:</label>
+                                    </div>
+                                    <label id="echo-servertime-label" style="font-size: 11px; font-family: 'Consolas', 'Courier New', monospace;">5 min</label>
+                                </div>
+                                <input type="range" id="echo-servertime" class="event-slider" min="3" max="20" value="5">
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 3px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <span id="echo-channels-indicator" style="width: 6px; height: 6px; border-radius: 50%; background: #808080; display: inline-block;" title="Awaiting trigger"></span>
+                                        <label style="font-size: 11px; font-family: 'Consolas', 'Courier New', monospace;">Channels Joined:</label>
+                                    </div>
+                                    <label id="echo-channels-label" style="font-size: 11px; font-family: 'Consolas', 'Courier New', monospace;">3</label>
+                                </div>
+                                <input type="range" id="echo-channels" class="event-slider" min="1" max="5" value="3">
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button id="save-rpg-settings" class="modal-action-btn">Save</button>
+                <button id="cancel-rpg-settings" class="modal-action-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Modules -->
+    <script src="js/utils.js"></script>
+    <script src="js/username-generator.js"></script>
+    <script src="js/topic-generator.js?v=3"></script>
+    <script src="js/ini-parser.js?v=2"></script>
+    <script src="js/config.js?v=16"></script>
+    <script src="js/demo.js"></script>
+    <script src="js/llm-client.js?v=14"></script>
+    <script src="js/ui.js?v=64"></script>
+    <script src="js/irc-commands.js?v=8"></script>
+    <script src="js/event-simulator.js?v=10"></script>
+    <script src="js/rpg-manager.js?v=1"></script>
+    <script src="js/rpg-time-travel.js?v=1"></script>
+    <script src="js/rpg-echo.js?v=1"></script>
+    <script src="js/app.js?v=20"></script>
+    <script src="js/event-settings-ui.js?v=23"></script>
+    <script src="js/rpg-settings-ui.js?v=1"></script>
+</body>
+</html>
+

@@ -1,0 +1,14 @@
+﻿Microsoft Office Word 2003 style module
+
+Selected stage:
+Stage 3 - existing browser DOCX editor.
+
+Engine:
+WordInWeb
+https://github.com/theRealestAEP/wordinweb
+License: MIT
+
+The editor is bundled into a static Vite build.
+Node.js/npm are only used during installation.
+
+No registry.js modifications were made.

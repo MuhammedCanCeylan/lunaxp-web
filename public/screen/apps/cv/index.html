@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, sans-serif; }
+html, body { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; background: #fff; }
+.cv-toolbar { background: #ece9d8; padding: 5px 8px; border-bottom: 1px solid #999; font-size: 11px; display: flex; gap: 16px; align-items: center; }
+.cv-toolbar a, .cv-toolbar span { color: #003c8f; font-weight: bold; text-decoration: none; cursor: pointer; }
+.cv-toolbar span:hover, .cv-toolbar a:hover { text-decoration: underline; }
+.content-wrap { flex: 1; position: relative; overflow: auto; }
+#cvPdf { width: 100%; height: 100%; border: none; }
+.wordpad-content { padding: 24px; font-family: 'Times New Roman', serif; font-size: 14px; line-height: 1.6; color: #000; user-select: text; display: none; }
+.wordpad-content h1 { font-size: 24px; border-bottom: 2px solid #0055ea; margin-bottom: 8px; color: #002e8a; }
+.wordpad-content h2 { font-size: 16px; margin-top: 14px; margin-bottom: 4px; color: #0055ea; border-bottom: 1px dotted #aaa; }
+</style>
+</head>
+<body>
+<div class="cv-toolbar">
+    <a href="../../cv.pdf" download>💾 PDF İndir</a>
+    <span onclick="toggleView()">📄 Görünüm Değiştir (WordPad / PDF)</span>
+</div>
+<div class="content-wrap">
+    <iframe id="cvPdf" src="../../cv.pdf"></iframe>
+    <div id="cvWordpad" class="wordpad-content">
+        <h1>Muhammed Can Ceylan</h1>
+        <p><b>Yazılım Mühendisi &amp; Bilgisayar Bilimleri Geliştiricisi</b></p>
+        <p>E-posta: ceylanmuhammedcan@gmail.com | GitHub: github.com/MuhammedCanCeylan</p>
+        <h2>Profil &amp; Vizyon</h2>
+        <p>Bartın Üniversitesi Bilgisayar Mühendisliği öğrencisi. Modern web teknolojileri, Three.js ile 3D etkileşimli deneyimler, yapay zeka ve otonom sistemler alanlarında çalışan tutkulu bir mühendis adayı.</p>
+        <h2>Eğitim</h2>
+        <p><b>Bartın Üniversitesi</b> — Bilgisayar Mühendisliği (Lisans)</p>
+        <h2>Teknik Beceriler</h2>
+        <p>TypeScript, Python, C++, Three.js, React, Node.js, Express, Webpack, Docker, Linux, Unity.</p>
+        <h2>Öne Çıkan Projeler</h2>
+        <p>• <b>Amazon Plus:</b> Tarayıcı eklentisi; DOM filtreleme ve akıllı sıralama motoru.<br>
+        • <b>MotoWeather:</b> Meteorolojik risk analiz motoru.<br>
+        • <b>3D Retro Portfolio &amp; Windows XP OS:</b> Three.js &amp; WebGL etkileşimli masaüstü simülasyonu.</p>
+    </div>
+</div>
+<script>
+function toggleView() {
+    var p = document.getElementById('cvPdf'), w = document.getElementById('cvWordpad');
+    if (p.style.display === 'none') { p.style.display = 'block'; w.style.display = 'none'; }
+    else { p.style.display = 'none'; w.style.display = 'block'; }
+}
+</script>
+</body>
+</html>

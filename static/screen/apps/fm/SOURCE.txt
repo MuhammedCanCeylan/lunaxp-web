@@ -1,0 +1,39 @@
+﻿Football Manager browser game for Windows XP Web Simulator
+
+Selected project:
+https://github.com/Dany0421/fm-with-c
+
+Live demo:
+https://dany0421.github.io/fm-with-c/
+
+Upstream states:
+- fully playable browser-based football manager
+- vanilla JavaScript / HTML / CSS
+- no frameworks
+- no backend
+- no database
+- no build step
+- LocalStorage saves
+- multi-league / cup / European competitions
+- match simulation with live commentary and detailed statistics
+- tactics and formations
+- transfer market
+- contracts
+- training
+- staff
+- facilities
+- sponsorship / finances
+- dynamic news
+- multi-season career progression
+
+This installer:
+- installs the repository into static/screen/apps/footballmanager/
+- keeps it completely local
+- patches title and iframe sizing
+- adds guarded <img> fallbacks
+- replaces browser-native alert/confirm/prompt with an in-page XP dialog
+- creates mandatory transparent 32x32 icon.png
+
+This is a community game inspired by Football Manager.
+It is NOT Sports Interactive's original commercial Football Manager executable,
+database, or match engine.

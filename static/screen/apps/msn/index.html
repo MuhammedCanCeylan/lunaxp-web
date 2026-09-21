@@ -1,0 +1,2329 @@
+<!--
+MSN MESSENGER XP WEB TRIBUTE - ASSET LISTESI
+
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama |
+|------------|----------------------|------------|-------------------------------------------|
+| icon.png   | 32x32                | Zorunlu    | XP Masaustu / Registry Messenger ikonu    |
+
+NOTLAR:
+- Uygulama içindeki tüm görsel bileşenler CSS ile çizilir.
+- <img> etiketi kullanılmadığı için bozuk görsel/fallback problemi yoktur.
+- Sesler harici dosya olmadan Web Audio API ile sentetik oluşturulur.
+- Harici CDN, API, Node.js, PHP, WebSocket veya backend kullanılmaz.
+- Uygulamanın kendi Windows başlık çubuğu YOKTUR.
+- Ana WindowManager'ın Luna başlık çubuğu kullanılmalıdır.
+-->
+
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MSN Messenger</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+body {
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    color: #000;
+    background: #ECE9D8;
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+}
+
+button {
+    border: 2px outset #fff;
+    background: #ECE9D8;
+    min-height: 23px;
+    padding: 2px 9px;
+    color: #000;
+}
+
+button:active {
+    border-style: inset;
+}
+
+button:disabled {
+    color: #8a8a8a;
+}
+
+input,
+select,
+textarea {
+    border: 1px solid #7F9DB9;
+    background: #fff;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* =========================================================
+   ROOT
+   ========================================================= */
+
+#app {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #ECE9D8;
+}
+
+.menu-bar {
+    flex: 0 0 24px;
+    display: flex;
+    align-items: center;
+    padding: 1px 3px;
+    border-bottom: 1px solid #ACA899;
+    background: #ECE9D8;
+    user-select: none;
+}
+
+.menu-item {
+    padding: 4px 8px;
+    cursor: default;
+}
+
+.menu-item:hover {
+    background: #316AC5;
+    color: #fff;
+}
+
+.toolbar {
+    flex: 0 0 37px;
+    display: flex;
+    align-items: center;
+    padding: 3px 6px;
+    gap: 4px;
+    border-bottom: 1px solid #ACA899;
+    background:
+        linear-gradient(#fff, #f5f3e8 65%, #e2dfca);
+}
+
+.tool-button {
+    min-width: 31px;
+    height: 29px;
+    padding: 1px 6px;
+}
+
+.tool-separator {
+    width: 1px;
+    height: 25px;
+    background: #ACA899;
+    margin: 0 3px;
+}
+
+.workspace {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.status-bar {
+    flex: 0 0 23px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid #ACA899;
+    background: #ECE9D8;
+    padding: 0 7px;
+    color: #444;
+}
+
+/* =========================================================
+   MSN LOGO - CSS ONLY
+   ========================================================= */
+
+.msn-logo {
+    width: 54px;
+    height: 48px;
+    position: relative;
+    flex: 0 0 auto;
+}
+
+.msn-logo.small {
+    transform: scale(.62);
+    transform-origin: center;
+    width: 38px;
+    height: 34px;
+}
+
+.person {
+    position: absolute;
+}
+
+.person .head {
+    position: absolute;
+    border-radius: 50%;
+}
+
+.person .body {
+    position: absolute;
+    border-radius: 60% 60% 40% 40%;
+    transform: rotate(-8deg);
+}
+
+.person.blue {
+    left: 4px;
+    top: 4px;
+}
+
+.person.blue .head {
+    width: 15px;
+    height: 15px;
+    left: 7px;
+    top: 0;
+    background: linear-gradient(#76b9ff,#1676ca);
+    border: 1px solid #0d5ca7;
+}
+
+.person.blue .body {
+    width: 27px;
+    height: 27px;
+    left: 0;
+    top: 15px;
+    background: linear-gradient(135deg,#7fc9ff,#1676ca);
+    border: 1px solid #0d5ca7;
+}
+
+.person.green {
+    left: 24px;
+    top: 12px;
+    z-index: 3;
+}
+
+.person.green .head {
+    width: 13px;
+    height: 13px;
+    left: 7px;
+    top: 0;
+    background: linear-gradient(#d4f770,#6bae19);
+    border: 1px solid #568d14;
+}
+
+.person.green .body {
+    width: 25px;
+    height: 24px;
+    left: 0;
+    top: 13px;
+    background: linear-gradient(135deg,#d8f680,#73ad20);
+    border: 1px solid #568d14;
+}
+
+/* =========================================================
+   LOGIN
+   ========================================================= */
+
+.signin {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background:
+        linear-gradient(180deg,#eaf6ff 0,#ffffff 38%,#eef6fc 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.signin-card {
+    width: 420px;
+    max-width: 100%;
+    border: 1px solid #7F9DB9;
+    background: #fff;
+    box-shadow: 1px 1px 2px rgba(0,0,0,.15);
+}
+
+.signin-top {
+    min-height: 110px;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background:
+        linear-gradient(135deg,#e9f7ff,#fff 60%,#dceeff);
+    border-bottom: 1px solid #b8c9d8;
+}
+
+.signin-title {
+    font-size: 19px;
+    color: #3b5d78;
+    font-weight: normal;
+}
+
+.signin-subtitle {
+    margin-top: 5px;
+    color: #557289;
+}
+
+.signin-form {
+    padding: 18px 42px 22px;
+}
+
+.form-row {
+    margin-bottom: 10px;
+}
+
+.form-row label {
+    display: block;
+    margin-bottom: 3px;
+}
+
+.form-row input,
+.form-row select {
+    width: 100%;
+    height: 23px;
+    padding: 2px 4px;
+}
+
+.checkbox-row {
+    margin: 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.checkbox-row input {
+    width: auto;
+}
+
+.signin-actions {
+    text-align: right;
+    margin-top: 14px;
+}
+
+.signin-info {
+    margin-top: 12px;
+    color: #666;
+    line-height: 1.45;
+}
+
+/* =========================================================
+   PROFILE
+   ========================================================= */
+
+.profile-strip {
+    height: 83px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 8px 12px;
+    background:
+        linear-gradient(180deg,#e8f7ff,#f9fdff 65%,#d8ebf8);
+    border-bottom: 1px solid #91abc0;
+}
+
+.avatar {
+    width: 54px;
+    height: 54px;
+    border: 3px solid #fff;
+    outline: 1px solid #8ba4b7;
+    border-radius: 3px;
+    background:
+        linear-gradient(145deg,#8bd2ff,#277bc1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 22px;
+    font-weight: bold;
+    text-shadow: 0 1px 1px #245b88;
+    user-select: none;
+}
+
+.avatar.green {
+    background: linear-gradient(145deg,#b9e55c,#5e9718);
+}
+
+.avatar.orange {
+    background: linear-gradient(145deg,#ffd274,#d38218);
+}
+
+.avatar.purple {
+    background: linear-gradient(145deg,#d1a6ff,#7951b5);
+}
+
+.avatar.red {
+    background: linear-gradient(145deg,#ffaaa3,#b84740);
+}
+
+.avatar.gray {
+    background: linear-gradient(145deg,#ddd,#888);
+}
+
+.profile-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.profile-name-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.profile-name {
+    font-weight: bold;
+    font-size: 13px;
+    color: #214e75;
+}
+
+.profile-status {
+    width: 110px;
+}
+
+.personal-message {
+    color: #5c7182;
+    margin-top: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.personal-message:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* =========================================================
+   MAIN LAYOUT
+   ========================================================= */
+
+.messenger {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.messenger-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+}
+
+.contacts-pane {
+    width: 280px;
+    min-width: 220px;
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-right: 1px solid #7F9DB9;
+}
+
+.contact-search {
+    padding: 6px;
+    background: #f4f8fb;
+    border-bottom: 1px solid #c4d2df;
+}
+
+.contact-search input {
+    width: 100%;
+    height: 23px;
+    padding: 2px 5px;
+}
+
+.contact-list {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding: 4px 5px 10px;
+}
+
+.group {
+    margin-bottom: 4px;
+}
+
+.group-title {
+    height: 23px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #1d4f7a;
+    font-weight: bold;
+    cursor: default;
+    user-select: none;
+}
+
+.group-arrow {
+    width: 12px;
+    text-align: center;
+}
+
+.contact {
+    min-height: 39px;
+    display: flex;
+    align-items: center;
+    padding: 3px 5px 3px 13px;
+    gap: 7px;
+    border: 1px solid transparent;
+    cursor: default;
+}
+
+.contact:hover {
+    border-color: #b7cad8;
+    background: #edf6fc;
+}
+
+.contact.active {
+    border-color: #84acd0;
+    background: #dbeeff;
+}
+
+.mini-avatar {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #829db1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 2px;
+}
+
+.contact-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.contact-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.contact.offline .contact-name {
+    color: #888;
+}
+
+.contact-psm {
+    color: #777;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.presence {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,.3);
+    flex: 0 0 auto;
+}
+
+.presence.online {
+    background: #55b21c;
+}
+
+.presence.away {
+    background: #e7c423;
+}
+
+.presence.busy {
+    background: #d24837;
+}
+
+.presence.offline {
+    background: #aaa;
+}
+
+/* =========================================================
+   CHAT
+   ========================================================= */
+
+.chat-pane {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    background: #f6fbff;
+}
+
+.empty-chat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #6b8192;
+    text-align: center;
+    padding: 30px;
+}
+
+.empty-chat .big-logo {
+    transform: scale(1.3);
+    margin-bottom: 14px;
+}
+
+.chat-view {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-head {
+    height: 73px;
+    flex: 0 0 73px;
+    padding: 8px 11px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background:
+        linear-gradient(180deg,#e7f6ff,#fff);
+    border-bottom: 1px solid #9db7cb;
+}
+
+.chat-contact-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.chat-contact-name {
+    font-size: 13px;
+    font-weight: bold;
+    color: #214f77;
+}
+
+.chat-contact-psm {
+    color: #667c8e;
+    margin-top: 4px;
+}
+
+.chat-history {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 10px 13px;
+    background: #fff;
+    border-bottom: 1px solid #9db7cb;
+}
+
+.message {
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.message-meta {
+    color: #777;
+    margin-bottom: 2px;
+}
+
+.message-meta.me {
+    color: #1f5d9a;
+}
+
+.message-meta.them {
+    color: #5d2586;
+}
+
+.message-body {
+    padding-left: 9px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.system-message {
+    color: #777;
+    font-style: italic;
+    margin: 7px 0;
+}
+
+.composer-toolbar {
+    flex: 0 0 32px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px 6px;
+    background: #ECE9D8;
+}
+
+.emote {
+    min-width: 28px;
+    padding: 1px 4px;
+    font-size: 14px;
+}
+
+.composer {
+    flex: 0 0 94px;
+    display: flex;
+    gap: 6px;
+    padding: 6px;
+    background: #ECE9D8;
+}
+
+.composer textarea {
+    flex: 1;
+    resize: none;
+    padding: 5px;
+    min-width: 0;
+}
+
+.composer-actions {
+    width: 75px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.composer-actions button {
+    flex: 1;
+}
+
+/* =========================================================
+   MENUS
+   ========================================================= */
+
+.popup-menu {
+    position: fixed;
+    display: none;
+    min-width: 170px;
+    padding: 2px;
+    background: #fff;
+    border: 1px solid #7F9DB9;
+    box-shadow: 2px 2px 5px rgba(0,0,0,.25);
+    z-index: 1000;
+}
+
+.popup-menu.visible {
+    display: block;
+}
+
+.popup-item {
+    padding: 5px 22px 5px 24px;
+    position: relative;
+    white-space: nowrap;
+}
+
+.popup-item:hover {
+    background: #316AC5;
+    color: #fff;
+}
+
+.popup-item.disabled {
+    color: #999;
+}
+
+.popup-item.disabled:hover {
+    background: transparent;
+    color: #999;
+}
+
+.popup-separator {
+    height: 1px;
+    background: #ccc;
+    margin: 3px 2px;
+}
+
+/* =========================================================
+   XP DIALOGS
+   ========================================================= */
+
+.dialog-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 900;
+}
+
+.xp-dialog {
+    width: 360px;
+    max-width: calc(100% - 30px);
+    background: #ECE9D8;
+    border: 1px solid #7F9DB9;
+    box-shadow:
+        0 0 0 1px #fff inset,
+        3px 4px 10px rgba(0,0,0,.28);
+}
+
+.dialog-head {
+    padding: 6px 9px;
+    font-weight: bold;
+    color: #214f77;
+    background:
+        linear-gradient(#fafdff,#dcebf6);
+    border-bottom: 1px solid #9db7cb;
+}
+
+.dialog-body {
+    padding: 14px;
+    line-height: 1.45;
+}
+
+.dialog-body input,
+.dialog-body select {
+    width: 100%;
+    height: 23px;
+    margin-top: 3px;
+}
+
+.dialog-field {
+    margin-bottom: 10px;
+}
+
+.dialog-actions {
+    padding: 8px 10px;
+    border-top: 1px solid #ACA899;
+    text-align: right;
+}
+
+.dialog-actions button {
+    min-width: 72px;
+    margin-left: 5px;
+}
+
+/* =========================================================
+   NOTIFICATIONS
+   ========================================================= */
+
+.toast {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    width: 250px;
+    min-height: 70px;
+    padding: 9px 10px;
+    background: #fff;
+    border: 1px solid #7F9DB9;
+    box-shadow: 2px 2px 6px rgba(0,0,0,.28);
+    z-index: 800;
+    animation: toastIn .2s ease-out;
+}
+
+.toast-title {
+    color: #1e527d;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+@keyframes toastIn {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+}
+
+/* =========================================================
+   NUDGE
+   ========================================================= */
+
+.workspace.nudging {
+    animation: nudge .45s linear;
+}
+
+@keyframes nudge {
+    0%   { transform: translate(0,0); }
+    10%  { transform: translate(-7px,0); }
+    20%  { transform: translate(7px,2px); }
+    30%  { transform: translate(-7px,-2px); }
+    40%  { transform: translate(7px,1px); }
+    50%  { transform: translate(-6px,0); }
+    60%  { transform: translate(6px,-1px); }
+    70%  { transform: translate(-4px,1px); }
+    80%  { transform: translate(4px,0); }
+    100% { transform: translate(0,0); }
+}
+
+/* =========================================================
+   RESPONSIVE IFRAME
+   ========================================================= */
+
+@media (max-width: 620px) {
+    .contacts-pane {
+        width: 230px;
+    }
+
+    .profile-strip {
+        padding-left: 7px;
+    }
+}
+
+@media (max-width: 470px) {
+    .contacts-pane {
+        width: 100%;
+        border-right: 0;
+    }
+
+    .chat-pane {
+        position: absolute;
+        inset: 0;
+        z-index: 20;
+    }
+
+    .chat-pane.mobile-hidden {
+        display: none;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+    <div class="menu-bar" id="menuBar">
+        <div class="menu-item" data-menu="file">Dosya</div>
+        <div class="menu-item" data-menu="contacts">Kişiler</div>
+        <div class="menu-item" data-menu="actions">Eylemler</div>
+        <div class="menu-item" data-menu="tools">Araçlar</div>
+        <div class="menu-item" data-menu="help">Yardım</div>
+    </div>
+
+    <div class="toolbar" id="toolbar">
+        <button class="tool-button" id="addContactButton" title="Kişi ekle">＋👤</button>
+        <button class="tool-button" id="mailButton" title="E-posta">✉</button>
+
+        <div class="tool-separator"></div>
+
+        <button class="tool-button" id="statusButton" title="Durum">●</button>
+        <button class="tool-button" id="historyButton" title="Konuşma geçmişi">📜</button>
+    </div>
+
+    <div class="workspace" id="workspace">
+
+        <!-- LOGIN -->
+        <section class="signin" id="signinScreen">
+            <div class="signin-card">
+
+                <div class="signin-top">
+                    <div class="msn-logo">
+                        <div class="person blue">
+                            <div class="head"></div>
+                            <div class="body"></div>
+                        </div>
+                        <div class="person green">
+                            <div class="head"></div>
+                            <div class="body"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="signin-title">MSN Messenger</div>
+                        <div class="signin-subtitle">
+                            Windows XP nostalji sürümü
+                        </div>
+                    </div>
+                </div>
+
+                <div class="signin-form">
+                    <div class="form-row">
+                        <label for="loginEmail">E-posta adresi:</label>
+                        <input
+                            id="loginEmail"
+                            type="email"
+                            value="muhammed@hotmail.com"
+                            autocomplete="off"
+                        >
+                    </div>
+
+                    <div class="form-row">
+                        <label for="loginPassword">Parola:</label>
+                        <input
+                            id="loginPassword"
+                            type="password"
+                            value="password"
+                            autocomplete="off"
+                        >
+                    </div>
+
+                    <div class="form-row">
+                        <label for="loginStatus">Oturumu şu durumda aç:</label>
+                        <select id="loginStatus">
+                            <option value="online">Çevrimiçi</option>
+                            <option value="away">Dışarıda</option>
+                            <option value="busy">Meşgul</option>
+                            <option value="offline">Çevrimdışı görün</option>
+                        </select>
+                    </div>
+
+                    <label class="checkbox-row">
+                        <input id="rememberEmail" type="checkbox" checked>
+                        E-posta adresimi hatırla
+                    </label>
+
+                    <label class="checkbox-row">
+                        <input type="checkbox">
+                        Parolamı hatırla
+                    </label>
+
+                    <label class="checkbox-row">
+                        <input type="checkbox">
+                        Oturumumu otomatik aç
+                    </label>
+
+                    <div class="signin-actions">
+                        <button id="signInButton">Oturum Aç</button>
+                    </div>
+
+                    <div class="signin-info">
+                        Bu nostaljik web sürümü gerçek Microsoft Messenger
+                        ağına bağlanmaz. Kişiler ve konuşmalar bu tarayıcıda
+                        yerel olarak simüle edilir.
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- MAIN MESSENGER -->
+        <section class="messenger hidden" id="messengerScreen">
+
+            <div class="profile-strip">
+                <div class="avatar" id="myAvatar">M</div>
+
+                <div class="profile-info">
+                    <div class="profile-name-line">
+                        <span class="profile-name" id="myName">
+                            Muhammed
+                        </span>
+
+                        <select class="profile-status" id="myStatus">
+                            <option value="online">Çevrimiçi</option>
+                            <option value="away">Dışarıda</option>
+                            <option value="busy">Meşgul</option>
+                            <option value="offline">Çevrimdışı görün</option>
+                        </select>
+                    </div>
+
+                    <div
+                        class="personal-message"
+                        id="myPersonalMessage"
+                        title="Değiştirmek için tıkla"
+                    >
+                        Kişisel ileti eklemek için tıklayın
+                    </div>
+                </div>
+
+                <div class="msn-logo small">
+                    <div class="person blue">
+                        <div class="head"></div>
+                        <div class="body"></div>
+                    </div>
+                    <div class="person green">
+                        <div class="head"></div>
+                        <div class="body"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="messenger-body">
+
+                <aside class="contacts-pane">
+
+                    <div class="contact-search">
+                        <input
+                            id="contactSearch"
+                            type="text"
+                            placeholder="Kişi veya e-posta ara..."
+                        >
+                    </div>
+
+                    <div class="contact-list" id="contactList"></div>
+                </aside>
+
+                <main class="chat-pane mobile-hidden" id="chatPane">
+
+                    <div class="empty-chat" id="emptyChat">
+                        <div class="msn-logo big-logo">
+                            <div class="person blue">
+                                <div class="head"></div>
+                                <div class="body"></div>
+                            </div>
+                            <div class="person green">
+                                <div class="head"></div>
+                                <div class="body"></div>
+                            </div>
+                        </div>
+
+                        <strong>MSN Messenger</strong>
+
+                        <div style="margin-top:7px;">
+                            Konuşmaya başlamak için kişi listesinden
+                            çevrimiçi bir arkadaş seçin.
+                        </div>
+                    </div>
+
+                    <div class="chat-view hidden" id="chatView">
+
+                        <div class="chat-head">
+                            <div class="avatar green" id="chatAvatar">A</div>
+
+                            <div class="chat-contact-info">
+                                <div
+                                    class="chat-contact-name"
+                                    id="chatContactName"
+                                ></div>
+
+                                <div
+                                    class="chat-contact-psm"
+                                    id="chatContactPsm"
+                                ></div>
+                            </div>
+
+                            <button id="mobileBackButton">Kişiler</button>
+                        </div>
+
+                        <div class="chat-history" id="chatHistory"></div>
+
+                        <div class="composer-toolbar">
+                            <button class="emote" data-emote=":)">🙂</button>
+                            <button class="emote" data-emote=":D">😄</button>
+                            <button class="emote" data-emote=";)">😉</button>
+                            <button class="emote" data-emote=":(">🙁</button>
+                            <button class="emote" data-emote=":P">😛</button>
+                            <button class="emote" data-emote="<3">❤</button>
+                            <button id="nudgeButton">Titreşim Gönder</button>
+                        </div>
+
+                        <div class="composer">
+                            <textarea
+                                id="messageInput"
+                                placeholder="Bir ileti yazın..."
+                            ></textarea>
+
+                            <div class="composer-actions">
+                                <button id="sendButton">Gönder</button>
+                                <button id="clearButton">Temizle</button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </main>
+
+            </div>
+
+        </section>
+
+        <div id="dialogHost"></div>
+        <div id="toastHost"></div>
+
+    </div>
+
+    <div class="status-bar">
+        <span id="statusText">Oturum açılmadı</span>
+        <span>MSN Messenger 7.x Web Tribute</span>
+    </div>
+
+</div>
+
+<div class="popup-menu" id="popupMenu"></div>
+
+<script>
+(() => {
+    "use strict";
+
+    /* =====================================================
+       DATA
+       ===================================================== */
+
+    const STORAGE_KEY = "xp-msn-messenger-v2";
+
+    const defaultContacts = [
+        {
+            id: "ayse",
+            name: "Ayşe",
+            email: "ayse_1907@hotmail.com",
+            status: "online",
+            psm: "♫ Linkin Park - Numb",
+            avatar: "A",
+            avatarClass: "green"
+        },
+        {
+            id: "can",
+            name: "Can",
+            email: "can_the_best@msn.com",
+            status: "online",
+            psm: "dersler bitsin artık :D",
+            avatar: "C",
+            avatarClass: ""
+        },
+        {
+            id: "zeynep",
+            name: "Zeynep",
+            email: "zeynep_gs@hotmail.com",
+            status: "away",
+            psm: "BRB...",
+            avatar: "Z",
+            avatarClass: "purple"
+        },
+        {
+            id: "mert",
+            name: "Mert",
+            email: "mert_rock@hotmail.com",
+            status: "busy",
+            psm: "oyundayım",
+            avatar: "M",
+            avatarClass: "orange"
+        },
+        {
+            id: "deniz",
+            name: "Deniz",
+            email: "deniz_89@hotmail.com",
+            status: "offline",
+            psm: "",
+            avatar: "D",
+            avatarClass: "gray"
+        },
+        {
+            id: "emre",
+            name: "Emre",
+            email: "emre_xp@hotmail.com",
+            status: "offline",
+            psm: "MSN > her şey",
+            avatar: "E",
+            avatarClass: "red"
+        }
+    ];
+
+    let state = {
+        loggedIn: false,
+        email: "",
+        displayName: "",
+        personalMessage: "",
+        status: "online",
+        activeContact: null,
+        contacts: structuredCloneSafe(defaultContacts),
+        messages: {},
+        collapsed: {}
+    };
+
+    function structuredCloneSafe(value) {
+        return JSON.parse(JSON.stringify(value));
+    }
+
+    function loadState() {
+        try {
+            const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+
+            if (saved && typeof saved === "object") {
+                state = {
+                    ...state,
+                    ...saved,
+                    loggedIn: false,
+                    contacts:
+                        Array.isArray(saved.contacts) && saved.contacts.length
+                            ? saved.contacts
+                            : structuredCloneSafe(defaultContacts)
+                };
+            }
+        } catch (_) {}
+    }
+
+    function saveState() {
+        try {
+            const copy = {
+                ...state,
+                loggedIn: false
+            };
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(copy));
+        } catch (_) {}
+    }
+
+    loadState();
+
+    /* =====================================================
+       DOM
+       ===================================================== */
+
+    const $ = id => document.getElementById(id);
+
+    const signinScreen = $("signinScreen");
+    const messengerScreen = $("messengerScreen");
+    const loginEmail = $("loginEmail");
+    const loginStatus = $("loginStatus");
+    const signInButton = $("signInButton");
+
+    const myName = $("myName");
+    const myAvatar = $("myAvatar");
+    const myStatus = $("myStatus");
+    const myPersonalMessage = $("myPersonalMessage");
+
+    const contactList = $("contactList");
+    const contactSearch = $("contactSearch");
+
+    const chatPane = $("chatPane");
+    const emptyChat = $("emptyChat");
+    const chatView = $("chatView");
+    const chatAvatar = $("chatAvatar");
+    const chatContactName = $("chatContactName");
+    const chatContactPsm = $("chatContactPsm");
+    const chatHistory = $("chatHistory");
+
+    const messageInput = $("messageInput");
+    const sendButton = $("sendButton");
+    const nudgeButton = $("nudgeButton");
+    const clearButton = $("clearButton");
+
+    const popupMenu = $("popupMenu");
+    const workspace = $("workspace");
+    const statusText = $("statusText");
+
+    /* =====================================================
+       HELPERS
+       ===================================================== */
+
+    function escapeHtml(text) {
+        return String(text ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    function emailToName(email) {
+        const first = String(email || "")
+            .split("@")[0]
+            .replace(/[._-]+/g, " ")
+            .trim();
+
+        if (!first) return "Messenger Kullanıcısı";
+
+        return first
+            .split(" ")
+            .map(v => v.charAt(0).toUpperCase() + v.slice(1))
+            .join(" ");
+    }
+
+    function timeNow() {
+        return new Date().toLocaleTimeString("tr-TR", {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+    }
+
+    function statusLabel(status) {
+        return {
+            online: "Çevrimiçi",
+            away: "Dışarıda",
+            busy: "Meşgul",
+            offline: "Çevrimdışı"
+        }[status] || status;
+    }
+
+    function activeContact() {
+        return state.contacts.find(c => c.id === state.activeContact);
+    }
+
+    function renderEmoticons(text) {
+        let result = escapeHtml(text);
+
+        const replacements = [
+            [":D", "😄"],
+            [";)", "😉"],
+            [":P", "😛"],
+            [":)", "🙂"],
+            [":(", "🙁"],
+            ["&lt;3", "❤"]
+        ];
+
+        replacements.forEach(([from, to]) => {
+            result = result.split(from).join(to);
+        });
+
+        return result;
+    }
+
+    /* =====================================================
+       AUDIO
+       ===================================================== */
+
+    let audioContext = null;
+
+    function getAudio() {
+        if (!audioContext) {
+            const Ctx =
+                window.AudioContext ||
+                window.webkitAudioContext;
+
+            if (Ctx) audioContext = new Ctx();
+        }
+
+        return audioContext;
+    }
+
+    function tone(freq, duration = 0.09, delay = 0, volume = 0.035) {
+        const ctx = getAudio();
+        if (!ctx) return;
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = "sine";
+        osc.frequency.value = freq;
+
+        gain.gain.setValueAtTime(0.0001, ctx.currentTime + delay);
+        gain.gain.exponentialRampToValueAtTime(
+            volume,
+            ctx.currentTime + delay + 0.01
+        );
+        gain.gain.exponentialRampToValueAtTime(
+            0.0001,
+            ctx.currentTime + delay + duration
+        );
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(ctx.currentTime + delay);
+        osc.stop(ctx.currentTime + delay + duration + 0.03);
+    }
+
+    function loginSound() {
+        tone(523, .11, 0);
+        tone(659, .11, .09);
+        tone(784, .16, .18);
+    }
+
+    function messageSound() {
+        tone(880, .08, 0);
+        tone(1175, .10, .08);
+    }
+
+    function nudgeSound() {
+        tone(210, .06, 0, .06);
+        tone(300, .06, .07, .06);
+        tone(210, .06, .14, .06);
+    }
+
+    /* =====================================================
+       DIALOGS
+       ===================================================== */
+
+    function closeDialog() {
+        $("dialogHost").innerHTML = "";
+    }
+
+    function showDialog(title, html, buttons) {
+        const host = $("dialogHost");
+
+        const actions = (buttons || [
+            { text: "Tamam", action: closeDialog }
+        ]);
+
+        host.innerHTML = `
+            <div class="dialog-overlay">
+                <div class="xp-dialog">
+                    <div class="dialog-head">
+                        ${escapeHtml(title)}
+                    </div>
+
+                    <div class="dialog-body">
+                        ${html}
+                    </div>
+
+                    <div class="dialog-actions" id="dialogActions"></div>
+                </div>
+            </div>
+        `;
+
+        const actionHost = $("dialogActions");
+
+        actions.forEach(item => {
+            const button = document.createElement("button");
+            button.textContent = item.text;
+            button.addEventListener("click", item.action);
+            actionHost.appendChild(button);
+        });
+    }
+
+    function showToast(title, text, duration = 3300) {
+        const host = $("toastHost");
+
+        const toast = document.createElement("div");
+        toast.className = "toast";
+
+        toast.innerHTML = `
+            <div class="toast-title">${escapeHtml(title)}</div>
+            <div>${escapeHtml(text)}</div>
+        `;
+
+        host.appendChild(toast);
+
+        setTimeout(() => {
+            toast.remove();
+        }, duration);
+    }
+
+    /* =====================================================
+       LOGIN
+       ===================================================== */
+
+    function signIn() {
+        const email = loginEmail.value.trim();
+
+        if (!email || !email.includes("@")) {
+            showDialog(
+                "MSN Messenger",
+                "Lütfen geçerli bir e-posta adresi yazın."
+            );
+            return;
+        }
+
+        state.email = email;
+
+        if (!state.displayName) {
+            state.displayName = emailToName(email);
+        }
+
+        state.status = loginStatus.value;
+        state.loggedIn = true;
+
+        saveState();
+
+        signinScreen.classList.add("hidden");
+        messengerScreen.classList.remove("hidden");
+
+        myStatus.value = state.status;
+
+        renderProfile();
+        renderContacts();
+
+        statusText.textContent =
+            `${state.email} - ${statusLabel(state.status)}`;
+
+        loginSound();
+
+        setTimeout(() => {
+            showToast(
+                "MSN Messenger",
+                `${state.displayName} olarak oturum açtınız.`
+            );
+        }, 350);
+    }
+
+    function signOut() {
+        state.loggedIn = false;
+        state.activeContact = null;
+
+        saveState();
+
+        messengerScreen.classList.add("hidden");
+        signinScreen.classList.remove("hidden");
+
+        emptyChat.classList.remove("hidden");
+        chatView.classList.add("hidden");
+
+        statusText.textContent = "Oturum açılmadı";
+    }
+
+    signInButton.addEventListener("click", signIn);
+
+    $("loginPassword").addEventListener("keydown", event => {
+        if (event.key === "Enter") signIn();
+    });
+
+    /* =====================================================
+       PROFILE
+       ===================================================== */
+
+    function renderProfile() {
+        myName.textContent =
+            state.displayName || emailToName(state.email);
+
+        myAvatar.textContent =
+            (state.displayName || "M").charAt(0).toUpperCase();
+
+        myPersonalMessage.textContent =
+            state.personalMessage ||
+            "Kişisel ileti eklemek için tıklayın";
+    }
+
+    myStatus.addEventListener("change", () => {
+        state.status = myStatus.value;
+
+        statusText.textContent =
+            `${state.email} - ${statusLabel(state.status)}`;
+
+        saveState();
+    });
+
+    myPersonalMessage.addEventListener("click", () => {
+        showDialog(
+            "Kişisel İleti",
+            `
+            <div class="dialog-field">
+                <label>Arkadaşlarınızın göreceği kişisel ileti:</label>
+                <input
+                    id="personalMessageInput"
+                    maxlength="80"
+                    value="${escapeHtml(state.personalMessage)}"
+                >
+            </div>
+            `,
+            [
+                {
+                    text: "Tamam",
+                    action: () => {
+                        state.personalMessage =
+                            $("personalMessageInput").value.trim();
+
+                        saveState();
+                        renderProfile();
+                        closeDialog();
+                    }
+                },
+                {
+                    text: "İptal",
+                    action: closeDialog
+                }
+            ]
+        );
+    });
+
+    /* =====================================================
+       CONTACTS
+       ===================================================== */
+
+    function renderContacts() {
+        const query = contactSearch.value
+            .trim()
+            .toLocaleLowerCase("tr");
+
+        const visible = state.contacts.filter(contact => {
+            const haystack =
+                `${contact.name} ${contact.email} ${contact.psm}`
+                    .toLocaleLowerCase("tr");
+
+            return !query || haystack.includes(query);
+        });
+
+        const online = visible.filter(c => c.status !== "offline");
+        const offline = visible.filter(c => c.status === "offline");
+
+        contactList.innerHTML = "";
+
+        renderGroup(
+            "online",
+            `Çevrimiçi (${online.length})`,
+            online
+        );
+
+        renderGroup(
+            "offline",
+            `Çevrimdışı (${offline.length})`,
+            offline
+        );
+    }
+
+    function renderGroup(id, title, contacts) {
+        const group = document.createElement("div");
+        group.className = "group";
+
+        const collapsed = !!state.collapsed[id];
+
+        const titleEl = document.createElement("div");
+        titleEl.className = "group-title";
+
+        titleEl.innerHTML = `
+            <span class="group-arrow">
+                ${collapsed ? "▶" : "▼"}
+            </span>
+            <span>${escapeHtml(title)}</span>
+        `;
+
+        titleEl.addEventListener("click", () => {
+            state.collapsed[id] = !state.collapsed[id];
+            saveState();
+            renderContacts();
+        });
+
+        group.appendChild(titleEl);
+
+        if (!collapsed) {
+            contacts.forEach(contact => {
+                const row = document.createElement("div");
+
+                row.className =
+                    "contact " +
+                    (contact.status === "offline" ? "offline " : "") +
+                    (state.activeContact === contact.id ? "active" : "");
+
+                row.innerHTML = `
+                    <div class="mini-avatar ${escapeHtml(contact.avatarClass)}">
+                        ${escapeHtml(contact.avatar)}
+                    </div>
+
+                    <div class="contact-text">
+                        <div class="contact-name">
+                            ${escapeHtml(contact.name)}
+                        </div>
+
+                        <div class="contact-psm">
+                            ${escapeHtml(contact.psm || contact.email)}
+                        </div>
+                    </div>
+
+                    <span class="presence ${escapeHtml(contact.status)}"></span>
+                `;
+
+                row.addEventListener("dblclick", () => openChat(contact.id));
+                row.addEventListener("click", () => openChat(contact.id));
+
+                group.appendChild(row);
+            });
+        }
+
+        contactList.appendChild(group);
+    }
+
+    contactSearch.addEventListener("input", renderContacts);
+
+    /* =====================================================
+       ADD CONTACT
+       ===================================================== */
+
+    function addContactDialog() {
+        if (!state.loggedIn) return;
+
+        showDialog(
+            "Kişi Ekle",
+            `
+            <div class="dialog-field">
+                <label>E-posta adresi:</label>
+                <input id="newContactEmail" placeholder="arkadas@hotmail.com">
+            </div>
+
+            <div class="dialog-field">
+                <label>Görünen ad:</label>
+                <input id="newContactName" placeholder="Arkadaş">
+            </div>
+            `,
+            [
+                {
+                    text: "Ekle",
+                    action: () => {
+                        const email =
+                            $("newContactEmail").value.trim();
+
+                        const name =
+                            $("newContactName").value.trim();
+
+                        if (!email || !email.includes("@")) {
+                            closeDialog();
+
+                            showDialog(
+                                "Kişi Ekle",
+                                "Geçerli bir e-posta adresi girin."
+                            );
+
+                            return;
+                        }
+
+                        const id =
+                            "contact_" +
+                            Date.now().toString(36);
+
+                        state.contacts.push({
+                            id,
+                            name: name || emailToName(email),
+                            email,
+                            status: "offline",
+                            psm: "",
+                            avatar:
+                                (name || email)
+                                    .charAt(0)
+                                    .toUpperCase(),
+                            avatarClass: "gray"
+                        });
+
+                        saveState();
+                        renderContacts();
+                        closeDialog();
+
+                        showToast(
+                            "MSN Messenger",
+                            `${name || email} kişi listenize eklendi.`
+                        );
+                    }
+                },
+                {
+                    text: "İptal",
+                    action: closeDialog
+                }
+            ]
+        );
+    }
+
+    $("addContactButton").addEventListener("click", addContactDialog);
+
+    /* =====================================================
+       CHAT
+       ===================================================== */
+
+    function openChat(contactId) {
+        const contact =
+            state.contacts.find(c => c.id === contactId);
+
+        if (!contact) return;
+
+        state.activeContact = contactId;
+
+        if (!state.messages[contactId]) {
+            state.messages[contactId] = [
+                {
+                    type: "system",
+                    text:
+                        contact.status === "offline"
+                            ? `${contact.name} şu anda çevrimdışı.`
+                            : `${contact.name} ile konuşma başlatıldı.`,
+                    time: timeNow()
+                }
+            ];
+        }
+
+        emptyChat.classList.add("hidden");
+        chatView.classList.remove("hidden");
+        chatPane.classList.remove("mobile-hidden");
+
+        chatAvatar.textContent = contact.avatar;
+        chatAvatar.className =
+            `avatar ${contact.avatarClass || ""}`;
+
+        chatContactName.textContent =
+            `${contact.name} (${contact.email})`;
+
+        chatContactPsm.textContent =
+            contact.psm || statusLabel(contact.status);
+
+        renderContacts();
+        renderHistory();
+
+        messageInput.focus();
+
+        saveState();
+    }
+
+    function renderHistory() {
+        const contact = activeContact();
+
+        if (!contact) return;
+
+        const messages =
+            state.messages[contact.id] || [];
+
+        chatHistory.innerHTML = "";
+
+        messages.forEach(message => {
+            if (message.type === "system") {
+                const element =
+                    document.createElement("div");
+
+                element.className = "system-message";
+
+                element.textContent =
+                    `${message.text} (${message.time || ""})`;
+
+                chatHistory.appendChild(element);
+                return;
+            }
+
+            const element =
+                document.createElement("div");
+
+            element.className = "message";
+
+            const speaker =
+                message.sender === "me"
+                    ? state.displayName
+                    : contact.name;
+
+            element.innerHTML = `
+                <div class="message-meta ${message.sender}">
+                    ${escapeHtml(speaker)} diyor:
+                    <span style="color:#999">
+                        ${escapeHtml(message.time || "")}
+                    </span>
+                </div>
+
+                <div class="message-body">
+                    ${renderEmoticons(message.text)}
+                </div>
+            `;
+
+            chatHistory.appendChild(element);
+        });
+
+        chatHistory.scrollTop =
+            chatHistory.scrollHeight;
+    }
+
+    function sendMessage() {
+        const contact = activeContact();
+        const text = messageInput.value.trim();
+
+        if (!contact || !text) return;
+
+        if (contact.status === "offline") {
+            showDialog(
+                "MSN Messenger",
+                `${escapeHtml(contact.name)} şu anda çevrimdışı. Bu nostalji sürümünde çevrimdışı ileti teslim edilmiyor.`
+            );
+
+            return;
+        }
+
+        state.messages[contact.id].push({
+            sender: "me",
+            text,
+            time: timeNow()
+        });
+
+        messageInput.value = "";
+
+        saveState();
+        renderHistory();
+        messageSound();
+
+        window.setTimeout(() => {
+            fakeReply(contact);
+        }, 750 + Math.random() * 900);
+    }
+
+    function fakeReply(contact) {
+        if (!state.messages[contact.id]) return;
+
+        const last =
+            [...state.messages[contact.id]]
+                .reverse()
+                .find(m => m.sender === "me");
+
+        const text =
+            (last?.text || "").toLocaleLowerCase("tr");
+
+        let responses = [
+            "aynen ya :D",
+            "haha :D",
+            "naber?",
+            "iyi valla sen?",
+            "bi dk geliyorum",
+            ":)",
+            "tamamdır",
+            "lol :P",
+            "sonra konuşuruz",
+            "msn efsaneydi ya :D"
+        ];
+
+        if (
+            text.includes("selam") ||
+            text.includes("merhaba") ||
+            text.includes("slm")
+        ) {
+            responses = [
+                "slm :)",
+                "selammm :D",
+                "hey naber?"
+            ];
+        }
+
+        if (
+            text.includes("naber") ||
+            text.includes("nasıl")
+        ) {
+            responses = [
+                "iyi valla sen? :)",
+                "iyidir takılıyorum :D",
+                "aynı işte :P"
+            ];
+        }
+
+        if (
+            text.includes("oyun") ||
+            text.includes("cs")
+        ) {
+            responses = [
+                "CS açalım mı :D",
+                "5 dk sonra girerim",
+                "server ip atsana"
+            ];
+        }
+
+        const reply =
+            responses[
+                Math.floor(Math.random() * responses.length)
+            ];
+
+        state.messages[contact.id].push({
+            sender: "them",
+            text: reply,
+            time: timeNow()
+        });
+
+        saveState();
+
+        if (state.activeContact === contact.id) {
+            renderHistory();
+        }
+
+        messageSound();
+
+        showToast(
+            contact.name,
+            reply
+        );
+    }
+
+    sendButton.addEventListener("click", sendMessage);
+
+    messageInput.addEventListener("keydown", event => {
+        if (
+            event.key === "Enter" &&
+            !event.shiftKey
+        ) {
+            event.preventDefault();
+            sendMessage();
+        }
+    });
+
+    document.querySelectorAll(".emote").forEach(button => {
+        button.addEventListener("click", () => {
+            const emote = button.dataset.emote;
+
+            messageInput.value +=
+                (messageInput.value ? " " : "") +
+                emote;
+
+            messageInput.focus();
+        });
+    });
+
+    /* =====================================================
+       NUDGE
+       ===================================================== */
+
+    function nudge() {
+        const contact = activeContact();
+
+        if (!contact) return;
+
+        if (contact.status === "offline") {
+            showDialog(
+                "Titreşim",
+                "Çevrimdışı bir kişiye titreşim gönderemezsiniz."
+            );
+            return;
+        }
+
+        workspace.classList.remove("nudging");
+
+        void workspace.offsetWidth;
+
+        workspace.classList.add("nudging");
+
+        nudgeSound();
+
+        state.messages[contact.id].push({
+            type: "system",
+            text: `${state.displayName}, ${contact.name} adlı kişiye titreşim gönderdi!`,
+            time: timeNow()
+        });
+
+        saveState();
+        renderHistory();
+
+        setTimeout(() => {
+            workspace.classList.remove("nudging");
+        }, 500);
+    }
+
+    nudgeButton.addEventListener("click", nudge);
+
+    /* =====================================================
+       CLEAR CHAT
+       ===================================================== */
+
+    clearButton.addEventListener("click", () => {
+        const contact = activeContact();
+
+        if (!contact) return;
+
+        showDialog(
+            "Konuşmayı Temizle",
+            `${escapeHtml(contact.name)} ile olan yerel konuşma geçmişi temizlensin mi?`,
+            [
+                {
+                    text: "Evet",
+                    action: () => {
+                        state.messages[contact.id] = [];
+
+                        saveState();
+                        renderHistory();
+                        closeDialog();
+                    }
+                },
+                {
+                    text: "Hayır",
+                    action: closeDialog
+                }
+            ]
+        );
+    });
+
+    /* =====================================================
+       OTHER TOOLBAR
+       ===================================================== */
+
+    $("mailButton").addEventListener("click", () => {
+        showDialog(
+            "E-posta",
+            "Hotmail entegrasyonu bu nostaljik çevrimdışı sürümde devre dışıdır."
+        );
+    });
+
+    $("historyButton").addEventListener("click", () => {
+        const count =
+            Object.values(state.messages)
+                .reduce((sum, list) => sum + list.length, 0);
+
+        showDialog(
+            "Konuşma Geçmişi",
+            `
+            Bu tarayıcıda kayıtlı toplam
+            <strong>${count}</strong>
+            konuşma kaydı bulunuyor.<br><br>
+
+            Veriler yalnızca tarayıcınızın
+            <code>localStorage</code> alanında tutulur.
+            `
+        );
+    });
+
+    $("statusButton").addEventListener("click", event => {
+        showPopup(
+            event.currentTarget,
+            [
+                ["Çevrimiçi", () => setStatus("online")],
+                ["Dışarıda", () => setStatus("away")],
+                ["Meşgul", () => setStatus("busy")],
+                ["Çevrimdışı görün", () => setStatus("offline")]
+            ]
+        );
+    });
+
+    function setStatus(status) {
+        state.status = status;
+        myStatus.value = status;
+
+        saveState();
+
+        statusText.textContent =
+            `${state.email} - ${statusLabel(status)}`;
+
+        hidePopup();
+    }
+
+    /* =====================================================
+       MENUS
+       ===================================================== */
+
+    const menus = {
+        file: [
+            ["Oturumu Kapat", signOut],
+            ["-", null],
+            [
+                "Messenger'ı Sıfırla",
+                () => {
+                    showDialog(
+                        "MSN Messenger",
+                        "Tüm yerel Messenger ayarları ve konuşmalar silinsin mi?",
+                        [
+                            {
+                                text: "Evet",
+                                action: () => {
+                                    localStorage.removeItem(STORAGE_KEY);
+                                    location.reload();
+                                }
+                            },
+                            {
+                                text: "Hayır",
+                                action: closeDialog
+                            }
+                        ]
+                    );
+                }
+            ]
+        ],
+
+        contacts: [
+            ["Kişi Ekle...", addContactDialog],
+            ["Kişilerimi Ara", () => contactSearch.focus()]
+        ],
+
+        actions: [
+            ["Anlık İleti Gönder", () => messageInput.focus()],
+            ["Titreşim Gönder", nudge]
+        ],
+
+        tools: [
+            [
+                "Seçenekler...",
+                () => showDialog(
+                    "Seçenekler",
+                    `
+                    <strong>MSN Messenger XP Web Tribute</strong>
+                    <br><br>
+                    • Yerel konuşma geçmişi<br>
+                    • Sentetik Messenger sesleri<br>
+                    • Titreşim efekti<br>
+                    • Durum ve kişisel ileti sistemi<br>
+                    • Harici sunucu gerektirmez
+                    `
+                )
+            ]
+        ],
+
+        help: [
+            [
+                "MSN Messenger Hakkında",
+                () => showDialog(
+                    "MSN Messenger Hakkında",
+                    `
+                    <div style="display:flex;gap:12px;align-items:center">
+                        <div class="msn-logo">
+                            <div class="person blue">
+                                <div class="head"></div>
+                                <div class="body"></div>
+                            </div>
+                            <div class="person green">
+                                <div class="head"></div>
+                                <div class="body"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <strong>MSN Messenger 7.x Web Tribute</strong>
+                            <br>
+                            Windows XP Luna simülasyonu için hazırlanmış
+                            bağımsız nostaljik uygulama.
+                            <br><br>
+                            Microsoft ile bağlantılı resmi bir ürün değildir.
+                        </div>
+                    </div>
+                    `
+                )
+            ]
+        ]
+    };
+
+    document.querySelectorAll(".menu-item").forEach(item => {
+        item.addEventListener("click", () => {
+            const rect = item.getBoundingClientRect();
+
+            showPopupAt(
+                rect.left,
+                rect.bottom,
+                menus[item.dataset.menu]
+            );
+        });
+    });
+
+    function showPopup(anchor, items) {
+        const rect = anchor.getBoundingClientRect();
+
+        showPopupAt(
+            rect.left,
+            rect.bottom + 2,
+            items
+        );
+    }
+
+    function showPopupAt(x, y, items) {
+        popupMenu.innerHTML = "";
+
+        items.forEach(item => {
+            if (item[0] === "-") {
+                const sep =
+                    document.createElement("div");
+
+                sep.className = "popup-separator";
+
+                popupMenu.appendChild(sep);
+                return;
+            }
+
+            const row =
+                document.createElement("div");
+
+            row.className = "popup-item";
+            row.textContent = item[0];
+
+            row.addEventListener("click", () => {
+                hidePopup();
+
+                if (item[1]) item[1]();
+            });
+
+            popupMenu.appendChild(row);
+        });
+
+        popupMenu.style.left = `${x}px`;
+        popupMenu.style.top = `${y}px`;
+        popupMenu.classList.add("visible");
+    }
+
+    function hidePopup() {
+        popupMenu.classList.remove("visible");
+    }
+
+    document.addEventListener("mousedown", event => {
+        if (
+            !popupMenu.contains(event.target) &&
+            !event.target.classList.contains("menu-item")
+        ) {
+            hidePopup();
+        }
+    });
+
+    /* =====================================================
+       MOBILE / SMALL IFRAME
+       ===================================================== */
+
+    $("mobileBackButton").addEventListener("click", () => {
+        chatPane.classList.add("mobile-hidden");
+    });
+
+    /* =====================================================
+       STARTUP
+       ===================================================== */
+
+    if (state.email) {
+        loginEmail.value = state.email;
+    }
+
+    myStatus.value = state.status || "online";
+
+    renderProfile();
+    renderContacts();
+
+})();
+</script>
+
+</body>
+</html>

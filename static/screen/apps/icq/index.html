@@ -1,0 +1,2432 @@
+<!--
+ICQ CLASSIC - ASSET LISTESI
+
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama |
+|------------|----------------------|------------|----------------------|
+| icon.png   | 32x32                | Zorunlu    | XP Masaustu / registry ikonu |
+
+NOT:
+- Uygulama başka harici görsel gerektirmez.
+- ICQ çiçeği CSS ile oluşturulur.
+- Bildirim sesi Web Audio API ile sentetik olarak üretilir.
+- Harici CDN, Node.js, backend veya internet bağlantısı gerekmez.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+<title>ICQ</title>
+
+<style>
+    :root {
+        --xp-bg: #ECE9D8;
+        --xp-border: #ACA899;
+        --xp-blue-border: #7F9DB9;
+        --icq-green: #78A91E;
+        --icq-dark: #536F11;
+        --selection: #316AC5;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    html,
+    body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+    }
+
+    body {
+        font-family: Tahoma, sans-serif;
+        font-size: 11px;
+        background: var(--xp-bg);
+        color: #000;
+        user-select: none;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+        font-family: Tahoma, sans-serif;
+        font-size: 11px;
+    }
+
+    button {
+        min-height: 23px;
+        padding: 2px 10px;
+        background: #ECE9D8;
+        border: 2px outset #fff;
+        color: #000;
+    }
+
+    button:active {
+        border-style: inset;
+    }
+
+    button:disabled {
+        color: #888;
+        text-shadow: 1px 1px #fff;
+    }
+
+    input,
+    textarea,
+    select {
+        border: 1px solid var(--xp-blue-border);
+        background: #fff;
+    }
+
+    .app {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        min-width: 390px;
+        background: #ECE9D8;
+    }
+
+    /* -------------------------------------------------- */
+    /* Menu                                               */
+    /* -------------------------------------------------- */
+
+    .menu-bar {
+        height: 23px;
+        display: flex;
+        align-items: center;
+        padding: 0 3px;
+        border-bottom: 1px solid #D4D0C8;
+        background: #ECE9D8;
+        flex-shrink: 0;
+    }
+
+    .menu-item {
+        position: relative;
+        padding: 4px 7px;
+        cursor: default;
+    }
+
+    .menu-item:hover,
+    .menu-item.active {
+        background: #316AC5;
+        color: white;
+    }
+
+    .menu-popup {
+        position: fixed;
+        z-index: 1000;
+        min-width: 170px;
+        padding: 2px;
+        background: #ECE9D8;
+        border: 1px solid #808080;
+        box-shadow:
+            inset 1px 1px #fff,
+            inset -1px -1px #404040,
+            2px 2px 3px rgba(0,0,0,.25);
+    }
+
+    .menu-command {
+        padding: 5px 22px 5px 25px;
+        white-space: nowrap;
+        color: #000;
+        cursor: default;
+        position: relative;
+    }
+
+    .menu-command:hover {
+        background: #316AC5;
+        color: white;
+    }
+
+    .menu-command .check {
+        position: absolute;
+        left: 7px;
+    }
+
+    .menu-separator {
+        border-top: 1px solid #ACA899;
+        border-bottom: 1px solid white;
+        margin: 3px;
+    }
+
+    /* -------------------------------------------------- */
+    /* Toolbar                                            */
+    /* -------------------------------------------------- */
+
+    .toolbar {
+        min-height: 42px;
+        padding: 3px 5px;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        background: #ECE9D8;
+        border-top: 1px solid white;
+        border-bottom: 1px solid #ACA899;
+        flex-shrink: 0;
+    }
+
+    .tool {
+        width: 43px;
+        min-height: 35px;
+        padding: 2px;
+        border: 1px solid transparent;
+        background: transparent;
+        text-align: center;
+        cursor: default;
+    }
+
+    .tool:hover {
+        border: 1px solid #ACA899;
+        background: #F5F3E9;
+    }
+
+    .tool:active {
+        border: 1px inset white;
+    }
+
+    .tool-icon {
+        display: block;
+        font-size: 17px;
+        height: 20px;
+        line-height: 20px;
+    }
+
+    .toolbar-separator {
+        width: 2px;
+        height: 32px;
+        border-left: 1px solid #ACA899;
+        border-right: 1px solid white;
+        margin: 0 2px;
+    }
+
+    /* -------------------------------------------------- */
+    /* Identity                                           */
+    /* -------------------------------------------------- */
+
+    .identity-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 52px;
+        padding: 6px;
+        flex-shrink: 0;
+        border-bottom: 1px solid #ACA899;
+        background: linear-gradient(#FFFFFF, #E9F1D8);
+    }
+
+    .icq-flower {
+        width: 36px;
+        height: 36px;
+        position: relative;
+        flex: 0 0 36px;
+    }
+
+    .petal {
+        position: absolute;
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        border: 1px solid rgba(0,0,0,.2);
+    }
+
+    .p1 { background:#EA3535; left:12px; top:0; }
+    .p2 { background:#FF8B18; left:21px; top:4px; }
+    .p3 { background:#FFD21D; left:23px; top:13px; }
+    .p4 { background:#63BB42; left:19px; top:22px; }
+    .p5 { background:#24A9DF; left:10px; top:23px; }
+    .p6 { background:#4264B0; left:1px; top:18px; }
+    .p7 { background:#9B48AE; left:0; top:9px; }
+    .p8 { background:#E14C9C; left:5px; top:2px; }
+
+    .flower-center {
+        position: absolute;
+        z-index: 2;
+        left: 11px;
+        top: 11px;
+        width: 14px;
+        height: 14px;
+        background: white;
+        border: 1px solid #888;
+        border-radius: 50%;
+    }
+
+    .identity-text {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .nickname {
+        font-weight: bold;
+        font-size: 12px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .uin {
+        color: #666;
+        margin-top: 2px;
+    }
+
+    .status-select {
+        width: 105px;
+    }
+
+    /* -------------------------------------------------- */
+    /* Main                                               */
+    /* -------------------------------------------------- */
+
+    .main {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+    }
+
+    .contacts-pane {
+        width: 245px;
+        min-width: 190px;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid #ACA899;
+        background: white;
+    }
+
+    .search-row {
+        padding: 5px;
+        background: #ECE9D8;
+        border-bottom: 1px solid #ACA899;
+        display: flex;
+        gap: 4px;
+    }
+
+    .search-row input {
+        width: 100%;
+        height: 22px;
+        padding: 2px 5px;
+    }
+
+    .contact-list {
+        flex: 1;
+        overflow-y: auto;
+        background: white;
+    }
+
+    .group {
+        border-bottom: 1px solid #ECE9D8;
+    }
+
+    .group-title {
+        height: 22px;
+        line-height: 22px;
+        background: linear-gradient(#F9F9F9, #E5E5E5);
+        border-bottom: 1px solid #D8D8D8;
+        font-weight: bold;
+        padding: 0 5px;
+        cursor: default;
+    }
+
+    .group-title:hover {
+        background: #EAF2FF;
+    }
+
+    .group-arrow {
+        display: inline-block;
+        width: 13px;
+    }
+
+    .contact {
+        min-height: 36px;
+        display: flex;
+        align-items: center;
+        padding: 3px 5px 3px 8px;
+        cursor: default;
+        border-bottom: 1px solid #F5F5F5;
+    }
+
+    .contact:hover {
+        background: #EAF2FF;
+    }
+
+    .contact.selected {
+        background: #316AC5;
+        color: white;
+    }
+
+    .contact-avatar {
+        width: 28px;
+        height: 28px;
+        margin-right: 7px;
+        position: relative;
+        flex-shrink: 0;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(#FFF,#D9D9D9);
+        border: 1px solid #999;
+        font-weight: bold;
+        color: #555;
+    }
+
+    .presence {
+        position: absolute;
+        width: 9px;
+        height: 9px;
+        right: -3px;
+        bottom: -2px;
+        border-radius: 50%;
+        border: 1px solid white;
+        background: #70B524;
+    }
+
+    .presence.away {
+        background: #FFB400;
+    }
+
+    .presence.na {
+        background: #E44;
+    }
+
+    .presence.offline {
+        background: #AAA;
+    }
+
+    .contact-info {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .contact-name {
+        font-weight: bold;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .contact.selected .contact-sub {
+        color: #DCE8FF;
+    }
+
+    .contact-sub {
+        color: #777;
+        font-size: 10px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        margin-top: 2px;
+    }
+
+    .unread {
+        min-width: 17px;
+        height: 17px;
+        border-radius: 9px;
+        background: #E43D30;
+        color: white;
+        padding: 1px 5px;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    /* -------------------------------------------------- */
+    /* Welcome / chat                                     */
+    /* -------------------------------------------------- */
+
+    .content-pane {
+        flex: 1;
+        min-width: 0;
+        min-height: 0;
+        position: relative;
+        background: #F7F7F7;
+    }
+
+    .welcome {
+        width: 100%;
+        height: 100%;
+        display: grid;
+        place-items: center;
+        padding: 25px;
+        text-align: center;
+        color: #555;
+    }
+
+    .welcome-inner {
+        max-width: 360px;
+    }
+
+    .welcome-logo {
+        display: inline-block;
+        transform: scale(1.7);
+        margin-bottom: 28px;
+    }
+
+    .welcome h2 {
+        color: #557A16;
+        font-size: 17px;
+        margin: 0 0 10px;
+    }
+
+    .welcome p {
+        line-height: 1.6;
+    }
+
+    .chat {
+        height: 100%;
+        display: none;
+        flex-direction: column;
+    }
+
+    .chat.active {
+        display: flex;
+    }
+
+    .chat-header {
+        min-height: 49px;
+        flex-shrink: 0;
+        padding: 5px 8px;
+        background: linear-gradient(#FFFFFF,#E4EFD0);
+        border-bottom: 1px solid #A7B892;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .chat-header-name {
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+    .chat-header-status {
+        color: #666;
+        margin-top: 3px;
+    }
+
+    .chat-actions {
+        margin-left: auto;
+        display: flex;
+        gap: 3px;
+    }
+
+    .mini-button {
+        padding: 2px 6px;
+        min-height: 23px;
+    }
+
+    .messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 9px;
+        background: white;
+        user-select: text;
+    }
+
+    .message {
+        margin-bottom: 9px;
+        line-height: 1.45;
+        max-width: 680px;
+    }
+
+    .message-header {
+        font-weight: bold;
+        color: #315A8A;
+        margin-bottom: 1px;
+    }
+
+    .message.me .message-header {
+        color: #628C18;
+    }
+
+    .time {
+        font-weight: normal;
+        color: #999;
+        margin-left: 5px;
+        font-size: 10px;
+    }
+
+    .system-message {
+        padding: 5px;
+        color: #777;
+        font-style: italic;
+        text-align: center;
+    }
+
+    .typing {
+        height: 17px;
+        flex-shrink: 0;
+        padding: 2px 8px;
+        color: #666;
+        background: #FAFAFA;
+        border-top: 1px solid #EEE;
+    }
+
+    .composer {
+        min-height: 105px;
+        padding: 5px;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        background: #ECE9D8;
+        border-top: 1px solid #ACA899;
+    }
+
+    .compose-toolbar {
+        height: 25px;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .compose-icon {
+        border: 1px solid transparent;
+        padding: 2px 5px;
+        cursor: default;
+    }
+
+    .compose-icon:hover {
+        border: 1px solid #ACA899;
+        background: white;
+    }
+
+    .compose-bottom {
+        flex: 1;
+        display: flex;
+        min-height: 0;
+        gap: 5px;
+    }
+
+    .compose-bottom textarea {
+        flex: 1;
+        resize: none;
+        padding: 5px;
+        user-select: text;
+    }
+
+    .send-btn {
+        width: 72px;
+        align-self: stretch;
+        font-weight: bold;
+    }
+
+    /* -------------------------------------------------- */
+    /* Bottom status                                      */
+    /* -------------------------------------------------- */
+
+    .statusbar {
+        height: 22px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        border-top: 1px solid #ACA899;
+        background: #ECE9D8;
+        padding: 2px;
+    }
+
+    .status-panel {
+        height: 17px;
+        line-height: 16px;
+        padding: 0 6px;
+        border: 1px inset white;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .status-panel.main-status {
+        flex: 1;
+    }
+
+    .status-panel.network {
+        width: 110px;
+    }
+
+    /* -------------------------------------------------- */
+    /* XP dialogs                                         */
+    /* -------------------------------------------------- */
+
+    .dialog-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 2000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0,0,0,.17);
+    }
+
+    .dialog-overlay.visible {
+        display: flex;
+    }
+
+    .xp-dialog {
+        min-width: 310px;
+        max-width: calc(100% - 30px);
+        background: #ECE9D8;
+        border:
+            1px solid #003C74;
+        box-shadow:
+            0 0 0 2px #0054E3,
+            3px 4px 8px rgba(0,0,0,.35);
+    }
+
+    /*
+       This is an application modal's title area,
+       NOT a second operating-system/window-manager frame.
+    */
+    .dialog-caption {
+        min-height: 26px;
+        display: flex;
+        align-items: center;
+        padding: 3px 5px;
+        color: white;
+        font-weight: bold;
+        background: linear-gradient(
+            90deg,
+            #0A246A,
+            #3A6EA5
+        );
+    }
+
+    .dialog-close {
+        margin-left: auto;
+        width: 20px;
+        height: 20px;
+        min-height: 20px;
+        padding: 0;
+        font-weight: bold;
+        background: #E36A54;
+        color: white;
+        border: 1px outset white;
+    }
+
+    .dialog-body {
+        padding: 12px;
+    }
+
+    .dialog-row {
+        margin-bottom: 8px;
+    }
+
+    .dialog-row label {
+        display: block;
+        margin-bottom: 3px;
+    }
+
+    .dialog-row input,
+    .dialog-row select {
+        width: 100%;
+        height: 22px;
+    }
+
+    .dialog-buttons {
+        padding: 8px 10px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 6px;
+        border-top: 1px solid #D6D2C8;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: 75px 1fr;
+        gap: 5px 7px;
+        min-width: 270px;
+    }
+
+    .info-grid strong {
+        font-weight: normal;
+        color: #555;
+    }
+
+    .about-logo {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 12px;
+    }
+
+    .about-title {
+        font-size: 18px;
+        font-weight: bold;
+        color: #608B19;
+    }
+
+    .notification {
+        position: absolute;
+        z-index: 3000;
+        right: 10px;
+        bottom: 32px;
+        width: 220px;
+        padding: 7px 9px;
+        background: #FFFFE1;
+        border: 1px solid #000;
+        box-shadow: 2px 2px 4px rgba(0,0,0,.25);
+        display: none;
+    }
+
+    .notification.visible {
+        display: block;
+    }
+
+    .notification-title {
+        font-weight: bold;
+        margin-bottom: 3px;
+    }
+
+    @media (max-width: 600px) {
+        .contacts-pane {
+            width: 200px;
+        }
+
+        .toolbar .tool {
+            width: 36px;
+            font-size: 9px;
+        }
+
+        .chat-actions {
+            display: none;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="app" id="app">
+
+    <div class="menu-bar">
+        <div class="menu-item" data-menu="icq">ICQ</div>
+        <div class="menu-item" data-menu="contacts">Contacts</div>
+        <div class="menu-item" data-menu="tools">Tools</div>
+        <div class="menu-item" data-menu="help">Help</div>
+    </div>
+
+    <div class="toolbar">
+
+        <div class="tool" id="addContactBtn">
+            <span class="tool-icon">👤</span>
+            Add
+        </div>
+
+        <div class="tool" id="messageBtn">
+            <span class="tool-icon">✉</span>
+            Message
+        </div>
+
+        <div class="tool" id="infoBtn">
+            <span class="tool-icon">ℹ</span>
+            Info
+        </div>
+
+        <div class="toolbar-separator"></div>
+
+        <div class="tool" id="historyBtn">
+            <span class="tool-icon">📜</span>
+            History
+        </div>
+
+        <div class="tool" id="soundBtn">
+            <span class="tool-icon" id="soundIcon">🔊</span>
+            Sound
+        </div>
+
+    </div>
+
+    <div class="identity-bar">
+
+        <div class="icq-flower">
+            <span class="petal p1"></span>
+            <span class="petal p2"></span>
+            <span class="petal p3"></span>
+            <span class="petal p4"></span>
+            <span class="petal p5"></span>
+            <span class="petal p6"></span>
+            <span class="petal p7"></span>
+            <span class="petal p8"></span>
+            <span class="flower-center"></span>
+        </div>
+
+        <div class="identity-text">
+            <div class="nickname" id="myNickname">Muhammed</div>
+            <div class="uin">
+                ICQ#: <span id="myUin">327451928</span>
+            </div>
+        </div>
+
+        <select id="statusSelect" class="status-select">
+            <option value="online">Online</option>
+            <option value="away">Away</option>
+            <option value="na">N/A</option>
+            <option value="invisible">Invisible</option>
+            <option value="offline">Offline</option>
+        </select>
+
+    </div>
+
+    <div class="main">
+
+        <aside class="contacts-pane">
+
+            <div class="search-row">
+                <input
+                    id="contactSearch"
+                    type="text"
+                    placeholder="Find a contact..."
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="contact-list" id="contactList"></div>
+
+        </aside>
+
+        <section class="content-pane" id="contentPane">
+
+            <div class="welcome" id="welcome">
+
+                <div class="welcome-inner">
+
+                    <div class="welcome-logo">
+                        <div class="icq-flower">
+                            <span class="petal p1"></span>
+                            <span class="petal p2"></span>
+                            <span class="petal p3"></span>
+                            <span class="petal p4"></span>
+                            <span class="petal p5"></span>
+                            <span class="petal p6"></span>
+                            <span class="petal p7"></span>
+                            <span class="petal p8"></span>
+                            <span class="flower-center"></span>
+                        </div>
+                    </div>
+
+                    <h2>Welcome to ICQ</h2>
+
+                    <p>
+                        Select a contact from your Contact List
+                        to start a conversation.
+                    </p>
+
+                    <p>
+                        You are connected as
+                        <b>Muhammed</b>
+                        (<span id="welcomeUin">327451928</span>).
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="chat" id="chat">
+
+                <div class="chat-header">
+
+                    <div class="contact-avatar">
+                        <span id="chatAvatar">A</span>
+                        <span
+                            class="presence"
+                            id="chatPresence"
+                        ></span>
+                    </div>
+
+                    <div>
+                        <div
+                            class="chat-header-name"
+                            id="chatName"
+                        ></div>
+
+                        <div
+                            class="chat-header-status"
+                            id="chatStatus"
+                        ></div>
+                    </div>
+
+                    <div class="chat-actions">
+                        <button class="mini-button" id="chatInfoBtn">
+                            User Info
+                        </button>
+
+                        <button class="mini-button" id="clearHistoryBtn">
+                            Clear
+                        </button>
+                    </div>
+
+                </div>
+
+                <div class="messages" id="messages"></div>
+
+                <div class="typing" id="typing"></div>
+
+                <div class="composer">
+
+                    <div class="compose-toolbar">
+                        <span class="compose-icon" data-insert=":)">☺</span>
+                        <span class="compose-icon" data-insert=";)">😉</span>
+                        <span class="compose-icon" data-insert=":D">😁</span>
+                        <span class="compose-icon" data-insert="<3">♥</span>
+                    </div>
+
+                    <div class="compose-bottom">
+
+                        <textarea
+                            id="messageInput"
+                            placeholder="Type a message..."
+                        ></textarea>
+
+                        <button
+                            class="send-btn"
+                            id="sendBtn"
+                        >
+                            Send
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div
+                class="dialog-overlay"
+                id="dialogOverlay"
+            ></div>
+
+            <div
+                class="notification"
+                id="notification"
+            >
+                <div
+                    class="notification-title"
+                    id="notificationTitle"
+                ></div>
+
+                <div id="notificationText"></div>
+            </div>
+
+        </section>
+
+    </div>
+
+    <div class="statusbar">
+        <div
+            class="status-panel main-status"
+            id="statusText"
+        >
+            Online
+        </div>
+
+        <div class="status-panel network">
+            🌐 ICQ Network
+        </div>
+    </div>
+
+</div>
+
+<script>
+(() => {
+    "use strict";
+
+    const STORAGE_KEY = "xp_icq_classic_v3";
+
+    const defaultState = {
+        profile: {
+            nickname: "Muhammed",
+            uin: "327451928",
+            status: "online"
+        },
+
+        settings: {
+            sound: true
+        },
+
+        contacts: [
+            {
+                id: "anna",
+                uin: "12543007",
+                name: "Anna",
+                status: "online",
+                statusText: "Available",
+                email: "anna@example.com",
+                group: "Friends",
+                unread: 1,
+                messages: [
+                    {
+                        from: "anna",
+                        text: "Hey! Are you still there? :)",
+                        time: "16:42"
+                    }
+                ]
+            },
+            {
+                id: "alex",
+                uin: "78290112",
+                name: "Alex",
+                status: "away",
+                statusText: "Away from computer",
+                email: "alex@example.com",
+                group: "Friends",
+                unread: 0,
+                messages: [
+                    {
+                        from: "alex",
+                        text: "ICQ is alive again!",
+                        time: "15:17"
+                    },
+                    {
+                        from: "me",
+                        text: "Uh-oh! :D",
+                        time: "15:18"
+                    }
+                ]
+            },
+            {
+                id: "john",
+                uin: "34812091",
+                name: "John",
+                status: "offline",
+                statusText: "Offline",
+                email: "john@example.com",
+                group: "Friends",
+                unread: 0,
+                messages: []
+            },
+            {
+                id: "webmaster",
+                uin: "10000001",
+                name: "ICQ Webmaster",
+                status: "online",
+                statusText: "Welcome to ICQ!",
+                email: "webmaster@icq.local",
+                group: "ICQ",
+                unread: 0,
+                messages: [
+                    {
+                        from: "webmaster",
+                        text:
+                            "Welcome to ICQ Classic. " +
+                            "This simulation stores your contacts " +
+                            "and messages locally in your browser.",
+                        time: "12:00"
+                    }
+                ]
+            }
+        ]
+    };
+
+    let state = loadState();
+    let selectedId = null;
+    let menuElement = null;
+    let notificationTimer = null;
+    let audioContext = null;
+
+    const $ = selector => document.querySelector(selector);
+
+    const contactList = $("#contactList");
+    const welcome = $("#welcome");
+    const chat = $("#chat");
+    const messages = $("#messages");
+    const input = $("#messageInput");
+
+    function cloneDefault() {
+        return JSON.parse(JSON.stringify(defaultState));
+    }
+
+    function loadState() {
+        try {
+            const parsed = JSON.parse(
+                localStorage.getItem(STORAGE_KEY)
+            );
+
+            if (
+                !parsed ||
+                !parsed.profile ||
+                !Array.isArray(parsed.contacts)
+            ) {
+                return cloneDefault();
+            }
+
+            return parsed;
+        } catch {
+            return cloneDefault();
+        }
+    }
+
+    function saveState() {
+        localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(state)
+        );
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    function nowTime() {
+        const d = new Date();
+
+        return String(d.getHours()).padStart(2, "0")
+            + ":"
+            + String(d.getMinutes()).padStart(2, "0");
+    }
+
+    function createFlower() {
+        return `
+            <div class="icq-flower">
+                <span class="petal p1"></span>
+                <span class="petal p2"></span>
+                <span class="petal p3"></span>
+                <span class="petal p4"></span>
+                <span class="petal p5"></span>
+                <span class="petal p6"></span>
+                <span class="petal p7"></span>
+                <span class="petal p8"></span>
+                <span class="flower-center"></span>
+            </div>
+        `;
+    }
+
+    function statusLabel(status) {
+        const labels = {
+            online: "Online",
+            away: "Away",
+            na: "N/A",
+            invisible: "Invisible",
+            offline: "Offline"
+        };
+
+        return labels[status] || status;
+    }
+
+    function initializeProfile() {
+        $("#myNickname").textContent =
+            state.profile.nickname;
+
+        $("#myUin").textContent =
+            state.profile.uin;
+
+        $("#welcomeUin").textContent =
+            state.profile.uin;
+
+        $("#statusSelect").value =
+            state.profile.status;
+
+        updateStatusbar();
+
+        $("#soundIcon").textContent =
+            state.settings.sound ? "🔊" : "🔇";
+    }
+
+    function updateStatusbar(text) {
+        $("#statusText").textContent =
+            text || statusLabel(state.profile.status);
+    }
+
+    function getContact(id) {
+        return state.contacts.find(
+            contact => contact.id === id
+        );
+    }
+
+    function filteredContacts() {
+        const query =
+            $("#contactSearch").value
+                .trim()
+                .toLowerCase();
+
+        if (!query) {
+            return state.contacts;
+        }
+
+        return state.contacts.filter(contact =>
+            contact.name.toLowerCase().includes(query) ||
+            contact.uin.includes(query)
+        );
+    }
+
+    function renderContacts() {
+        const contacts = filteredContacts();
+
+        const groups = {};
+
+        contacts.forEach(contact => {
+            if (!groups[contact.group]) {
+                groups[contact.group] = [];
+            }
+
+            groups[contact.group].push(contact);
+        });
+
+        contactList.innerHTML = "";
+
+        Object.entries(groups).forEach(
+            ([groupName, members]) => {
+
+                const group = document.createElement("div");
+                group.className = "group";
+
+                const title = document.createElement("div");
+                title.className = "group-title";
+                title.innerHTML =
+                    `<span class="group-arrow">▼</span>`
+                    + escapeHtml(groupName)
+                    + ` (${members.length})`;
+
+                const body = document.createElement("div");
+
+                members
+                    .sort((a, b) => {
+                        const order = {
+                            online: 0,
+                            away: 1,
+                            na: 2,
+                            offline: 3
+                        };
+
+                        return (
+                            (order[a.status] ?? 5) -
+                            (order[b.status] ?? 5)
+                        );
+                    })
+                    .forEach(contact => {
+                        body.appendChild(
+                            createContactElement(contact)
+                        );
+                    });
+
+                title.addEventListener("click", () => {
+                    const hidden =
+                        body.style.display === "none";
+
+                    body.style.display =
+                        hidden ? "" : "none";
+
+                    title.querySelector(
+                        ".group-arrow"
+                    ).textContent =
+                        hidden ? "▼" : "▶";
+                });
+
+                group.append(title, body);
+                contactList.appendChild(group);
+            }
+        );
+    }
+
+    function createContactElement(contact) {
+        const item = document.createElement("div");
+
+        item.className =
+            "contact" +
+            (selectedId === contact.id
+                ? " selected"
+                : "");
+
+        item.dataset.id = contact.id;
+
+        const initial =
+            escapeHtml(contact.name.charAt(0).toUpperCase());
+
+        item.innerHTML = `
+            <div class="contact-avatar">
+                ${initial}
+                <span class="presence ${escapeHtml(
+                    contact.status
+                )}"></span>
+            </div>
+
+            <div class="contact-info">
+                <div class="contact-name">
+                    ${escapeHtml(contact.name)}
+                </div>
+
+                <div class="contact-sub">
+                    ${escapeHtml(contact.statusText)}
+                </div>
+            </div>
+
+            ${
+                contact.unread
+                    ? `<span class="unread">
+                        ${contact.unread}
+                       </span>`
+                    : ""
+            }
+        `;
+
+        item.addEventListener("click", () => {
+            selectContact(contact.id);
+        });
+
+        item.addEventListener("dblclick", () => {
+            selectContact(contact.id);
+            input.focus();
+        });
+
+        return item;
+    }
+
+    function selectContact(id) {
+        const contact = getContact(id);
+
+        if (!contact) {
+            return;
+        }
+
+        selectedId = id;
+        contact.unread = 0;
+
+        saveState();
+        renderContacts();
+        renderChat(contact);
+    }
+
+    function renderChat(contact) {
+        welcome.style.display = "none";
+        chat.classList.add("active");
+
+        $("#chatName").textContent =
+            `${contact.name} (${contact.uin})`;
+
+        $("#chatStatus").textContent =
+            contact.statusText;
+
+        $("#chatAvatar").textContent =
+            contact.name.charAt(0).toUpperCase();
+
+        $("#chatPresence").className =
+            `presence ${contact.status}`;
+
+        messages.innerHTML = "";
+
+        if (contact.messages.length === 0) {
+            const empty = document.createElement("div");
+            empty.className = "system-message";
+
+            empty.textContent =
+                "No previous messages with this user.";
+
+            messages.appendChild(empty);
+        }
+
+        contact.messages.forEach(message => {
+            const row = document.createElement("div");
+
+            const mine = message.from === "me";
+
+            row.className =
+                "message" + (mine ? " me" : "");
+
+            const sender = mine
+                ? state.profile.nickname
+                : contact.name;
+
+            row.innerHTML = `
+                <div class="message-header">
+                    ${escapeHtml(sender)}
+                    <span class="time">
+                        ${escapeHtml(message.time)}
+                    </span>
+                </div>
+
+                <div>
+                    ${escapeHtml(message.text)
+                        .replaceAll("\n", "<br>")}
+                </div>
+            `;
+
+            messages.appendChild(row);
+        });
+
+        messages.scrollTop = messages.scrollHeight;
+
+        updateStatusbar(
+            `Conversation with ${contact.name}`
+        );
+    }
+
+    function sendMessage() {
+        if (!selectedId) {
+            openInfoDialog(
+                "ICQ",
+                "Select a contact before sending a message."
+            );
+            return;
+        }
+
+        const text = input.value.trim();
+
+        if (!text) {
+            return;
+        }
+
+        const contact = getContact(selectedId);
+
+        contact.messages.push({
+            from: "me",
+            text,
+            time: nowTime()
+        });
+
+        input.value = "";
+
+        saveState();
+        renderChat(contact);
+
+        simulateReply(contact);
+    }
+
+    function simulateReply(contact) {
+        if (contact.status === "offline") {
+            showNotification(
+                "Offline Message",
+                `${contact.name} is offline. ` +
+                "Your message has been stored."
+            );
+
+            return;
+        }
+
+        $("#typing").textContent =
+            `${contact.name} is typing...`;
+
+        window.setTimeout(() => {
+            if (!getContact(contact.id)) {
+                return;
+            }
+
+            $("#typing").textContent = "";
+
+            const replies = [
+                "Hey! :)",
+                "Haha, I remember ICQ!",
+                "Uh-oh! :D",
+                "Yep, I'm here.",
+                "Nice to hear from you!",
+                "This feels like 2002 again.",
+                "BRB :)",
+                "Cool!"
+            ];
+
+            const reply =
+                replies[
+                    Math.floor(
+                        Math.random() * replies.length
+                    )
+                ];
+
+            contact.messages.push({
+                from: contact.id,
+                text: reply,
+                time: nowTime()
+            });
+
+            if (selectedId !== contact.id) {
+                contact.unread =
+                    (contact.unread || 0) + 1;
+            }
+
+            saveState();
+
+            if (selectedId === contact.id) {
+                renderChat(contact);
+            }
+
+            renderContacts();
+            playUhOh();
+
+            showNotification(
+                contact.name,
+                reply
+            );
+
+        }, 900 + Math.random() * 1300);
+    }
+
+    function playUhOh() {
+        if (!state.settings.sound) {
+            return;
+        }
+
+        try {
+            audioContext ||= new (
+                window.AudioContext ||
+                window.webkitAudioContext
+            )();
+
+            const ctx = audioContext;
+            const now = ctx.currentTime;
+
+            const gain = ctx.createGain();
+
+            gain.gain.setValueAtTime(0.0001, now);
+            gain.gain.exponentialRampToValueAtTime(
+                0.12,
+                now + 0.015
+            );
+            gain.gain.exponentialRampToValueAtTime(
+                0.0001,
+                now + 0.44
+            );
+
+            gain.connect(ctx.destination);
+
+            const first = ctx.createOscillator();
+            first.type = "triangle";
+            first.frequency.setValueAtTime(570, now);
+            first.frequency.exponentialRampToValueAtTime(
+                420,
+                now + 0.16
+            );
+
+            first.connect(gain);
+            first.start(now);
+            first.stop(now + 0.18);
+
+            const second = ctx.createOscillator();
+            second.type = "triangle";
+            second.frequency.setValueAtTime(
+                440,
+                now + 0.19
+            );
+            second.frequency.exponentialRampToValueAtTime(
+                720,
+                now + 0.39
+            );
+
+            second.connect(gain);
+            second.start(now + 0.19);
+            second.stop(now + 0.43);
+
+        } catch {
+            // Audio unavailable; simulation continues silently.
+        }
+    }
+
+    function showNotification(title, text) {
+        const box = $("#notification");
+
+        $("#notificationTitle").textContent = title;
+        $("#notificationText").textContent = text;
+
+        box.classList.add("visible");
+
+        window.clearTimeout(notificationTimer);
+
+        notificationTimer = window.setTimeout(() => {
+            box.classList.remove("visible");
+        }, 3500);
+    }
+
+    function openDialog(title, bodyHtml, buttons = []) {
+        const overlay = $("#dialogOverlay");
+
+        overlay.innerHTML = `
+            <div class="xp-dialog">
+                <div class="dialog-caption">
+                    <span>${escapeHtml(title)}</span>
+
+                    <button
+                        class="dialog-close"
+                        data-dialog-close
+                    >
+                        ×
+                    </button>
+                </div>
+
+                <div class="dialog-body">
+                    ${bodyHtml}
+                </div>
+
+                ${
+                    buttons.length
+                        ? `<div class="dialog-buttons"></div>`
+                        : ""
+                }
+            </div>
+        `;
+
+        overlay.classList.add("visible");
+
+        overlay.querySelectorAll(
+            "[data-dialog-close]"
+        ).forEach(button => {
+            button.addEventListener(
+                "click",
+                closeDialog
+            );
+        });
+
+        if (buttons.length) {
+            const bar =
+                overlay.querySelector(".dialog-buttons");
+
+            buttons.forEach(def => {
+                const button =
+                    document.createElement("button");
+
+                button.textContent = def.label;
+
+                button.addEventListener(
+                    "click",
+                    def.action
+                );
+
+                bar.appendChild(button);
+            });
+        }
+
+        overlay.addEventListener(
+            "mousedown",
+            event => {
+                if (event.target === overlay) {
+                    closeDialog();
+                }
+            },
+            { once: true }
+        );
+    }
+
+    function closeDialog() {
+        const overlay = $("#dialogOverlay");
+
+        overlay.classList.remove("visible");
+        overlay.innerHTML = "";
+    }
+
+    function openInfoDialog(title, text) {
+        openDialog(
+            title,
+            `<div style="line-height:1.5">
+                ${escapeHtml(text)}
+             </div>`,
+            [
+                {
+                    label: "OK",
+                    action: closeDialog
+                }
+            ]
+        );
+    }
+
+    function addContactDialog() {
+        openDialog(
+            "Add / Find Users",
+            `
+                <div class="dialog-row">
+                    <label>ICQ Number:</label>
+                    <input
+                        id="addUin"
+                        maxlength="12"
+                        value=""
+                    >
+                </div>
+
+                <div class="dialog-row">
+                    <label>Nickname:</label>
+                    <input
+                        id="addName"
+                        maxlength="40"
+                    >
+                </div>
+
+                <div class="dialog-row">
+                    <label>Group:</label>
+                    <select id="addGroup">
+                        <option>Friends</option>
+                        <option>Family</option>
+                        <option>Work</option>
+                        <option>ICQ</option>
+                    </select>
+                </div>
+            `,
+            [
+                {
+                    label: "Add",
+                    action: addContact
+                },
+                {
+                    label: "Cancel",
+                    action: closeDialog
+                }
+            ]
+        );
+
+        $("#addUin").focus();
+    }
+
+    function addContact() {
+        const uin =
+            $("#addUin").value.trim();
+
+        const name =
+            $("#addName").value.trim();
+
+        const group =
+            $("#addGroup").value;
+
+        if (!/^\d{5,12}$/.test(uin)) {
+            showNotification(
+                "ICQ",
+                "Enter a valid numeric ICQ number."
+            );
+            return;
+        }
+
+        if (!name) {
+            showNotification(
+                "ICQ",
+                "Enter a nickname."
+            );
+            return;
+        }
+
+        if (
+            state.contacts.some(
+                contact => contact.uin === uin
+            )
+        ) {
+            showNotification(
+                "ICQ",
+                "This user is already on your Contact List."
+            );
+            return;
+        }
+
+        const contact = {
+            id:
+                "user_" +
+                Date.now(),
+            uin,
+            name,
+            group,
+            status: "offline",
+            statusText: "Offline",
+            email: "",
+            unread: 0,
+            messages: []
+        };
+
+        state.contacts.push(contact);
+
+        saveState();
+        closeDialog();
+        renderContacts();
+
+        showNotification(
+            "ICQ",
+            `${name} has been added to your Contact List.`
+        );
+    }
+
+    function userInfoDialog() {
+        if (!selectedId) {
+            openInfoDialog(
+                "User Information",
+                "Select a contact first."
+            );
+            return;
+        }
+
+        const contact = getContact(selectedId);
+
+        openDialog(
+            "User Information",
+            `
+                <div class="info-grid">
+                    <strong>Nickname:</strong>
+                    <span>${escapeHtml(contact.name)}</span>
+
+                    <strong>ICQ#:</strong>
+                    <span>${escapeHtml(contact.uin)}</span>
+
+                    <strong>Status:</strong>
+                    <span>
+                        ${escapeHtml(
+                            statusLabel(contact.status)
+                        )}
+                    </span>
+
+                    <strong>Email:</strong>
+                    <span>
+                        ${escapeHtml(
+                            contact.email || "Not specified"
+                        )}
+                    </span>
+
+                    <strong>Group:</strong>
+                    <span>${escapeHtml(contact.group)}</span>
+
+                    <strong>Message:</strong>
+                    <span>
+                        ${escapeHtml(contact.statusText)}
+                    </span>
+                </div>
+            `,
+            [
+                {
+                    label: "OK",
+                    action: closeDialog
+                }
+            ]
+        );
+    }
+
+    function historyDialog() {
+        if (!selectedId) {
+            openInfoDialog(
+                "Message History",
+                "Select a contact first."
+            );
+            return;
+        }
+
+        const contact = getContact(selectedId);
+
+        const history = contact.messages.length
+            ? contact.messages.map(message => {
+                const who =
+                    message.from === "me"
+                        ? state.profile.nickname
+                        : contact.name;
+
+                return `
+                    <div style="
+                        margin-bottom:7px;
+                        padding-bottom:7px;
+                        border-bottom:1px solid #ddd;
+                    ">
+                        <b>
+                            ${escapeHtml(who)}
+                        </b>
+
+                        <span style="color:#777">
+                            ${escapeHtml(message.time)}
+                        </span>
+
+                        <div style="margin-top:3px">
+                            ${escapeHtml(message.text)
+                                .replaceAll(
+                                    "\n",
+                                    "<br>"
+                                )}
+                        </div>
+                    </div>
+                `;
+            }).join("")
+            : "No messages.";
+
+        openDialog(
+            `Message History - ${contact.name}`,
+            `
+                <div style="
+                    width:min(440px,70vw);
+                    height:260px;
+                    overflow:auto;
+                    background:white;
+                    border:1px solid #7F9DB9;
+                    padding:7px;
+                    user-select:text;
+                ">
+                    ${history}
+                </div>
+            `,
+            [
+                {
+                    label: "Close",
+                    action: closeDialog
+                }
+            ]
+        );
+    }
+
+    function aboutDialog() {
+        openDialog(
+            "About ICQ",
+            `
+                <div class="about-logo">
+                    ${createFlower()}
+
+                    <div>
+                        <div class="about-title">
+                            ICQ Classic
+                        </div>
+
+                        <div>
+                            Web Edition
+                        </div>
+                    </div>
+                </div>
+
+                <div style="line-height:1.55">
+                    Retro ICQ client simulation for the
+                    Windows XP Luna web environment.
+                    <br><br>
+
+                    This application does not connect to the
+                    original ICQ service.
+                    Contacts and messages are stored locally
+                    inside your browser.
+                </div>
+            `,
+            [
+                {
+                    label: "OK",
+                    action: closeDialog
+                }
+            ]
+        );
+    }
+
+    function profileDialog() {
+        openDialog(
+            "My Details",
+            `
+                <div class="dialog-row">
+                    <label>Nickname:</label>
+
+                    <input
+                        id="profileName"
+                        maxlength="40"
+                        value="${escapeHtml(
+                            state.profile.nickname
+                        )}"
+                    >
+                </div>
+
+                <div class="dialog-row">
+                    <label>ICQ Number:</label>
+
+                    <input
+                        value="${escapeHtml(
+                            state.profile.uin
+                        )}"
+                        disabled
+                    >
+                </div>
+            `,
+            [
+                {
+                    label: "Save",
+                    action: () => {
+                        const value =
+                            $("#profileName")
+                                .value
+                                .trim();
+
+                        if (!value) {
+                            return;
+                        }
+
+                        state.profile.nickname = value;
+
+                        saveState();
+                        initializeProfile();
+
+                        if (selectedId) {
+                            renderChat(
+                                getContact(selectedId)
+                            );
+                        }
+
+                        closeDialog();
+                    }
+                },
+                {
+                    label: "Cancel",
+                    action: closeDialog
+                }
+            ]
+        );
+    }
+
+    function clearHistory() {
+        if (!selectedId) {
+            return;
+        }
+
+        const contact = getContact(selectedId);
+
+        openDialog(
+            "Clear Message History",
+            `
+                Remove all locally stored messages
+                with <b>${escapeHtml(contact.name)}</b>?
+            `,
+            [
+                {
+                    label: "Yes",
+                    action: () => {
+                        contact.messages = [];
+
+                        saveState();
+                        closeDialog();
+                        renderChat(contact);
+                    }
+                },
+                {
+                    label: "No",
+                    action: closeDialog
+                }
+            ]
+        );
+    }
+
+    function resetICQ() {
+        openDialog(
+            "ICQ",
+            `
+                Reset all contacts, settings and locally
+                stored message history?
+            `,
+            [
+                {
+                    label: "Reset",
+                    action: () => {
+                        state = cloneDefault();
+
+                        selectedId = null;
+
+                        saveState();
+                        closeDialog();
+
+                        welcome.style.display = "";
+                        chat.classList.remove("active");
+
+                        initializeProfile();
+                        renderContacts();
+
+                        showNotification(
+                            "ICQ",
+                            "ICQ data has been reset."
+                        );
+                    }
+                },
+                {
+                    label: "Cancel",
+                    action: closeDialog
+                }
+            ]
+        );
+    }
+
+    function toggleSound() {
+        state.settings.sound =
+            !state.settings.sound;
+
+        saveState();
+
+        $("#soundIcon").textContent =
+            state.settings.sound
+                ? "🔊"
+                : "🔇";
+
+        showNotification(
+            "ICQ",
+            state.settings.sound
+                ? "Sounds enabled."
+                : "Sounds disabled."
+        );
+    }
+
+    function removeSelectedContact() {
+        if (!selectedId) {
+            openInfoDialog(
+                "Remove User",
+                "Select a contact first."
+            );
+            return;
+        }
+
+        const contact = getContact(selectedId);
+
+        openDialog(
+            "Remove User",
+            `
+                Remove <b>${escapeHtml(contact.name)}</b>
+                from your Contact List?
+            `,
+            [
+                {
+                    label: "Remove",
+                    action: () => {
+                        state.contacts =
+                            state.contacts.filter(
+                                c => c.id !== selectedId
+                            );
+
+                        selectedId = null;
+
+                        saveState();
+                        closeDialog();
+
+                        chat.classList.remove("active");
+                        welcome.style.display = "";
+
+                        renderContacts();
+                        updateStatusbar();
+                    }
+                },
+                {
+                    label: "Cancel",
+                    action: closeDialog
+                }
+            ]
+        );
+    }
+
+    function closeMenu() {
+        if (menuElement) {
+            menuElement.remove();
+            menuElement = null;
+        }
+
+        document
+            .querySelectorAll(".menu-item")
+            .forEach(item =>
+                item.classList.remove("active")
+            );
+    }
+
+    function showMenu(source, type) {
+        closeMenu();
+
+        const menus = {
+            icq: [
+                ["My Details...", profileDialog],
+                null,
+                ["Change Status: Online", () => setStatus("online")],
+                ["Change Status: Away", () => setStatus("away")],
+                ["Change Status: Offline", () => setStatus("offline")],
+                null,
+                ["Reset ICQ Data...", resetICQ]
+            ],
+
+            contacts: [
+                ["Add / Find Users...", addContactDialog],
+                ["Send Message", () => selectedId && input.focus()],
+                ["User Information", userInfoDialog],
+                null,
+                ["Remove User", removeSelectedContact]
+            ],
+
+            tools: [
+                ["Message History", historyDialog],
+                ["Sounds", toggleSound]
+            ],
+
+            help: [
+                ["About ICQ...", aboutDialog]
+            ]
+        };
+
+        const menu = document.createElement("div");
+        menu.className = "menu-popup";
+
+        menus[type].forEach(item => {
+            if (!item) {
+                const sep =
+                    document.createElement("div");
+
+                sep.className = "menu-separator";
+                menu.appendChild(sep);
+                return;
+            }
+
+            const command =
+                document.createElement("div");
+
+            command.className = "menu-command";
+            command.textContent = item[0];
+
+            command.addEventListener(
+                "mousedown",
+                event => {
+                    event.stopPropagation();
+                    closeMenu();
+                    item[1]();
+                }
+            );
+
+            menu.appendChild(command);
+        });
+
+        const rect =
+            source.getBoundingClientRect();
+
+        menu.style.left =
+            rect.left + "px";
+
+        menu.style.top =
+            rect.bottom + "px";
+
+        document.body.appendChild(menu);
+
+        menuElement = menu;
+        source.classList.add("active");
+    }
+
+    function setStatus(status) {
+        state.profile.status = status;
+        $("#statusSelect").value = status;
+
+        saveState();
+        updateStatusbar();
+
+        showNotification(
+            "ICQ Status",
+            `Your status is now ${statusLabel(status)}.`
+        );
+    }
+
+    /* -------------------------------------------------- */
+    /* Events                                             */
+    /* -------------------------------------------------- */
+
+    document
+        .querySelectorAll(".menu-item")
+        .forEach(item => {
+            item.addEventListener(
+                "mousedown",
+                event => {
+                    event.stopPropagation();
+
+                    showMenu(
+                        item,
+                        item.dataset.menu
+                    );
+                }
+            );
+        });
+
+    document.addEventListener(
+        "mousedown",
+        closeMenu
+    );
+
+    $("#addContactBtn").addEventListener(
+        "click",
+        addContactDialog
+    );
+
+    $("#messageBtn").addEventListener(
+        "click",
+        () => {
+            if (selectedId) {
+                input.focus();
+            } else {
+                openInfoDialog(
+                    "Send Message",
+                    "Select a contact first."
+                );
+            }
+        }
+    );
+
+    $("#infoBtn").addEventListener(
+        "click",
+        userInfoDialog
+    );
+
+    $("#chatInfoBtn").addEventListener(
+        "click",
+        userInfoDialog
+    );
+
+    $("#historyBtn").addEventListener(
+        "click",
+        historyDialog
+    );
+
+    $("#soundBtn").addEventListener(
+        "click",
+        toggleSound
+    );
+
+    $("#clearHistoryBtn").addEventListener(
+        "click",
+        clearHistory
+    );
+
+    $("#sendBtn").addEventListener(
+        "click",
+        sendMessage
+    );
+
+    input.addEventListener(
+        "keydown",
+        event => {
+            if (
+                event.key === "Enter" &&
+                !event.shiftKey
+            ) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+    );
+
+    $("#statusSelect").addEventListener(
+        "change",
+        event => {
+            setStatus(event.target.value);
+        }
+    );
+
+    $("#contactSearch").addEventListener(
+        "input",
+        renderContacts
+    );
+
+    document
+        .querySelectorAll("[data-insert]")
+        .forEach(button => {
+            button.addEventListener(
+                "click",
+                () => {
+                    input.value +=
+                        button.dataset.insert;
+
+                    input.focus();
+                }
+            );
+        });
+
+    $("#notification").addEventListener(
+        "click",
+        () => {
+            $("#notification")
+                .classList
+                .remove("visible");
+        }
+    );
+
+    /* -------------------------------------------------- */
+    /* Init                                               */
+    /* -------------------------------------------------- */
+
+    initializeProfile();
+    renderContacts();
+
+    window.setTimeout(() => {
+        if (
+            state.contacts.some(
+                contact => contact.unread > 0
+            )
+        ) {
+            playUhOh();
+        }
+    }, 700);
+
+})();
+</script>
+
+</body>
+</html>

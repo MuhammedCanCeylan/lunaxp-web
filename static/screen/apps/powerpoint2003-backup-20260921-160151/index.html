@@ -1,0 +1,196 @@
+<!--
+MICROSOFT OFFICE POWERPOINT 2003 STYLE - WINDOWS XP WEB SIMULATOR
+Engine: PPTist (local static build)
+No second XP titlebar/taskbar. No native alert/confirm/prompt.
+-->
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Microsoft PowerPoint</title>
+<style>
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden}
+body,button{font:11px Tahoma,Arial,sans-serif}
+body{background:#ECE9D8;color:#000}
+.app{width:100%;height:100%;min-width:720px;min-height:460px;display:grid;grid-template-rows:25px 32px 31px minmax(0,1fr) 21px}
+.menubar{display:flex;align-items:center;padding:0 4px;border-bottom:1px solid #ACA899;background:#ECE9D8;user-select:none}
+.menu{position:relative;height:24px;padding:0 7px;display:flex;align-items:center}
+.menu:hover,.menu.open{background:#316AC5;color:#fff}
+.dropdown{display:none;position:absolute;left:0;top:23px;z-index:10000;min-width:220px;padding:2px;background:#fff;color:#000;border:1px solid #716F64;box-shadow:2px 2px 4px #777}
+.menu.open .dropdown{display:block}
+.mi{min-height:22px;padding:3px 8px 3px 24px;display:flex;align-items:center;white-space:nowrap}
+.mi:hover{background:#316AC5;color:#fff}
+.mi .shortcut{margin-left:auto;padding-left:18px;color:#777}
+.mi:hover .shortcut{color:#fff}
+.sep{height:1px;background:#ACA899;border-bottom:1px solid #fff;margin:3px 2px}
+.toolbar,.formatbar{display:flex;align-items:center;gap:2px;padding:2px 5px;border-bottom:1px solid #ACA899;background:#ECE9D8}
+.tool{width:27px;height:26px;padding:0;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid transparent}
+.tool:hover{background:#fff;border-color:#999}
+.tool:active{border:1px inset #fff;background:#d7d7d7}
+.toolsep{width:1px;height:22px;background:#aaa;border-right:1px solid #fff;margin:0 3px}
+.ico{font:bold 15px Arial}.orange{color:#b85d24}.blue{color:#285f92}.green{color:#28754b}
+.select{height:24px;border:2px inset #fff;background:#fff;padding:1px 3px}
+#fontName{width:125px}#fontSize{width:52px}
+.label{margin-left:auto;color:#555;padding-right:7px}
+.editor{position:relative;min-height:0;background:#fff}
+#ppt{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff}
+.loading{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;background:#fff;color:#555}
+.loading.hide{display:none}
+.statusbar{display:grid;grid-template-columns:minmax(0,1fr) 150px 70px;gap:2px;padding:2px;border-top:1px solid #ACA899;background:#ECE9D8}
+.status{height:16px;border:1px inset #fff;padding:0 5px;line-height:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shade{display:none;position:absolute;inset:0;z-index:20000;background:rgba(0,0,0,.18);align-items:center;justify-content:center;padding:18px}
+.shade.show{display:flex}
+.dialog{width:min(470px,94vw);background:#ECE9D8;border:2px outset #fff;box-shadow:4px 5px 15px rgba(0,0,0,.48)}
+.dtitle{min-height:25px;display:flex;align-items:center;justify-content:space-between;padding:2px 3px 2px 7px;color:#fff;font-weight:bold;background:linear-gradient(90deg,#0A246A,#3A6EA5)}
+.dx{width:21px;height:20px;padding:0;color:#fff;background:#D8503C;border:2px outset #fff;font-weight:bold}
+.dbody{padding:13px;line-height:1.45}
+.dactions{text-align:right;padding:0 12px 11px}
+.xpbtn{min-width:80px;height:25px;background:#ECE9D8;border:2px outset #fff}
+.note{margin-top:9px;padding:7px;border:1px solid #d6c36a;background:#fff7d8;color:#5b5226}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="menubar">
+    <div class="menu" data-menu>Dosya<div class="dropdown">
+      <div class="mi" data-help="open">Aç... <span class="shortcut">Ctrl+O</span></div>
+      <div class="mi" data-help="save">Kaydet / Dışa Aktar...</div>
+      <div class="sep"></div><div class="mi" data-action="print">Yazdır...</div>
+      <div class="sep"></div><div class="mi" data-action="exit">Çıkış</div>
+    </div></div>
+    <div class="menu" data-menu>Düzen<div class="dropdown">
+      <div class="mi" data-key="Control+z">Geri Al <span class="shortcut">Ctrl+Z</span></div>
+      <div class="mi" data-key="Control+y">Yinele <span class="shortcut">Ctrl+Y</span></div>
+      <div class="sep"></div>
+      <div class="mi" data-key="Control+x">Kes</div><div class="mi" data-key="Control+c">Kopyala</div><div class="mi" data-key="Control+v">Yapıştır</div>
+      <div class="mi" data-key="Delete">Sil</div>
+    </div></div>
+    <div class="menu" data-menu>Görünüm<div class="dropdown">
+      <div class="mi" data-help="normal">Normal</div>
+      <div class="mi" data-help="sorter">Slayt Sıralayıcısı</div>
+      <div class="mi" data-help="notes">Notlar Sayfası</div>
+      <div class="sep"></div><div class="mi" data-action="skin">Office 2003 Görünümünü Yenile</div>
+    </div></div>
+    <div class="menu" data-menu>Ekle<div class="dropdown">
+      <div class="mi" data-help="insert">Yeni Slayt</div><div class="mi" data-help="insert">Metin Kutusu</div>
+      <div class="mi" data-help="insert">Resim...</div><div class="mi" data-help="insert">Tablo...</div>
+      <div class="mi" data-help="insert">Grafik...</div><div class="mi" data-help="insert">Şekil</div>
+    </div></div>
+    <div class="menu" data-menu>Biçim<div class="dropdown">
+      <div class="mi" data-help="format">Yazı Tipi...</div><div class="mi" data-help="format">Slayt Düzeni...</div>
+      <div class="mi" data-help="format">Slayt Tasarımı...</div><div class="mi" data-help="format">Arka Plan...</div>
+    </div></div>
+    <div class="menu" data-menu>Araçlar<div class="dropdown"><div class="mi" data-help="find">Bul / Değiştir</div></div></div>
+    <div class="menu" data-menu>Slayt Gösterisi<div class="dropdown">
+      <div class="mi" data-key="F5">Gösteriyi Görüntüle <span class="shortcut">F5</span></div>
+      <div class="mi" data-help="show">Özel Animasyon...</div><div class="mi" data-help="show">Slayt Geçişi...</div>
+    </div></div>
+    <div class="menu" data-menu>Pencere<div class="dropdown"><div class="mi">Sunum1</div></div></div>
+    <div class="menu" data-menu>Yardım<div class="dropdown">
+      <div class="mi" data-action="help">Microsoft PowerPoint Yardımı</div>
+      <div class="sep"></div><div class="mi" data-action="about">Microsoft Office PowerPoint Hakkında</div>
+    </div></div>
+  </div>
+
+  <div class="toolbar">
+    <button class="tool" data-help="open" title="Aç"><span class="ico">▰</span></button>
+    <button class="tool" data-help="save" title="Kaydet"><span class="ico orange">▣</span></button>
+    <button class="tool" data-action="print" title="Yazdır"><span class="ico">▧</span></button>
+    <span class="toolsep"></span>
+    <button class="tool" data-key="Control+x"><span class="ico">✂</span></button>
+    <button class="tool" data-key="Control+c"><span class="ico">▦</span></button>
+    <button class="tool" data-key="Control+v"><span class="ico">▣</span></button>
+    <span class="toolsep"></span>
+    <button class="tool" data-key="Control+z"><span class="ico blue">↶</span></button>
+    <button class="tool" data-key="Control+y"><span class="ico blue">↷</span></button>
+    <span class="toolsep"></span>
+    <button class="tool" data-help="insert"><span class="ico orange">＋</span></button>
+    <button class="tool" data-key="F5"><span class="ico green">▶</span></button>
+  </div>
+
+  <div class="formatbar">
+    <select class="select" id="fontName"><option>Arial</option><option>Tahoma</option><option>Times New Roman</option><option>Verdana</option></select>
+    <select class="select" id="fontSize"><option>8</option><option>10</option><option selected>12</option><option>14</option><option>18</option><option>24</option><option>32</option></select>
+    <span class="toolsep"></span>
+    <button class="tool" data-key="Control+b"><b>B</b></button>
+    <button class="tool" data-key="Control+i"><i>I</i></button>
+    <button class="tool" data-key="Control+u"><u>U</u></button>
+    <span class="label">PowerPoint 2003 görünümü • PPTist motoru</span>
+  </div>
+
+  <main class="editor">
+    <div class="loading" id="loading">PowerPoint düzenleyicisi yükleniyor...</div>
+    <iframe id="ppt" src="./app/index.html" title="PowerPoint Editor"></iframe>
+  </main>
+
+  <div class="statusbar">
+    <div class="status" id="status">Hazır</div>
+    <div class="status">Microsoft PowerPoint</div>
+    <div class="status">PPTX</div>
+  </div>
+
+  <div class="shade" id="shade">
+    <div class="dialog">
+      <div class="dtitle"><span id="dtitle">Microsoft PowerPoint</span><button class="dx" id="dx">×</button></div>
+      <div class="dbody" id="dbody"></div>
+      <div class="dactions"><button class="xpbtn" id="ok">Tamam</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(()=>{
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const f=$('#ppt'), shade=$('#shade');
+const messages={
+ open:'PPTX içe aktarma için PPTist editörünün kendi Import / Open aracını kullan. Dosya tarayıcı tarafında işlenir.',
+ save:'PPTist içindeki Export / Dışa Aktar aracını kullan. PPTX, proje dosyası, görsel ve yazdırma/PDF seçenekleri bulunur.',
+ normal:'Normal görünüm ana düzenleme ekranıdır: slayt küçük resimleri, büyük slayt alanı ve konuşmacı notları birlikte kullanılır.',
+ sorter:'Slaytları sol küçük resim panelinde sürükleyerek sıralayabilirsin.',
+ notes:'PPTist konuşmacı notlarını destekler; geçerli slaytın notes/remark alanını kullan.',
+ insert:'Yeni slayt, metin, resim, şekil, çizgi, grafik, tablo, video, ses ve formül araçları PPTist içinde bulunur.',
+ format:'Seçili öğenin biçim ayarları PPTist araçları ve özellik paneli üzerinden yapılır.',
+ find:'PPTist bul/değiştir özelliğini destekler.',
+ show:'PPTist slayt geçişlerini ve öğe giriş/çıkış/vurgu animasyonlarını destekler.'
+};
+function info(t,title='Microsoft PowerPoint'){ $('#dtitle').textContent=title; $('#dbody').innerHTML=t; shade.classList.add('show') }
+function closeDialog(){shade.classList.remove('show')}
+$('#ok').onclick=closeDialog; $('#dx').onclick=closeDialog;
+window.alert=m=>info(String(m)); window.confirm=m=>{info(String(m));return false}; window.prompt=m=>{info(String(m));return null};
+function closeMenus(){$$('[data-menu]').forEach(x=>x.classList.remove('open'))}
+$$('[data-menu]').forEach(m=>m.onmousedown=e=>{if(e.target.closest('.mi'))return;const a=m.classList.contains('open');closeMenus();if(!a)m.classList.add('open')});
+document.addEventListener('mousedown',e=>{if(!e.target.closest('[data-menu]'))closeMenus()});
+function sendKey(spec){
+  try{
+    const w=f.contentWindow,d=f.contentDocument,parts=spec.split('+'),key=parts.pop(),target=d.activeElement||d.body;
+    const o={key,ctrlKey:parts.includes('Control'),shiftKey:parts.includes('Shift'),altKey:parts.includes('Alt'),bubbles:true,cancelable:true};
+    target.dispatchEvent(new w.KeyboardEvent('keydown',o));target.dispatchEvent(new w.KeyboardEvent('keyup',o));w.focus();
+  }catch{}
+}
+function skin(){
+  try{
+    const d=f.contentDocument;
+    if(d.getElementById('xp-ppt-skin'))return;
+    const s=d.createElement('style');s.id='xp-ppt-skin';
+    s.textContent='html,body,#app{font-family:Tahoma,Arial,sans-serif!important}.pptist-editor{background:#ECE9D8!important}.layout-header{background:#ECE9D8!important;border-bottom:1px solid #ACA899!important}.layout-content-left,.layout-content-right{background:#ECE9D8!important}button,input,select,textarea{font-family:Tahoma,Arial,sans-serif!important}';
+    d.head.appendChild(s);$('#status').textContent='Office 2003 görünümü uygulandı';
+  }catch{}
+}
+f.onload=()=>{$('#loading').classList.add('hide');setTimeout(skin,700);setTimeout(skin,1800)};
+document.addEventListener('click',e=>{
+  const k=e.target.closest('[data-key]'); if(k){closeMenus();sendKey(k.dataset.key);return}
+  const h=e.target.closest('[data-help]'); if(h){closeMenus();info(messages[h.dataset.help]||'Bu komut PPTist editörü içinden kullanılabilir.');return}
+  const a=e.target.closest('[data-action]'); if(!a)return; closeMenus();
+  if(a.dataset.action==='exit'){try{window.parent.postMessage({type:'XP_APP_CLOSE_REQUEST',app:'powerpoint'},'*')}catch{}}
+  else if(a.dataset.action==='print'){try{f.contentWindow.print()}catch{}}
+  else if(a.dataset.action==='skin')skin();
+  else if(a.dataset.action==='help')info('<b>PowerPoint 2003 tarzı kabuk</b><br><br>Gerçek slayt düzenleme motoru PPTist. Slayt ekleme/silme/sıralama, metin, resim, şekil, çizgi, grafik, tablo, ses, video, formül, konuşmacı notları, animasyonlar, geçişler ve slayt gösterisi desteklenir.');
+  else if(a.dataset.action==='about')info('<div style="text-align:center;font-weight:bold">Microsoft Office PowerPoint 2003 tarzı web sunu düzenleyicisi</div><div class="note">Bu Microsoft POWERPNT.EXE değildir. Düzenleme motoru PPTist açık kaynak projesidir.</div>');
+});
+document.addEventListener('keydown',e=>{if(shade.classList.contains('show')&&e.key==='Escape')closeDialog();else if(e.key==='F5'){e.preventDefault();sendKey('F5')}})
+})();
+</script>
+</body>
+</html>

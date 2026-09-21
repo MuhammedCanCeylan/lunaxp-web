@@ -1,0 +1,45 @@
+/* PENCERELER */
+.window {
+    position: absolute; background: #ece9d8; border-radius: 6px 6px 0 0;
+    box-shadow: 2px 4px 16px rgba(0,0,0,0.5); display: none; flex-direction: column;
+    border: 3px solid #0055ea; overflow: hidden; z-index: 10;
+    min-width: 260px; min-height: 160px;
+}
+.window.resizable { resize: both; }
+.window.inactive { border-color: #7a96c8; }
+.window.inactive .window-header {
+    background: linear-gradient(to bottom,#7697c8 0%,#9db5d8 8%,#7a96c8 18%,#6f88b7 100%);
+    text-shadow: 1px 1px 1px #506890;
+}
+.window.xp-maximized {
+    left: 0 !important; top: 0 !important; width: 100vw !important;
+    height: calc(100vh - 30px) !important; border-radius: 0 !important; resize: none !important;
+}
+
+.window-header {
+    background: linear-gradient(to bottom, #0058ee 0%, #3593ff 6%, #0058ee 14%, #0053ee 100%);
+    padding: 3px 6px; display: flex; justify-content: space-between; align-items: center; color: white;
+    font-weight: bold; font-size: 12px; cursor: move; text-shadow: 1px 1px 1px #002e8a; flex: 0 0 auto; height: 26px;
+}
+.window-header-title { display: flex; align-items: center; gap: 6px; }
+.window-header-title img { width: 15px; height: 15px; }
+
+.window-btns { display: flex; gap: 3px; }
+.win-btn {
+    width: 20px; height: 20px; border: 1px solid #fff; border-radius: 3px; display: flex;
+    align-items: center; justify-content: center; font-size: 11px; font-weight: bold; cursor: pointer; color: white;
+    background: linear-gradient(to bottom, #4282f4 0%, #1958c9 100%);
+}
+.win-btn.win-close { background: linear-gradient(to bottom, #e87a6c 0%, #ca3b2b 50%, #9e1d10 100%); }
+.win-btn.disabled { opacity: .45; cursor: default; filter: grayscale(.7); }
+
+.window-content { flex: 1; background: #fff; overflow: auto; display: flex; flex-direction: column; min-height: 0; position: relative; }
+.window-iframe { width: 100%; height: 100%; border: none; display: block; background: #fff; }
+
+.task-btn {
+    height: 22px; background: #2f66d6; border: 1px solid #143d99; border-radius: 3px;
+    display: flex; align-items: center; gap: 6px; padding: 0 8px; color: #fff; font-size: 11px; cursor: pointer;
+    min-width: 110px; max-width: 180px; overflow: hidden; white-space: nowrap;
+}
+.task-btn.active { background: #0d3ea3; }
+.task-btn span { overflow: hidden; text-overflow: ellipsis; }

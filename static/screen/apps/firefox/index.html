@@ -1,0 +1,137 @@
+<!--
+MOZILLA FIREFOX - WINDOWS XP WEB SIMULATOR
+
+SOURCE:
+- Hosted Firefox WebApp clone: https://firefox.ywa.app/
+- Catalog: https://ywa.app/
+
+ASSET TABLE
+| File     | Size  | Required | Purpose |
+|----------|-------|----------|---------|
+| icon.png | 32x32 | Yes      | Generic browser/fox-style app icon |
+
+ARCHITECTURE:
+- The parent XP simulator already supplies the Luna window titlebar/taskbar.
+- This page draws NO second outer application window.
+- The Firefox clone itself is loaded as the app content in a nested iframe.
+- No Moonlight/Sunshine/Parsec/streaming, no daemon, no VM, no Node server.
+- No native alert/confirm/prompt.
+-->
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mozilla Firefox</title>
+<style>
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden}
+body{font:11px Tahoma,Arial,sans-serif;background:#ECE9D8;color:#000}
+#app{position:relative;width:100%;height:100%;background:#fff}
+#firefox{
+  position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff;
+}
+#loading{
+  position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;
+  background:#fff;color:#444;
+}
+#loading.hide{display:none}
+.loaderBox{text-align:center;min-width:240px}
+.brand{font:bold 19px Tahoma,Arial,sans-serif;color:#244d74;margin-bottom:13px}
+.track{
+  width:240px;height:17px;border:2px inset #fff;background:#f5f5f5;padding:2px;margin:0 auto 9px
+}
+.bar{
+  width:42px;height:100%;background:#316AC5;animation:load 1.25s linear infinite
+}
+@keyframes load{from{transform:translateX(-48px)}to{transform:translateX(240px)}}
+.note{font-size:10px;color:#777}
+#fallback{
+  display:none;position:absolute;inset:0;z-index:12;background:#ECE9D8;
+  align-items:center;justify-content:center;padding:24px;
+}
+#fallback.show{display:flex}
+.dialog{
+  width:min(470px,92%);background:#ECE9D8;border:2px outset #fff;
+  box-shadow:4px 5px 15px rgba(0,0,0,.35)
+}
+.title{
+  padding:5px 7px;color:#fff;font-weight:bold;
+  background:linear-gradient(90deg,#0A246A,#3A6EA5)
+}
+.body{padding:14px;line-height:1.5}
+.actions{text-align:right;padding:0 12px 12px}
+button{font:11px Tahoma,Arial,sans-serif;min-width:86px;height:25px;background:#ECE9D8;border:2px outset #fff}
+button:active{border-style:inset}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="loading">
+    <div class="loaderBox">
+      <div class="brand">Mozilla Firefox</div>
+      <div class="track"><div class="bar"></div></div>
+      <div class="note">Firefox WebApp yükleniyor...</div>
+    </div>
+  </div>
+
+  <iframe
+    id="firefox"
+    src="https://firefox.ywa.app/"
+    title="Mozilla Firefox"
+    referrerpolicy="no-referrer"
+    allow="clipboard-read; clipboard-write; fullscreen"
+  ></iframe>
+
+  <div id="fallback">
+    <div class="dialog">
+      <div class="title">Mozilla Firefox</div>
+      <div class="body">
+        Firefox WebApp yüklenemedi.<br><br>
+        Bu modül <b>firefox.ywa.app</b> üzerindeki hazır tarayıcı klonunu kullanır.
+        İnternet bağlantısını ve uzak servisin erişilebilirliğini kontrol edin.<br><br>
+        XP projesinin geri kalanını etkilemez.
+      </div>
+      <div class="actions"><button id="retry" type="button">Yeniden Dene</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(()=>{
+'use strict';
+const frame=document.getElementById('firefox');
+const loading=document.getElementById('loading');
+const fallback=document.getElementById('fallback');
+let loaded=false;
+
+function loadRemote(){
+  loaded=false;
+  fallback.classList.remove('show');
+  loading.classList.remove('hide');
+  frame.src='https://firefox.ywa.app/?xp='+Date.now();
+
+  setTimeout(()=>{
+    if(!loaded){
+      loading.classList.add('hide');
+      fallback.classList.add('show');
+    }
+  },12000);
+}
+
+frame.addEventListener('load',()=>{
+  loaded=true;
+  loading.classList.add('hide');
+  fallback.classList.remove('show');
+});
+
+document.getElementById('retry').onclick=loadRemote;
+
+/* native browser popup ban for the wrapper itself */
+window.alert=function(){};
+window.confirm=function(){return false};
+window.prompt=function(){return null};
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,569 @@
+<!--
+WINDOWS XP COMMAND PROMPT SIMULATOR - ASSET LISTESI
+Bu dosya `static/screen/apps/cmd/index.html` olarak kullanilmak uzere tasarlanmistir.
+Uygulamanin kendi arayuzu harici gorsel gerektirmez; masaustu kayit defteri icin `icon.png` zorunludur.
+
+| Dosya adi | Tavsiye edilen boyut | Format | Kullanim / Aciklama |
+|------------|-----------------------|--------|----------------------|
+| icon.png   | 32x32                 | PNG, seffaf | Ana Windows XP masaustunde Command Prompt uygulama ikonu |
+
+NOTLAR:
+- Bu sayfanin icinde <img> etiketi kullanilmadigi icin 404 image fallback gerektiren bir durum yoktur.
+- Harici kutuphane, font, CDN, ses, WebAssembly, Node.js veya streaming gerekmez.
+- Tum HTML, CSS ve JavaScript bu tek dosyanin icindedir.
+- Komutlar gercek isletim sistemi kabugunu calistirmaz; tarayici icinde guvenli bir sanal dosya sistemi kullanir.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Command Prompt</title>
+<style>
+  :root {
+    --bg:#000;
+    --fg:#c0c0c0;
+    --cursor:#c0c0c0;
+  }
+  * { box-sizing:border-box; }
+  html,body {
+    width:100%; height:100%; margin:0; overflow:hidden;
+    background:var(--bg); color:var(--fg);
+  }
+  body {
+    font-family:"Lucida Console","Courier New",monospace;
+    font-size:14px;
+    line-height:1.23;
+    cursor:text;
+  }
+  #terminal {
+    position:absolute; inset:0;
+    overflow:auto;
+    padding:4px 5px 8px 5px;
+    background:var(--bg); color:var(--fg);
+    scrollbar-color:#808080 #d4d0c8;
+    scrollbar-width:auto;
+  }
+  #terminal::-webkit-scrollbar { width:16px; height:16px; }
+  #terminal::-webkit-scrollbar-track { background:#d4d0c8; }
+  #terminal::-webkit-scrollbar-thumb {
+    background:#c0c0c0;
+    border:2px outset #fff;
+    min-height:25px;
+  }
+  #terminal::-webkit-scrollbar-button { background:#d4d0c8; border:2px outset #fff; width:16px; height:16px; }
+  #output { white-space:pre-wrap; overflow-wrap:normal; word-break:normal; }
+  .line { min-height:1.23em; white-space:pre-wrap; }
+  .prompt-row {
+    display:flex; align-items:flex-start; width:100%; min-height:1.23em;
+  }
+  #prompt { flex:0 0 auto; white-space:pre; }
+  #command {
+    flex:1 1 auto; min-width:1px;
+    margin:0; padding:0;
+    border:0; outline:0; box-shadow:none;
+    background:transparent; color:inherit;
+    font:inherit; line-height:inherit;
+    caret-color:var(--cursor);
+  }
+  #command::selection { background:var(--fg); color:var(--bg); }
+  .hidden { display:none !important; }
+  #dialog-layer {
+    position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+    background:rgba(0,0,0,.15); z-index:1000; font-family:Tahoma,sans-serif; font-size:11px; color:#000;
+  }
+  #dialog-layer.open { display:flex; }
+  .xp-dialog {
+    width:min(360px,calc(100vw - 30px));
+    background:#ece9d8; border:1px solid #0054e3;
+    box-shadow:2px 2px 8px rgba(0,0,0,.45);
+  }
+  .xp-dialog-title {
+    padding:4px 7px; font-weight:bold; color:#fff;
+    background:linear-gradient(180deg,#0b65d8,#0054e3 55%,#003399);
+  }
+  .xp-dialog-body { padding:16px; display:flex; gap:12px; align-items:flex-start; }
+  .xp-dialog-icon {
+    width:32px; height:32px; border-radius:50%; background:#f6c500; border:1px solid #9b7d00;
+    display:grid; place-items:center; font:bold 24px Arial,sans-serif; flex:0 0 32px;
+  }
+  .xp-dialog-actions { padding:0 12px 12px; text-align:right; }
+  .xp-button {
+    min-width:75px; padding:3px 12px; font:11px Tahoma,sans-serif; color:#000; background:#ece9d8;
+    border:2px outset #fff;
+  }
+  .xp-button:active { border-style:inset; }
+</style>
+</head>
+<body>
+<div id="terminal" tabindex="0" aria-label="Windows XP Command Prompt simulator">
+  <div id="output"></div>
+  <div class="prompt-row" id="promptRow">
+    <span id="prompt"></span><input id="command" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Command input">
+  </div>
+</div>
+
+<div id="dialog-layer" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+  <div class="xp-dialog">
+    <div class="xp-dialog-title" id="dialog-title">Command Prompt</div>
+    <div class="xp-dialog-body">
+      <div class="xp-dialog-icon">!</div>
+      <div id="dialog-message"></div>
+    </div>
+    <div class="xp-dialog-actions"><button class="xp-button" id="dialog-ok" type="button">OK</button></div>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const STORAGE_KEY = 'xp-cmd-fs-v3';
+  const STATE_KEY = 'xp-cmd-state-v3';
+  const terminal = document.getElementById('terminal');
+  const output = document.getElementById('output');
+  const input = document.getElementById('command');
+  const promptEl = document.getElementById('prompt');
+  const dialogLayer = document.getElementById('dialog-layer');
+  const dialogMessage = document.getElementById('dialog-message');
+  const dialogOk = document.getElementById('dialog-ok');
+
+  const colors = {
+    '0':'#000000','1':'#000080','2':'#008000','3':'#008080','4':'#800000','5':'#800080','6':'#808000','7':'#c0c0c0',
+    '8':'#808080','9':'#0000ff','A':'#00ff00','B':'#00ffff','C':'#ff0000','D':'#ff00ff','E':'#ffff00','F':'#ffffff'
+  };
+
+  const env = {
+    COMPUTERNAME:'RETRO-XP',
+    USERNAME:'Owner',
+    USERPROFILE:'C:\\Documents and Settings\\Owner',
+    HOMEDRIVE:'C:',
+    HOMEPATH:'\\Documents and Settings\\Owner',
+    SYSTEMDRIVE:'C:',
+    SYSTEMROOT:'C:\\WINDOWS',
+    WINDIR:'C:\\WINDOWS',
+    TEMP:'C:\\DOCUME~1\\Owner\\LOCALS~1\\Temp',
+    TMP:'C:\\DOCUME~1\\Owner\\LOCALS~1\\Temp',
+    COMSPEC:'C:\\WINDOWS\\system32\\cmd.exe',
+    PATHEXT:'.COM;.EXE;.BAT;.CMD',
+    PATH:'C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem'
+  };
+
+  let cwd = 'C:\\Documents and Settings\\Owner';
+  let promptTemplate = '$P$G';
+  let title = 'Command Prompt';
+  let history = [];
+  let historyIndex = 0;
+  let fs = {};
+
+  function nowISO(){ return new Date().toISOString(); }
+  function norm(path) {
+    path = String(path || '').replace(/\//g,'\\').trim();
+    if (/^[a-zA-Z]:$/.test(path)) path += '\\';
+    let base;
+    if (/^[a-zA-Z]:\\/.test(path)) base = path;
+    else if (path.startsWith('\\')) base = 'C:' + path;
+    else base = cwd.replace(/\\+$/,'') + '\\' + path;
+    const drive = (base.match(/^([a-zA-Z]):/) || ['','C'])[1].toUpperCase();
+    const parts = base.slice(2).split('\\').filter(Boolean);
+    const out = [];
+    for (const p of parts) {
+      if (p === '.') continue;
+      if (p === '..') out.pop();
+      else out.push(p);
+    }
+    return drive + ':\\' + out.join('\\');
+  }
+  function key(path){ return norm(path).toUpperCase(); }
+  function baseName(path){ const n=norm(path); const p=n.split('\\'); return p[p.length-1] || n; }
+  function parentPath(path){ const n=norm(path); if (/^[A-Z]:\\$/i.test(n)) return n; const i=n.lastIndexOf('\\'); return i<=2?n.slice(0,3):n.slice(0,i); }
+  function exists(path){ return !!fs[key(path)]; }
+  function node(path){ return fs[key(path)] || null; }
+  function isDir(path){ return !!node(path) && node(path).type === 'dir'; }
+  function isFile(path){ return !!node(path) && node(path).type === 'file'; }
+
+  function addDir(path, modified=nowISO()) {
+    const p=norm(path); fs[key(p)]={type:'dir',path:p,modified,attrs:'D'};
+  }
+  function addFile(path, content='', modified=nowISO()) {
+    const p=norm(path); fs[key(p)]={type:'file',path:p,content:String(content),modified,attrs:'A'};
+  }
+  function seedFS(){
+    fs={};
+    [
+      'C:\\','C:\\WINDOWS','C:\\WINDOWS\\system32','C:\\WINDOWS\\Temp',
+      'C:\\Program Files','C:\\Program Files\\Internet Explorer',
+      'C:\\Documents and Settings','C:\\Documents and Settings\\Owner',
+      'C:\\Documents and Settings\\Owner\\Desktop',
+      'C:\\Documents and Settings\\Owner\\My Documents',
+      'C:\\Documents and Settings\\Owner\\Favorites',
+      'C:\\Documents and Settings\\Owner\\Local Settings',
+      'C:\\Documents and Settings\\Owner\\Local Settings\\Temp'
+    ].forEach(addDir);
+    addFile('C:\\AUTOEXEC.BAT','@ECHO OFF\r\n');
+    addFile('C:\\boot.ini','[boot loader]\r\ntimeout=30\r\ndefault=multi(0)disk(0)rdisk(0)partition(1)\\WINDOWS\r\n[operating systems]\r\nmulti(0)disk(0)rdisk(0)partition(1)\\WINDOWS="Microsoft Windows XP Professional" /fastdetect\r\n');
+    addFile('C:\\Documents and Settings\\Owner\\My Documents\\readme.txt','Welcome to the Windows XP Command Prompt simulator.\r\n\r\nType HELP to list available commands.\r\nThis is a safe browser simulation; commands do not touch your real computer.\r\n');
+    addFile('C:\\Documents and Settings\\Owner\\Desktop\\hello.txt','Hello from Windows XP!\r\n');
+    saveFS();
+  }
+  function saveFS(){ try { localStorage.setItem(STORAGE_KEY,JSON.stringify(fs)); } catch(_){} }
+  function loadFS(){
+    try { const s=localStorage.getItem(STORAGE_KEY); if(s){ fs=JSON.parse(s); if(Object.keys(fs).length) return; } } catch(_){}
+    seedFS();
+  }
+  function saveState(){
+    try { localStorage.setItem(STATE_KEY,JSON.stringify({cwd,promptTemplate,title,history:history.slice(-100)})); } catch(_){}
+  }
+  function loadState(){
+    try {
+      const s=JSON.parse(localStorage.getItem(STATE_KEY)||'null');
+      if(s){ if(s.cwd && isDir(s.cwd)) cwd=s.cwd; if(s.promptTemplate) promptTemplate=s.promptTemplate; if(s.title) title=s.title; if(Array.isArray(s.history)) history=s.history.slice(-100); }
+    } catch(_){}
+    historyIndex=history.length;
+  }
+
+  function children(path){
+    const p=norm(path).toUpperCase();
+    return Object.values(fs).filter(n => parentPath(n.path).toUpperCase()===p && n.path.toUpperCase()!==p);
+  }
+  function deletePath(path){
+    const p=norm(path).toUpperCase();
+    Object.keys(fs).forEach(k => { if(k===p || k.startsWith(p+'\\')) delete fs[k]; });
+    saveFS();
+  }
+  function copyNode(src,dst){
+    const s=node(src); if(!s) return false;
+    if(s.type==='file') addFile(dst,s.content);
+    else addDir(dst);
+    saveFS(); return true;
+  }
+
+  function escHtml(s){ return String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+  function print(text=''){
+    const d=document.createElement('div'); d.className='line'; d.innerHTML=escHtml(text); output.appendChild(d); scrollBottom();
+  }
+  function printRawSafeLines(lines){ String(lines).split(/\r?\n/).forEach(print); }
+  function scrollBottom(){ requestAnimationFrame(()=>{ terminal.scrollTop=terminal.scrollHeight; }); }
+  function clearScreen(){ output.textContent=''; }
+  function focusInput(){ input.focus({preventScroll:true}); scrollBottom(); }
+
+  function currentPrompt(){
+    return promptTemplate.replace(/\$([A-Z_$GQLBESCVHF])/gi,(m,c)=>{
+      switch(c.toUpperCase()){
+        case 'P': return cwd;
+        case 'G': return '>';
+        case 'L': return '<';
+        case 'B': return '|';
+        case 'Q': return '=';
+        case 'H': return '\b';
+        case 'E': return String.fromCharCode(27);
+        case '_': return '\n';
+        case '$': return '$';
+        case 'V': return '5.1.2600';
+        case 'F': return ')';
+        default:return m;
+      }
+    });
+  }
+  function updatePrompt(){ promptEl.textContent=currentPrompt(); }
+
+  function tokenize(s){
+    const out=[]; let cur='',q=false;
+    for(let i=0;i<s.length;i++){
+      const ch=s[i];
+      if(ch==='"'){ q=!q; continue; }
+      if(!q && /\s/.test(ch)){ if(cur){ out.push(cur); cur=''; } }
+      else cur+=ch;
+    }
+    if(cur) out.push(cur);
+    return out;
+  }
+  function expandEnv(s){
+    return s.replace(/%([^%]+)%/g,(m,n)=> Object.prototype.hasOwnProperty.call(env,n.toUpperCase()) ? env[n.toUpperCase()] : m);
+  }
+  function parseRedirection(line){
+    let q=false, idx=-1, append=false;
+    for(let i=0;i<line.length;i++){
+      if(line[i]==='"') q=!q;
+      if(!q && line[i]==='>'){ idx=i; append=line[i+1]==='>'; break; }
+    }
+    if(idx<0) return {line,redirect:null,append:false};
+    const opLen=append?2:1;
+    const target=line.slice(idx+opLen).trim();
+    return {line:line.slice(0,idx).trimEnd(),redirect:target,append};
+  }
+
+  function fmtDate(d){
+    const x=new Date(d); return String(x.getMonth()+1).padStart(2,'0')+'/'+String(x.getDate()).padStart(2,'0')+'/'+x.getFullYear();
+  }
+  function fmtTime(d){
+    const x=new Date(d); let h=x.getHours(),ap=h>=12?'PM':'AM'; h=h%12||12;
+    return String(h).padStart(2,'0')+':'+String(x.getMinutes()).padStart(2,'0')+' '+ap;
+  }
+  function fmtNum(n){ return Number(n).toLocaleString('en-US'); }
+
+  function resolveArg(arg){ return norm(expandEnv(arg||'')); }
+  function findMatches(pattern){
+    const raw=expandEnv(pattern||'*');
+    const hasWild=/[*?]/.test(raw);
+    if(!hasWild){ const p=resolveArg(raw); return exists(p)?[node(p)]:[]; }
+    const p=resolveArg(raw); const dir=parentPath(p); const pat=baseName(p);
+    if(!isDir(dir)) return [];
+    const re=new RegExp('^'+pat.replace(/[.+^${}()|[\]\\]/g,'\\$&').replace(/\*/g,'.*').replace(/\?/g,'.')+'$','i');
+    return children(dir).filter(n=>re.test(baseName(n.path)));
+  }
+
+  function runDir(args){
+    let target=args.filter(a=>!a.startsWith('/'))[0]||cwd;
+    target=resolveArg(target);
+    let list=[]; let displayDir=target;
+    if(exists(target) && isFile(target)){ list=[node(target)]; displayDir=parentPath(target); }
+    else if(exists(target) && isDir(target)){ list=children(target); displayDir=target; }
+    else if(/[*?]/.test(args.filter(a=>!a.startsWith('/'))[0]||'')){ list=findMatches(args.filter(a=>!a.startsWith('/'))[0]); displayDir=parentPath(resolveArg(args.filter(a=>!a.startsWith('/'))[0])); }
+    else return ['The system cannot find the path specified.'];
+    list.sort((a,b)=> a.type===b.type ? baseName(a.path).localeCompare(baseName(b.path)) : (a.type==='dir'?-1:1));
+    const lines=[' Volume in drive C has no label.',' Volume Serial Number is 74F2-3A1C','',` Directory of ${displayDir}`,''];
+    let files=0,bytes=0,dirs=0;
+    for(const n of list){
+      const dt=fmtDate(n.modified).padEnd(12)+' '+fmtTime(n.modified).padEnd(9)+' ';
+      if(n.type==='dir'){ dirs++; lines.push(dt+'   <DIR>          '+baseName(n.path)); }
+      else { files++; const size=(n.content||'').length; bytes+=size; lines.push(dt+String(size).padStart(16,' ')+' '+baseName(n.path)); }
+    }
+    lines.push(`               ${files} File(s) ${String(fmtNum(bytes)).padStart(14,' ')} bytes`);
+    lines.push(`               ${dirs} Dir(s)  ${String('10,485,760,000').padStart(14,' ')} bytes free`);
+    return lines;
+  }
+
+  function treeLines(root,prefix=''){
+    const list=children(root).filter(n=>n.type==='dir').sort((a,b)=>baseName(a.path).localeCompare(baseName(b.path)));
+    const lines=[];
+    list.forEach((n,i)=>{
+      const last=i===list.length-1;
+      lines.push(prefix+(last?'\\---':'+---')+baseName(n.path));
+      lines.push(...treeLines(n.path,prefix+(last?'    ':'|   ')));
+    });
+    return lines;
+  }
+
+  function helpLines(topic){
+    const map={
+      ATTRIB:'Displays or changes file attributes (display only in this simulator).',
+      CD:'Displays the name of or changes the current directory.', CHDIR:'Displays the name of or changes the current directory.',
+      CLS:'Clears the screen.', COLOR:'Sets the default console foreground and background colors.', COPY:'Copies one file to another location.',
+      DATE:'Displays the current date.', DEL:'Deletes one or more files.', DIR:'Displays a list of files and subdirectories in a directory.',
+      ECHO:'Displays messages, or turns command echoing on or off.', ERASE:'Deletes one or more files.', EXIT:'Closes the simulated command interpreter.',
+      HELP:'Provides Help information for Windows XP commands.', HOSTNAME:'Displays the computer name.', IPCONFIG:'Displays simulated TCP/IP configuration.',
+      MD:'Creates a directory.', MKDIR:'Creates a directory.', MOVE:'Moves files and renames files and directories.', PATH:'Displays or sets a simulated executable search path.',
+      PING:'Shows a safe simulated ICMP echo test.', PROMPT:'Changes the command prompt.', RD:'Removes a directory.', REN:'Renames a file or directory.', RENAME:'Renames a file or directory.',
+      RMDIR:'Removes a directory.', SET:'Displays or sets environment variables.', START:'Requests the parent XP shell to launch an app.', SYSTEMINFO:'Displays simulated machine configuration.',
+      TASKLIST:'Displays simulated running tasks.', TIME:'Displays the current time.', TITLE:'Sets the Command Prompt title.', TREE:'Graphically displays the folder structure.',
+      TYPE:'Displays the contents of a text file.', VER:'Displays the Windows version.', VOL:'Displays disk volume information.', WHOAMI:'Displays the simulated current user.'
+    };
+    if(topic){ const t=topic.toUpperCase(); return map[t]?[map[t],`Type ${t} /? for command-specific help where available.`]:[`This command is not supported by the help utility: ${topic}`]; }
+    const lines=['For more information on a specific command, type HELP command-name',''];
+    Object.keys(map).filter((v,i,a)=>!['CHDIR','ERASE','MKDIR','RENAME','RMDIR'].includes(v)).sort().forEach(k=> lines.push(k.padEnd(10,' ')+map[k]));
+    return lines;
+  }
+
+  function showDialog(message,titleText='Command Prompt'){
+    document.getElementById('dialog-title').textContent=titleText;
+    dialogMessage.textContent=message;
+    dialogLayer.classList.add('open');
+    dialogOk.focus();
+  }
+  dialogOk.addEventListener('click',()=>{ dialogLayer.classList.remove('open'); focusInput(); });
+  dialogLayer.addEventListener('click',e=>{ if(e.target===dialogLayer){ dialogLayer.classList.remove('open'); focusInput(); } });
+
+  function requestParent(action,payload={}){
+    try { window.parent.postMessage({source:'xp-cmd',action,...payload},'*'); return true; } catch(_) { return false; }
+  }
+
+  function executeCore(line){
+    line=expandEnv(line.trim());
+    if(!line) return [];
+    const tokens=tokenize(line); const cmd=(tokens.shift()||'').toUpperCase(); const args=tokens;
+    const argText=line.slice(line.indexOf(' ')+1);
+    const first=args[0]||'';
+
+    if(cmd==='CLS'){ clearScreen(); return null; }
+    if(cmd==='VER') return ['Microsoft Windows XP [Version 5.1.2600]'];
+    if(cmd==='VOL') return [' Volume in drive C has no label.',' Volume Serial Number is 74F2-3A1C'];
+    if(cmd==='HELP') return helpLines(first);
+    if(cmd==='ECHO'){
+      if(/^ECHO\s*$/i.test(line)) return ['ECHO is on.'];
+      if(/^ECHO\s+ON$/i.test(line)||/^ECHO\s+OFF$/i.test(line)) return [];
+      let t=line.replace(/^ECHO\s*/i,''); if(t==='.') t=''; return [t];
+    }
+    if(cmd==='CD'||cmd==='CHDIR'){
+      if(!first) return [cwd];
+      if(first==='/D' && args[1]) args.shift();
+      const p=resolveArg(args[0]||first); if(!isDir(p)) return ['The system cannot find the path specified.']; cwd=node(p).path; saveState(); return [];
+    }
+    if(cmd==='DIR') return runDir(args);
+    if(cmd==='MD'||cmd==='MKDIR'){
+      if(!first) return ['The syntax of the command is incorrect.']; const p=resolveArg(first);
+      if(exists(p)) return ['A subdirectory or file '+baseName(p)+' already exists.'];
+      if(!isDir(parentPath(p))) return ['The system cannot find the path specified.']; addDir(p); saveFS(); return [];
+    }
+    if(cmd==='RD'||cmd==='RMDIR'){
+      if(!first) return ['The syntax of the command is incorrect.']; const p=resolveArg(first); if(!isDir(p)) return ['The system cannot find the file specified.'];
+      const force=args.some(a=>/^\/S$/i.test(a)); if(children(p).length && !force) return ['The directory is not empty.'];
+      if(key(p)===key(cwd) || key(cwd).startsWith(key(p)+'\\')) return ['The process cannot access the file because it is being used by another process.'];
+      deletePath(p); return [];
+    }
+    if(cmd==='TYPE'){
+      if(!first) return ['The syntax of the command is incorrect.']; const matches=findMatches(first); if(!matches.length) return ['The system cannot find the file specified.'];
+      const lines=[]; matches.forEach(n=>{ if(n.type==='file') lines.push(...String(n.content||'').replace(/\r/g,'').split('\n')); }); return lines;
+    }
+    if(cmd==='DEL'||cmd==='ERASE'){
+      if(!first) return ['The syntax of the command is incorrect.']; const matches=findMatches(first).filter(n=>n.type==='file'); if(!matches.length) return ['Could Not Find '+resolveArg(first)];
+      matches.forEach(n=>deletePath(n.path)); return [];
+    }
+    if(cmd==='COPY'){
+      if(args.length<2) return ['The syntax of the command is incorrect.']; const s=resolveArg(args[0]); let d=resolveArg(args[1]);
+      if(!isFile(s)) return ['The system cannot find the file specified.']; if(isDir(d)) d=norm(d+'\\'+baseName(s)); copyNode(s,d); return ['        1 file(s) copied.'];
+    }
+    if(cmd==='MOVE'){
+      if(args.length<2) return ['The syntax of the command is incorrect.']; const s=resolveArg(args[0]); let d=resolveArg(args[1]); const n=node(s);
+      if(!n) return ['The system cannot find the file specified.']; if(isDir(d)) d=norm(d+'\\'+baseName(s));
+      const oldKey=key(s); const descendants=Object.values(fs).filter(x=>key(x.path)===oldKey || key(x.path).startsWith(oldKey+'\\'));
+      descendants.forEach(x=>{ const suffix=x.path.slice(norm(s).length); const newP=norm(d+suffix); const data={...x,path:newP}; delete fs[key(x.path)]; fs[key(newP)]=data; }); saveFS(); return ['        1 file(s) moved.'];
+    }
+    if(cmd==='REN'||cmd==='RENAME'){
+      if(args.length<2) return ['The syntax of the command is incorrect.']; const s=resolveArg(args[0]); if(!exists(s)) return ['The system cannot find the file specified.'];
+      const d=norm(parentPath(s)+'\\'+args[1]); return executeCore(`MOVE "${s}" "${d}"`);
+    }
+    if(cmd==='TREE'){
+      const p=first?resolveArg(first):cwd; if(!isDir(p)) return ['Invalid path - '+p]; return ['Folder PATH listing','Volume serial number is 74F2-3A1C',p,...treeLines(p)];
+    }
+    if(cmd==='ATTRIB'){
+      const target=first?resolveArg(first):norm(cwd+'\\*'); const matches=findMatches(target); if(!matches.length) return ['File not found - '+target];
+      return matches.map(n=>'A'+(n.type==='dir'?'    D':'     ')+'    '+n.path);
+    }
+    if(cmd==='DATE') return ['The current date is: '+new Date().toLocaleDateString('en-US',{weekday:'short',month:'2-digit',day:'2-digit',year:'numeric'}),'Enter the new date: (mm-dd-yy)'];
+    if(cmd==='TIME') return ['The current time is: '+new Date().toLocaleTimeString('en-US',{hour12:false})+'.00','Enter the new time:'];
+    if(cmd==='TITLE'){
+      title=line.replace(/^TITLE\s*/i,'').trim()||'Command Prompt'; document.title=title; requestParent('set-title',{title}); saveState(); return [];
+    }
+    if(cmd==='PROMPT'){
+      promptTemplate=line.replace(/^PROMPT\s*/i,''); if(!promptTemplate) promptTemplate='$P$G'; saveState(); updatePrompt(); return [];
+    }
+    if(cmd==='COLOR'){
+      const c=(first||'07').toUpperCase(); if(!/^[0-9A-F]{2}$/.test(c) || c[0]===c[1]) return ['The color command is not supported by Help utility.','Sets the default console foreground and background colors.','COLOR [attr]'];
+      document.documentElement.style.setProperty('--bg',colors[c[0]]); document.documentElement.style.setProperty('--fg',colors[c[1]]); document.documentElement.style.setProperty('--cursor',colors[c[1]]); return [];
+    }
+    if(cmd==='SET'){
+      if(!first) return Object.keys(env).sort().map(k=>k+'='+env[k]);
+      const raw=line.replace(/^SET\s+/i,''); const eq=raw.indexOf('='); if(eq<0){ const prefix=raw.toUpperCase(); const list=Object.keys(env).filter(k=>k.startsWith(prefix)).map(k=>k+'='+env[k]); return list.length?list:['Environment variable '+raw+' not defined']; }
+      const k=raw.slice(0,eq).trim().toUpperCase(),v=raw.slice(eq+1); if(v==='') delete env[k]; else env[k]=v; return [];
+    }
+    if(cmd==='PATH'){
+      if(!first) return ['PATH='+env.PATH]; env.PATH=line.replace(/^PATH\s*/i,'').replace(/^=/,''); return [];
+    }
+    if(cmd==='HOSTNAME') return [env.COMPUTERNAME];
+    if(cmd==='WHOAMI') return [env.COMPUTERNAME.toLowerCase()+'\\'+env.USERNAME.toLowerCase()];
+    if(cmd==='IPCONFIG') return ['', 'Windows IP Configuration','', 'Ethernet adapter Local Area Connection:','', '        Connection-specific DNS Suffix  . :','        IP Address. . . . . . . . . . . . : 192.168.1.42','        Subnet Mask . . . . . . . . . . . : 255.255.255.0','        Default Gateway . . . . . . . . . : 192.168.1.1'];
+    if(cmd==='PING'){
+      const host=first||'127.0.0.1'; return [`Pinging ${host} [192.0.2.1] with 32 bytes of data:`,`Reply from 192.0.2.1: bytes=32 time<1ms TTL=128`,`Reply from 192.0.2.1: bytes=32 time=1ms TTL=128`,`Reply from 192.0.2.1: bytes=32 time<1ms TTL=128`,`Reply from 192.0.2.1: bytes=32 time=1ms TTL=128`,'',`Ping statistics for 192.0.2.1:`,`    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),`,`Approximate round trip times in milli-seconds:`,`    Minimum = 0ms, Maximum = 1ms, Average = 0ms`];
+    }
+    if(cmd==='SYSTEMINFO') return [
+      '',`Host Name:                 ${env.COMPUTERNAME}`,'OS Name:                   Microsoft Windows XP Professional','OS Version:                5.1.2600 Service Pack 3 Build 2600','OS Manufacturer:           Microsoft Corporation','OS Configuration:          Standalone Workstation','OS Build Type:             Uniprocessor Free','Registered Owner:          Owner','Product ID:                76487-OEM-0011903-00102','Original Install Date:     10/25/2001','System Manufacturer:       Retro Web Systems','System Model:              XP Browser PC','System Type:               X86-based PC','Processor(s):              1 Processor(s) Installed.','Total Physical Memory:     512 MB','Available Physical Memory: 384 MB'
+    ];
+    if(cmd==='TASKLIST') return [
+      'Image Name                   PID Session Name     Session#    Mem Usage','========================= ====== ================ ======== ============','System Idle Process            0 Console                 0         16 K','System                         4 Console                 0        236 K','smss.exe                     456 Console                 0        420 K','csrss.exe                    520 Console                 0      3,168 K','winlogon.exe                 544 Console                 0      4,512 K','explorer.exe                1204 Console                 0     18,420 K','cmd.exe                     2140 Console                 0      2,736 K'
+    ];
+    if(cmd==='START'){
+      const target=args.filter(a=>!a.startsWith('/'))[0]||''; if(!target) return ['The syntax of the command is incorrect.'];
+      requestParent('launch-app',{app:target.toLowerCase().replace(/\.exe$/,'')}); return [`Requested XP shell to launch: ${target}`];
+    }
+    if(cmd==='NOTEPAD' || cmd==='CALC' || cmd==='Mspaint'.toUpperCase()){
+      requestParent('launch-app',{app:cmd==='CALC'?'calculator':cmd.toLowerCase()}); return [`Requested XP shell to launch: ${cmd.toLowerCase()}`];
+    }
+    if(cmd==='EXIT'){
+      requestParent('close-app',{app:'cmd'}); showDialog('Close request sent to the Windows XP shell. If your WindowManager does not listen for it, close the outer window normally.'); return [];
+    }
+    if(cmd==='RESETFS'){
+      seedFS(); cwd='C:\\Documents and Settings\\Owner'; saveState(); return ['Virtual file system restored to its default Windows XP layout.'];
+    }
+    if(cmd.endsWith('/?')) return helpLines(cmd.slice(0,-2));
+    if(first==='/?' || args.includes('/?')) return helpLines(cmd);
+
+    return [`'${cmd.toLowerCase()}' is not recognized as an internal or external command,`,`operable program or batch file.`];
+  }
+
+  function execute(line){
+    const shownPrompt=currentPrompt();
+    print(shownPrompt+line);
+    if(line.trim()){ history.push(line); history=history.slice(-100); historyIndex=history.length; saveState(); }
+
+    const parsed=parseRedirection(line);
+    const originalPrint=print;
+    if(parsed.redirect){
+      const captured=[];
+      const result=executeCore(parsed.line);
+      if(result===null) return;
+      if(Array.isArray(result)) captured.push(...result);
+      const p=resolveArg(parsed.redirect);
+      if(!isDir(parentPath(p))){ originalPrint('The system cannot find the path specified.'); return; }
+      const old=(parsed.append && isFile(p))?node(p).content:'';
+      addFile(p,old+captured.join('\r\n')+(captured.length?'\r\n':'')); saveFS();
+      updatePrompt(); return;
+    }
+
+    const result=executeCore(line);
+    if(Array.isArray(result)) result.forEach(print);
+    updatePrompt();
+  }
+
+  function autocomplete(){
+    const value=input.value; const pos=input.selectionStart; const before=value.slice(0,pos);
+    const m=before.match(/(?:^|\s)("?[^\s"]*)$/); if(!m) return;
+    let part=m[1]||''; const quoted=part.startsWith('"'); if(quoted) part=part.slice(1);
+    const sep=Math.max(part.lastIndexOf('\\'),part.lastIndexOf('/'));
+    const dirPart=sep>=0?part.slice(0,sep+1):''; const namePart=sep>=0?part.slice(sep+1):part;
+    const dir=dirPart?resolveArg(dirPart):cwd; if(!isDir(dir)) return;
+    const matches=children(dir).filter(n=>baseName(n.path).toLowerCase().startsWith(namePart.toLowerCase())).sort((a,b)=>baseName(a.path).localeCompare(baseName(b.path)));
+    if(!matches.length) return;
+    const pick=baseName(matches[0].path); const replacement=(quoted?'"':'')+dirPart+pick+(quoted?'"':'');
+    const start=pos-m[1].length; input.value=value.slice(0,start)+replacement+value.slice(pos); input.setSelectionRange(start+replacement.length,start+replacement.length);
+  }
+
+  input.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){
+      e.preventDefault(); const line=input.value; input.value=''; execute(line); scrollBottom();
+    } else if(e.key==='ArrowUp'){
+      e.preventDefault(); if(history.length){ historyIndex=Math.max(0,historyIndex-1); input.value=history[historyIndex]||''; setTimeout(()=>input.setSelectionRange(input.value.length,input.value.length)); }
+    } else if(e.key==='ArrowDown'){
+      e.preventDefault(); if(history.length){ historyIndex=Math.min(history.length,historyIndex+1); input.value=historyIndex>=history.length?'':history[historyIndex]; setTimeout(()=>input.setSelectionRange(input.value.length,input.value.length)); }
+    } else if(e.key==='Tab'){
+      e.preventDefault(); autocomplete();
+    } else if(e.key==='Escape'){
+      e.preventDefault(); input.value='';
+    } else if(e.ctrlKey && e.key.toLowerCase()==='l'){
+      e.preventDefault(); clearScreen();
+    } else if(e.ctrlKey && e.key.toLowerCase()==='c'){
+      if(input.value){ e.preventDefault(); print(currentPrompt()+input.value+'^C'); input.value=''; }
+    }
+  });
+
+  terminal.addEventListener('mousedown',e=>{
+    if(e.target!==input && !window.getSelection().toString()) setTimeout(focusInput,0);
+  });
+  window.addEventListener('focus',focusInput);
+  window.addEventListener('message',e=>{
+    const d=e.data||{};
+    if(d.type==='xp-cmd-focus') focusInput();
+  });
+
+  loadFS();
+  loadState();
+  document.title=title;
+  print('Microsoft Windows XP [Version 5.1.2600]');
+  print('(C) Copyright 1985-2001 Microsoft Corp.');
+  print('');
+  updatePrompt();
+  focusInput();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+﻿FreeCell for Windows XP Web Simulator
+
+Selected project:
+https://github.com/macroxue/freecell
+
+Live version:
+https://macroxue.github.io/freecell/game/freecell.html
+
+Why selected:
+- browser-based FreeCell
+- supports Microsoft game numbers
+- supports games up to 1,000,000,000
+- built-in solution playback / solver support
+- drag & drop and click-based moves
+- undo / redo
+- auto-play modes
+- timer and sound controls
+- GPL-3.0 repository
+
+Installation layout:
+- full upstream repo is kept under apps/freecell/
+- root index.html navigates the current XP iframe to game/freecell.html
+- no second nested application iframe is used
+- solutions/ is preserved because the game can reference solution data
+- icon.png is a local transparent 32x32 XP launcher icon
+
+This is an open-source browser FreeCell implementation,
+not Microsoft's original freecell.exe.

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Age of Epochs — Scenario Editor</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<link rel="stylesheet" href="styles.css">
+</head><body class="editor-ui">
+<!-- Scenario editor. A thin sibling of index.html: it loads the SAME engine
+     (page-shell markup + full js/ stack) so restartGame / loadScenario /
+     gameLoop / the sim / gamePaused all work unmodified, then js/editor.js
+     hides the game HUD, swaps canvas input for click-to-place, and boots into
+     a blank scenario world instead of the menu. __editorMode (set below,
+     before any script) gates the additive guards in init.js and input.js. -->
+<script>window.UI_VARIANT='mobile'; window.__editorMode=true;</script>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://unpkg.com/qrcode-generator@1.4.4/qrcode.js"></script>
+<script>
+// Cache-busted local includes (the lab.html loader): the editor is a DEV
+// tool — a stale cached logic.js here means "the feature doesn't work in
+// the editor" bug reports that are really the browser cache (bit twice).
+// document.write preserves load order. CDN scripts above stay cacheable.
+(function(){
+  const v = Date.now();
+  ['page-shell','audio','core','determinism','map','entities','pathfinding',
+   'iso','render-terrain','render-buildings','render-units','render-outlines',
+   'render-fx','render','logic','commands','ai','loop','ui','save','scenario',
+   'net','net-sync','lockstep','lobby','chat','input','init','editor'].forEach(n =>
+    document.write('<script src="js/' + n + '.js?t=' + v + '"><\/script>'));
+})();
+</script>
+</body></html>

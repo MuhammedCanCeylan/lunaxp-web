@@ -1,0 +1,1470 @@
+<!--
+WINRAR XP IFRAME APP - REQUIRED / OPTIONAL ASSETS
+Place these files in the SAME folder as index.html.
+
+| File name            | Recommended size | Required? | Purpose |
+|----------------------|------------------|-----------|---------|
+| winrar.png           | 32x32 or 48x48   | Optional  | Main WinRAR archive icon used in toolbar/header areas |
+| add.png              | 24x24 or 32x32   | Optional  | "Add" toolbar icon |
+| extract.png          | 24x24 or 32x32   | Optional  | "Extract To" toolbar icon |
+| test.png             | 24x24 or 32x32   | Optional  | "Test" toolbar icon |
+| view.png             | 24x24 or 32x32   | Optional  | "View" toolbar icon |
+| delete.png           | 24x24 or 32x32   | Optional  | "Delete" toolbar icon |
+| find.png             | 24x24 or 32x32   | Optional  | "Find" toolbar icon |
+| wizard.png           | 24x24 or 32x32   | Optional  | "Wizard" toolbar icon |
+| info.png             | 24x24 or 32x32   | Optional  | "Info" toolbar icon |
+| up.png               | 16x16 or 24x24   | Optional  | Up-one-level button |
+| folder.png           | 16x16             | Optional  | Folder item icon |
+| file.png             | 16x16             | Optional  | Generic file icon |
+| text.png             | 16x16             | Optional  | Text/document file icon |
+| image.png            | 16x16             | Optional  | Image file icon |
+| exe.png              | 16x16             | Optional  | Executable file icon |
+| audio.png            | 16x16             | Optional  | Audio file icon |
+| error.png            | 32x32 or 48x48   | Optional  | Error dialog icon |
+| warning.png          | 32x32 or 48x48   | Optional  | Warning dialog icon |
+| question.png         | 32x32 or 48x48   | Optional  | Confirmation dialog icon |
+| information.png      | 32x32 or 48x48   | Optional  | Information dialog icon |
+
+Every external image below has an onerror fallback. The application remains usable without any asset files.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WinRAR</title>
+<style>
+  :root{
+    --xp-bg:#ECE9D8;
+    --xp-border:#ACA899;
+    --xp-blue:#316AC5;
+    --xp-input:#7F9DB9;
+    --xp-shadow:#808080;
+    --xp-light:#FFFFFF;
+    --xp-dark:#404040;
+    --xp-menu:#ECE9D8;
+  }
+
+  *{
+    box-sizing:border-box;
+    scrollbar-width:auto;
+    scrollbar-color:#c7d7ef #ece9d8;
+  }
+
+  html,body{
+    width:100%;
+    height:100%;
+    margin:0;
+    overflow:hidden;
+    background:var(--xp-bg);
+    font-family:Tahoma, Verdana, sans-serif;
+    font-size:11px;
+    color:#000;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  button,input,select{
+    font:11px Tahoma, Verdana, sans-serif;
+  }
+
+  body{
+    display:flex;
+    flex-direction:column;
+    user-select:none;
+  }
+
+  ::-webkit-scrollbar{
+    width:16px;
+    height:16px;
+    background:#ECE9D8;
+  }
+  ::-webkit-scrollbar-track{
+    background:
+      repeating-linear-gradient(45deg,#f5f3e9,#f5f3e9 2px,#e3e0d3 2px,#e3e0d3 4px);
+    border:1px solid #d4d0c8;
+  }
+  ::-webkit-scrollbar-thumb{
+    min-height:24px;
+    border:1px solid #7f9db9;
+    box-shadow:inset 1px 1px #fff, inset -1px -1px #7395bb;
+    background:linear-gradient(90deg,#d9e7f8 0%,#a9c8eb 45%,#d7e6f7 100%);
+  }
+  ::-webkit-scrollbar-thumb:hover{
+    background:linear-gradient(90deg,#e7f0fb 0%,#b7d4f1 45%,#e5effb 100%);
+  }
+  ::-webkit-scrollbar-corner{ background:#ECE9D8; }
+
+  .menu-bar{
+    height:22px;
+    display:flex;
+    align-items:center;
+    padding:0 3px;
+    border-bottom:1px solid #d4d0c8;
+    background:var(--xp-menu);
+    flex:0 0 auto;
+  }
+
+  .menu-item{
+    position:relative;
+    padding:3px 7px 4px;
+    cursor:default;
+  }
+  .menu-item:hover,.menu-item.open{
+    background:#316AC5;
+    color:#fff;
+  }
+  .menu-item u{ text-decoration:underline; }
+
+  .menu-popup{
+    display:none;
+    position:absolute;
+    left:0;
+    top:20px;
+    z-index:80;
+    min-width:190px;
+    padding:2px;
+    background:#fff;
+    color:#000;
+    border:1px solid #aca899;
+    box-shadow:2px 2px 3px rgba(0,0,0,.35);
+  }
+  .menu-item.open>.menu-popup{ display:block; }
+  .menu-command{
+    display:flex;
+    align-items:center;
+    min-height:22px;
+    padding:2px 20px 2px 25px;
+    white-space:nowrap;
+    position:relative;
+  }
+  .menu-command:hover{
+    background:#316AC5;
+    color:#fff;
+  }
+  .menu-command .shortcut{
+    margin-left:auto;
+    padding-left:22px;
+  }
+  .menu-sep{
+    height:1px;
+    background:#aca899;
+    margin:3px 2px;
+  }
+
+  .toolbar{
+    min-height:60px;
+    display:flex;
+    align-items:stretch;
+    padding:4px 4px 3px;
+    gap:2px;
+    border-top:1px solid #fff;
+    border-bottom:1px solid #aca899;
+    background:linear-gradient(#f6f5ef,#e8e5d8);
+    flex:0 0 auto;
+    overflow-x:auto;
+    overflow-y:hidden;
+  }
+
+  .tool-sep{
+    width:2px;
+    margin:2px 2px 4px;
+    border-left:1px solid #aca899;
+    border-right:1px solid #fff;
+    flex:0 0 auto;
+  }
+
+  .tool-btn{
+    width:64px;
+    min-width:58px;
+    height:51px;
+    padding:2px 4px 3px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:2px;
+    background:transparent;
+    border:1px solid transparent;
+    cursor:default;
+  }
+  .tool-btn:hover{
+    border:1px solid #9eb8dc;
+    background:linear-gradient(#fff,#e3edf9);
+  }
+  .tool-btn:active{
+    border:1px solid #7f9db9;
+    background:#d6e5f6;
+    transform:translate(1px,1px);
+  }
+  .tool-btn img{
+    width:28px;
+    height:28px;
+    object-fit:contain;
+    image-rendering:auto;
+  }
+  .fallback-icon{
+    width:28px;
+    height:28px;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    font-size:21px;
+    line-height:1;
+    filter:saturate(.85);
+  }
+
+  .address-row{
+    min-height:27px;
+    display:flex;
+    align-items:center;
+    gap:4px;
+    padding:3px 5px;
+    border-top:1px solid #fff;
+    border-bottom:1px solid #aca899;
+    background:#ECE9D8;
+    flex:0 0 auto;
+  }
+  .address-label{ padding:0 2px; }
+  .address-wrap{
+    height:21px;
+    display:flex;
+    align-items:center;
+    flex:1 1 auto;
+    min-width:80px;
+    border:1px solid #7f9db9;
+    background:#fff;
+    box-shadow:inset 1px 1px #ddd;
+  }
+  .address-icon{
+    width:19px;
+    height:19px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:13px;
+  }
+  #addressInput{
+    flex:1 1 auto;
+    min-width:0;
+    height:19px;
+    border:0;
+    outline:0;
+    padding:1px 3px;
+    background:#fff;
+    color:#000;
+  }
+  .tiny-btn,.xp-btn{
+    background:linear-gradient(#fff,#ece9d8);
+    border:2px outset #fff;
+    color:#000;
+    min-height:22px;
+    padding:2px 10px;
+    cursor:default;
+  }
+  .tiny-btn{ min-width:29px; padding:1px 7px; }
+  .tiny-btn:active,.xp-btn:active{
+    border-style:inset;
+    padding-top:3px;
+    padding-left:11px;
+  }
+  .xp-btn:focus{
+    outline:1px dotted #000;
+    outline-offset:-5px;
+  }
+
+  .workspace{
+    position:relative;
+    flex:1 1 auto;
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+    background:#fff;
+  }
+
+  .file-pane{
+    flex:1 1 auto;
+    min-height:0;
+    overflow:auto;
+    background:#fff;
+    border-top:1px solid #fff;
+  }
+
+  table.file-list{
+    width:100%;
+    min-width:720px;
+    border-collapse:separate;
+    border-spacing:0;
+    table-layout:fixed;
+  }
+  .file-list thead{
+    position:sticky;
+    top:0;
+    z-index:5;
+    background:#ECE9D8;
+  }
+  .file-list th{
+    height:21px;
+    padding:2px 5px;
+    text-align:left;
+    font-weight:normal;
+    background:linear-gradient(#fff,#e2dfd2);
+    border-right:1px solid #aca899;
+    border-bottom:1px solid #aca899;
+    white-space:nowrap;
+  }
+  .file-list th:active{ background:#d6d2c6; }
+  .file-list th:nth-child(1){ width:270px; }
+  .file-list th:nth-child(2){ width:85px; text-align:right; }
+  .file-list th:nth-child(3){ width:85px; text-align:right; }
+  .file-list th:nth-child(4){ width:125px; }
+  .file-list th:nth-child(5){ width:105px; }
+  .file-list th:nth-child(6){ width:85px; }
+
+  .file-list td{
+    height:20px;
+    padding:2px 5px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    border-right:1px solid transparent;
+  }
+  .file-list td.num{ text-align:right; }
+  .file-row{ cursor:default; }
+  .file-row:hover:not(.selected){ background:#f2f6ff; }
+  .file-row.selected{
+    background:#316AC5;
+    color:#fff;
+  }
+  .file-row.selected .name-icon{ color:#fff; }
+  .name-cell{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    min-width:0;
+  }
+  .row-icon{
+    width:16px;
+    height:16px;
+    flex:0 0 auto;
+    object-fit:contain;
+  }
+  .row-fallback{
+    width:16px;
+    height:16px;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    flex:0 0 auto;
+    font-size:13px;
+  }
+
+  .status-bar{
+    min-height:22px;
+    display:flex;
+    align-items:center;
+    gap:2px;
+    padding:2px;
+    background:#ECE9D8;
+    border-top:1px solid #aca899;
+    flex:0 0 auto;
+  }
+  .status-part{
+    height:18px;
+    padding:2px 5px;
+    border:1px solid #d4d0c8;
+    box-shadow:inset 1px 1px #fff;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  #statusMain{ flex:1 1 auto; }
+  #statusCount{ flex:0 0 180px; }
+  #statusSize{ flex:0 0 120px; text-align:right; }
+
+  /* XP dialog overlay */
+  .dialog-overlay{
+    display:none;
+    position:absolute;
+    inset:0;
+    z-index:300;
+    background:rgba(0,0,0,.16);
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+  }
+  .dialog-overlay.show{ display:flex; }
+
+  .xp-dialog{
+    width:min(410px,calc(100% - 16px));
+    background:#ECE9D8;
+    border:1px solid #003c74;
+    box-shadow:
+      0 0 0 1px #5b8bd8,
+      3px 4px 10px rgba(0,0,0,.35);
+  }
+  .dialog-title{
+    height:27px;
+    padding:4px 7px;
+    display:flex;
+    align-items:center;
+    font-weight:bold;
+    color:#fff;
+    background:linear-gradient(180deg,#3d95ff 0%,#0756d5 45%,#003ea2 100%);
+    text-shadow:1px 1px #003c8f;
+  }
+  .dialog-title-text{
+    flex:1 1 auto;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .dialog-close{
+    width:21px;
+    height:21px;
+    padding:0;
+    margin-left:8px;
+    color:#fff;
+    font:bold 14px Tahoma;
+    line-height:17px;
+    background:linear-gradient(#f49a79,#d43b24);
+    border:1px solid #fff;
+    border-radius:3px;
+    box-shadow:inset 1px 1px #fbc0a9, inset -1px -1px #8f1c0b;
+    cursor:default;
+  }
+  .dialog-body{
+    min-height:95px;
+    padding:15px 15px 9px;
+    display:flex;
+    gap:13px;
+    align-items:flex-start;
+  }
+  .dialog-icon-wrap{
+    width:36px;
+    flex:0 0 36px;
+    min-height:36px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .dialog-icon-wrap img{
+    width:32px;
+    height:32px;
+    object-fit:contain;
+  }
+  .dialog-icon-fallback{
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    font:bold 22px Tahoma;
+    color:#fff;
+    background:#316AC5;
+    border:2px solid #fff;
+    box-shadow:0 0 0 1px #316AC5;
+  }
+  .dialog-message{
+    flex:1 1 auto;
+    padding-top:4px;
+    line-height:1.45;
+    user-select:text;
+    white-space:pre-wrap;
+  }
+  .dialog-extra{
+    padding:0 15px 8px 64px;
+  }
+  .dialog-input{
+    width:100%;
+    height:21px;
+    border:1px solid #7f9db9;
+    background:#fff;
+    padding:2px 4px;
+    outline:0;
+  }
+  .dialog-buttons{
+    min-height:42px;
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    gap:7px;
+    padding:7px 10px 9px;
+  }
+  .dialog-buttons .xp-btn{ min-width:76px; }
+
+  .context-menu{
+    display:none;
+    position:absolute;
+    z-index:150;
+    min-width:150px;
+    padding:2px;
+    background:#fff;
+    border:1px solid #aca899;
+    box-shadow:2px 2px 4px rgba(0,0,0,.35);
+  }
+  .context-menu.show{ display:block; }
+  .ctx-item{
+    min-height:22px;
+    padding:4px 24px;
+    white-space:nowrap;
+    cursor:default;
+  }
+  .ctx-item:hover{ background:#316AC5; color:#fff; }
+  .ctx-sep{ height:1px; margin:3px 2px; background:#aca899; }
+
+  .progress-wrap{
+    display:none;
+    margin-top:9px;
+    height:18px;
+    border:1px solid #7f9db9;
+    background:#fff;
+    padding:2px;
+  }
+  .progress-wrap.show{ display:block; }
+  .progress-bar{
+    height:100%;
+    width:0%;
+    background:repeating-linear-gradient(
+      90deg,
+      #2f9b27 0px,
+      #2f9b27 7px,
+      #fff 7px,
+      #fff 9px
+    );
+  }
+
+  .drag-hint{
+    display:none;
+    position:absolute;
+    inset:42px 45px;
+    z-index:90;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    border:2px dashed #316AC5;
+    background:rgba(230,240,255,.92);
+    color:#174f99;
+    font-size:14px;
+    font-weight:bold;
+    pointer-events:none;
+  }
+  .drag-hint.show{ display:flex; }
+
+  @media(max-width:620px){
+    #statusCount{ display:none; }
+    .tool-btn{ width:58px; min-width:54px; }
+    .toolbar{ min-height:58px; }
+  }
+</style>
+</head>
+<body>
+  <div class="menu-bar" id="menuBar">
+    <div class="menu-item" data-menu>
+      <u>F</u>ile
+      <div class="menu-popup">
+        <div class="menu-command" data-action="newArchive">New archive... <span class="shortcut">Ctrl+N</span></div>
+        <div class="menu-command" data-action="openArchive">Open archive... <span class="shortcut">Ctrl+O</span></div>
+        <div class="menu-sep"></div>
+        <div class="menu-command" data-action="addFiles">Add files to archive... <span class="shortcut">Alt+A</span></div>
+        <div class="menu-command" data-action="extract">Extract to a specified folder... <span class="shortcut">Alt+E</span></div>
+        <div class="menu-sep"></div>
+        <div class="menu-command" data-action="properties">Archive properties</div>
+        <div class="menu-command" data-action="closeArchive">Close archive</div>
+      </div>
+    </div>
+    <div class="menu-item" data-menu>
+      <u>C</u>ommands
+      <div class="menu-popup">
+        <div class="menu-command" data-action="addFiles">Add files to archive</div>
+        <div class="menu-command" data-action="extract">Extract to the specified folder</div>
+        <div class="menu-command" data-action="testArchive">Test archived files</div>
+        <div class="menu-command" data-action="viewFile">View file</div>
+        <div class="menu-command" data-action="deleteSelected">Delete files</div>
+        <div class="menu-command" data-action="findFile">Find files</div>
+      </div>
+    </div>
+    <div class="menu-item" data-menu>
+      <u>T</u>ools
+      <div class="menu-popup">
+        <div class="menu-command" data-action="wizard">Wizard</div>
+        <div class="menu-command" data-action="repair">Repair archive</div>
+        <div class="menu-command" data-action="benchmark">Benchmark</div>
+      </div>
+    </div>
+    <div class="menu-item" data-menu>
+      <u>F</u>avorites
+      <div class="menu-popup">
+        <div class="menu-command" data-action="addFavorite">Add to favorites</div>
+        <div class="menu-command" data-action="showFavorites">Organize favorites...</div>
+      </div>
+    </div>
+    <div class="menu-item" data-menu>
+      <u>O</u>ptions
+      <div class="menu-popup">
+        <div class="menu-command" data-action="settings">Settings...</div>
+        <div class="menu-command" data-action="saveSettings">Save settings</div>
+      </div>
+    </div>
+    <div class="menu-item" data-menu>
+      <u>H</u>elp
+      <div class="menu-popup">
+        <div class="menu-command" data-action="help">Help topics</div>
+        <div class="menu-sep"></div>
+        <div class="menu-command" data-action="about">About WinRAR...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button class="tool-btn" data-action="addFiles" title="Add files to archive">
+      <img src="add.png" alt="" onerror="imgFallback(this)">
+      <span class="fallback-icon">📚</span><span>Add</span>
+    </button>
+    <button class="tool-btn" data-action="extract" title="Extract selected files">
+      <img src="extract.png" alt="" onerror="imgFallback(this)">
+      <span class="fallback-icon">📂</span><span>Extract To</span>
+    </button>
+    <button class="tool-btn" data-action="testArchive" title="Test archived files">
+      <img src="test.png" alt="" onerror="imgFallback(this)">
+      <span class="fallback-icon">✓</span><span>Test</span>
+    </button>
+    <button class="tool-btn" data-action="viewFile" title="View selected file">
+      <img src="view.png" alt="" onerror="imgFallback(this)">
+      <span class="fallback-icon">🔎</span><span>View</span>
+    </button>
+    <button class="tool-btn" data-action="deleteSelected" title="Delete selected files">
+      <img src="delete.png" alt="" onerror="imgFallback(this)">
+      <span class="fallback-icon">✖</span><span>Delete</span>
+    </button>
+    <button class="tool-btn" data-action="findFile" title="Find files">
+      <img src="find.png" alt="" onerror="imgFallback(this)">
+      <span class="fallback-icon">🔍</span><span>Find</span>
+    </button>
+    <div class="tool-sep"></div>
+    <button class="tool-btn" data-action="wizard" title="Start Wizard">
+      <img src="wizard.png" alt="" onerror="imgFallback(this)">
+      <span class="fallback-icon">🪄</span><span>Wizard</span>
+    </button>
+    <button class="tool-btn" data-action="info" title="Show archive information">
+      <img src="info.png" alt="" onerror="imgFallback(this)">
+      <span class="fallback-icon">ⓘ</span><span>Info</span>
+    </button>
+  </div>
+
+  <div class="address-row">
+    <span class="address-label">Address</span>
+    <button class="tiny-btn" id="upButton" title="Up one level">
+      <img src="up.png" alt="" style="width:14px;height:14px;vertical-align:middle" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+      <span style="display:none">↑</span>
+    </button>
+    <div class="address-wrap">
+      <span class="address-icon">📚</span>
+      <input id="addressInput" value="C:\Downloads\classic_pack.rar" spellcheck="false">
+    </div>
+    <button class="tiny-btn" id="goButton">Go</button>
+  </div>
+
+  <main class="workspace" id="workspace">
+    <div class="file-pane" id="filePane">
+      <table class="file-list">
+        <thead>
+          <tr>
+            <th data-sort="name">Name</th>
+            <th data-sort="size">Size</th>
+            <th data-sort="packed">Packed</th>
+            <th data-sort="type">Type</th>
+            <th data-sort="modified">Modified</th>
+            <th data-sort="crc">CRC32</th>
+          </tr>
+        </thead>
+        <tbody id="fileBody"></tbody>
+      </table>
+    </div>
+    <div class="drag-hint" id="dragHint">Drop files here to add them to the archive</div>
+
+    <div class="context-menu" id="contextMenu">
+      <div class="ctx-item" data-action="viewFile"><b>View</b></div>
+      <div class="ctx-item" data-action="extract">Extract to...</div>
+      <div class="ctx-item" data-action="testArchive">Test</div>
+      <div class="ctx-sep"></div>
+      <div class="ctx-item" data-action="deleteSelected">Delete</div>
+      <div class="ctx-item" data-action="properties">Properties</div>
+    </div>
+
+    <div class="dialog-overlay" id="dialogOverlay" role="dialog" aria-modal="true">
+      <div class="xp-dialog">
+        <div class="dialog-title">
+          <span class="dialog-title-text" id="dialogTitle">WinRAR</span>
+          <button class="dialog-close" id="dialogClose" aria-label="Close">×</button>
+        </div>
+        <div class="dialog-body">
+          <div class="dialog-icon-wrap">
+            <img id="dialogIcon" src="information.png" alt="" onerror="dialogIconFallback(this)">
+            <span class="dialog-icon-fallback" id="dialogIconFallback">i</span>
+          </div>
+          <div class="dialog-message" id="dialogMessage"></div>
+        </div>
+        <div class="dialog-extra" id="dialogExtra"></div>
+        <div class="dialog-buttons" id="dialogButtons"></div>
+      </div>
+    </div>
+  </main>
+
+  <div class="status-bar">
+    <div class="status-part" id="statusMain">Archive: classic_pack.rar</div>
+    <div class="status-part" id="statusCount"></div>
+    <div class="status-part" id="statusSize"></div>
+  </div>
+
+  <input type="file" id="hiddenFileInput" multiple style="display:none">
+
+<script>
+(function(){
+  "use strict";
+
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+
+  const state = {
+    archiveName: "classic_pack.rar",
+    archivePath: "C:\\Downloads\\classic_pack.rar",
+    selected: new Set(),
+    sortKey: "name",
+    sortDir: 1,
+    busy: false,
+    favorites: [],
+    files: [
+      {name:"..", size:0, packed:0, type:"Parent folder", modified:"", crc:"", icon:"folder.png", fallback:"📁", parent:true},
+      {name:"Documents", size:0, packed:0, type:"File folder", modified:"18/09/2006 21:44", crc:"", icon:"folder.png", fallback:"📁", folder:true},
+      {name:"readme.txt", size:2481, packed:1359, type:"Text Document", modified:"11/08/2006 14:12", crc:"A53F3DB1", icon:"text.png", fallback:"📄"},
+      {name:"setup.exe", size:287744, packed:183221, type:"Application", modified:"25/07/2006 09:33", crc:"49D31B22", icon:"exe.png", fallback:"⚙"},
+      {name:"wallpaper.jpg", size:164820, packed:151102, type:"JPEG Image", modified:"09/06/2006 19:06", crc:"50A8DE07", icon:"image.png", fallback:"🖼"},
+      {name:"winamp_skin.wsz", size:92841, packed:88673, type:"Winamp Skin File", modified:"01/04/2006 16:20", crc:"D1A4C2E8", icon:"file.png", fallback:"📦"},
+      {name:"startup.wav", size:63104, packed:44231, type:"Wave Sound", modified:"17/03/2006 08:02", crc:"88AC14F9", icon:"audio.png", fallback:"♪"},
+      {name:"serials.txt", size:911, packed:530, type:"Text Document", modified:"28/02/2006 23:11", crc:"01DFA7BC", icon:"text.png", fallback:"📄"},
+      {name:"screenshots", size:0, packed:0, type:"File folder", modified:"21/01/2006 17:44", crc:"", icon:"folder.png", fallback:"📁", folder:true}
+    ]
+  };
+
+  let audioCtx = null;
+  function audio(){
+    if(!audioCtx){
+      try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+      catch(e){ return null; }
+    }
+    if(audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
+    return audioCtx;
+  }
+  function tone(freq=700,duration=.045,type="square",volume=.025,delay=0){
+    const ctx = audio();
+    if(!ctx) return;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    g.gain.setValueAtTime(volume,ctx.currentTime+delay);
+    g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+delay+duration);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(ctx.currentTime+delay);
+    o.stop(ctx.currentTime+delay+duration+.01);
+  }
+  function soundClick(){ tone(900,.025,"square",.016); }
+  function soundInfo(){ tone(660,.055,"sine",.025); tone(880,.075,"sine",.02,.06); }
+  function soundError(){ tone(190,.10,"sawtooth",.035); tone(145,.16,"square",.028,.11); }
+  function soundSuccess(){ tone(523,.05,"square",.022); tone(659,.05,"square",.022,.055); tone(784,.09,"square",.02,.11); }
+
+  window.imgFallback = function(img){
+    img.style.display = "none";
+    const fb = img.nextElementSibling;
+    if(fb) fb.style.display = "flex";
+  };
+  window.dialogIconFallback = function(img){
+    img.style.display="none";
+    $("#dialogIconFallback").style.display="flex";
+  };
+
+  function formatBytes(n){
+    if(n === 0) return "";
+    if(n < 1024) return n + " B";
+    if(n < 1024*1024) return Math.round(n/1024).toLocaleString() + " KB";
+    return (n/(1024*1024)).toFixed(1) + " MB";
+  }
+
+  function render(){
+    const body = $("#fileBody");
+    body.innerHTML = "";
+    const arr = [...state.files];
+    const parent = arr.find(f=>f.parent);
+    const sortable = arr.filter(f=>!f.parent);
+
+    sortable.sort((a,b)=>{
+      let av=a[state.sortKey], bv=b[state.sortKey];
+      if(typeof av === "string"){
+        av=av.toLowerCase(); bv=String(bv).toLowerCase();
+        return av.localeCompare(bv) * state.sortDir;
+      }
+      return ((av||0)-(bv||0))*state.sortDir;
+    });
+    const finalArr = parent ? [parent,...sortable] : sortable;
+
+    finalArr.forEach((f)=>{
+      const originalIndex = state.files.indexOf(f);
+      const tr = document.createElement("tr");
+      tr.className = "file-row" + (state.selected.has(originalIndex) ? " selected":"");
+      tr.dataset.index = originalIndex;
+      tr.innerHTML = `
+        <td title="${escapeHtml(f.name)}">
+          <div class="name-cell">
+            <img class="row-icon" src="${escapeHtml(f.icon)}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <span class="row-fallback">${f.fallback}</span>
+            <span class="name-icon">${escapeHtml(f.name)}</span>
+          </div>
+        </td>
+        <td class="num">${formatBytes(f.size)}</td>
+        <td class="num">${formatBytes(f.packed)}</td>
+        <td>${escapeHtml(f.type)}</td>
+        <td>${escapeHtml(f.modified)}</td>
+        <td>${escapeHtml(f.crc)}</td>`;
+      body.appendChild(tr);
+    });
+    updateStatus();
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+  }
+
+  function updateStatus(message){
+    const actual = state.files.filter(f=>!f.parent);
+    const totalSize = actual.reduce((s,f)=>s+(f.size||0),0);
+    const selectedItems = [...state.selected].map(i=>state.files[i]).filter(Boolean);
+    const selectedSize = selectedItems.reduce((s,f)=>s+(f.size||0),0);
+
+    $("#statusMain").textContent = message || `Archive: ${state.archiveName}`;
+    $("#statusCount").textContent = state.selected.size
+      ? `${state.selected.size} selected of ${actual.length} objects`
+      : `${actual.length} objects`;
+    $("#statusSize").textContent = state.selected.size
+      ? formatBytes(selectedSize)
+      : formatBytes(totalSize);
+  }
+
+  function clearSelection(){
+    state.selected.clear();
+    render();
+  }
+
+  function setSelected(index, additive=false){
+    const file = state.files[index];
+    if(!file || file.parent) return;
+    if(!additive) state.selected.clear();
+    if(additive && state.selected.has(index)) state.selected.delete(index);
+    else state.selected.add(index);
+    render();
+  }
+
+  function selectedFiles(){
+    return [...state.selected].map(i=>state.files[i]).filter(Boolean);
+  }
+
+  function closeMenus(){
+    $$("[data-menu].open").forEach(m=>m.classList.remove("open"));
+  }
+
+  function showDialog(opts={}){
+    closeMenus();
+    const {
+      title="WinRAR",
+      message="",
+      icon="information",
+      buttons=[{text:"OK",value:true,default:true}],
+      input=null,
+      progress=false
+    } = opts;
+
+    $("#dialogTitle").textContent=title;
+    $("#dialogMessage").textContent=message;
+
+    const iconMap = {
+      information:["information.png","i","#316AC5"],
+      error:["error.png","×","#d72f21"],
+      warning:["warning.png","!","#e0a000"],
+      question:["question.png","?","#316AC5"]
+    };
+    const iconData=iconMap[icon]||iconMap.information;
+    const img=$("#dialogIcon"), fb=$("#dialogIconFallback");
+    img.style.display="";
+    img.src=iconData[0];
+    fb.style.display="none";
+    fb.textContent=iconData[1];
+    fb.style.background=iconData[2];
+    img.onerror=()=>dialogIconFallback(img);
+
+    const extra=$("#dialogExtra");
+    extra.innerHTML="";
+    if(input){
+      const inp=document.createElement("input");
+      inp.className="dialog-input";
+      inp.id="dialogInput";
+      inp.value=input.value||"";
+      inp.placeholder=input.placeholder||"";
+      inp.spellcheck=false;
+      extra.appendChild(inp);
+    }
+    if(progress){
+      const wrap=document.createElement("div");
+      wrap.className="progress-wrap show";
+      wrap.innerHTML='<div class="progress-bar" id="dialogProgress"></div>';
+      extra.appendChild(wrap);
+    }
+
+    const btns=$("#dialogButtons");
+    btns.innerHTML="";
+    buttons.forEach(b=>{
+      const btn=document.createElement("button");
+      btn.className="xp-btn";
+      btn.textContent=b.text;
+      btn.dataset.value=String(b.value);
+      if(b.default) btn.autofocus=true;
+      btns.appendChild(btn);
+    });
+
+    $("#dialogOverlay").classList.add("show");
+    if(icon==="error") soundError(); else soundInfo();
+
+    setTimeout(()=>{
+      const inp=$("#dialogInput");
+      if(inp){ inp.focus(); inp.select(); }
+      else{
+        const d=btns.querySelector("[autofocus]")||btns.querySelector("button");
+        if(d) d.focus();
+      }
+    },0);
+
+    return new Promise(resolve=>{
+      let done=false;
+      const finish=(value)=>{
+        if(done) return;
+        done=true;
+        $("#dialogOverlay").classList.remove("show");
+        $("#dialogClose").removeEventListener("click",onClose);
+        btns.removeEventListener("click",onButtons);
+        document.removeEventListener("keydown",onKey);
+        resolve({value,input:$("#dialogInput")?.value ?? ""});
+      };
+      const onClose=()=>finish(false);
+      const onButtons=e=>{
+        const btn=e.target.closest("button");
+        if(!btn) return;
+        soundClick();
+        let v=btn.dataset.value;
+        if(v==="true") v=true;
+        else if(v==="false") v=false;
+        finish(v);
+      };
+      const onKey=e=>{
+        if(!$("#dialogOverlay").classList.contains("show")) return;
+        if(e.key==="Escape"){ e.preventDefault(); finish(false); }
+        if(e.key==="Enter"){
+          const def=btns.querySelector("[autofocus]")||btns.querySelector("button");
+          if(def){ e.preventDefault(); def.click(); }
+        }
+      };
+      $("#dialogClose").addEventListener("click",onClose);
+      btns.addEventListener("click",onButtons);
+      document.addEventListener("keydown",onKey);
+    });
+  }
+
+  async function progressDialog(title,message,duration=1200){
+    state.busy=true;
+    const promise=showDialog({
+      title,message,icon:"information",
+      progress:true,
+      buttons:[{text:"Cancel",value:false}]
+    });
+    let p=0;
+    const bar=()=>$("#dialogProgress");
+    const step=Math.max(40,duration/25);
+    return new Promise(resolve=>{
+      const timer=setInterval(()=>{
+        if(!$("#dialogOverlay").classList.contains("show")){
+          clearInterval(timer);
+          state.busy=false;
+          resolve(false);
+          return;
+        }
+        p+=4+Math.random()*4;
+        if(bar()) bar().style.width=Math.min(100,p)+"%";
+        if(p>=100){
+          clearInterval(timer);
+          setTimeout(()=>{
+            if($("#dialogOverlay").classList.contains("show")){
+              $("#dialogButtons button")?.click();
+            }
+            state.busy=false;
+            resolve(true);
+          },120);
+        }
+      },step);
+      promise.then(r=>{
+        if(r.value===false && p<100){
+          clearInterval(timer);
+          state.busy=false;
+          resolve(false);
+        }
+      });
+    });
+  }
+
+  const hiddenInput=$("#hiddenFileInput");
+
+  function chooseFiles(){
+    hiddenInput.value="";
+    hiddenInput.click();
+  }
+
+  hiddenInput.addEventListener("change",()=>{
+    addBrowserFiles(hiddenInput.files);
+  });
+
+  function guessType(name){
+    const ext=(name.split(".").pop()||"").toLowerCase();
+    if(["txt","log","ini","nfo"].includes(ext)) return ["Text Document","text.png","📄"];
+    if(["jpg","jpeg","png","gif","bmp"].includes(ext)) return ["Image File","image.png","🖼"];
+    if(["wav","mp3","wma","ogg"].includes(ext)) return ["Audio File","audio.png","♪"];
+    if(["exe","com","bat","msi"].includes(ext)) return ["Application","exe.png","⚙"];
+    return ["File","file.png","📦"];
+  }
+
+  function crcFake(name,size){
+    let h=2166136261>>>0;
+    const str=name+size;
+    for(let i=0;i<str.length;i++){
+      h^=str.charCodeAt(i);
+      h=Math.imul(h,16777619);
+    }
+    return (h>>>0).toString(16).toUpperCase().padStart(8,"0");
+  }
+
+  function addBrowserFiles(fileList){
+    const files=Array.from(fileList||[]);
+    if(!files.length) return;
+    files.forEach(f=>{
+      const [type,icon,fallback]=guessType(f.name);
+      state.files.push({
+        name:f.name,
+        size:f.size,
+        packed:Math.floor(f.size*(.55+Math.random()*.35)),
+        type,
+        modified:new Date(f.lastModified||Date.now()).toLocaleString("en-GB",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}).replace(",",""),
+        crc:crcFake(f.name,f.size),
+        icon,fallback
+      });
+    });
+    render();
+    soundSuccess();
+    updateStatus(`${files.length} file(s) added to archive`);
+  }
+
+  async function action(name){
+    closeMenus();
+    $("#contextMenu").classList.remove("show");
+    soundClick();
+
+    if(state.busy) return;
+
+    switch(name){
+      case "addFiles":
+        chooseFiles();
+        break;
+
+      case "extract":{
+        const items=selectedFiles().length ? selectedFiles() : state.files.filter(f=>!f.parent);
+        const res=await showDialog({
+          title:"Extraction path and options",
+          message:`Extract ${items.length} object(s) to:`,
+          icon:"information",
+          input:{value:"C:\\Extracted\\"},
+          buttons:[
+            {text:"OK",value:"ok",default:true},
+            {text:"Cancel",value:false}
+          ]
+        });
+        if(res.value==="ok"){
+          const ok=await progressDialog("Extracting",`Extracting files to ${res.input || "C:\\Extracted\\"} ...`,1100);
+          if(ok){
+            soundSuccess();
+            await showDialog({title:"WinRAR",message:`${items.length} object(s) extracted successfully.`,icon:"information"});
+          }
+        }
+        break;
+      }
+
+      case "testArchive":{
+        const ok=await progressDialog("Testing archive",`Testing archived files in ${state.archiveName}...`,900);
+        if(ok){
+          soundSuccess();
+          await showDialog({title:"WinRAR",message:"No errors found during test operation.",icon:"information"});
+        }
+        break;
+      }
+
+      case "viewFile":{
+        const files=selectedFiles();
+        if(files.length!==1){
+          await showDialog({title:"WinRAR",message:"Please select exactly one file to view.",icon:"warning"});
+          return;
+        }
+        const f=files[0];
+        if(f.folder){
+          updateStatus(`Opened folder: ${f.name}`);
+          return;
+        }
+        let preview="";
+        if(f.name.toLowerCase().endsWith(".txt")){
+          preview = f.name==="readme.txt"
+            ? "Welcome to the Classic Pack archive.\n\nThis simulated WinRAR window is running entirely inside the XP desktop application's iframe."
+            : "Text file preview is not available for this simulated archive entry.";
+        } else {
+          preview=`File: ${f.name}\nType: ${f.type}\nSize: ${formatBytes(f.size)}\nPacked: ${formatBytes(f.packed)}\nCRC32: ${f.crc}`;
+        }
+        await showDialog({title:`Viewing ${f.name}`,message:preview,icon:"information"});
+        break;
+      }
+
+      case "deleteSelected":{
+        const files=selectedFiles();
+        if(!files.length){
+          await showDialog({title:"WinRAR",message:"No files are selected.",icon:"warning"});
+          return;
+        }
+        const names=files.slice(0,4).map(f=>f.name).join("\n");
+        const more=files.length>4?`\n...and ${files.length-4} more`:"";
+        const res=await showDialog({
+          title:"Delete files",
+          message:`Are you sure you want to delete the selected file(s) from the archive?\n\n${names}${more}`,
+          icon:"question",
+          buttons:[
+            {text:"Yes",value:true,default:true},
+            {text:"No",value:false}
+          ]
+        });
+        if(res.value){
+          state.files=state.files.filter((_,i)=>!state.selected.has(i));
+          state.selected.clear();
+          render();
+          soundSuccess();
+          updateStatus("Selected file(s) deleted from archive");
+        }
+        break;
+      }
+
+      case "findFile":{
+        const res=await showDialog({
+          title:"Find files",
+          message:"Enter a file name or part of a file name:",
+          icon:"information",
+          input:{value:""},
+          buttons:[{text:"Find",value:"find",default:true},{text:"Cancel",value:false}]
+        });
+        if(res.value==="find"){
+          const q=res.input.trim().toLowerCase();
+          const idx=state.files.findIndex(f=>!f.parent && f.name.toLowerCase().includes(q));
+          if(idx>=0){
+            state.selected.clear();
+            state.selected.add(idx);
+            render();
+            document.querySelector(`.file-row[data-index="${idx}"]`)?.scrollIntoView({block:"center"});
+            updateStatus(`Found: ${state.files[idx].name}`);
+          }else{
+            await showDialog({title:"Find",message:`"${res.input}" was not found in the archive.`,icon:"information"});
+          }
+        }
+        break;
+      }
+
+      case "wizard":{
+        const res=await showDialog({
+          title:"WinRAR Wizard",
+          message:"What do you want to do?",
+          icon:"question",
+          buttons:[
+            {text:"Create",value:"create",default:true},
+            {text:"Unpack",value:"unpack"},
+            {text:"Cancel",value:false}
+          ]
+        });
+        if(res.value==="create") action("newArchive");
+        if(res.value==="unpack") action("extract");
+        break;
+      }
+
+      case "info":
+      case "properties":{
+        const files=state.files.filter(f=>!f.parent);
+        const original=files.reduce((s,f)=>s+(f.size||0),0);
+        const packed=files.reduce((s,f)=>s+(f.packed||0),0);
+        const ratio=original?Math.round(100-(packed/original*100)):0;
+        await showDialog({
+          title:"Archive information",
+          message:`Archive: ${state.archiveName}\nPath: ${state.archivePath}\n\nFiles and folders: ${files.length}\nOriginal size: ${formatBytes(original)}\nPacked size: ${formatBytes(packed)}\nCompression ratio: ${ratio}%\nArchive type: RAR`,
+          icon:"information"
+        });
+        break;
+      }
+
+      case "newArchive":{
+        const res=await showDialog({
+          title:"Archive name and parameters",
+          message:"Enter a name for the new archive:",
+          icon:"information",
+          input:{value:"new_archive.rar"},
+          buttons:[{text:"OK",value:"ok",default:true},{text:"Cancel",value:false}]
+        });
+        if(res.value==="ok" && res.input.trim()){
+          state.archiveName=res.input.trim().endsWith(".rar")?res.input.trim():res.input.trim()+".rar";
+          state.archivePath="C:\\Downloads\\"+state.archiveName;
+          state.files=[{name:"..",size:0,packed:0,type:"Parent folder",modified:"",crc:"",icon:"folder.png",fallback:"📁",parent:true}];
+          state.selected.clear();
+          $("#addressInput").value=state.archivePath;
+          render();
+          updateStatus(`Created ${state.archiveName}`);
+          soundSuccess();
+        }
+        break;
+      }
+
+      case "openArchive":{
+        const res=await showDialog({
+          title:"Open archive",
+          message:"Enter the path of an archive to simulate opening:",
+          icon:"information",
+          input:{value:"C:\\Downloads\\classic_pack.rar"},
+          buttons:[{text:"Open",value:"open",default:true},{text:"Cancel",value:false}]
+        });
+        if(res.value==="open" && res.input.trim()){
+          state.archivePath=res.input.trim();
+          state.archiveName=state.archivePath.split(/[\\/]/).pop() || "archive.rar";
+          $("#addressInput").value=state.archivePath;
+          render();
+          updateStatus(`Opened ${state.archiveName}`);
+          soundSuccess();
+        }
+        break;
+      }
+
+      case "closeArchive":{
+        state.selected.clear();
+        updateStatus("Archive closed");
+        await showDialog({title:"WinRAR",message:"The archive has been closed in this simulation.",icon:"information"});
+        break;
+      }
+
+      case "repair":{
+        const ok=await progressDialog("Repairing archive",`Scanning ${state.archiveName} for recoverable data...`,1150);
+        if(ok){
+          soundSuccess();
+          await showDialog({title:"Repair archive",message:"Archive scan completed. No repair was necessary.",icon:"information"});
+        }
+        break;
+      }
+
+      case "benchmark":{
+        const ok=await progressDialog("WinRAR benchmark","Running simulated compression benchmark...",1300);
+        if(ok){
+          await showDialog({title:"Benchmark results",message:"Processed: 32 MB\nSpeed: 1,824 KB/s\nRating: 1,797 KB/s\n\n(Simulated result)",icon:"information"});
+        }
+        break;
+      }
+
+      case "addFavorite":
+        if(!state.favorites.includes(state.archivePath)) state.favorites.push(state.archivePath);
+        updateStatus("Archive added to favorites");
+        soundSuccess();
+        break;
+
+      case "showFavorites":
+        await showDialog({
+          title:"Favorites",
+          message:state.favorites.length?state.favorites.join("\n"):"There are no favorite archives.",
+          icon:"information"
+        });
+        break;
+
+      case "settings":
+        await showDialog({
+          title:"Settings",
+          message:"This standalone iframe version uses classic Windows XP-compatible appearance and synthetic Web Audio sounds.",
+          icon:"information"
+        });
+        break;
+
+      case "saveSettings":
+        localStorage.setItem("xpWinrarSettings",JSON.stringify({favorites:state.favorites}));
+        updateStatus("Settings saved");
+        soundSuccess();
+        break;
+
+      case "help":
+        await showDialog({
+          title:"WinRAR Help",
+          message:"Select files in the archive list, then use the toolbar or menus.\n\nYou can also drag files from your computer into this application to add simulated archive entries.",
+          icon:"information"
+        });
+        break;
+
+      case "about":
+        await showDialog({
+          title:"About WinRAR",
+          message:"WinRAR 3.x inspired XP simulation\n\nIndependent iframe application page\nHTML + CSS + JavaScript\nSynthetic audio via Web Audio API",
+          icon:"information"
+        });
+        break;
+    }
+  }
+
+  // Menus
+  $$("[data-menu]").forEach(menu=>{
+    menu.addEventListener("mousedown",e=>{
+      if(e.target.closest(".menu-popup")) return;
+      e.preventDefault();
+      const wasOpen=menu.classList.contains("open");
+      closeMenus();
+      if(!wasOpen) menu.classList.add("open");
+    });
+  });
+
+  document.addEventListener("mousedown",e=>{
+    if(!e.target.closest("[data-menu]")) closeMenus();
+    if(!e.target.closest("#contextMenu") && !e.target.closest(".file-row")) $("#contextMenu").classList.remove("show");
+  });
+
+  document.addEventListener("click",e=>{
+    const el=e.target.closest("[data-action]");
+    if(el) action(el.dataset.action);
+  });
+
+  // Selection
+  $("#fileBody").addEventListener("click",e=>{
+    const row=e.target.closest(".file-row");
+    if(!row) return;
+    const idx=Number(row.dataset.index);
+    setSelected(idx,e.ctrlKey);
+  });
+
+  $("#fileBody").addEventListener("dblclick",e=>{
+    const row=e.target.closest(".file-row");
+    if(!row) return;
+    const idx=Number(row.dataset.index);
+    const f=state.files[idx];
+    if(f?.parent){
+      updateStatus("Already at archive root");
+      return;
+    }
+    state.selected.clear();
+    state.selected.add(idx);
+    render();
+    action("viewFile");
+  });
+
+  $("#fileBody").addEventListener("contextmenu",e=>{
+    const row=e.target.closest(".file-row");
+    if(!row) return;
+    e.preventDefault();
+    const idx=Number(row.dataset.index);
+    if(!state.selected.has(idx)) setSelected(idx,false);
+    const menu=$("#contextMenu");
+    const rect=$("#workspace").getBoundingClientRect();
+    let x=e.clientX-rect.left, y=e.clientY-rect.top;
+    menu.classList.add("show");
+    const mw=menu.offsetWidth,mh=menu.offsetHeight;
+    x=Math.max(0,Math.min(x,rect.width-mw-3));
+    y=Math.max(0,Math.min(y,rect.height-mh-3));
+    menu.style.left=x+"px";
+    menu.style.top=y+"px";
+  });
+
+  // Sorting
+  $$(".file-list th[data-sort]").forEach(th=>{
+    th.addEventListener("click",()=>{
+      const key=th.dataset.sort;
+      if(state.sortKey===key) state.sortDir*=-1;
+      else{ state.sortKey=key; state.sortDir=1; }
+      render();
+    });
+  });
+
+  // Address
+  function goAddress(){
+    const val=$("#addressInput").value.trim();
+    if(!val) return;
+    state.archivePath=val;
+    state.archiveName=val.split(/[\\/]/).pop() || "archive.rar";
+    render();
+    updateStatus(`Address: ${val}`);
+    soundClick();
+  }
+  $("#goButton").addEventListener("click",goAddress);
+  $("#addressInput").addEventListener("keydown",e=>{
+    if(e.key==="Enter") goAddress();
+  });
+  $("#upButton").addEventListener("click",()=>{
+    updateStatus("Already at the root of this archive");
+    soundClick();
+  });
+
+  // Drag & drop
+  let dragDepth=0;
+  document.addEventListener("dragenter",e=>{
+    if([...e.dataTransfer.types].includes("Files")){
+      dragDepth++;
+      $("#dragHint").classList.add("show");
+    }
+  });
+  document.addEventListener("dragleave",()=>{
+    dragDepth--;
+    if(dragDepth<=0){ dragDepth=0; $("#dragHint").classList.remove("show"); }
+  });
+  document.addEventListener("dragover",e=>{
+    if([...e.dataTransfer.types].includes("Files")) e.preventDefault();
+  });
+  document.addEventListener("drop",e=>{
+    if([...e.dataTransfer.types].includes("Files")){
+      e.preventDefault();
+      dragDepth=0;
+      $("#dragHint").classList.remove("show");
+      addBrowserFiles(e.dataTransfer.files);
+    }
+  });
+
+  // Keyboard shortcuts
+  document.addEventListener("keydown",e=>{
+    if($("#dialogOverlay").classList.contains("show")) return;
+    if(e.key==="Delete"){ e.preventDefault(); action("deleteSelected"); }
+    else if(e.key==="Enter" && state.selected.size===1){ e.preventDefault(); action("viewFile"); }
+    else if(e.ctrlKey && e.key.toLowerCase()==="a"){
+      e.preventDefault();
+      state.selected.clear();
+      state.files.forEach((f,i)=>{if(!f.parent) state.selected.add(i);});
+      render();
+    }
+    else if(e.ctrlKey && e.key.toLowerCase()==="n"){ e.preventDefault(); action("newArchive"); }
+    else if(e.ctrlKey && e.key.toLowerCase()==="o"){ e.preventDefault(); action("openArchive"); }
+    else if(e.altKey && e.key.toLowerCase()==="a"){ e.preventDefault(); action("addFiles"); }
+    else if(e.altKey && e.key.toLowerCase()==="e"){ e.preventDefault(); action("extract"); }
+    else if(e.key==="Escape"){ clearSelection(); closeMenus(); }
+  });
+
+  // Restore tiny settings
+  try{
+    const saved=JSON.parse(localStorage.getItem("xpWinrarSettings")||"{}");
+    if(Array.isArray(saved.favorites)) state.favorites=saved.favorites;
+  }catch(_){}
+
+  render();
+})();
+</script>
+</body>
+</html>

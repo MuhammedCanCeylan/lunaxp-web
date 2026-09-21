@@ -1,0 +1,722 @@
+<!--
+WINDOWS XP REMOTE DESKTOP CONNECTION (MSTSC) - ASSET LISTESI
+
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama |
+|------------|----------------------|------------|----------------------------------------------|
+| icon.png   | 32x32                | Zorunlu    | XP masaustu / Sistem Araclari ikonu          |
+
+NOTLAR:
+- Bu uygulama gerçek TCP/RDP oturumu açmaz; browser güvenlik modeli doğrudan RDP soketine izin vermez.
+- Gerçek web-RDP çözümleri (ör. Guacamole / FreeRDP-WebConnect) ayrı sunucu/gateway/daemon gerektirir.
+- Bu sürüm Windows XP mstsc arayüzünü, .rdp içe/dışa aktarmayı ve bağlantı akışını yerel olarak simüle eder.
+- Parola localStorage'a veya .rdp dosyasına kaydedilmez.
+- alert(), confirm(), prompt() kullanılmaz.
+- Dış XP Luna başlık çubuğu ve görev çubuğu ana WindowManager tarafından sağlanır; burada tekrar çizilmez.
+-->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Uzak Masaüstü Bağlantısı</title>
+<style>
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden}
+body{font:11px Tahoma,Arial,sans-serif;color:#000;background:#ECE9D8}
+button,input,select{font:11px Tahoma,Arial,sans-serif}
+button{cursor:default}
+.app{width:100%;height:100%;background:#ECE9D8;display:flex;flex-direction:column;min-width:430px;min-height:275px}
+
+.hero{
+  height:74px;flex:0 0 74px;position:relative;overflow:hidden;
+  border-bottom:1px solid #9c9a8f;
+  background:linear-gradient(110deg,#f7f7f7 0%,#f7f7f7 48%,#dfeaf5 100%)
+}
+.hero h1{position:absolute;left:20px;top:13px;margin:0;font-size:20px;font-weight:normal;color:#194f83}
+.hero p{position:absolute;left:21px;top:39px;margin:0;color:#555}
+.heroArt{position:absolute;right:16px;top:7px;width:100px;height:60px}
+.screen{
+  position:absolute;width:48px;height:36px;border:2px solid #4f5e69;background:#6fa4d0;
+  box-shadow:inset 0 0 0 2px #dceef7
+}
+.screen.a{left:2px;top:2px}.screen.b{right:0;bottom:1px}
+.screen:after{content:"";position:absolute;left:16px;bottom:-8px;width:13px;height:6px;background:#69747d}
+.arrow{
+  position:absolute;left:40px;top:23px;width:24px;height:9px;background:#3f78af;
+}
+.arrow:after{
+  content:"";position:absolute;right:-8px;top:-4px;
+  border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:10px solid #3f78af
+}
+
+.main{flex:1;min-height:0;padding:9px 12px 8px;display:flex;flex-direction:column;gap:8px}
+.quick{
+  display:grid;grid-template-columns:86px minmax(120px,1fr);gap:7px 8px;align-items:center
+}
+.textbox,.selectbox{
+  width:100%;height:24px;padding:2px 4px;background:#fff;border:2px inset #fff;color:#000
+}
+.passwordWrap{position:relative}
+.passwordWrap input{padding-right:65px}
+.passHint{position:absolute;right:5px;top:5px;color:#777;font-size:10px}
+
+.optionsArea{display:none;flex:1;min-height:0;border-top:1px solid #aca899;padding-top:8px}
+.optionsArea.show{display:flex;flex-direction:column}
+.tabs{
+  display:flex;gap:1px;height:24px;align-items:end;padding-left:2px;flex:0 0 24px
+}
+.tab{
+  height:23px;padding:2px 11px;border:1px solid #aca899;border-bottom:0;
+  border-radius:3px 3px 0 0;background:#d4d0c8;color:#000
+}
+.tab.active{height:24px;background:#ECE9D8;position:relative;z-index:2;font-weight:bold}
+.tabpage{
+  flex:1;min-height:0;display:none;overflow:auto;
+  border:1px solid #aca899;background:#ECE9D8;padding:11px 12px
+}
+.tabpage.active{display:block}
+.group{border:1px solid #aca899;padding:10px 10px 9px;margin-bottom:10px;position:relative}
+.groupTitle{
+  position:absolute;left:8px;top:-7px;padding:0 4px;background:#ECE9D8
+}
+.row{display:grid;grid-template-columns:145px minmax(0,1fr);gap:8px;align-items:center;margin:7px 0}
+.check{display:flex;align-items:center;gap:6px;margin:6px 0}
+.hint{font-size:10px;color:#666;line-height:1.45}
+.sliderRow{display:grid;grid-template-columns:70px 1fr 70px;gap:8px;align-items:center}
+input[type=range]{width:100%}
+
+.actions{
+  flex:0 0 auto;display:flex;justify-content:flex-end;align-items:center;gap:7px;
+  padding-top:2px
+}
+.xpbtn{
+  min-width:78px;height:26px;padding:1px 10px;background:#ECE9D8;border:2px outset #fff;color:#000
+}
+.xpbtn:active:not(:disabled){border-style:inset}
+.xpbtn:disabled{color:#888;text-shadow:1px 1px #fff}
+.xpbtn.primary{outline:1px solid #000;outline-offset:-4px}
+.leftPush{margin-right:auto}
+
+/* Connection view */
+.session{
+  display:none;position:absolute;inset:0;z-index:100;background:#0b2d50;color:#fff;
+  font-family:Tahoma,Arial,sans-serif
+}
+.session.show{display:flex;flex-direction:column}
+.sessionbar{
+  height:31px;flex:0 0 31px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 8px;background:#d4d0c8;color:#000;border-bottom:1px solid #808080
+}
+.sessionbar b{font-weight:bold}
+.sessionbar .controls{display:flex;gap:5px}
+.sessionbar button{height:22px;min-width:72px;background:#ECE9D8;border:2px outset #fff}
+.remoteSurface{
+  flex:1;min-height:0;position:relative;overflow:hidden;
+  background:
+    radial-gradient(circle at 70% 25%,rgba(255,255,255,.15),transparent 24%),
+    linear-gradient(145deg,#163f73,#0c2850 58%,#061b38);
+}
+.remoteGrid{
+  position:absolute;inset:0;opacity:.10;
+  background:
+    linear-gradient(rgba(255,255,255,.18) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.18) 1px,transparent 1px);
+  background-size:32px 32px
+}
+.remoteCenter{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(540px,80%);text-align:center
+}
+.remoteIcon{
+  width:78px;height:57px;margin:0 auto 16px;border:2px solid #b7d4ec;background:#3b78ad;
+  box-shadow:0 0 0 3px #1c4f7b,inset 0 0 0 2px #d9edf8;position:relative
+}
+.remoteIcon:after{content:"";position:absolute;left:27px;bottom:-15px;width:22px;height:12px;background:#b3bdc4}
+.remoteCenter h2{margin:0 0 7px;font-size:22px;font-weight:normal;text-shadow:1px 1px 2px #000}
+.remoteCenter p{margin:4px 0;color:#c8d9e9}
+.remoteStatus{
+  margin:17px auto 0;width:min(360px,90%);height:18px;padding:2px;border:2px inset #fff;background:#d4d0c8
+}
+.remoteStatus i{display:block;height:100%;width:0;background:#316ac5}
+.remoteFooter{
+  position:absolute;left:12px;right:12px;bottom:10px;color:#b8cee3;font-size:10px;text-align:center
+}
+.connectStage{font-weight:bold;color:#fff}
+
+/* Dialog */
+.shade{
+  display:none;position:absolute;inset:0;z-index:180;background:rgba(0,0,0,.20);
+  align-items:center;justify-content:center;padding:18px
+}
+.shade.show{display:flex}
+.xp-dialog{
+  width:min(470px,92vw);max-height:88%;display:flex;flex-direction:column;
+  background:#ECE9D8;color:#000;border:2px outset #fff;box-shadow:4px 5px 14px rgba(0,0,0,.45)
+}
+.dtitle{
+  min-height:25px;display:flex;align-items:center;justify-content:space-between;
+  padding:2px 3px 2px 7px;background:linear-gradient(90deg,#0a246a,#3a6ea5);
+  color:#fff;font-weight:bold
+}
+.dx{width:21px;height:20px;padding:0;color:#fff;background:#d8503c;border:2px outset #fff;font-weight:bold}
+.dbody{padding:13px;overflow:auto;line-height:1.45}
+.dactions{display:flex;justify-content:flex-end;gap:7px;padding:0 12px 11px}
+.dactions button{min-width:82px;height:25px;background:#ECE9D8;border:2px outset #fff}
+.msg{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start}
+.infoicon{
+  width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  color:#fff;background:#316ac5;border:1px solid #174b9e;font:bold 23px Georgia,serif
+}
+.warnicon{
+  width:32px;height:32px;clip-path:polygon(50% 0,100% 100%,0 100%);background:#f2cd3a;
+  position:relative
+}
+.warnicon:after{content:"!";position:absolute;left:12px;top:8px;font:bold 19px Arial;color:#333}
+
+@media(max-width:650px){
+  .hero{height:64px;flex-basis:64px}.heroArt{display:none}
+  .row{grid-template-columns:115px 1fr}
+  .tab{padding:2px 6px;font-size:10px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hero">
+    <h1>Uzak Masaüstü Bağlantısı</h1>
+    <p>Başka bir Windows bilgisayarına bağlanın.</p>
+    <div class="heroArt">
+      <div class="screen a"></div><div class="arrow"></div><div class="screen b"></div>
+    </div>
+  </div>
+
+  <main class="main">
+    <div class="quick">
+      <label for="computer">Bilgisayar:</label>
+      <input class="textbox" id="computer" list="recentHosts" placeholder="Bilgisayar adı veya IP adresi">
+      <datalist id="recentHosts"></datalist>
+
+      <label for="username">Kullanıcı adı:</label>
+      <input class="textbox" id="username" autocomplete="username" placeholder="Kullanıcı adı">
+
+      <label for="password">Parola:</label>
+      <div class="passwordWrap">
+        <input class="textbox" id="password" type="password" autocomplete="current-password">
+        <span class="passHint">kaydedilmez</span>
+      </div>
+    </div>
+
+    <div class="optionsArea" id="optionsArea">
+      <div class="tabs">
+        <button class="tab active" data-tab="general" type="button">Genel</button>
+        <button class="tab" data-tab="display" type="button">Görüntü</button>
+        <button class="tab" data-tab="local" type="button">Yerel Kaynaklar</button>
+        <button class="tab" data-tab="programs" type="button">Programlar</button>
+        <button class="tab" data-tab="experience" type="button">Deneyim</button>
+        <button class="tab" data-tab="advanced" type="button">Gelişmiş</button>
+      </div>
+
+      <section class="tabpage active" id="tab-general">
+        <div class="group">
+          <span class="groupTitle">Oturum açma ayarları</span>
+          <div class="hint">Bağlanmak istediğiniz uzak bilgisayarın adını ve kullanıcı adını girin.</div>
+          <div class="row"><label>Bilgisayar:</label><input class="textbox mirrorComputer"></div>
+          <div class="row"><label>Kullanıcı adı:</label><input class="textbox mirrorUsername"></div>
+          <label class="check"><input id="alwaysAsk" type="checkbox" checked> Her zaman kimlik bilgilerini sor</label>
+        </div>
+        <div class="group">
+          <span class="groupTitle">Bağlantı ayarları</span>
+          <div class="hint">Geçerli ayarları bir Uzak Masaüstü bağlantı dosyası (.rdp) olarak kaydedebilir veya önceden kaydedilmiş bir dosyayı açabilirsiniz.</div>
+          <div style="margin-top:9px;display:flex;gap:7px">
+            <button class="xpbtn" id="openRdp" type="button">Aç...</button>
+            <button class="xpbtn" id="saveRdp" type="button">Farklı Kaydet...</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="tabpage" id="tab-display">
+        <div class="group">
+          <span class="groupTitle">Uzak masaüstü boyutu</span>
+          <div class="sliderRow">
+            <span>Küçük</span>
+            <input id="sizeSlider" type="range" min="0" max="4" step="1" value="2">
+            <span>Tam Ekran</span>
+          </div>
+          <div class="hint" style="text-align:center;margin-top:5px" id="sizeLabel">1024 × 768</div>
+          <label class="check"><input id="connectionBar" type="checkbox" checked> Tam ekran modunda bağlantı çubuğunu göster</label>
+        </div>
+        <div class="group">
+          <span class="groupTitle">Renkler</span>
+          <div class="row"><label>Renkler:</label>
+            <select class="selectbox" id="colors">
+              <option value="15">Yüksek Renk (15 bit)</option>
+              <option value="16">Yüksek Renk (16 bit)</option>
+              <option value="24" selected>Gerçek Renk (24 bit)</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="tabpage" id="tab-local">
+        <div class="group">
+          <span class="groupTitle">Uzak bilgisayar sesi</span>
+          <div class="row"><label>Uzak bilgisayar sesi:</label>
+            <select class="selectbox" id="audioMode">
+              <option value="0">Bu bilgisayara getir</option>
+              <option value="1">Uzak bilgisayarda bırak</option>
+              <option value="2">Yürütme</option>
+            </select>
+          </div>
+        </div>
+        <div class="group">
+          <span class="groupTitle">Klavye</span>
+          <div class="row"><label>Windows tuş birleşimleri:</label>
+            <select class="selectbox" id="keyboardMode">
+              <option value="2">Yalnızca tam ekran kullanırken</option>
+              <option value="1">Uzak bilgisayarda</option>
+              <option value="0">Bu bilgisayarda</option>
+            </select>
+          </div>
+        </div>
+        <div class="group">
+          <span class="groupTitle">Yerel aygıtlar ve kaynaklar</span>
+          <label class="check"><input id="printers" type="checkbox" checked> Yazıcılar</label>
+          <label class="check"><input id="clipboard" type="checkbox" checked> Pano</label>
+          <label class="check"><input id="drives" type="checkbox"> Disk sürücüleri</label>
+          <label class="check"><input id="smartcards" type="checkbox"> Akıllı kartlar</label>
+        </div>
+      </section>
+
+      <section class="tabpage" id="tab-programs">
+        <div class="group">
+          <span class="groupTitle">Program başlat</span>
+          <label class="check"><input id="startProgramEnabled" type="checkbox"> Bağlantıda aşağıdaki programı başlat</label>
+          <div class="row"><label>Program yolu:</label><input class="textbox" id="programPath" placeholder="C:\Program Files\..."></div>
+          <div class="row"><label>Başlangıç klasörü:</label><input class="textbox" id="programFolder"></div>
+        </div>
+      </section>
+
+      <section class="tabpage" id="tab-experience">
+        <div class="group">
+          <span class="groupTitle">Bağlantı hızınıza uygun performansı seçin</span>
+          <div class="row"><label>Bağlantı hızı:</label>
+            <select class="selectbox" id="speed">
+              <option>Modem (56 Kb/sn)</option>
+              <option>Geniş bant (128 Kb/sn - 1,5 Mb/sn)</option>
+              <option selected>LAN (10 Mb/sn veya daha hızlı)</option>
+            </select>
+          </div>
+          <label class="check"><input id="wallpaper" type="checkbox" checked> Masaüstü arka planı</label>
+          <label class="check"><input id="dragContents" type="checkbox" checked> Sürüklerken pencere içeriğini göster</label>
+          <label class="check"><input id="menuAnim" type="checkbox" checked> Menü ve pencere animasyonu</label>
+          <label class="check"><input id="themes" type="checkbox" checked> Temalar</label>
+          <label class="check"><input id="bitmapCache" type="checkbox" checked> Kalıcı bitmap önbelleğe alma</label>
+        </div>
+      </section>
+
+      <section class="tabpage" id="tab-advanced">
+        <div class="group">
+          <span class="groupTitle">Sunucu kimlik doğrulaması</span>
+          <div class="row"><label>Kimlik doğrulaması başarısızsa:</label>
+            <select class="selectbox" id="authLevel">
+              <option value="0">Bağlan ve beni uyarma</option>
+              <option value="1" selected">Beni uyar</option>
+              <option value="2">Bağlanma</option>
+            </select>
+          </div>
+          <div class="hint">Bu ayar .rdp dosyasında authentication level olarak saklanabilir.</div>
+        </div>
+        <div class="group">
+          <span class="groupTitle">Ağ geçidi</span>
+          <div class="row"><label>RD Gateway:</label><input class="textbox" id="gateway" placeholder="(kullanma)"></div>
+          <div class="hint">Bu web simülatörü gerçek ağ geçidi bağlantısı kurmaz; ayar yalnızca .rdp dosyasına yazılır.</div>
+        </div>
+      </section>
+    </div>
+
+    <div class="actions">
+      <button class="xpbtn leftPush" id="helpBtn" type="button">Yardım</button>
+      <button class="xpbtn" id="optionsBtn" type="button">Seçenekler &gt;&gt;</button>
+      <button class="xpbtn primary" id="connectBtn" type="button">Bağlan</button>
+      <button class="xpbtn" id="cancelBtn" type="button">İptal</button>
+    </div>
+  </main>
+
+  <input id="rdpInput" type="file" accept=".rdp,text/plain" hidden>
+
+  <div class="session" id="session">
+    <div class="sessionbar">
+      <div><b>Uzak Masaüstü</b> — <span id="sessionHost"></span></div>
+      <div class="controls">
+        <button id="securityBtn" type="button">Ctrl+Alt+End</button>
+        <button id="disconnectBtn" type="button">Bağlantıyı Kes</button>
+      </div>
+    </div>
+    <div class="remoteSurface">
+      <div class="remoteGrid"></div>
+      <div class="remoteCenter">
+        <div class="remoteIcon"></div>
+        <h2 id="remoteTitle">Bağlanıyor...</h2>
+        <p class="connectStage" id="remoteStage">Uzak bilgisayar bulunuyor...</p>
+        <p id="remoteUser"></p>
+        <div class="remoteStatus"><i id="remoteProgress"></i></div>
+      </div>
+      <div class="remoteFooter" id="remoteFooter">Bu, yerel XP simülasyonudur; gerçek RDP trafiği oluşturulmaz.</div>
+    </div>
+  </div>
+
+  <div class="shade" id="shade">
+    <div class="xp-dialog">
+      <div class="dtitle"><span id="dtitle">Uzak Masaüstü Bağlantısı</span><button class="dx" id="dx" type="button">×</button></div>
+      <div class="dbody" id="dbody"></div>
+      <div class="dactions" id="dactions"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(()=>{
+'use strict';
+
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+const STORE='xp_mstsc_sim_v2';
+
+const resolutions=[
+  {w:640,h:480,label:'640 × 480'},
+  {w:800,h:600,label:'800 × 600'},
+  {w:1024,h:768,label:'1024 × 768'},
+  {w:1280,h:1024,label:'1280 × 1024'},
+  {w:0,h:0,label:'Tam Ekran'}
+];
+
+const defaults={
+  computer:'',
+  username:'',
+  size:2,
+  colors:24,
+  connectionBar:true,
+  audioMode:0,
+  keyboardMode:2,
+  printers:true,
+  clipboard:true,
+  drives:false,
+  smartcards:false,
+  startProgramEnabled:false,
+  programPath:'',
+  programFolder:'',
+  speed:'LAN (10 Mb/sn veya daha hızlı)',
+  wallpaper:true,
+  dragContents:true,
+  menuAnim:true,
+  themes:true,
+  bitmapCache:true,
+  authLevel:1,
+  gateway:'',
+  alwaysAsk:true,
+  recent:[]
+};
+
+function load(){
+  try{return Object.assign(structuredClone(defaults),JSON.parse(localStorage.getItem(STORE)||'{}'))}
+  catch{return structuredClone(defaults)}
+}
+let state=load();
+let optionsOpen=false;
+let currentTab='general';
+let connectToken=0;
+
+function save(){
+  // Never persist password.
+  state.computer=$('#computer').value.trim();
+  state.username=$('#username').value.trim();
+  state.size=Number($('#sizeSlider').value);
+  state.colors=Number($('#colors').value);
+  state.connectionBar=$('#connectionBar').checked;
+  state.audioMode=Number($('#audioMode').value);
+  state.keyboardMode=Number($('#keyboardMode').value);
+  state.printers=$('#printers').checked;
+  state.clipboard=$('#clipboard').checked;
+  state.drives=$('#drives').checked;
+  state.smartcards=$('#smartcards').checked;
+  state.startProgramEnabled=$('#startProgramEnabled').checked;
+  state.programPath=$('#programPath').value;
+  state.programFolder=$('#programFolder').value;
+  state.speed=$('#speed').value;
+  state.wallpaper=$('#wallpaper').checked;
+  state.dragContents=$('#dragContents').checked;
+  state.menuAnim=$('#menuAnim').checked;
+  state.themes=$('#themes').checked;
+  state.bitmapCache=$('#bitmapCache').checked;
+  state.authLevel=Number($('#authLevel').value);
+  state.gateway=$('#gateway').value.trim();
+  state.alwaysAsk=$('#alwaysAsk').checked;
+  try{localStorage.setItem(STORE,JSON.stringify(state))}catch{}
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+function syncMirrors(){
+  $$('.mirrorComputer').forEach(x=>x.value=$('#computer').value);
+  $$('.mirrorUsername').forEach(x=>x.value=$('#username').value);
+}
+function renderState(){
+  $('#computer').value=state.computer||'';
+  $('#username').value=state.username||'';
+  $('#password').value='';
+  $('#sizeSlider').value=state.size;
+  $('#colors').value=String(state.colors);
+  $('#connectionBar').checked=state.connectionBar;
+  $('#audioMode').value=String(state.audioMode);
+  $('#keyboardMode').value=String(state.keyboardMode);
+  $('#printers').checked=state.printers;
+  $('#clipboard').checked=state.clipboard;
+  $('#drives').checked=state.drives;
+  $('#smartcards').checked=state.smartcards;
+  $('#startProgramEnabled').checked=state.startProgramEnabled;
+  $('#programPath').value=state.programPath;
+  $('#programFolder').value=state.programFolder;
+  $('#speed').value=state.speed;
+  $('#wallpaper').checked=state.wallpaper;
+  $('#dragContents').checked=state.dragContents;
+  $('#menuAnim').checked=state.menuAnim;
+  $('#themes').checked=state.themes;
+  $('#bitmapCache').checked=state.bitmapCache;
+  $('#authLevel').value=String(state.authLevel);
+  $('#gateway').value=state.gateway||'';
+  $('#alwaysAsk').checked=state.alwaysAsk;
+  $('#sizeLabel').textContent=resolutions[state.size].label;
+  $('#recentHosts').innerHTML=(state.recent||[]).map(h=>`<option value="${escapeHtml(h)}"></option>`).join('');
+  syncMirrors();
+}
+renderState();
+
+$('#computer').addEventListener('input',syncMirrors);
+$('#username').addEventListener('input',syncMirrors);
+$$('.mirrorComputer').forEach(x=>x.addEventListener('input',()=>{$('#computer').value=x.value;syncMirrors()}));
+$$('.mirrorUsername').forEach(x=>x.addEventListener('input',()=>{$('#username').value=x.value;syncMirrors()}));
+
+/* options */
+$('#optionsBtn').onclick=()=>{
+  optionsOpen=!optionsOpen;
+  $('#optionsArea').classList.toggle('show',optionsOpen);
+  $('#optionsBtn').textContent=optionsOpen?'Seçenekler <<':'Seçenekler >>';
+};
+$$('[data-tab]').forEach(b=>b.onclick=()=>{
+  currentTab=b.dataset.tab;
+  $$('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===currentTab));
+  $$('.tabpage').forEach(x=>x.classList.toggle('active',x.id==='tab-'+currentTab));
+});
+$('#sizeSlider').oninput=()=>$('#sizeLabel').textContent=resolutions[Number($('#sizeSlider').value)].label;
+
+/* dialog */
+const shade=$('#shade');
+function showDialog(title,html,buttons){
+  $('#dtitle').textContent=title;$('#dbody').innerHTML=html;$('#dactions').innerHTML='';
+  (buttons||[{label:'Tamam',action:hideDialog}]).forEach(b=>{
+    const x=document.createElement('button');x.type='button';x.textContent=b.label;x.onclick=b.action||hideDialog;
+    $('#dactions').appendChild(x);
+  });
+  shade.classList.add('show');
+}
+function hideDialog(){shade.classList.remove('show')}
+$('#dx').onclick=hideDialog;
+shade.addEventListener('mousedown',e=>{if(e.target===shade)hideDialog()});
+function info(msg,title='Uzak Masaüstü Bağlantısı'){
+  showDialog(title,`<div class="msg"><div class="infoicon">i</div><div>${escapeHtml(msg)}</div></div>`);
+}
+function warn(msg,title='Uzak Masaüstü Bağlantısı'){
+  showDialog(title,`<div class="msg"><div class="warnicon"></div><div>${escapeHtml(msg)}</div></div>`);
+}
+
+/* .RDP export/import */
+function bool(v){return v?1:0}
+function toRdp(){
+  save();
+  const r=resolutions[state.size];
+  const lines=[
+    `screen mode id:i:${state.size===4?2:1}`,
+    `use multimon:i:0`,
+    `desktopwidth:i:${r.w||1024}`,
+    `desktopheight:i:${r.h||768}`,
+    `session bpp:i:${state.colors}`,
+    `full address:s:${state.computer}`,
+    `username:s:${state.username}`,
+    `audiomode:i:${state.audioMode}`,
+    `keyboardhook:i:${state.keyboardMode}`,
+    `redirectprinters:i:${bool(state.printers)}`,
+    `redirectclipboard:i:${bool(state.clipboard)}`,
+    `drivestoredirect:s:${state.drives?'*':''}`,
+    `redirectsmartcards:i:${bool(state.smartcards)}`,
+    `displayconnectionbar:i:${bool(state.connectionBar)}`,
+    `disable wallpaper:i:${bool(!state.wallpaper)}`,
+    `disable full window drag:i:${bool(!state.dragContents)}`,
+    `disable menu anims:i:${bool(!state.menuAnim)}`,
+    `disable themes:i:${bool(!state.themes)}`,
+    `bitmapcachepersistenable:i:${bool(state.bitmapCache)}`,
+    `authentication level:i:${state.authLevel}`,
+    `gatewayhostname:s:${state.gateway}`,
+    `alternate shell:s:${state.startProgramEnabled?state.programPath:''}`,
+    `shell working directory:s:${state.startProgramEnabled?state.programFolder:''}`
+  ];
+  return lines.join('\r\n')+'\r\n';
+}
+function downloadRdp(){
+  const data=toRdp();
+  const blob=new Blob([data],{type:'application/rdp'});
+  const host=(state.computer||'Bağlantı').replace(/[^\w.-]+/g,'_');
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=host+'.rdp';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+$('#saveRdp').onclick=downloadRdp;
+$('#openRdp').onclick=()=>$('#rdpInput').click();
+
+function parseRdp(text){
+  const map={};
+  text.split(/\r?\n/).forEach(line=>{
+    const m=line.match(/^([^:]+):([sib]):(.*)$/);
+    if(m)map[m[1].trim().toLowerCase()]={type:m[2],value:m[3]};
+  });
+  const val=(k,d='')=>map[k]?map[k].value:d;
+  const num=(k,d=0)=>Number(val(k,d))||0;
+  const on=k=>num(k,0)===1;
+
+  state.computer=val('full address',state.computer);
+  state.username=val('username',state.username);
+  state.colors=num('session bpp',state.colors)||state.colors;
+  state.connectionBar=on('displayconnectionbar');
+  state.audioMode=num('audiomode',state.audioMode);
+  state.keyboardMode=num('keyboardhook',state.keyboardMode);
+  state.printers=on('redirectprinters');
+  state.clipboard=on('redirectclipboard');
+  state.drives=val('drivestoredirect','')!=='';
+  state.smartcards=on('redirectsmartcards');
+  state.wallpaper=!on('disable wallpaper');
+  state.dragContents=!on('disable full window drag');
+  state.menuAnim=!on('disable menu anims');
+  state.themes=!on('disable themes');
+  state.bitmapCache=on('bitmapcachepersistenable');
+  state.authLevel=num('authentication level',state.authLevel);
+  state.gateway=val('gatewayhostname',state.gateway);
+  state.programPath=val('alternate shell','');
+  state.programFolder=val('shell working directory','');
+  state.startProgramEnabled=!!state.programPath;
+
+  const mode=num('screen mode id',1);
+  const w=num('desktopwidth',1024),h=num('desktopheight',768);
+  if(mode===2)state.size=4;
+  else{
+    let best=0,score=Infinity;
+    resolutions.slice(0,4).forEach((r,i)=>{
+      const s=Math.abs(r.w-w)+Math.abs(r.h-h);
+      if(s<score){score=s;best=i}
+    });
+    state.size=best;
+  }
+  save();
+  renderState();
+}
+$('#rdpInput').addEventListener('change',async()=>{
+  const f=$('#rdpInput').files[0];if(!f)return;
+  try{
+    const text=await f.text();parseRdp(text);info('Bağlantı ayarları .rdp dosyasından yüklendi.');
+  }catch{warn('.rdp dosyası okunamadı.')}
+  $('#rdpInput').value='';
+});
+
+/* Connect flow */
+async function connect(){
+  save();
+  const host=state.computer.trim();
+  if(!host){
+    warn('Bağlanmak istediğiniz bilgisayarın adını veya IP adresini yazın.');
+    $('#computer').focus();
+    return;
+  }
+
+  if(!state.recent.includes(host)){
+    state.recent.unshift(host);state.recent=state.recent.slice(0,8);save();renderState();
+  }
+
+  const token=++connectToken;
+  $('#session').classList.add('show');
+  $('#sessionHost').textContent=host;
+  $('#remoteUser').textContent=state.username?('Kullanıcı: '+state.username):'Kimlik bilgileri bağlantı sırasında sorulacak';
+  $('#remoteTitle').textContent='Bağlanıyor...';
+  $('#remoteProgress').style.width='0%';
+
+  const stages=[
+    ['Uzak bilgisayar bulunuyor...',18,500],
+    ['Bağlantı güvenliği görüşülüyor...',38,650],
+    ['Kimlik bilgileri hazırlanıyor...',58,650],
+    ['Uzak oturum yapılandırılıyor...',79,700],
+    ['Görüntü ayarları uygulanıyor...',94,550]
+  ];
+
+  for(const [txt,p,ms] of stages){
+    if(token!==connectToken)return;
+    $('#remoteStage').textContent=txt;
+    $('#remoteProgress').style.width=p+'%';
+    await new Promise(r=>setTimeout(r,ms));
+  }
+  if(token!==connectToken)return;
+
+  $('#remoteProgress').style.width='100%';
+  $('#remoteTitle').textContent='Uzak oturum hazır';
+  $('#remoteStage').textContent=host+' ile bağlantı simülasyonu tamamlandı.';
+  $('#remoteFooter').textContent=`${resolutions[state.size].label} • ${state.colors}-bit renk • ${state.clipboard?'Pano açık':'Pano kapalı'} • Bu oturum gerçek RDP trafiği oluşturmaz.`;
+}
+$('#connectBtn').onclick=connect;
+$('#disconnectBtn').onclick=()=>{
+  connectToken++;
+  $('#session').classList.remove('show');
+  $('#remoteProgress').style.width='0%';
+};
+$('#securityBtn').onclick=()=>{
+  showDialog('Windows Güvenliği',`
+    <div class="msg"><div class="infoicon">i</div><div>
+      <b>Ctrl+Alt+End gönderildi.</b><br><br>
+      Gerçek RDP istemcisinde bu tuş birleşimi uzak Windows güvenlik ekranını açar.
+      Bu web sürümünde yalnızca davranış simüle edilir.
+    </div></div>
+  `);
+};
+
+$('#cancelBtn').onclick=()=>{
+  save();
+  try{window.parent.postMessage({type:'XP_APP_CLOSE_REQUEST',app:'remotedesktop'},'*')}catch{}
+};
+
+$('#helpBtn').onclick=()=>showDialog('Uzak Masaüstü Bağlantısı Yardımı',`
+  <b>Bağlanmak için</b><br>
+  Bilgisayar alanına uzak bilgisayarın adını veya IP adresini girin ve Bağlan'ı tıklayın.<br><br>
+  <b>Seçenekler</b><br>
+  Görüntü boyutu, renk derinliği, yerel kaynaklar, program başlatma ve deneyim ayarlarını yapılandırabilirsiniz.<br><br>
+  <b>.rdp dosyaları</b><br>
+  Genel sekmesindeki Aç ve Farklı Kaydet düğmeleriyle temel RDP ayarlarını içe veya dışa aktarabilirsiniz.<br><br>
+  <b>Web sınırlaması</b><br>
+  Bu uygulama gerçek RDP bağlantısı kurmaz. Tarayıcıdan gerçek RDP için ayrıca bir RDP gateway/backend gerekir.
+`);
+
+document.addEventListener('keydown',e=>{
+  if(shade.classList.contains('show')){
+    if(e.key==='Escape'){e.preventDefault();hideDialog()}
+    return;
+  }
+  if($('#session').classList.contains('show')){
+    if(e.key==='Escape'){e.preventDefault();$('#disconnectBtn').click()}
+    return;
+  }
+  if(e.key==='Enter' && document.activeElement?.tagName!=='BUTTON'){e.preventDefault();connect()}
+  if(e.key==='Escape'){e.preventDefault();$('#cancelBtn').click()}
+});
+
+/* Never use native popups */
+window.alert=m=>info(String(m));
+window.confirm=m=>{info(String(m));return false};
+window.prompt=m=>{info(String(m));return null};
+
+window.addEventListener('beforeunload',save);
+})();
+</script>
+</body>
+</html>

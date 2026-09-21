@@ -1,0 +1,1669 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Muhammed Can Ceylan - Windows XP Professional</title>
+<link rel="stylesheet" href="./css/os-base.css">
+<link rel="stylesheet" href="./css/windows.css">
+<link rel="stylesheet" href="./apps/bonzi/clippy.js/build/clippy.css">
+
+<style>
+  /* ==================== MASAÜSTÜ SEÇİM ÇERÇEVESİ ==================== */
+  #selectionBox {
+    position: absolute;
+    display: none;
+    background: rgba(49, 106, 197, 0.35);
+    border: 1px dotted #002e8a;
+    z-index: 50;
+    pointer-events: none;
+  }
+
+  /* ==================== GERÇEK WINDOWS XP LUNA SAĞ TIK MENÜSÜ ==================== */
+  .xp-menu {
+    position: fixed;
+    background: #ffffff;
+    border: 1px solid #716f64;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+    padding: 2px 1px;
+    min-width: 170px;
+    z-index: 250000;
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    color: #000000;
+    user-select: none;
+    display: none;
+  }
+
+  .xp-menu-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 6px 0 4px;
+    cursor: default;
+  }
+
+  .xp-menu-row:hover,
+  .xp-menu-row.active {
+    background: #316ac5;
+    color: #ffffff;
+  }
+
+  .xp-menu-row.disabled {
+    color: #8d8a7f;
+    pointer-events: none;
+  }
+
+  .xp-menu-icon {
+    width: 20px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-right: 6px;
+  }
+
+  .xp-menu-icon img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+  }
+
+  .xp-menu-text {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .xp-menu-arrow {
+    width: 0;
+    height: 0;
+    border-top: 3px solid transparent;
+    border-bottom: 3px solid transparent;
+    border-left: 4px solid #000000;
+    margin-left: 14px;
+    flex-shrink: 0;
+  }
+
+  .xp-menu-row:hover .xp-menu-arrow,
+  .xp-menu-row.active .xp-menu-arrow {
+    border-left-color: #ffffff;
+  }
+
+  .xp-menu-sep {
+    height: 1px;
+    background: #aca899;
+    border-bottom: 1px solid #ffffff;
+    margin: 3px 2px;
+  }
+
+  .xp-submenu {
+    position: absolute;
+    top: -3px;
+    left: 100%;
+    background: #ffffff;
+    border: 1px solid #716f64;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+    padding: 2px 1px;
+    min-width: 175px;
+    display: none;
+    z-index: 250001;
+  }
+
+  .xp-submenu.open-left {
+    left: auto;
+    right: 100%;
+  }
+
+  .xp-submenu.open-up {
+    top: auto;
+    bottom: -3px;
+  }
+
+  /* Masaüstü İsim Düzenleme (Inline Rename) */
+  .icon-rename-input {
+    width: 82px;
+    font-size: 11px;
+    font-family: Tahoma, sans-serif;
+    text-align: center;
+    border: 1px solid #000;
+    outline: none;
+    background: #fff;
+    color: #000;
+    padding: 1px 2px;
+    z-index: 10;
+  }
+
+  /* ==================== SES DENETİMİ (POPUP) ==================== */
+  #volumePopup {
+    position: absolute;
+    bottom: 32px;
+    right: 85px;
+    width: 78px;
+    height: 168px;
+    background: #ece9d8;
+    border: 2px outset #ffffff;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.5);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 4px 8px;
+    z-index: 25000;
+  }
+  .vol-range-input {
+    position: absolute;
+    width: 90px;
+    height: 28px;
+    transform: rotate(-90deg);
+    -webkit-appearance: none;
+    background: transparent;
+    cursor: pointer;
+    margin: 0;
+    outline: none;
+    z-index: 5;
+  }
+  .vol-range-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 11px;
+    height: 26px;
+    border-radius: 1px;
+    background: linear-gradient(to right, #1dbb1d 0%, #ece9d8 20%, #ffffff 50%, #b0b0b0 80%, #1dbb1d 100%);
+    border: 1px solid #000;
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+    cursor: pointer;
+  }
+
+  /* ==================== TARİH VE SAAT (TIMEDATE.CPL) ==================== */
+  #dateTimeModal {
+    position: fixed;
+    width: 420px;
+    height: 380px;
+    background: #ece9d8;
+    border: 3px solid #0055ea;
+    border-radius: 6px 6px 0 0;
+    box-shadow: 3px 5px 20px rgba(0,0,0,0.5);
+    z-index: 300000;
+    display: none;
+    flex-direction: column;
+    left: 50%;
+    top: 45%;
+    transform: translate(-50%, -50%);
+  }
+  .dt-tabs {
+    display: flex;
+    gap: 2px;
+    border-bottom: 1px solid #999;
+    padding-left: 8px;
+    background: #ece9d8;
+    padding-top: 6px;
+  }
+  .dt-tab {
+    padding: 4px 10px;
+    background: #ece9d8;
+    border: 1px solid #999;
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    font-size: 11px;
+    cursor: pointer;
+  }
+  .dt-tab.active {
+    background: #fff;
+    font-weight: bold;
+    border-bottom: 1px solid #fff;
+    margin-bottom: -1px;
+  }
+  .dt-body {
+    flex: 1;
+    padding: 12px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 11px;
+  }
+  .dt-row { display: flex; gap: 12px; }
+  .dt-group {
+    border: 1px solid #999;
+    border-radius: 4px;
+    padding: 10px;
+    flex: 1;
+    position: relative;
+  }
+  .dt-legend {
+    position: absolute;
+    top: -8px;
+    left: 8px;
+    background: #fff;
+    padding: 0 4px;
+    font-size: 11px;
+    color: #003399;
+  }
+  .dt-calendar-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    font-size: 11px;
+    margin-top: 6px;
+  }
+  .dt-calendar-table th { color: #555; padding: 2px; }
+  .dt-calendar-table td { padding: 3px; cursor: pointer; }
+  .dt-calendar-table td.today {
+    outline: 1px solid #000;
+    font-weight: bold;
+    background: #cce4f7;
+  }
+  .dt-clock-canvas {
+    width: 110px;
+    height: 110px;
+    display: block;
+    margin: 0 auto;
+  }
+  .dt-btn-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    background: #ece9d8;
+    padding: 8px 12px;
+    border-top: 1px solid #ccc;
+  }
+
+  /* ==================== BONZI & MEMZ VIRÜS MOTORU ==================== */
+  .bonzi-context-menu {
+    position: fixed;
+    background: #ece9d8;
+    border: 2px outset #fff;
+    padding: 2px;
+    min-width: 170px;
+    z-index: 200000;
+    display: none;
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.4);
+  }
+  .bonzi-context-menu.show { display: block; }
+  .bonzi-context-menu .menu-item {
+    padding: 4px 18px 4px 8px;
+    font-size: 11px;
+    cursor: pointer;
+    color: #000;
+  }
+  .bonzi-context-menu .menu-item:hover { background: #000080; color: #fff; }
+  .bonzi-context-menu .menu-separator { height: 1px; background: #999; margin: 2px 0; }
+
+  .bonzi-input-window {
+    position: fixed;
+    background: #ece9d8;
+    border: 2px outset #fff;
+    padding: 8px;
+    z-index: 200000;
+    display: none;
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.4);
+    min-width: 280px;
+  }
+  .bonzi-input-window.show { display: block; }
+  .bonzi-input-window .title-bar {
+    background: #000080;
+    color: #fff;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 3px 6px;
+    margin: -8px -8px 8px -8px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .bonzi-input-window textarea {
+    width: 100%;
+    height: 60px;
+    font-size: 11px;
+    font-family: Tahoma, sans-serif;
+    border: 2px inset #fff;
+    padding: 3px;
+    resize: none;
+  }
+  .bonzi-input-window .btn-row {
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+    justify-content: flex-end;
+  }
+  .bonzi-input-window .btn-row button {
+    font-size: 11px;
+    padding: 3px 10px;
+    background: #ece9d8;
+    border: 2px outset #fff;
+    cursor: pointer;
+  }
+
+  #clippy, .clippy, [id^="clippy"], [class^="clippy"] { z-index: 99999 !important; }
+  .clippy-balloon, .clippy-balloon * { z-index: 100000 !important; }
+
+  .memz-error {
+    position: fixed;
+    width: 340px;
+    height: 130px;
+    background: #ece9d8;
+    border: 3px solid #0055ea;
+    border-radius: 6px 6px 0 0;
+    box-shadow: 3px 5px 20px rgba(0,0,0,0.6);
+    z-index: 999999;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .memz-header {
+    background: linear-gradient(to bottom, #0058ee 0%, #3593ff 6%, #0058ee 14%, #0053ee 100%);
+    padding: 3px 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    font-size: 11px;
+    height: 24px;
+  }
+  .memz-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    background: #fff;
+    font-size: 11px;
+  }
+</style>
+<link rel="stylesheet" href="./css/luna.css">
+</head>
+<body class="wall-bliss" id="bodyEl">
+
+<!-- MASAÜSTÜ SEÇİM ÇERÇEVESİ -->
+<div id="selectionBox"></div>
+
+<!-- BOOT EKRANI -->
+<div id="bootScreen">
+    <div class="boot-logo">
+        <svg style="width:46px;height:46px;" viewBox="0 0 40 40">
+            <rect x="1" y="1" width="17" height="17" fill="#f25022"/>
+            <rect x="21" y="1" width="17" height="17" fill="#7fba00"/>
+            <rect x="1" y="21" width="17" height="17" fill="#00a4ef"/>
+            <rect x="21" y="21" width="17" height="17" fill="#ffb900"/>
+        </svg>
+        <div class="boot-logo-text">Windows<b> xp</b></div>
+    </div>
+    <div class="boot-bar-track"><div class="boot-chunk"></div></div>
+</div>
+
+<!-- LOGIN EKRANI -->
+<div id="loginScreen">
+    <div class="login-top"><div class="xp-title">windows<b> xp</b></div></div>
+    <div class="login-mid">
+        <div style="font-size:14px; text-align:right;">Devam etmek için<br>hesabınızı tıklatın</div>
+        <div class="login-divider"></div>
+        <div class="user-tile" onclick="doLogin()">
+            <img id="userAvatar" style="width:72px!important; height:72px!important; border-radius:6px; border:2px solid #fff; object-fit:cover; background:#333;" src="./profil.jpg" onerror="this.onerror=null; this.src='./icons/user_computer-0.png';" alt="Kullanıcı">
+            <div class="user-tile-name">Muhammed Can Ceylan</div>
+            <div style="font-size:11px; opacity:.8;">Yönetici</div>
+        </div>
+    </div>
+</div>
+
+<!-- SHUTDOWN EKRANI -->
+<div id="shutdownScreen">
+    <svg style="width:50px;height:50px;" viewBox="0 0 40 40">
+        <rect x="1" y="1" width="17" height="17" fill="#f25022"/>
+        <rect x="21" y="1" width="17" height="17" fill="#7fba00"/>
+        <rect x="1" y="21" width="17" height="17" fill="#00a4ef"/>
+        <rect x="21" y="21" width="17" height="17" fill="#ffb900"/>
+    </svg>
+    <div class="shutdown-msg" id="shutdownText">Windows kapatılıyor...</div>
+    <button class="shutdown-btn" id="restartBtn" style="display:none;" onclick="restartDesktop()">Yeniden Başlat</button>
+</div>
+
+<!-- MASAÜSTÜ KANVASI -->
+<div class="desktop" id="desktop"></div>
+
+<!-- ==================== HİYERARŞİK MASAÜSTÜ SAĞ TIK MENÜSÜ ==================== -->
+<div id="desktopContextMenu" class="xp-menu">
+    <!-- Görünüm -->
+    <div class="xp-menu-row" data-sub="subView">
+        <span class="xp-menu-icon"></span>
+        <span class="xp-menu-text">Görünüm</span>
+        <span class="xp-menu-arrow"></span>
+        <div class="xp-submenu" id="subView">
+            <div class="xp-menu-row" onclick="arrangeIcons()">
+                <span class="xp-menu-icon"></span>
+                <span class="xp-menu-text">Simgeleri Otomatik Düzenle</span>
+            </div>
+            <div class="xp-menu-row" onclick="toggleDesktopIcons()">
+                <span class="xp-menu-icon">✓</span>
+                <span class="xp-menu-text">Masaüstü Öğelerini Göster</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sıralama Ölçütü -->
+    <div class="xp-menu-row" data-sub="subSort">
+        <span class="xp-menu-icon"></span>
+        <span class="xp-menu-text">Sıralama Ölçütü</span>
+        <span class="xp-menu-arrow"></span>
+        <div class="xp-submenu" id="subSort">
+            <div class="xp-menu-row" onclick="arrangeIcons()">
+                <span class="xp-menu-icon"></span>
+                <span class="xp-menu-text">Ad</span>
+            </div>
+            <div class="xp-menu-row" onclick="arrangeIcons()">
+                <span class="xp-menu-icon"></span>
+                <span class="xp-menu-text">Tür</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yenile -->
+    <div class="xp-menu-row" onclick="refreshDesktop()">
+        <span class="xp-menu-icon"></span>
+        <span class="xp-menu-text">Yenile</span>
+    </div>
+
+    <div class="xp-menu-sep"></div>
+
+    <div class="xp-menu-row disabled" id="desktopPasteRow" onclick="pasteToDesktop()">
+        <span class="xp-menu-icon"></span>
+        <span class="xp-menu-text">Yapıştır</span>
+    </div>
+    <div class="xp-menu-row disabled">
+        <span class="xp-menu-icon"></span>
+        <span class="xp-menu-text">Kısayol Yapıştır</span>
+    </div>
+
+    <div class="xp-menu-sep"></div>
+
+    <!-- Yeni -->
+    <div class="xp-menu-row" data-sub="subNew">
+        <span class="xp-menu-icon"></span>
+        <span class="xp-menu-text">Yeni</span>
+        <span class="xp-menu-arrow"></span>
+        <div class="xp-submenu" id="subNew">
+            <div class="xp-menu-row" onclick="createDesktopItem('folder')">
+                <span class="xp-menu-icon"><img src="./icons/directory_closed-4.png" onerror="this.onerror=null; this.src='./icons/windows-0.png';"></span>
+                <span class="xp-menu-text">Klasör</span>
+            </div>
+            <div class="xp-menu-row disabled">
+                <span class="xp-menu-icon"><img src="./icons/windows-0.png" onerror="this.onerror=null; this.src='';"></span>
+                <span class="xp-menu-text">Kısayol</span>
+            </div>
+            <div class="xp-menu-sep"></div>
+            <div class="xp-menu-row" onclick="createDesktopItem('bmp')">
+                <span class="xp-menu-icon"><img src="./icons/paint_file-3.png" onerror="this.onerror=null; this.src='./icons/windows-0.png';"></span>
+                <span class="xp-menu-text">Bit Eşlem Resmi</span>
+            </div>
+            <div class="xp-menu-row" onclick="createDesktopItem('txt')">
+                <span class="xp-menu-icon"><img src="./icons/notepad-0.png" onerror="this.onerror=null; this.src='./icons/windows-0.png';"></span>
+                <span class="xp-menu-text">Metin Belgesi</span>
+            </div>
+            <div class="xp-menu-row" onclick="createDesktopItem('zip')">
+                <span class="xp-menu-icon"><img src="./icons/windows-0.png" onerror="this.onerror=null; this.src='./icons/windows-0.png';"></span>
+                <span class="xp-menu-text">WinRAR ZIP Arşivi</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="xp-menu-sep"></div>
+
+    <!-- Windows XP: Masaüstü sağ tık -> Görüntü Özellikleri -->
+    <div class="xp-menu-row" onclick="openDisplayProperties()">
+        <span class="xp-menu-icon"></span>
+        <span class="xp-menu-text">Özellikler</span>
+    </div>
+</div>
+
+<!-- BAŞLAT MENÜSÜ -->
+<div id="startMenu" class="start-menu">
+    <div class="start-header">
+        <img class="start-user-picture" src="./profil.jpg" onerror="this.onerror=null; this.src='./icons/user_computer-0.png';" alt="User">
+        <span>Muhammed Can Ceylan</span>
+    </div>
+    <div class="start-body">
+        <div class="start-left">
+            <div id="startMenuApps" class="start-menu-apps"></div>
+            <div class="start-all-programs" onclick="toggleAllProgramsMenu(event)">
+                <span>Tüm Programlar</span><span class="start-programs-arrow">▶</span>
+            </div>
+        </div>
+        <div class="start-right">
+            <div class="start-place strong" onclick="xpShell.openExplorer(vfs.getSpecialFolderPath('documents')); hideStartMenu();">
+                <img src="./icons/directory_open_file_mydocs-4.png" alt=""><span>Belgelerim</span>
+            </div>
+            <div class="start-place strong" onclick="xpShell.openExplorer(vfs.getSpecialFolderPath('pictures')); hideStartMenu();">
+                <img src="./icons/paint_file-3.png" alt=""><span>Resimlerim</span>
+            </div>
+            <div class="start-place strong" onclick="xpShell.openExplorer(vfs.getSpecialFolderPath('music')); hideStartMenu();">
+                <img src="./icons/cd_audio_cd_a-4.png" alt=""><span>Müziğim</span>
+            </div>
+            <div class="start-place strong" onclick="xpShell.openExplorer('Bilgisayarım'); hideStartMenu();">
+                <img src="./icons/computer_explorer-4.png" alt=""><span>Bilgisayarım</span>
+            </div>
+            <div class="start-right-separator"></div>
+            <div class="start-place" onclick="xpShell.openExplorer('Denetim Masası'); hideStartMenu();">
+                <img src="./icons/windows-0.png" onerror="this.onerror=null;this.src='./icons/computer_explorer-4.png'" alt=""><span>Denetim Masası</span>
+            </div>
+            <div class="start-right-separator"></div>
+            <div class="start-place" onclick="openHelpCenter();">
+                <img src="./icons/user_computer-0.png" onerror="this.onerror=null;this.src='./icons/windows-0.png'" alt=""><span>Yardım ve Destek</span>
+            </div>
+            <div class="start-place" onclick="openSearchDialog();">
+                <img src="./icons/computer_explorer-4.png" onerror="this.onerror=null;this.src='./icons/windows-0.png'" alt=""><span>Ara</span>
+            </div>
+            <div class="start-place" onclick="openRunDialog();">
+                <img src="./icons/console_prompt-0.png" onerror="this.onerror=null;this.src='./icons/windows-0.png'" alt=""><span>Çalıştır...</span>
+            </div>
+        </div>
+        <div id="allProgramsMenu" class="all-programs-menu"></div>
+    </div>
+    <div class="start-footer">
+        <div class="start-footer-btn logoff" onclick="logOffUser();">
+            <span class="start-footer-icon logoff-icon">↪</span><span>Oturumu Kapat</span>
+        </div>
+        <div class="start-footer-btn shutdown" onclick="executeShutdown()">
+            <span class="start-footer-icon shutdown-icon">⏻</span><span>Bilgisayarı Kapat</span>
+        </div>
+    </div>
+</div>
+
+<div id="shellNotice" class="shell-notice" aria-hidden="true">
+    <div class="shell-notice-window">
+        <div class="shell-notice-title"><span id="shellNoticeTitle">Windows</span><button onclick="closeShellNotice()">×</button></div>
+        <div class="shell-notice-body"><img src="./icons/windows-0.png" alt=""><span id="shellNoticeText"></span></div>
+        <div class="shell-notice-actions"><button class="xp-shell-button" onclick="closeShellNotice()">Tamam</button></div>
+    </div>
+</div>
+
+<div id="runDialog" class="run-dialog" aria-hidden="true">
+    <div class="run-window">
+        <div class="run-title"><span>Çalıştır</span><button onclick="closeRunDialog()">×</button></div>
+        <div class="run-body">
+            <img src="./icons/windows-0.png" alt="">
+            <div class="run-copy">
+                <p>Açmak istediğiniz program, klasör, belge veya Internet kaynağının adını yazın.</p>
+                <div class="run-row"><label for="runInput">Aç:</label><input id="runInput" type="text" autocomplete="off" spellcheck="false"></div>
+            </div>
+        </div>
+        <div class="run-actions"><button class="xp-shell-button default" onclick="executeRunCommand()">Tamam</button><button class="xp-shell-button" onclick="closeRunDialog()">İptal</button></div>
+    </div>
+</div>
+
+<div id="helpCenter" class="xp-shell-panel" aria-hidden="true">
+    <div class="xp-shell-panel-window help-window">
+        <div class="xp-shell-panel-title"><span>Yardım ve Destek Merkezi</span><button onclick="closeHelpCenter()">×</button></div>
+        <div class="help-body">
+            <div class="help-banner"><span class="help-large-icon" aria-hidden="true">?</span><div><b>Windows XP Professional</b><span>Bir konu seçin.</span></div></div>
+            <div class="help-grid">
+                <button onclick="showHelpTopic('Dosya ve klasörler','Bilgisayarım içinde klasör açabilir, Yeni Klasör veya Yeni Metin Belgesi oluşturabilir; Ctrl+C, Ctrl+X ve Ctrl+V ile öğeleri kopyalayıp taşıyabilirsiniz.')">Dosya ve klasörler</button>
+                <button onclick="showHelpTopic('Masaüstü','Masaüstü simgelerini sürükleyebilir, F2 ile yeniden adlandırabilir, Delete ile Geri Dönüşüm Kutusu’na gönderebilirsiniz.')">Masaüstü</button>
+                <button onclick="showHelpTopic('Pencereler','Alt+Tab ile pencereler arasında geçiş yapın. Alt+Space pencere sistem menüsünü açar. Alt+F4 etkin pencereyi kapatır.')">Pencereler</button>
+                <button onclick="showHelpTopic('Çalıştır','Başlat > Çalıştır üzerinden notepad, calc, mspaint, explorer ve kurulu diğer programların komutlarını kullanabilirsiniz.')">Çalıştır</button>
+            </div>
+            <div id="helpTopic" class="help-topic">Bir yardım konusu seçin.</div>
+        </div>
+    </div>
+</div>
+
+<!-- AĞ BAĞLANTISI DURUMU -->
+<div id="networkPopup">
+    <div class="network-popup-title">Yerel Ağ Bağlantısı Durumu</div>
+    <div class="network-popup-body">
+        <div class="network-status-icon"><span></span><span></span></div>
+        <div class="network-status-copy"><b>Durum: Bağlandı</b><span>Hız: 100,0 Mbps</span><span>Süre: <strong id="networkUptime">00:00:00</strong></span></div>
+    </div>
+    <div class="network-popup-foot"><button class="xp-shell-button" onclick="closeNetworkPopup()">Kapat</button></div>
+</div>
+
+<!-- SES DENETİMİ (VOLUME MIXER) -->
+<div id="volumePopup">
+    <span style="font-size:11px; color:#000; margin-bottom:4px; font-weight:bold;">Ses</span>
+    <div style="position:relative; width:32px; height:100px; display:flex; justify-content:center; align-items:center;">
+        <div style="position:absolute; width:2px; height:90px; background:#808080; border-right:1px solid #ffffff;"></div>
+        <input type="range" class="vol-range-input" min="0" max="100" value="80" oninput="changeGlobalVolume(this.value)">
+    </div>
+    <label style="font-size:11px; color:#000; display:flex; align-items:center; gap:4px; cursor:pointer;">
+        <input type="checkbox" onchange="toggleGlobalMute(this.checked)" > Sessiz
+    </label>
+</div>
+
+<!-- TARİH VE SAAT (TIMEDATE.CPL MODAL) -->
+<div id="dateTimeModal">
+    <div class="window-header">
+        <div class="window-header-title">
+            <img src="./icons/time_and_date-0.png" onerror="this.onerror=null; this.src='./icons/windows-0.png';">
+            <span>Tarih ve Saat Özellikleri</span>
+        </div>
+        <div class="win-btn win-close" onclick="closeDateTimeModal()">✕</div>
+    </div>
+    <div class="dt-tabs">
+        <div class="dt-tab active">Tarih ve Saat</div>
+        <div class="dt-tab">Saat Dilimi</div>
+        <div class="dt-tab">Internet Saati</div>
+    </div>
+    <div class="dt-body">
+        <div class="dt-row">
+            <div class="dt-group">
+                <span class="dt-legend">Tarih</span>
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                    <select id="dtMonthSelect" onchange="renderCalendar()">
+                        <option value="0">Ocak</option><option value="1">Şubat</option><option value="2">Mart</option>
+                        <option value="3">Nisan</option><option value="4">Mayıs</option><option value="5">Haziran</option>
+                        <option value="6">Temmuz</option><option value="7">Ağustos</option><option value="8" selected>Eylül</option>
+                        <option value="9">Ekim</option><option value="10">Kasım</option><option value="11">Aralık</option>
+                    </select>
+                    <input type="number" id="dtYearInput" value="2026" style="width:60px;" onchange="renderCalendar()">
+                </div>
+                <table class="dt-calendar-table">
+                    <thead><tr><th>P</th><th>P</th><th>S</th><th>Ç</th><th>P</th><th>C</th><th>C</th></tr></thead>
+                    <tbody id="dtCalendarBody"></tbody>
+                </table>
+            </div>
+
+            <div class="dt-group" style="text-align:center;">
+                <span class="dt-legend">Saat</span>
+                <canvas id="analogClockCanvas" class="dt-clock-canvas" width="110" height="110"></canvas>
+                <div style="margin-top:8px;">
+                    <input id="dtDigitalTime" value="12:00:00 PM" readonly style="width:95px; text-align:center; border:1px inset #808080; font-family:monospace;">
+                </div>
+            </div>
+        </div>
+        <p style="color:#555; font-size:10px;">Geçerli saat dilimi: (GMT+03:00) İstanbul</p>
+    </div>
+    <div class="dt-btn-row">
+        <button class="xp" style="padding:3px 14px;" onclick="closeDateTimeModal()">Tamam</button>
+        <button class="xp" style="padding:3px 14px;" onclick="closeDateTimeModal()">İptal</button>
+    </div>
+</div>
+
+<!-- GÖREV ÇUBUĞU (TASKBAR & TRAY) -->
+<div class="taskbar">
+    <div class="start-btn" onclick="toggleStartMenu(event)">
+        <img src="./icons/windows-0.png" onerror="this.onerror=null; this.src='./icons/windows-0.png';" width="18" height="18" alt="XP">
+        <span>başlat</span>
+    </div>
+    <div class="quick-launch" aria-label="Hızlı Başlat">
+        <button class="quick-launch-btn show-desktop-btn" type="button" onclick="showDesktop()" title="Masaüstünü Göster"><span class="show-desktop-glyph"></span></button>
+        <button id="quickLaunchIE" class="quick-launch-btn" type="button" onclick="windowManager.open(appRegistry.get('ie'))" title="Internet Explorer"><img src="./icons/msie2-2.png" alt=""></button>
+    </div>
+    <div id="taskbarApps"></div>
+    <div class="tray">
+        <span class="tray-chevron" onclick="toggleTrayInactive(event)" title="Gizli simgeleri göster">‹</span>
+        <span id="trayAvast" class="tray-icon tray-inactive" onclick="windowManager.open(appRegistry.get('avast'))" title="avast! Antivirus">
+            <img src="./avast.png" onerror="this.onerror=null; this.src='./icons/windows-0.png';" width="16" height="16" alt="">
+        </span>
+        <span id="trayNetwork" class="tray-icon" onclick="toggleNetworkPopup(event)" title="Yerel Ağ Bağlantısı"><img src="./icons/network_cool-0.png" onerror="this.onerror=null;this.src='./icons/windows-0.png';" width="16" height="16" alt=""></span>
+        
+        <!-- DEĞİŞEN KISIM: <img> etiketi yerine CSS ile çizilen hoparlör hunisi -->
+        <span id="trayVolume" class="tray-speaker" onclick="toggleVolumePopup(event)" ondblclick="openMixer(event)" title="Ses Düzeyi">
+            <span class="speaker-cone"></span>
+        </span>
+        
+        <!-- DEĞİŞEN KISIM: class="xp-clock" silindi, doğrudan ID üzerinden çalışacak -->
+        <span id="clock" onclick="openDateTimeModal()" title="Tarih ve Saat Özellikleri">12:00</span>
+    </div>
+</div>
+
+<!-- BONZI SAĞ TIK MENÜSÜ -->
+<div class="bonzi-context-menu" id="bonziContextMenu">
+    <div class="menu-item" onclick="bonziTellJoke()">Fıkra Anlat</div>
+    <div class="menu-item" onclick="bonziTellFact()">Gerçek Söyle</div>
+    <div class="menu-item" onclick="bonziSingSong()">Şarkı Söyle</div>
+    <div class="menu-item" onclick="bonziPoke()">Gıdıkla</div>
+    <div class="menu-item" onclick="bonziRandomAnim()">Rastgele Dans</div>
+    <div class="menu-separator"></div>
+    <div class="menu-item" onclick="bonziSpeakCustom()">Konuştur...</div>
+    <div class="menu-item" onclick="disposeBonzi()">Bonzi'yi Kapat</div>
+</div>
+
+<!-- BONZI ÖZEL KONUŞTURMA PENCERESİ -->
+<div class="bonzi-input-window" id="bonziInputWindow">
+    <div class="title-bar">
+        <span>Bonzi'ye Ne Söyletmek İstersin?</span>
+        <span style="cursor:pointer;" onclick="bonziCloseInput()">✕</span>
+    </div>
+    <textarea id="bonziInputText" placeholder="Buraya yaz..."></textarea>
+    <div class="btn-row">
+        <button onclick="bonziCloseInput()">İptal</button>
+        <button onclick="bonziSubmitInput()">Söyle</button>
+    </div>
+</div>
+
+<!-- ÇEKİRDEK BETİKLER -->
+<script src="./core/vfs.js"></script>
+<script src="./core/registry.js"></script>
+<script src="./core/windowManager.js"></script>
+<script src="./core/taskbar.js"></script>
+<script src="./core/shell.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="./apps/bonzi/clippy.js/build/clippy.min.js"></script>
+
+<script>
+/* =========================================================
+   GENEL SİSTEM DURUMU & AVAST SENKRONİZASYONU
+   ========================================================= */
+window.xpShieldActive = true;
+
+window.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'xp-shield-status') {
+        window.xpShieldActive = e.data.active;
+        if (!window.xpShieldActive && bonziAgent) {
+            triggerBonziAttack();
+        }
+    }
+});
+
+function doLogin() {
+    document.getElementById('loginScreen').style.display = 'none';
+}
+
+function executeShutdown() {
+    hideStartMenu();
+    const s = document.getElementById('shutdownScreen');
+    document.getElementById('shutdownText').innerText = "Windows kapatılıyor...";
+    document.getElementById('restartBtn').style.display = "none";
+    s.style.display = "flex";
+    if (bonziAgent) { try { bonziAgent.dispose(); } catch(e){} bonziAgent = null; }
+    setTimeout(() => {
+        document.getElementById('shutdownText').innerText = "Bilgisayarınızı artık güvenle kapatabilirsiniz.";
+        document.getElementById('restartBtn').style.display = "inline-block";
+    }, 1500);
+}
+
+function restartDesktop() {
+    document.getElementById('shutdownScreen').style.display = "none";
+    document.getElementById('bootScreen').style.display = "flex";
+    setTimeout(() => {
+        document.getElementById('bootScreen').style.display = "none";
+        document.getElementById('loginScreen').style.display = "flex";
+    }, 1200);
+}
+
+function setWallpaper(cls) {
+    const body = document.getElementById('bodyEl');
+    if (window.xpSystemSettings) {
+        xpSystemSettings.display.wallpaper = cls === 'wall-blue' ? 'blue' : 'bliss';
+        xpSystemSettings.display.customWallpaper = xpSystemSettings.display.wallpaper === 'bliss' ? xpSystemSettings.display.customWallpaper : '';
+        try { localStorage.setItem('xp_display_settings_v1', JSON.stringify(xpSystemSettings.display)); } catch (_) {}
+        xpSystemSettings.applyDisplaySettings();
+    } else if (body) {
+        body.classList.remove('wall-bliss','wall-blue','wall-green','wall-red');
+        body.classList.add(cls);
+    }
+    if (ctxMenu) ctxMenu.style.display = 'none';
+    closeAllSubmenus();
+}
+
+function toggleStartMenu(e) {
+    if (e) e.stopPropagation();
+    const sm = document.getElementById('startMenu');
+    const btn = document.querySelector('.start-btn');
+    const opening = sm.style.display !== 'flex';
+    sm.style.display = opening ? 'flex' : 'none';
+    if (btn) btn.classList.toggle('active', opening);
+    if (!opening) {
+        const ap = document.getElementById('allProgramsMenu');
+        if (ap) ap.classList.remove('show');
+    }
+}
+
+function hideStartMenu() {
+    const sm = document.getElementById('startMenu');
+    if (sm) sm.style.display = 'none';
+    const btn = document.querySelector('.start-btn');
+    if (btn) btn.classList.remove('active');
+    const ap = document.getElementById('allProgramsMenu');
+    if (ap) ap.classList.remove('show');
+    const vp = document.getElementById('volumePopup');
+    if (vp) vp.style.display = 'none';
+    closeNetworkPopup();
+}
+
+function toggleAllProgramsMenu(e) {
+    if (e) e.stopPropagation();
+    const menu = document.getElementById('allProgramsMenu');
+    if (menu) menu.classList.toggle('show');
+}
+
+function showShellNotice(title, text) {
+    hideStartMenu();
+    const el = document.getElementById('shellNotice');
+    document.getElementById('shellNoticeTitle').textContent = title || 'Windows';
+    document.getElementById('shellNoticeText').textContent = text || '';
+    el.classList.add('show');
+    el.setAttribute('aria-hidden', 'false');
+}
+
+function closeShellNotice() {
+    const el = document.getElementById('shellNotice');
+    el.classList.remove('show');
+    el.setAttribute('aria-hidden', 'true');
+}
+
+function openRunDialog() {
+    hideStartMenu();
+    const el = document.getElementById('runDialog');
+    el.classList.add('show');
+    el.setAttribute('aria-hidden', 'false');
+    const input = document.getElementById('runInput');
+    input.value = '';
+    setTimeout(() => input.focus(), 0);
+}
+
+function closeRunDialog() {
+    const el = document.getElementById('runDialog');
+    el.classList.remove('show');
+    el.setAttribute('aria-hidden', 'true');
+}
+
+
+function openSearchDialog(startPath = 'C:\\') {
+    hideStartMenu();
+    if (window.xpShell) xpShell.openApp('search', { startPath: startPath || 'C:\\' });
+}
+
+function openHelpCenter() {
+    hideStartMenu();
+    const el = document.getElementById('helpCenter');
+    el.classList.add('show');
+    el.setAttribute('aria-hidden', 'false');
+}
+
+function closeHelpCenter() {
+    const el = document.getElementById('helpCenter');
+    el.classList.remove('show');
+    el.setAttribute('aria-hidden', 'true');
+}
+
+function showHelpTopic(title, text) {
+    const box = document.getElementById('helpTopic');
+    box.innerHTML = '<b></b><p></p>';
+    box.querySelector('b').textContent = title;
+    box.querySelector('p').textContent = text;
+}
+
+function logOffUser() {
+    hideStartMenu();
+    document.querySelectorAll('.window').forEach(win => {
+        const appId = win.dataset.appId;
+        if (appId && windowManager) windowManager.close(appId);
+    });
+    try {
+        if (typeof bonziAgent !== 'undefined' && bonziAgent && typeof disposeBonzi === 'function') disposeBonzi();
+    } catch (_) {}
+    document.getElementById('loginScreen').style.display = 'flex';
+}
+
+function executeRunCommand() {
+    const input = document.getElementById('runInput');
+    const cmd = (input.value || '').trim();
+    if (!cmd) return;
+    const low = cmd.toLowerCase();
+    const appAliases = {
+        'notepad': 'notepad', 'notepad.exe': 'notepad',
+        'mspaint': 'paint', 'mspaint.exe': 'paint', 'paint': 'paint',
+        'calc': 'calculator', 'calc.exe': 'calculator',
+        'iexplore': 'ie', 'iexplore.exe': 'ie',
+        'winamp': 'winamp', 'winamp.exe': 'winamp',
+        'explorer': 'explorer', 'explorer.exe': 'explorer'
+    };
+    if (appAliases[low]) {
+        const app = appRegistry.get(appAliases[low]);
+        if (app) windowManager.open(app);
+        closeRunDialog();
+        return;
+    }
+    if (low === 'control' || low === 'control.exe') {
+        xpShell.openExplorer('Denetim Masası');
+        closeRunDialog();
+        return;
+    }
+
+    // XP project maintenance / shell paths.
+    const shellCommands = {
+        'appcheck': () => xpShell.openExplorer(vfs.getSpecialFolderPath('appcheck')),
+        'shell:appcheck': () => xpShell.openExplorer(vfs.getSpecialFolderPath('appcheck')),
+        'programs': () => xpShell.openExplorer(vfs.getSpecialFolderPath('programs')),
+        'shell:programs': () => xpShell.openExplorer(vfs.getSpecialFolderPath('programs')),
+        'desktop': () => xpShell.openExplorer(vfs.getSpecialFolderPath('desktop')),
+        'shell:desktop': () => xpShell.openExplorer(vfs.getSpecialFolderPath('desktop')),
+        'programfiles': () => xpShell.openExplorer(vfs.getSpecialFolderPath('programFiles')),
+        'shell:programfiles': () => xpShell.openExplorer(vfs.getSpecialFolderPath('programFiles')),
+        'c:': () => xpShell.openExplorer('C:\\')
+    };
+    if (shellCommands[low]) {
+        shellCommands[low]();
+        closeRunDialog();
+        return;
+    }
+
+    // Allow Run to start any registered app by id, display title or executable file name.
+    const registered = appRegistry.all().find(app => {
+        const exe = appRegistry.executableNameFor ? appRegistry.executableNameFor(app).toLowerCase() : '';
+        return app.id.toLowerCase() === low || app.title.toLowerCase() === low || exe === low;
+    });
+    if (registered) {
+        xpShell.openApp(registered.id);
+        closeRunDialog();
+        return;
+    }
+
+    if (vfs && vfs.resolvePath(cmd)) {
+        xpShell.openVfsItem(cmd);
+        closeRunDialog();
+        return;
+    }
+    closeRunDialog();
+    showShellNotice('Çalıştır', "Windows '" + cmd + "' öğesini bulamıyor. Adı doğru yazdığınızdan emin olup yeniden deneyin.");
+}
+
+document.addEventListener('keydown', (e) => {
+    const shellTyping = e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName || '');
+    if (!shellTyping && (e.key === 'F3' || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f'))) {
+        e.preventDefault();
+        openSearchDialog('C:\\');
+        return;
+    }
+    if (e.key === 'Escape') {
+        if (document.getElementById('runDialog')?.classList.contains('show')) closeRunDialog();
+        else if (document.getElementById('helpCenter')?.classList.contains('show')) closeHelpCenter();
+        else if (document.getElementById('shellNotice')?.classList.contains('show')) closeShellNotice();
+        else hideStartMenu();
+    }
+    if (e.key === 'Enter' && document.activeElement === document.getElementById('runInput')) executeRunCommand();
+});
+
+let networkConnectedAt = Date.now();
+function toggleTrayInactive(e) {
+    if (e) e.stopPropagation();
+    const tray = document.querySelector('.tray');
+    if (!tray) return;
+    tray.classList.toggle('show-inactive');
+    const arrow = tray.querySelector('.tray-chevron');
+    if (arrow) arrow.textContent = tray.classList.contains('show-inactive') ? '›' : '‹';
+}
+
+function toggleNetworkPopup(e) {
+    if (e) e.stopPropagation();
+    const popup = document.getElementById('networkPopup');
+    if (!popup) return;
+    const opening = popup.style.display !== 'flex';
+    document.getElementById('volumePopup').style.display = 'none';
+    popup.style.display = opening ? 'flex' : 'none';
+    if (opening) updateNetworkUptime();
+}
+
+function closeNetworkPopup() {
+    const popup = document.getElementById('networkPopup');
+    if (popup) popup.style.display = 'none';
+}
+
+function updateNetworkUptime() {
+    const el = document.getElementById('networkUptime');
+    if (!el) return;
+    const secs = Math.max(0, Math.floor((Date.now() - networkConnectedAt) / 1000));
+    const h = String(Math.floor(secs / 3600)).padStart(2,'0');
+    const m = String(Math.floor((secs % 3600) / 60)).padStart(2,'0');
+    const s = String(secs % 60).padStart(2,'0');
+    el.textContent = h + ':' + m + ':' + s;
+}
+setInterval(updateNetworkUptime, 1000);
+
+/* =========================================================
+   SES VE MİKSER
+   ========================================================= */
+function toggleVolumePopup(e) {
+    if (e) e.stopPropagation();
+    const vp = document.getElementById('volumePopup');
+    closeNetworkPopup();
+    vp.style.display = (vp.style.display === 'flex') ? 'none' : 'flex';
+}
+
+function changeGlobalVolume(val) {
+    const frame = document.querySelector('#win-winamp iframe');
+    if (frame && frame.contentWindow && frame.contentWindow.setGlobalVolume) {
+        frame.contentWindow.setGlobalVolume(val);
+    }
+}
+
+function toggleGlobalMute(muted) {
+    const frame = document.querySelector('#win-winamp iframe');
+    if (frame && frame.contentWindow && frame.contentWindow.setMute) {
+        frame.contentWindow.setMute(muted);
+    }
+}
+
+/* =========================================================
+   TARİH VE SAAT (TIMEDATE.CPL MODAL)
+   ========================================================= */
+function openDateTimeModal() {
+    initRealDateTime();
+    document.getElementById('dateTimeModal').style.display = 'flex';
+}
+function closeDateTimeModal() {
+    document.getElementById('dateTimeModal').style.display = 'none';
+}
+
+function initRealDateTime() {
+    const now = new Date();
+    document.getElementById('dtMonthSelect').value = now.getMonth();
+    document.getElementById('dtYearInput').value = now.getFullYear();
+    renderCalendar();
+    drawAnalogClock();
+}
+
+function renderCalendar() {
+    const month = parseInt(document.getElementById('dtMonthSelect').value);
+    const year = parseInt(document.getElementById('dtYearInput').value);
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const tbody = document.getElementById('dtCalendarBody');
+    tbody.innerHTML = '';
+    
+    let date = 1;
+    for (let i = 0; i < 6; i++) {
+        const row = document.createElement('tr');
+        for (let j = 0; j < 7; j++) {
+            const cell = document.createElement('td');
+            if (i === 0 && j < firstDay) {
+                cell.innerText = '';
+            } else if (date > daysInMonth) {
+                break;
+            } else {
+                cell.innerText = date;
+                const realToday = new Date();
+                if (date === realToday.getDate() && month === realToday.getMonth() && year === realToday.getFullYear()) {
+                    cell.className = 'today';
+                }
+                date++;
+            }
+            row.appendChild(cell);
+        }
+        tbody.appendChild(row);
+        if (date > daysInMonth) break;
+    }
+}
+
+function drawAnalogClock() {
+    const canvas = document.getElementById('analogClockCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const radius = canvas.height / 2;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.beginPath();
+    ctx.arc(radius, radius, radius - 4, 0, 2 * Math.PI);
+    ctx.fillStyle = '#fff'; ctx.fill();
+    ctx.strokeStyle = '#808080'; ctx.lineWidth = 2; ctx.stroke();
+    
+    for (let i = 0; i < 12; i++) {
+        const angle = (i * Math.PI) / 6;
+        ctx.beginPath();
+        ctx.moveTo(radius + Math.cos(angle) * (radius - 10), radius + Math.sin(angle) * (radius - 10));
+        ctx.lineTo(radius + Math.cos(angle) * (radius - 4), radius + Math.sin(angle) * (radius - 4));
+        ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5; ctx.stroke();
+    }
+    
+    const now = new Date();
+    const hr = now.getHours() % 12, min = now.getMinutes(), sec = now.getSeconds();
+    
+    drawHand(ctx, radius, radius, (hr * Math.PI)/6 + (min * Math.PI)/(6 * 60), radius * 0.48, 3, '#000');
+    drawHand(ctx, radius, radius, (min * Math.PI)/30 + (sec * Math.PI)/(30 * 60), radius * 0.72, 2, '#000');
+    drawHand(ctx, radius, radius, (sec * Math.PI)/30, radius * 0.82, 1, '#d00000');
+    
+    document.getElementById('dtDigitalTime').value = now.toLocaleTimeString();
+    
+}
+
+function drawHand(ctx, cx, cy, angle, length, width, color) {
+    ctx.beginPath();
+    ctx.lineWidth = width; ctx.lineCap = 'round'; ctx.strokeStyle = color;
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.sin(angle) * length, cy - Math.cos(angle) * length);
+    ctx.stroke();
+}
+setInterval(drawAnalogClock, 1000);
+
+/* =========================================================
+   MASAÜSTÜ: SÜRÜKLEME & SEÇİM DİKDÖRTGENİ (MARQUEE)
+   ========================================================= */
+const desktop = document.getElementById('desktop');
+const box = document.getElementById('selectionBox');
+let isSelecting = false, startX = 0, startY = 0;
+
+desktop.addEventListener('mousedown', function(e) {
+    if (e.target.closest('.icon') || e.target.closest('.window') || e.target.closest('.xp-menu')) return;
+    document.querySelectorAll('.icon').forEach(i => i.classList.remove('selected'));
+    isSelecting = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    box.style.left = startX + 'px';
+    box.style.top = startY + 'px';
+    box.style.width = '0px';
+    box.style.height = '0px';
+    box.style.display = 'block';
+
+    function onMove(ev) {
+        if (!isSelecting) return;
+        const left = Math.min(startX, ev.clientX);
+        const top = Math.min(startY, ev.clientY);
+        const width = Math.abs(ev.clientX - startX);
+        const height = Math.abs(ev.clientY - startY);
+
+        box.style.left = left + 'px';
+        box.style.top = top + 'px';
+        box.style.width = width + 'px';
+        box.style.height = height + 'px';
+
+        document.querySelectorAll('.icon').forEach(icon => {
+            const r = icon.getBoundingClientRect();
+            if (r.left < left + width && r.right > left && r.top < top + height && r.bottom > top) {
+                icon.classList.add('selected');
+            } else {
+                icon.classList.remove('selected');
+            }
+        });
+    }
+
+    function onUp() {
+        isSelecting = false;
+        box.style.display = 'none';
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+    }
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+});
+
+function initDraggableIcons() {
+    document.querySelectorAll('.icon').forEach(icon => {
+        icon.onmousedown = function(e) {
+            e.stopPropagation();
+            if (e.target.tagName === 'INPUT' || e.button !== 0) return;
+
+            const wasSelected = icon.classList.contains('selected');
+            if (e.ctrlKey) {
+                icon.classList.toggle('selected');
+                if (!icon.classList.contains('selected')) return;
+            } else if (!wasSelected) {
+                document.querySelectorAll('.icon').forEach(i => i.classList.remove('selected', 'drop-target'));
+                icon.classList.add('selected');
+            } else {
+                document.querySelectorAll('.icon').forEach(i => i.classList.remove('drop-target'));
+            }
+
+            const selectedVfsIcons = () => Array.from(document.querySelectorAll('.icon.selected[data-vfs-path]'));
+            let startDragX = e.clientX, startDragY = e.clientY;
+            let lastX = e.clientX, lastY = e.clientY;
+            let iconX = icon.offsetLeft, iconY = icon.offsetTop;
+            let moved = false;
+            let dropTarget = null;
+
+            function findFolderTarget(x, y) {
+                if (!icon.dataset.vfsPath) return null;
+                const selected = new Set(selectedVfsIcons());
+                const candidates = Array.from(document.querySelectorAll('.icon[data-vfs-type="folder"]'))
+                    .filter(other => other !== icon && !selected.has(other));
+                return candidates.find(other => {
+                    const r = other.getBoundingClientRect();
+                    return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+                }) || null;
+            }
+
+            function onDrag(ev) {
+                lastX = ev.clientX; lastY = ev.clientY;
+                if (Math.abs(ev.clientX - startDragX) > 3 || Math.abs(ev.clientY - startDragY) > 3) moved = true;
+                if (!moved) return;
+                icon.style.left = (iconX + ev.clientX - startDragX) + 'px';
+                icon.style.top = (iconY + ev.clientY - startDragY) + 'px';
+                const nextTarget = findFolderTarget(lastX, lastY);
+                if (dropTarget !== nextTarget) {
+                    if (dropTarget) dropTarget.classList.remove('drop-target');
+                    dropTarget = nextTarget;
+                    if (dropTarget) dropTarget.classList.add('drop-target');
+                }
+            }
+
+            function onStop() {
+                if (dropTarget) dropTarget.classList.remove('drop-target');
+                if (moved && dropTarget && icon.dataset.vfsPath && dropTarget.dataset.vfsPath && window.vfs) {
+                    const paths = selectedVfsIcons().map(el => el.dataset.vfsPath).filter(Boolean);
+                    let changed = false;
+                    paths.forEach(path => { if (vfs.movePath(path, dropTarget.dataset.vfsPath)) changed = true; });
+                    if (changed) {
+                        appRegistry.renderDesktopIcons();
+                        initDraggableIcons();
+                        document.removeEventListener('mousemove', onDrag);
+                        document.removeEventListener('mouseup', onStop);
+                        return;
+                    }
+                }
+                if (moved) {
+                    const gridX = 92, gridY = 88, baseX = 16, baseY = 16;
+                    const maxLeft = Math.max(0, desktop.clientWidth - 80);
+                    const maxTop = Math.max(0, desktop.clientHeight - 76);
+                    const snappedLeft = Math.min(maxLeft, Math.max(0, baseX + Math.round((icon.offsetLeft - baseX) / gridX) * gridX));
+                    const snappedTop = Math.min(maxTop, Math.max(0, baseY + Math.round((icon.offsetTop - baseY) / gridY) * gridY));
+                    icon.style.left = snappedLeft + 'px';
+                    icon.style.top = snappedTop + 'px';
+                    if (icon.dataset.positionKey && window.appRegistry && window.appRegistry.saveDesktopIconPosition) {
+                        window.appRegistry.saveDesktopIconPosition(icon.dataset.positionKey, snappedLeft, snappedTop);
+                    }
+                }
+                document.removeEventListener('mousemove', onDrag);
+                document.removeEventListener('mouseup', onStop);
+            }
+
+            document.addEventListener('mousemove', onDrag);
+            document.addEventListener('mouseup', onStop);
+        };
+    });
+}
+
+function arrangeIcons() {
+    if (ctxMenu) ctxMenu.style.display = 'none';
+    closeAllSubmenus();
+    if (window.appRegistry && window.appRegistry.clearDesktopIconPositions) {
+        window.appRegistry.clearDesktopIconPositions();
+    }
+    window.appRegistry.renderDesktopIcons();
+    initDraggableIcons();
+}
+
+/* =========================================================
+   XP MASAÜSTÜ SAĞ TIK & HİYERARŞİK MENÜ MOTORU
+   ========================================================= */
+const ctxMenu = document.getElementById('desktopContextMenu');
+let activeSubmenu = null;
+let submenuCloseTimer = null;
+let lastContextPos = { x: 100, y: 100 };
+let userCreatedCount = 0;
+
+desktop.addEventListener('contextmenu', (e) => {
+    if (e.target.closest('.icon') || e.target.closest('.window')) return;
+    e.preventDefault();
+    closeAllSubmenus();
+
+    lastContextPos = { x: e.pageX, y: e.pageY };
+    const pasteRow = document.getElementById('desktopPasteRow');
+    if (pasteRow) pasteRow.classList.toggle('disabled', !(window.xpShell && xpShell.hasClipboard()));
+    ctxMenu.style.display = 'block';
+
+    let x = e.pageX;
+    let y = e.pageY;
+
+    if (x + ctxMenu.offsetWidth > window.innerWidth) {
+        x = window.innerWidth - ctxMenu.offsetWidth - 4;
+    }
+    if (y + ctxMenu.offsetHeight > window.innerHeight - 30) {
+        y = window.innerHeight - ctxMenu.offsetHeight - 34;
+    }
+
+    ctxMenu.style.left = x + 'px';
+    ctxMenu.style.top = y + 'px';
+});
+
+document.addEventListener('click', (e) => {
+    if (!ctxMenu.contains(e.target)) {
+        ctxMenu.style.display = 'none';
+        closeAllSubmenus();
+    }
+    if (!e.target.closest || !e.target.closest('.start-menu, .start-btn')) hideStartMenu();
+    const bm = document.getElementById('bonziContextMenu');
+    if (bm && !bm.contains(e.target)) bm.classList.remove('show');
+});
+
+document.querySelectorAll('.xp-menu-row[data-sub]').forEach(row => {
+    row.addEventListener('mouseenter', () => {
+        clearTimeout(submenuCloseTimer);
+        const subId = row.getAttribute('data-sub');
+        const sub = document.getElementById(subId);
+
+        if (activeSubmenu && activeSubmenu !== sub) {
+            activeSubmenu.style.display = 'none';
+            activeSubmenu.parentElement.classList.remove('active');
+        }
+
+        if (sub) {
+            sub.style.display = 'block';
+            row.classList.add('active');
+            activeSubmenu = sub;
+
+            const subRect = sub.getBoundingClientRect();
+            if (subRect.right > window.innerWidth) {
+                sub.classList.add('open-left');
+            } else {
+                sub.classList.remove('open-left');
+            }
+
+            if (subRect.bottom > window.innerHeight - 30) {
+                sub.classList.add('open-up');
+            } else {
+                sub.classList.remove('open-up');
+            }
+        }
+    });
+
+    row.addEventListener('mouseleave', (e) => {
+        const subId = row.getAttribute('data-sub');
+        const sub = document.getElementById(subId);
+        if (sub && !sub.contains(e.relatedTarget)) {
+            submenuCloseTimer = setTimeout(() => {
+                sub.style.display = 'none';
+                row.classList.remove('active');
+                if (activeSubmenu === sub) activeSubmenu = null;
+            }, 180);
+        }
+    });
+});
+
+document.querySelectorAll('.xp-submenu').forEach(sub => {
+    sub.addEventListener('mouseenter', () => clearTimeout(submenuCloseTimer));
+    sub.addEventListener('mouseleave', () => {
+        submenuCloseTimer = setTimeout(() => {
+            sub.style.display = 'none';
+            sub.parentElement.classList.remove('active');
+            if (activeSubmenu === sub) activeSubmenu = null;
+        }, 180);
+    });
+});
+
+function closeAllSubmenus() {
+    document.querySelectorAll('.xp-submenu').forEach(s => s.style.display = 'none');
+    document.querySelectorAll('.xp-menu-row').forEach(r => r.classList.remove('active'));
+    activeSubmenu = null;
+}
+
+function refreshDesktop() {
+    ctxMenu.style.display = 'none';
+    closeAllSubmenus();
+    if (window.appRegistry) { appRegistry.renderDesktopIcons(); initDraggableIcons(); }
+    desktop.style.opacity = '0.7';
+    setTimeout(() => { desktop.style.opacity = '1'; }, 120);
+}
+
+function toggleDesktopIcons() {
+    ctxMenu.style.display = 'none';
+    closeAllSubmenus();
+    document.querySelectorAll('.icon').forEach(icon => {
+        icon.style.display = (icon.style.display === 'none') ? 'flex' : 'none';
+    });
+}
+
+function pasteToDesktop() {
+    const row = document.getElementById('desktopPasteRow');
+    if (!window.xpShell || !xpShell.hasClipboard()) return;
+    const result = xpShell.pasteInto(vfs.getSpecialFolderPath('desktop'));
+    if (!result.ok && row) row.classList.add('disabled');
+    ctxMenu.style.display = 'none';
+    closeAllSubmenus();
+    if (window.appRegistry) { appRegistry.renderDesktopIcons(); initDraggableIcons(); }
+}
+
+function createDesktopItem(type) {
+    ctxMenu.style.display = 'none';
+    closeAllSubmenus();
+    if (!window.vfs) return;
+
+    const desktopPath = vfs.getSpecialFolderPath('desktop');
+    let wantedName = 'Yeni Klasör';
+    let extra = {};
+
+    if (type === 'folder') {
+        wantedName = 'Yeni Klasör';
+    } else if (type === 'txt') {
+        wantedName = 'Yeni Metin Belgesi.txt';
+        extra = { ext: 'txt', content: '', size: '0 B' };
+    } else if (type === 'bmp') {
+        wantedName = 'Yeni Bit Eşlem Resmi.bmp';
+        extra = { ext: 'bmp', size: '0 B' };
+    } else if (type === 'zip') {
+        wantedName = 'Yeni Sıkıştırılmış Klasör.zip';
+        extra = { ext: 'zip', size: '0 B' };
+    }
+
+    const created = type === 'folder'
+        ? vfs.createFolder(desktopPath, wantedName)
+        : vfs.createItem(desktopPath, wantedName, 'file', extra);
+    if (!created) return;
+
+    appRegistry.renderDesktopIcons();
+    initDraggableIcons();
+
+    const icon = document.getElementById('vfs-icon-' + created.id);
+    if (icon) {
+        const maxLeft = Math.max(0, desktop.clientWidth - 80);
+        const maxTop = Math.max(0, desktop.clientHeight - 76);
+        icon.style.left = Math.min(Math.max(lastContextPos.x, 0), maxLeft) + 'px';
+        icon.style.top = Math.min(Math.max(lastContextPos.y, 0), maxTop) + 'px';
+        appRegistry.saveDesktopIconPosition(icon.dataset.positionKey, icon.offsetLeft, icon.offsetTop);
+        startInlineRename(icon, created.name);
+    }
+}
+
+function startInlineRename(iconEl, currentName) {
+    if (!iconEl) return;
+    const label = iconEl.querySelector('.icon-label') || iconEl.querySelector('span');
+    if (!label || iconEl.querySelector('.icon-rename-input')) return;
+    const input = document.createElement('input');
+    input.className = 'icon-rename-input';
+    input.value = currentName;
+
+    label.style.display = 'none';
+    iconEl.appendChild(input);
+    input.focus();
+    input.select();
+    let finished = false;
+
+    function finishRename(commit) {
+        if (finished) return;
+        finished = true;
+        const val = input.value.trim();
+        if (commit && val && val !== currentName && iconEl.dataset.vfsPath && window.vfs) {
+            const oldPath = iconEl.dataset.vfsPath;
+            const parentPath = vfs.parentPath(oldPath);
+            const oldName = vfs.basename(oldPath);
+            if (vfs.renameItem(parentPath, oldName, val)) {
+                appRegistry.renderDesktopIcons();
+                initDraggableIcons();
+                return;
+            }
+        }
+        label.innerText = currentName;
+        label.style.display = 'block';
+        input.remove();
+    }
+
+    input.onblur = () => finishRename(true);
+    input.onkeydown = (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); finishRename(true); }
+        if (e.key === 'Escape') { e.preventDefault(); finishRename(false); }
+    };
+}
+
+/* =========================================================
+   BONZI BUDDY & VIRUS PAYLOAD ENGINE
+   ========================================================= */
+clippy.BASE_PATH = './apps/bonzi/clippy.js/agents/';
+let bonziAgent = null;
+
+const BONZI_JOKES = [
+    "What do you call a monkey in a minefield? A BABOOM! Haha!",
+    "Why don't scientists trust atoms? Because they make up everything!",
+    "Computers make very fast, very accurate mistakes."
+];
+const BONZI_FACTS = [
+    "A group of flamingos is called a flamboyance!",
+    "Octopuses have three hearts and blue blood!",
+    "Honey never spoils. Archaeologists have found 3000-year-old honey that's still edible!"
+];
+
+function playGlitchSynth() {
+    try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.25);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.25);
+    } catch(e) {}
+}
+
+function spawnBonzi() {
+    if (bonziAgent) {
+        bonziAgent.show();
+        if (!window.xpShieldActive) {
+            triggerBonziAttack();
+        } else {
+            bonziAgent.speak("I'm already here, buddy!");
+        }
+        return;
+    }
+
+    clippy.load('Bonzi', function (agent) {
+        bonziAgent = agent;
+        agent.show();
+
+        const $el =$(agent._el);
+        $el.css('pointer-events', 'auto');$el.css('z-index', '99999');
+
+        if (!window.xpShieldActive) {
+            triggerBonziAttack();
+        } else {
+            agent.play('Acknowledge');
+            agent.speak("Well hello there! I'm Bonzi, your purple buddy!");
+        }
+
+        $el.on('contextmenu', function (e) {
+            e.preventDefault(); e.stopPropagation();
+            const menu = document.getElementById('bonziContextMenu');
+            menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px';
+            menu.classList.add('show');
+        });
+
+        $el.on('click', function(e) {
+            if (e.target.closest && e.target.closest('.clippy-balloon')) return;
+            if (!window.xpShieldActive) {
+                triggerBonziAttack();
+            } else {
+                bonziPoke();
+            }
+        });
+    });
+}
+window.spawnBonzi = spawnBonzi;
+
+function triggerBonziAttack() {
+    if (!bonziAgent) return;
+    bonziAgent.play('Surprised');
+    bonziAgent.speak("HEHEHE! Avast Antivirus kalkanı kapalı! Bilgisayarınız artık BENİM!");
+    
+    desktop.style.filter = 'invert(0.85) hue-rotate(180deg)';
+    setTimeout(() => { desktop.style.filter = ''; }, 350);
+
+    for (let i = 0; i < 8; i++) {
+        setTimeout(() => {
+            spawnMemzWindow();
+            playGlitchSynth();
+        }, i * 200);
+    }
+}
+
+function spawnMemzWindow() {
+    const e = document.createElement('div');
+    e.className = 'memz-error';
+    e.style.left = (Math.random() * (window.innerWidth - 350)) + 'px';
+    e.style.top = (Math.random() * (window.innerHeight - 150)) + 'px';
+    e.innerHTML = `
+        <div class="memz-header">
+            <span>MEMZ.exe - Trojan.Bonzi.A</span>
+            <div class="win-btn win-close" style="width:16px;height:16px;line-height:16px;text-align:center;cursor:pointer;" onclick="this.closest('.memz-error').remove(); spawnMemzWindow();">✕</div>
+        </div>
+        <div class="memz-content">
+            <span style="font-size:30px;line-height:1;">❌</span>
+            <div>The application failed to initialize properly (0xc0000005). System compromised.</div>
+        </div>
+    `;
+    document.body.appendChild(e);
+}
+
+function bonziTellJoke() {
+    if (!bonziAgent) return;
+    bonziAgent.play('Congratulate');
+    bonziAgent.speak(BONZI_JOKES[Math.floor(Math.random() * BONZI_JOKES.length)]);
+}
+function bonziTellFact() {
+    if (!bonziAgent) return;
+    bonziAgent.play('Pleased');
+    bonziAgent.speak(BONZI_FACTS[Math.floor(Math.random() * BONZI_FACTS.length)]);
+}
+function bonziSingSong() {
+    if (!bonziAgent) return;
+    bonziAgent.play('Pleased');
+    bonziAgent.speak("🎶 Daisy, Daisy, give me your answer do! 🎶");
+}
+function bonziPoke() {
+    if (!bonziAgent) return;
+    bonziAgent.play('Alert');
+    bonziAgent.speak("Hey! Stop poking me, it tickles! Hehe.");
+}
+function bonziRandomAnim() {
+    if (!bonziAgent) return;
+    try {
+        const anims = bonziAgent.animations();
+        if (anims && anims.length) bonziAgent.play(anims[Math.floor(Math.random() * anims.length)]);
+    } catch (e) {}
+}
+function bonziSpeakCustom() {
+    if (!bonziAgent) return;
+    const w = document.getElementById('bonziInputWindow');
+    w.classList.add('show');
+    w.style.left = '50%'; w.style.top = '30%';
+    w.style.transform = 'translate(-50%, -50%)';
+    document.getElementById('bonziInputText').focus();
+}
+function bonziCloseInput() {
+    document.getElementById('bonziInputWindow').classList.remove('show');
+}
+function bonziSubmitInput() {
+    const text = document.getElementById('bonziInputText').value.trim();
+    if (text && bonziAgent) bonziAgent.speak(text);
+    bonziCloseInput();
+}
+function disposeBonzi() {
+    if (!bonziAgent) return;
+    bonziAgent.speak("Goodbye!");
+    setTimeout(() => { bonziAgent.dispose(); bonziAgent = null; }, 1000);
+}
+
+/* =========================================================
+   SİSTEM BAŞLATMA
+   ========================================================= */
+window.addEventListener('load', () => {
+    window.taskbar.init();
+    window.appRegistry.renderDesktopIcons();
+    window.appRegistry.renderStartMenu();
+    window.appRegistry.syncShellShortcuts();
+    initDraggableIcons();
+    window.appRegistry.probeInstalledApps();
+    setTimeout(() => {
+        document.getElementById('bootScreen').style.display = 'none';
+        document.getElementById('loginScreen').style.display = 'flex';
+    }, 1200);
+});
+</script>
+<script src="./core/systemSettings.js"></script>
+<script src="./core/shell-ui.js"></script>
+
+<script src="./core/microsoftAgentShell.js?v=3"></script>
+</body>
+</html>

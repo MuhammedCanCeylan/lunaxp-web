@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arama Sonuçları</title>
+<style>
+:root{
+  --xp:#ECE9D8;--xp-border:#ACA899;--xp-input:#7F9DB9;--xp-blue:#316AC5;
+  --pane:#D6E5F5;--pane-dark:#7BA2CE;--pane-title:#215DC6;--white:#fff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden}
+body{font-family:Tahoma,sans-serif;font-size:11px;color:#000;background:#fff;user-select:none}
+button,input,select{font:11px Tahoma,sans-serif}
+#app{height:100%;display:flex;flex-direction:column;background:#fff}
+.menu{height:21px;background:var(--xp);border-bottom:1px solid var(--xp-border);display:flex;align-items:center;padding:0 6px;gap:16px}
+.menu span{padding:2px 3px}
+.menu span:hover{background:var(--xp-blue);color:#fff}
+.toolbar{height:36px;background:var(--xp);border-bottom:1px solid var(--xp-border);display:flex;align-items:center;padding:2px 5px;gap:2px}
+.tb{height:29px;min-width:40px;padding:1px 6px;border:1px solid transparent;background:transparent;display:flex;align-items:center;gap:5px}
+.tb:hover{border-color:#9DB9E1;background:#DCEAF8}
+.tb:active{border-style:inset;background:#CADDF3}
+.tb:disabled{opacity:.5}
+.tb-icon{font-size:17px;line-height:17px}.sep{height:26px;width:1px;background:#C5C2B8;margin:0 4px}
+.main{flex:1;min-height:0;display:flex;background:#fff}
+.companion{width:218px;flex:0 0 218px;background:linear-gradient(#DDEBFA,#C7DDF4);border-right:1px solid #7697BF;overflow:auto;padding:10px 9px 14px}
+.companion-card{background:#fff;border:1px solid #8BA8C9;border-radius:2px;margin-bottom:9px;overflow:hidden}
+.card-title{background:linear-gradient(90deg,#4C83C3,#9DBBDE);color:#fff;font-weight:bold;padding:5px 7px}
+.card-body{padding:8px;line-height:1.45}
+.assistant{display:flex;align-items:center;gap:8px;margin-bottom:10px;color:#17365D}
+.assistant-icon{width:38px;height:38px;position:relative;flex:0 0 38px}
+.assistant-icon:before{content:'';position:absolute;width:21px;height:21px;border:4px solid #F0C340;border-radius:50%;left:1px;top:0;background:rgba(255,255,255,.65)}
+.assistant-icon:after{content:'';position:absolute;width:17px;height:5px;background:#236EB5;transform:rotate(45deg);left:20px;top:25px;border-radius:3px}
+.question{font-weight:bold;font-size:12px;line-height:1.35}
+.choice{display:block;color:#0645AD;text-decoration:none;padding:4px 3px 4px 18px;position:relative;cursor:pointer}
+.choice:before{content:'›';position:absolute;left:6px;font-weight:bold;color:#2B67A0}
+.choice:hover{text-decoration:underline}
+.choice.active{color:#000;font-weight:bold;text-decoration:none}
+.label{display:block;margin:5px 0 3px}
+.textbox,.select{width:100%;height:22px;background:#fff;border:1px solid var(--xp-input);padding:2px 4px;outline:none}
+.textbox:focus,.select:focus{border-color:#316AC5}
+.xpbtn{min-width:72px;height:23px;padding:0 10px;background:var(--xp);border:2px outset #fff;color:#000}
+.xpbtn:active{border-style:inset}.xpbtn:disabled{color:#888}
+.search-actions{display:flex;gap:6px;margin-top:9px}
+.advanced-toggle{color:#0645AD;cursor:pointer;padding:5px 0 1px;display:block}.advanced-toggle:hover{text-decoration:underline}
+.advanced{display:none;margin-top:4px;padding-top:5px;border-top:1px solid #A9BED8}.advanced.show{display:block}
+.checkrow{display:flex;align-items:center;gap:5px;margin:5px 0}
+.results{flex:1;min-width:0;display:flex;flex-direction:column;background:#fff}
+.result-head{height:27px;background:#F6F6F6;border-bottom:1px solid #D5D5D5;padding:6px 8px;color:#444;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tablewrap{flex:1;min-height:0;overflow:auto;position:relative}
+table{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed}
+thead th{position:sticky;top:0;height:21px;background:var(--xp);font-weight:normal;text-align:left;padding:2px 6px;border-top:1px solid #fff;border-left:1px solid #fff;border-right:1px solid var(--xp-border);border-bottom:1px solid var(--xp-border);z-index:3}
+tbody td{height:22px;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-bottom:1px solid transparent}
+tbody tr:hover td{background:#E8F0FC}tbody tr.sel td{background:var(--xp-blue);color:#fff}
+.namecell{display:flex;align-items:center;gap:5px;min-width:0}.namecell img{width:16px;height:16px;object-fit:contain;flex:0 0 16px}.namecell span{overflow:hidden;text-overflow:ellipsis}
+.empty{position:absolute;inset:40px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:52px;color:#666;text-align:center;line-height:1.6}
+.status{height:21px;background:var(--xp);border-top:1px solid var(--xp-border);display:flex;align-items:center;padding:2px 3px;gap:2px}
+.status-cell{height:16px;border:1px solid;border-color:#9A9A9A #fff #fff #9A9A9A;padding:1px 6px;white-space:nowrap}.grow{flex:1;overflow:hidden;text-overflow:ellipsis}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.10);z-index:1000;align-items:center;justify-content:center}
+.dialog{width:390px;background:var(--xp);border:1px solid #003C74;box-shadow:3px 3px 12px rgba(0,0,0,.45)}
+.dtitle{height:24px;background:linear-gradient(#3A93FF,#0054E3);color:#fff;font-weight:bold;display:flex;align-items:center;justify-content:space-between;padding:0 4px 0 7px}
+.dclose{width:21px;height:19px;border:1px solid #fff;border-radius:3px;background:linear-gradient(#F39A82,#D6421F);color:#fff;font-weight:bold}
+.dbody{padding:14px;line-height:1.5}.dactions{padding:0 14px 12px;display:flex;justify-content:flex-end;gap:7px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="menu"><span>Dosya</span><span>Düzen</span><span>Görünüm</span><span>Sık Kullanılanlar</span><span>Araçlar</span><span>Yardım</span></div>
+  <div class="toolbar">
+    <button class="tb" id="openBtn" disabled><span class="tb-icon">📂</span><span>Aç</span></button>
+    <button class="tb" id="folderBtn" disabled><span class="tb-icon">📁</span><span>Bulunduğu Klasör</span></button>
+    <div class="sep"></div>
+    <button class="tb" id="newSearchBtn"><span class="tb-icon">🔎</span><span>Yeni Arama</span></button>
+  </div>
+
+  <div class="main">
+    <aside class="companion">
+      <div class="assistant"><div class="assistant-icon"></div><div class="question">Ne aramak istiyorsunuz?</div></div>
+      <div class="companion-card">
+        <div class="card-title">Arama türü</div>
+        <div class="card-body" id="modeChoices">
+          <a class="choice active" data-mode="all">Tüm dosya ve klasörler</a>
+          <a class="choice" data-mode="documents">Belgeler</a>
+          <a class="choice" data-mode="media">Resimler, müzik veya video</a>
+          <a class="choice" data-mode="folders">Yalnızca klasörler</a>
+          <a class="choice" data-mode="programs">Programlar ve kısayollar</a>
+        </div>
+      </div>
+      <div class="companion-card">
+        <div class="card-title">Arama ölçütleri</div>
+        <div class="card-body">
+          <label class="label" for="nameQuery">Dosya adının tamamı veya bir kısmı:</label>
+          <input class="textbox" id="nameQuery" autocomplete="off" spellcheck="false">
+          <label class="label" for="contentQuery">Dosyadaki bir sözcük veya sözcük grubu:</label>
+          <input class="textbox" id="contentQuery" autocomplete="off" spellcheck="false">
+          <label class="label" for="location">Konum:</label>
+          <select class="select" id="location"></select>
+          <span class="advanced-toggle" id="advancedToggle">Daha gelişmiş seçenekler ›</span>
+          <div class="advanced" id="advanced">
+            <label class="label" for="typeFilter">Dosya türü:</label>
+            <select class="select" id="typeFilter">
+              <option value="">Tümü</option><option value="txt">Metin belgeleri (*.txt)</option><option value="image">Resimler</option><option value="audio">Ses</option><option value="html">Web sayfaları</option><option value="shortcut">Kısayollar</option><option value="application">Uygulamalar</option>
+            </select>
+            <label class="checkrow"><input type="checkbox" id="showHidden"> Gizli dosya ve klasörlerde ara</label>
+            <label class="checkrow"><input type="checkbox" id="matchCase"> Büyük/küçük harf eşleştir</label>
+          </div>
+          <div class="search-actions"><button class="xpbtn" id="searchBtn">Ara</button><button class="xpbtn" id="stopBtn" disabled>Durdur</button></div>
+        </div>
+      </div>
+    </aside>
+
+    <section class="results">
+      <div class="result-head" id="resultHead">Aramayı başlatmak için soldaki ölçütleri kullanın.</div>
+      <div class="tablewrap">
+        <table>
+          <colgroup><col style="width:31%"><col style="width:37%"><col style="width:18%"><col style="width:14%"></colgroup>
+          <thead><tr><th data-sort="name">Ad</th><th data-sort="path">Klasörde</th><th data-sort="type">Tür</th><th data-sort="size">Boyut</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+        <div class="empty" id="empty">Aramayı başlatmak için soldaki kutuya bir ad yazın.<br>İsterseniz yalnızca içerik veya tür seçerek de arayabilirsiniz.</div>
+      </div>
+    </section>
+  </div>
+  <div class="status"><div class="status-cell" id="count">0 nesne</div><div class="status-cell grow" id="statusText">Hazır</div></div>
+</div>
+<div class="overlay" id="overlay"></div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const state={mode:'all',results:[],selected:new Set(),sort:'name',dir:1,running:false,startPath:'C:\\'};
+const IMAGE_EXT=new Set(['bmp','png','jpg','jpeg','gif','webp','tif','tiff']);
+const AUDIO_EXT=new Set(['mp3','wav','mid','midi','wma','ogg']);
+const VIDEO_EXT=new Set(['avi','mpg','mpeg','wmv','mp4','mov']);
+const DOC_EXT=new Set(['txt','log','ini','doc','docx','rtf','pdf','xls','xlsx','ppt','pptx','html','htm']);
+function parentApi(name){try{return window.parent&&window.parent[name]?window.parent[name]:null}catch(e){return null}}
+function vfs(){return parentApi('vfs')}
+function shell(){return parentApi('xpShell')}
+function registry(){return parentApi('appRegistry')}
+function normalizePath(p){const fs=vfs();try{return fs&&fs.normalizePath?fs.normalizePath(p):p}catch(e){return p}}
+function validFolder(p){const fs=vfs();try{const n=fs&&fs.resolvePath?fs.resolvePath(p):null;return !!(n&&(n.type==='folder'||n.type==='drive'||n.type==='root'))}catch(e){return false}}
+function parentPath(path){const fs=vfs();try{return fs&&fs.parentPath?fs.parentPath(path):path.replace(/\\[^\\]+\\?$/,'')}catch(e){return path}}
+function basename(path){const fs=vfs();try{return fs&&fs.basename?fs.basename(path):String(path).split('\\').pop()}catch(e){return path}}
+function extOf(n){return String(n.ext||(n.name&&n.name.includes('.')?n.name.split('.').pop():'')).toLowerCase()}
+function hidden(n){return !!(n.hidden||String(n.name||'').startsWith('.'))}
+function typeOf(n){const fs=vfs();try{return fs&&fs.describeType?fs.describeType(n):(n.type||'Öğe')}catch(e){return n.type||'Öğe'}}
+function sizeOf(n){const fs=vfs();try{return fs&&fs.nodeSizeBytes?fs.nodeSizeBytes(n):Number(n.size||0)}catch(e){return Number(n.size||0)}}
+function sizeText(bytes){let n=Number(bytes||0);if(!n)return '';if(n<1024)return n+' bayt';if(n<1024*1024)return Math.ceil(n/1024)+' KB';return (n/1024/1024).toFixed(n>=10*1024*1024?0:1)+' MB'}
+function iconFor(n){const r=registry();try{return r&&r.iconForVfsNode?r.iconForVfsNode(n):'../../icons/windows-0.png'}catch(e){return '../../icons/windows-0.png'}}
+function fallbackIcon(img){img.onerror=function(){this.onerror=null;this.src='../../icons/windows-0.png'}}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+
+function fillLocations(preferred){
+ const fs=vfs(),sel=$('location');sel.innerHTML='';
+ const candidates=[['Yerel Disk (C:)','C:\\']];
+ if(fs){
+   const specials=[['Masaüstü','desktop'],['Belgelerim','documents'],['Program Files','programFiles'],['Windows','windows']];
+   specials.forEach(([label,key])=>{try{const p=fs.getSpecialFolderPath(key);if(p)candidates.push([label,p])}catch(e){}});
+ }
+ if(preferred&&validFolder(preferred)&&!candidates.some(x=>normalizePath(x[1])===normalizePath(preferred)))candidates.unshift(['Geçerli klasör',preferred]);
+ const seen=new Set();candidates.forEach(([label,path])=>{const p=normalizePath(path);if(!p||seen.has(p))return;seen.add(p);const o=document.createElement('option');o.value=p;o.textContent=label+' ('+p+')';sel.appendChild(o)});
+ let target=preferred&&validFolder(preferred)?normalizePath(preferred):'C:\\';
+ if([...sel.options].some(o=>o.value===target))sel.value=target;else sel.value='C:\\';
+ state.startPath=sel.value;
+}
+
+function modePass(n){
+ const e=extOf(n);
+ if(state.mode==='folders')return n.type==='folder'||n.type==='drive';
+ if(state.mode==='programs')return n.type==='application'||n.type==='shortcut'||e==='exe';
+ if(state.mode==='documents')return n.type==='file'&&DOC_EXT.has(e);
+ if(state.mode==='media')return n.type==='file'&&(IMAGE_EXT.has(e)||AUDIO_EXT.has(e)||VIDEO_EXT.has(e));
+ return true;
+}
+function typeFilterPass(n,val){
+ if(!val)return true;const e=extOf(n);
+ if(val==='image')return IMAGE_EXT.has(e);if(val==='audio')return AUDIO_EXT.has(e);
+ if(val==='html')return e==='html'||e==='htm';if(val==='shortcut')return n.type==='shortcut';if(val==='application')return n.type==='application'||e==='exe';return e===val;
+}
+function contains(hay,needle,caseSensitive){if(!needle)return true;hay=String(hay||'');return caseSensitive?hay.includes(needle):hay.toLocaleLowerCase('tr').includes(needle.toLocaleLowerCase('tr'))}
+function runSearch(){
+ const fs=vfs();if(!fs||typeof fs.walk!=='function'){message('Windows sanal dosya sistemi kullanılamıyor.');return}
+ const nameQ=$('nameQuery').value.trim(),contentQ=$('contentQuery').value.trim(),start=$('location').value||'C:\\',showHidden=$('showHidden').checked,caseSensitive=$('matchCase').checked,typeFilter=$('typeFilter').value;
+ state.running=true;$('searchBtn').disabled=true;$('stopBtn').disabled=false;$('resultHead').textContent='Aranıyor...';$('statusText').textContent='Aranıyor: '+start;
+ // Give the UI one paint before walking a large tree.
+ setTimeout(()=>{
+  let entries=[];try{entries=fs.walk(start,{excludeStart:true})||[]}catch(e){entries=[]}
+  if(!state.running)return;
+  const out=[];
+  for(const entry of entries){
+   if(!state.running)break;const n=entry.node||{};
+   if(!showHidden&&hidden(n))continue;if(!modePass(n)||!typeFilterPass(n,typeFilter))continue;
+   if(nameQ&&!contains(n.name,nameQ,caseSensitive))continue;
+   if(contentQ){if(n.type!=='file')continue;const text=typeof n.content==='string'?n.content:'';if(!contains(text,contentQ,caseSensitive))continue}
+   out.push({path:entry.path,node:n,name:n.displayName||n.name||basename(entry.path),folder:parentPath(entry.path),type:typeOf(n),size:sizeOf(n)});
+  }
+  state.results=out;state.selected.clear();state.running=false;$('searchBtn').disabled=false;$('stopBtn').disabled=true;sortAndRender();
+  $('resultHead').textContent=out.length?out.length+' sonuç bulundu — '+start:'Aramanızla eşleşen öğe bulunamadı.';
+  $('statusText').textContent=out.length?start:'Arama tamamlandı';
+ },0);
+}
+function stopSearch(){state.running=false;$('searchBtn').disabled=false;$('stopBtn').disabled=true;$('statusText').textContent='Arama durduruldu';$('resultHead').textContent='Arama durduruldu.'}
+function sortAndRender(){
+ state.results.sort((a,b)=>{let av=a[state.sort],bv=b[state.sort];if(state.sort==='size')return (av-bv)*state.dir;return String(av||'').localeCompare(String(bv||''),'tr')*state.dir});renderResults();
+}
+function renderResults(){
+ const tb=$('tbody');tb.innerHTML='';
+ state.results.forEach((r,i)=>{const tr=document.createElement('tr');tr.dataset.i=i;if(state.selected.has(r.path))tr.classList.add('sel');
+  tr.innerHTML='<td><div class="namecell"><img alt=""><span>'+esc(r.name)+'</span></div></td><td>'+esc(r.folder)+'</td><td>'+esc(r.type)+'</td><td>'+esc(sizeText(r.size))+'</td>';
+  const img=tr.querySelector('img');img.src=iconFor(r.node);fallbackIcon(img);
+  tr.addEventListener('click',e=>selectRow(r,e));tr.addEventListener('dblclick',()=>openPath(r.path));tb.appendChild(tr)
+ });
+ $('empty').style.display=state.results.length?'none':'flex';$('empty').innerHTML=state.results.length?'':'Aramanızla eşleşen öğe bulunamadı.';updateSelectionUi();
+}
+function selectRow(r,e){
+ if(e.ctrlKey){state.selected.has(r.path)?state.selected.delete(r.path):state.selected.add(r.path)}else if(e.shiftKey){state.selected.add(r.path)}else{state.selected.clear();state.selected.add(r.path)}renderResults();
+}
+function updateSelectionUi(){const n=state.selected.size;$('openBtn').disabled=!n;$('folderBtn').disabled=n!==1;$('count').textContent=state.results.length+' nesne'+(n?' ('+n+' seçili)':'')}
+function selectedPaths(){return state.results.filter(r=>state.selected.has(r.path)).map(r=>r.path)}
+function openPath(path){const sh=shell();if(sh&&sh.openVfsItem)sh.openVfsItem(path)}
+function openSelected(){const paths=selectedPaths(),sh=shell();if(!paths.length||!sh)return;if(paths.length===1)openPath(paths[0]);else if(sh.openMany)sh.openMany(paths,90)}
+function openContaining(){const p=selectedPaths()[0];if(!p)return;const sh=shell();if(sh&&sh.openExplorer)sh.openExplorer(parentPath(p))}
+function resetSearch(){state.results=[];state.selected.clear();$('nameQuery').value='';$('contentQuery').value='';$('typeFilter').value='';$('showHidden').checked=false;$('matchCase').checked=false;renderResults();$('resultHead').textContent='Aramayı başlatmak için soldaki ölçütleri kullanın.';$('statusText').textContent='Hazır';$('nameQuery').focus()}
+function message(text){const ov=$('overlay');ov.innerHTML='<div class="dialog"><div class="dtitle"><span>Arama</span><button class="dclose">X</button></div><div class="dbody">'+esc(text)+'</div><div class="dactions"><button class="xpbtn">Tamam</button></div></div>';ov.style.display='flex';ov.querySelectorAll('button').forEach(b=>b.onclick=()=>{ov.style.display='none';ov.innerHTML=''})}
+function applyLaunchContext(ctx){
+ let p=ctx&&ctx.startPath;if(!p&&ctx&&ctx.path)p=ctx.path;
+ if(p==='Bilgisayarım'||p==='Denetim Masası'||p==='Ağ Komşularım')p='C:\\';
+ if(p&&!validFolder(p))p=parentPath(p);
+ fillLocations(p||state.startPath||'C:\\');
+ if(ctx&&ctx.query!=null){$('nameQuery').value=String(ctx.query);runSearch()}
+}
+
+$('modeChoices').querySelectorAll('.choice').forEach(a=>a.onclick=()=>{state.mode=a.dataset.mode;$('modeChoices').querySelectorAll('.choice').forEach(x=>x.classList.toggle('active',x===a))});
+$('advancedToggle').onclick=()=>{const a=$('advanced');a.classList.toggle('show');$('advancedToggle').textContent=a.classList.contains('show')?'Daha gelişmiş seçenekler ‹':'Daha gelişmiş seçenekler ›'};
+$('searchBtn').onclick=runSearch;$('stopBtn').onclick=stopSearch;$('newSearchBtn').onclick=resetSearch;$('openBtn').onclick=openSelected;$('folderBtn').onclick=openContaining;
+['nameQuery','contentQuery'].forEach(id=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();runSearch()}}));
+document.querySelectorAll('thead th[data-sort]').forEach(th=>th.onclick=()=>{const k=th.dataset.sort;if(state.sort===k)state.dir*=-1;else{state.sort=k;state.dir=1}sortAndRender()});
+document.addEventListener('keydown',e=>{if($('overlay').style.display==='flex'){if(e.key==='Escape'){$('overlay').style.display='none';$('overlay').innerHTML=''}return}if(e.key==='F3'||(e.ctrlKey&&e.key.toLowerCase()==='f')){e.preventDefault();$('nameQuery').focus();$('nameQuery').select();return}if(e.key==='Enter'&&state.selected.size){e.preventDefault();openSelected();return}if(e.ctrlKey&&e.key.toLowerCase()==='a'&&document.activeElement.tagName!=='INPUT'){e.preventDefault();state.results.forEach(r=>state.selected.add(r.path));renderResults();return}if(e.key==='Escape'&&state.running){stopSearch()}});
+window.addEventListener('message',e=>{if(e.data&&e.data.type==='xp-launch-context'&&e.data.appId==='search')applyLaunchContext(e.data.context||{})});
+fillLocations('C:\\');renderResults();$('nameQuery').focus();
+try{const wm=window.parent&&window.parent.windowManager;if(wm&&wm.setTitle)wm.setTitle('search','Arama Sonuçları')}catch(e){}
+})();
+</script>
+</body>
+</html>

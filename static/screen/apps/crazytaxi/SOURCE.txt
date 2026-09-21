@@ -1,0 +1,25 @@
+﻿Crazy Taxi tribute for Windows XP Web Simulator
+
+Selected project:
+https://github.com/roblouie/charon-jr
+
+Project:
+Charon Jr.
+
+Description:
+A browser-based 3D driving game based largely on Crazy Taxi
+and partly on Smugglers Run.
+
+Features documented by upstream:
+- WebGL 3D graphics
+- 3D spatial audio
+- large open-world terrains
+- three levels
+
+JS13K 2022:
+6th place.
+
+Important:
+This is NOT Sega's original Crazy Taxi and contains no Sega game data.
+The Windows XP app is named Crazy Taxi for the simulator's catalog,
+but the playable engine is Charon Jr.

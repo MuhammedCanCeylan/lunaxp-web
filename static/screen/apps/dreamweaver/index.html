@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<!--
+MACROMEDIA DREAMWEAVER (XP Luna Simülasyonu) - ASSET LISTESI
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama          |
+| icon.png  | 32x32 (şeffaf)       | Zorunlu    | Masaüstü / kayıt defteri ikonu |
+Not: Bu uygulama, orijinal Macromedia/Adobe Dreamweaver'ın hiçbir tescilli
+logosunu, ikonunu veya kaynak kodunu içermez. Klasik "kod + tasarım" ikili
+görünümlü web editörü fikrinden ilham alan, sıfırdan yazılmış özgün bir
+nostalji simülasyonudur.
+-->
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Macromedia Dreamweaver MX 2004 - index.html</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    font-family: Tahoma, "MS Sans Serif", sans-serif; font-size: 11px;
+    background: #ECE9D8; overflow: hidden; user-select: none;
+  }
+  #app { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
+
+  /* ---------- Menu bar ---------- */
+  .menubar {
+    display: flex; background: #ECE9D8; border-bottom: 1px solid #ACA899;
+    padding: 2px 4px; flex-shrink: 0;
+  }
+  .menubar .mitem {
+    padding: 3px 8px; cursor: default; color: #000;
+  }
+  .menubar .mitem:hover { background: #316AC5; color: #fff; }
+
+  /* ---------- Toolbars ---------- */
+  .toolbar {
+    display: flex; align-items: center; gap: 2px; flex-wrap: wrap;
+    background: linear-gradient(to bottom, #F5F4EA, #E3E0CF);
+    border-bottom: 1px solid #ACA899; padding: 3px 4px; flex-shrink: 0;
+  }
+  .toolbar .sep { width: 1px; height: 20px; background: #ACA899; margin: 0 4px; }
+  .btn {
+    background: #ECE9D8; border: 1px outset #fff; padding: 2px 7px;
+    cursor: default; color: #000; white-space: nowrap; font-size: 11px;
+  }
+  .btn:active, .btn.active { border: 1px inset #7F9DB9; background: #D8E3F0; }
+  .btn:hover { background: #E7EFFB; border-color: #7F9DB9; }
+  .iconbtn {
+    width: 24px; height: 22px; display: flex; align-items: center; justify-content: center;
+    background: #ECE9D8; border: 1px outset #fff; cursor: default; font-size: 12px;
+  }
+  .iconbtn:hover { background: #E7EFFB; border-color: #7F9DB9; }
+  .iconbtn:active { border: 1px inset #7F9DB9; background: #D8E3F0; }
+  select.dw {
+    font-family: Tahoma; font-size: 11px; border: 1px inset #ACA899; padding: 1px;
+  }
+  input.dw-text {
+    font-family: Tahoma; font-size: 11px; border: 1px inset #ACA899; padding: 2px 3px;
+  }
+
+  /* ---------- Main split area ---------- */
+  #workarea { flex: 1; display: flex; flex-direction: row; min-height: 0; }
+  #docarea { flex: 1; display: flex; flex-direction: column; min-width: 0; border-right: 1px solid #ACA899; }
+
+  #titlebar-doc {
+    background: #F5F4EA; border-bottom: 1px solid #ACA899; padding: 2px 6px;
+    display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+  }
+  #titlebar-doc input { flex: 0 0 auto; width: 220px; }
+
+  #splitpanes { flex: 1; display: flex; flex-direction: row; min-height: 0; background: #808080; }
+  .pane { flex: 1; display: flex; flex-direction: column; min-width: 0; background: #fff; }
+  .pane-hidden { display: none !important; }
+  .pane-header {
+    background: #D4D0C8; font-weight: bold; padding: 2px 6px; border-bottom: 1px solid #ACA899;
+    flex-shrink: 0; color: #333;
+  }
+  #codewrap { flex: 1; display: flex; overflow: hidden; }
+  #gutter {
+    background: #F0EFE4; color: #888; text-align: right; padding: 4px 4px 4px 0;
+    font-family: "Courier New", monospace; font-size: 12px; line-height: 15px;
+    overflow: hidden; user-select: none; border-right: 1px solid #ddd; min-width: 30px;
+  }
+  #codearea {
+    flex: 1; border: none; outline: none; resize: none; padding: 4px 6px;
+    font-family: "Courier New", monospace; font-size: 12px; line-height: 15px;
+    white-space: pre; overflow: auto; color: #000060; user-select: text;
+  }
+  #designwrap { flex: 1; overflow: auto; background: #999; display: flex; justify-content: center; }
+  #designframe { border: none; background: #fff; flex-shrink: 0; }
+
+  /* ---------- Insert bar icon look ---------- */
+  .insicon { font-size: 13px; }
+
+  /* ---------- Status bar / tag selector ---------- */
+  #statusbar {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #ECE9D8; border-top: 1px solid #fff; box-shadow: inset 0 1px 0 #ACA899;
+    padding: 2px 6px; flex-shrink: 0; font-size: 11px; color: #333;
+  }
+  #tagpath { display: flex; gap: 3px; align-items: center; overflow: hidden; white-space: nowrap; }
+  .tagchip {
+    background: #fff; border: 1px solid #ACA899; padding: 0 4px; color: #0000AA; cursor: default;
+  }
+  .tagchip:hover { background: #D8E3F0; }
+
+  /* ---------- Right panels ---------- */
+  #rightpanels {
+    width: 200px; flex-shrink: 0; display: flex; flex-direction: column;
+    background: #ECE9D8; border-left: 1px solid #ACA899;
+  }
+  .panel { border-bottom: 1px solid #ACA899; display: flex; flex-direction: column; }
+  .panel-title {
+    background: linear-gradient(to bottom, #E7EFFB, #C6D8EF); border-bottom: 1px solid #7F9DB9;
+    padding: 3px 6px; font-weight: bold; color: #003399; display:flex; justify-content: space-between;
+  }
+  .panel-body { background: #fff; padding: 4px; overflow: auto; font-size: 11px; }
+  .filerow { padding: 2px 4px; cursor: default; display:flex; align-items:center; gap:4px;}
+  .filerow:hover { background: #D8E3F0; }
+  #propspanel {
+    height: 96px; flex-shrink: 0; background: #ECE9D8; border-top: 1px solid #ACA899;
+    display: flex; flex-direction: column;
+  }
+  #propsbody { flex: 1; display: flex; align-items: center; gap: 14px; padding: 6px 10px; overflow: auto; }
+  .propfield { display: flex; flex-direction: column; gap: 2px; }
+  .propfield label { font-size: 10px; color: #444; }
+
+  /* ---------- XP dialog (replaces alert/confirm/prompt) ---------- */
+  #overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.25); display: none;
+    align-items: center; justify-content: center; z-index: 999;
+  }
+  .xp-dialog {
+    width: 320px; background: #ECE9D8; border: 1px solid #0A246A; box-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+  }
+  .xp-dialog-title {
+    background: linear-gradient(to bottom, #2A5DB0, #1941A5 45%, #0A2E85);
+    color: #fff; font-weight: bold; padding: 4px 6px; display: flex; justify-content: space-between;
+    font-size: 11px;
+  }
+  .xp-dialog-title .xclose {
+    background: #E8705A; border: 1px outset #fff; width:16px; height:15px; text-align:center; line-height:14px; color:#5c1a10; cursor:default;
+  }
+  .xp-dialog-body { padding: 12px; font-size: 11px; }
+  .xp-dialog-body .row { margin-bottom: 8px; display: flex; flex-direction: column; gap: 3px; }
+  .xp-dialog-body input, .xp-dialog-body select { font-family: Tahoma; font-size: 11px; border: 1px inset #ACA899; padding: 2px 3px; }
+  .xp-dialog-buttons { display: flex; justify-content: flex-end; gap: 6px; padding: 8px 12px 12px; }
+  .xp-dialog-buttons .btn { padding: 3px 14px; }
+
+  ::-webkit-scrollbar { width: 16px; height: 16px; }
+  ::-webkit-scrollbar-track { background: #ECE9D8; }
+  ::-webkit-scrollbar-thumb { background: #D4D0C8; border: 1px solid #ACA899; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Menu bar -->
+  <div class="menubar">
+    <div class="mitem">Dosya</div>
+    <div class="mitem">Düzen</div>
+    <div class="mitem">Görünüm</div>
+    <div class="mitem">Ekle</div>
+    <div class="mitem">Değiştir</div>
+    <div class="mitem">Biçim</div>
+    <div class="mitem">Komutlar</div>
+    <div class="mitem">Site</div>
+    <div class="mitem">Pencere</div>
+    <div class="mitem">Yardım</div>
+  </div>
+
+  <!-- Standard toolbar -->
+  <div class="toolbar">
+    <div class="btn" id="btnNew" title="Yeni Belge">📄 Yeni</div>
+    <div class="btn" id="btnOpen" title="Belge Aç">📂 Aç</div>
+    <input type="file" id="fileInput" accept=".html,.htm,.txt" style="display:none">
+    <div class="btn" id="btnSave" title="Kaydet (index.html olarak indir)">💾 Kaydet</div>
+    <div class="btn" id="btnPreview" title="Tarayıcıda Önizle">🌐 Önizle</div>
+    <div class="sep"></div>
+    <div class="btn" id="viewCode">Kod</div>
+    <div class="btn active" id="viewSplit">Bölünmüş</div>
+    <div class="btn" id="viewDesign">Tasarım</div>
+    <div class="sep"></div>
+    <div class="iconbtn" id="btnBold" title="Kalın"><b>B</b></div>
+    <div class="iconbtn" id="btnItalic" title="İtalik"><i>I</i></div>
+    <div class="iconbtn" id="btnUnderline" title="Altı çizili"><u>U</u></div>
+  </div>
+
+  <!-- Insert bar -->
+  <div class="toolbar">
+    <span style="padding:0 4px; color:#003399; font-weight:bold;">Ortak:</span>
+    <div class="btn" id="insImage" title="Görüntü Ekle"><span class="insicon">🖼️</span> Görüntü</div>
+    <div class="btn" id="insTable" title="Tablo Ekle"><span class="insicon">▦</span> Tablo</div>
+    <div class="btn" id="insLink" title="Köprü Ekle"><span class="insicon">🔗</span> Köprü</div>
+    <div class="btn" id="insDiv" title="Div Etiketi Ekle"><span class="insicon">▭</span> Div Etiketi</div>
+    <div class="btn" id="insHr" title="Yatay Kural Ekle">―</div>
+    <div class="btn" id="insComment" title="Açıklama Ekle">&lt;!----&gt;</div>
+    <div class="sep"></div>
+    <span style="padding:0 4px; color:#666;">Pencere Boyutu:</span>
+    <select class="dw" id="winSize">
+      <option value="0x0">Uyarla</option>
+      <option value="760x420">760 x 420</option>
+      <option value="800x600" selected>800 x 600</option>
+      <option value="1024x768">1024 x 768</option>
+    </select>
+  </div>
+
+  <div id="workarea">
+    <div id="docarea">
+      <div id="titlebar-doc">
+        <span>Başlık:</span>
+        <input class="dw-text" id="docTitle" value="Adsız Belge">
+      </div>
+
+      <div id="splitpanes">
+        <div class="pane" id="codePane">
+          <div class="pane-header">Kod</div>
+          <div id="codewrap">
+            <div id="gutter">1</div>
+            <textarea id="codearea" spellcheck="false"></textarea>
+          </div>
+        </div>
+        <div class="pane" id="designPane">
+          <div class="pane-header">Tasarım</div>
+          <div id="designwrap">
+            <iframe id="designframe" width="800" height="600"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tag selector / status bar -->
+      <div id="statusbar">
+        <div id="tagpath"><span style="color:#666;">&lt;body&gt;</span></div>
+        <div id="statusright" style="display:flex; gap:14px; color:#555;">
+          <span id="charcount">0 bayt</span>
+          <span>800 x 600</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right dockable panels -->
+    <div id="rightpanels">
+      <div class="panel" style="height:170px;">
+        <div class="panel-title"><span>Dosyalar</span><span>▾</span></div>
+        <div class="panel-body">
+          <div class="filerow">🗄️ Yerel Site</div>
+          <div class="filerow" style="padding-left:16px;">📁 static</div>
+          <div class="filerow" style="padding-left:28px; background:#D8E3F0;">📄 index.html</div>
+        </div>
+      </div>
+      <div class="panel" style="flex:1;">
+        <div class="panel-title"><span>CSS Stilleri</span><span>▾</span></div>
+        <div class="panel-body" id="cssPanelBody">
+          <div style="color:#888;">Stil bulunamadı</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Properties inspector -->
+  <div id="propspanel">
+    <div class="pane-header">Özellikler</div>
+    <div id="propsbody">
+      <div class="propfield"><label>Biçim</label>
+        <select class="dw" id="propFormat">
+          <option>Paragraf</option><option>Başlık 1</option><option>Başlık 2</option><option>Ön Biçimli</option>
+        </select>
+      </div>
+      <div class="propfield"><label>Yazı Tipi</label>
+        <select class="dw" id="propFont">
+          <option>Varsayılan Yazı Tipi</option><option>Arial</option><option>Georgia</option><option>Tahoma</option>
+        </select>
+      </div>
+      <div class="propfield"><label>Stil</label>
+        <select class="dw" id="propStyle"><option>Yok</option></select>
+      </div>
+      <div class="propfield"><label>Bağlantı</label>
+        <input class="dw-text" id="propLink" style="width:150px;" placeholder="http://">
+      </div>
+      <div class="propfield"><label>Hedef</label>
+        <select class="dw" id="propTarget"><option>_self</option><option>_blank</option></select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Custom dialog overlay (no alert/confirm/prompt) -->
+<div id="overlay">
+  <div class="xp-dialog">
+    <div class="xp-dialog-title"><span id="dlgTitle">Dreamweaver</span><span class="xclose" id="dlgClose">✕</span></div>
+    <div class="xp-dialog-body" id="dlgBody"></div>
+    <div class="xp-dialog-buttons" id="dlgButtons"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const ICON_FALLBACK = "data:image/svg+xml;utf8," + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><rect width="32" height="32" fill="%23ECE9D8"/></svg>');
+  document.querySelectorAll('img').forEach(function(img){
+    img.setAttribute('onerror', "this.onerror=null; this.src='"+ICON_FALLBACK+"';");
+  });
+
+  const codearea = document.getElementById('codearea');
+  const gutter = document.getElementById('gutter');
+  const designframe = document.getElementById('designframe');
+  const docTitle = document.getElementById('docTitle');
+  const tagpath = document.getElementById('tagpath');
+  const charcount = document.getElementById('charcount');
+  const cssPanelBody = document.getElementById('cssPanelBody');
+
+  const DEFAULT_HTML =
+`<!DOCTYPE html>
+<html>
+<head>
+<title>Adsız Belge</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
+h1 { color: #0033CC; }
+</style>
+</head>
+<body>
+<h1>Yeni sayfama hoş geldiniz</h1>
+<p>Buraya tasarım görünümünden veya kod görünümünden düzenleme yapabilirsiniz.</p>
+</body>
+</html>`;
+
+  let syncing = false;
+  let dirty = false;
+
+  // ---------- Line numbers ----------
+  function updateGutter(){
+    const lines = codearea.value.split('\n').length;
+    let out = '';
+    for (let i=1;i<=lines;i++) out += i + '\n';
+    gutter.textContent = out;
+  }
+  codearea.addEventListener('scroll', function(){ gutter.scrollTop = codearea.scrollTop; });
+
+  // ---------- Code -> Design ----------
+  function pushCodeToDesign(){
+    if (syncing) return;
+    syncing = true;
+    const html = codearea.value;
+    designframe.srcdoc = html;
+    designframe.addEventListener('load', function onload(){
+      designframe.removeEventListener('load', onload);
+      try {
+        designframe.contentDocument.designMode = 'on';
+        attachDesignListeners();
+      } catch(e){}
+      syncing = false;
+    });
+    updateGutter();
+    charcount.textContent = new Blob([html]).size + ' bayt';
+    parseCssPanel(html);
+    const m = html.match(/<title>([^<]*)<\/title>/i);
+    if (m) docTitle.value = m[1];
+  }
+
+  function attachDesignListeners(){
+    const doc = designframe.contentDocument;
+    if (!doc || !doc.body) return;
+    doc.body.addEventListener('input', pullDesignToCode);
+    doc.addEventListener('keyup', updateTagPathFromDesign);
+    doc.addEventListener('mouseup', updateTagPathFromDesign);
+  }
+
+  // ---------- Design -> Code ----------
+  function pullDesignToCode(){
+    if (syncing) return;
+    syncing = true;
+    try {
+      const doc = designframe.contentDocument;
+      const newHtml = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
+      const pos = codearea.selectionStart;
+      codearea.value = newHtml;
+      updateGutter();
+      charcount.textContent = new Blob([newHtml]).size + ' bayt';
+      parseCssPanel(newHtml);
+      dirty = true;
+    } catch(e){}
+    syncing = false;
+  }
+
+  function updateTagPathFromDesign(){
+    try {
+      const doc = designframe.contentDocument;
+      const sel = doc.getSelection();
+      if (!sel || !sel.anchorNode) return;
+      let node = sel.anchorNode;
+      if (node.nodeType === 3) node = node.parentElement;
+      const chain = [];
+      while (node && node.tagName && node.tagName.toLowerCase() !== 'html'){
+        chain.unshift(node.tagName.toLowerCase());
+        node = node.parentElement;
+      }
+      chain.unshift('body');
+      renderTagPath(chain);
+    } catch(e){}
+  }
+
+  function renderTagPath(chain){
+    tagpath.innerHTML = '';
+    chain.forEach(function(tag){
+      const span = document.createElement('span');
+      span.className = 'tagchip';
+      span.textContent = '<' + tag + '>';
+      tagpath.appendChild(span);
+    });
+  }
+
+  function parseCssPanel(html){
+    const m = html.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
+    cssPanelBody.innerHTML = '';
+    if (!m){ cssPanelBody.innerHTML = '<div style="color:#888;">Stil bulunamadı</div>'; return; }
+    const rules = m[1].match(/[^{}]+(?=\{)/g);
+    if (!rules){ cssPanelBody.innerHTML = '<div style="color:#888;">Stil bulunamadı</div>'; return; }
+    rules.forEach(function(sel){
+      const row = document.createElement('div');
+      row.className = 'filerow';
+      row.textContent = '🎨 ' + sel.trim();
+      cssPanelBody.appendChild(row);
+    });
+  }
+
+  codearea.addEventListener('input', function(){ dirty = true; pushCodeToDesign(); });
+
+  // ---------- View mode ----------
+  const codePane = document.getElementById('codePane');
+  const designPane = document.getElementById('designPane');
+  const viewCode = document.getElementById('viewCode');
+  const viewSplit = document.getElementById('viewSplit');
+  const viewDesign = document.getElementById('viewDesign');
+
+  function setView(mode){
+    [viewCode, viewSplit, viewDesign].forEach(b=>b.classList.remove('active'));
+    codePane.classList.remove('pane-hidden');
+    designPane.classList.remove('pane-hidden');
+    if (mode === 'code'){ designPane.classList.add('pane-hidden'); viewCode.classList.add('active'); }
+    else if (mode === 'design'){ codePane.classList.add('pane-hidden'); viewDesign.classList.add('active'); }
+    else { viewSplit.classList.add('active'); }
+  }
+  viewCode.onclick = ()=> setView('code');
+  viewSplit.onclick = ()=> setView('split');
+  viewDesign.onclick = ()=> setView('design');
+
+  // ---------- Window size ----------
+  document.getElementById('winSize').addEventListener('change', function(e){
+    const v = e.target.value;
+    if (v === '0x0'){ designframe.style.width='100%'; designframe.style.height='100%'; return; }
+    const [w,h] = v.split('x');
+    designframe.width = w; designframe.height = h;
+    document.getElementById('statusright').children[1].textContent = w + ' x ' + h;
+  });
+
+  // ---------- Formatting buttons (design mode execCommand) ----------
+  function execInDesign(cmd, val){
+    try {
+      designframe.contentWindow.focus();
+      designframe.contentDocument.execCommand(cmd, false, val || null);
+      pullDesignToCode();
+    } catch(e){}
+  }
+  document.getElementById('btnBold').onclick = ()=> execInDesign('bold');
+  document.getElementById('btnItalic').onclick = ()=> execInDesign('italic');
+  document.getElementById('btnUnderline').onclick = ()=> execInDesign('underline');
+
+  // ---------- Insert helpers (insert into code at cursor) ----------
+  function insertAtCursor(snippet){
+    const start = codearea.selectionStart, end = codearea.selectionEnd;
+    const val = codearea.value;
+    codearea.value = val.slice(0,start) + snippet + val.slice(end);
+    codearea.selectionStart = codearea.selectionEnd = start + snippet.length;
+    codearea.focus();
+    dirty = true;
+    pushCodeToDesign();
+  }
+
+  document.getElementById('insHr').onclick = ()=> insertAtCursor('\n<hr>\n');
+  document.getElementById('insComment').onclick = ()=> insertAtCursor('\n<!-- yorum -->\n');
+  document.getElementById('insDiv').onclick = ()=> insertAtCursor('\n<div id="yeniDiv">\n  İçerik buraya\n</div>\n');
+
+  document.getElementById('insImage').onclick = function(){
+    showDialog('Görüntü Ekle', [
+      {label:'Görüntü URL', id:'imgUrl', placeholder:'https://...'},
+      {label:'Alternatif Metin', id:'imgAlt', placeholder:'Açıklama'}
+    ], function(vals){
+      if (!vals.imgUrl) return;
+      insertAtCursor('<img src="'+vals.imgUrl+'" alt="'+(vals.imgAlt||'')+'" onerror="this.onerror=null;this.style.display=\'none\';">');
+    });
+  };
+
+  document.getElementById('insLink').onclick = function(){
+    showDialog('Köprü Ekle', [
+      {label:'Metin', id:'linkText', placeholder:'Bağlantı metni'},
+      {label:'Bağlantı (URL)', id:'linkHref', placeholder:'https://...'}
+    ], function(vals){
+      if (!vals.linkText) return;
+      insertAtCursor('<a href="'+(vals.linkHref||'#')+'">'+vals.linkText+'</a>');
+    });
+  };
+
+  document.getElementById('insTable').onclick = function(){
+    showDialog('Tablo Ekle', [
+      {label:'Satır sayısı', id:'rows', placeholder:'3'},
+      {label:'Sütun sayısı', id:'cols', placeholder:'3'}
+    ], function(vals){
+      const r = parseInt(vals.rows)||2, c = parseInt(vals.cols)||2;
+      let t = '\n<table border="1" cellpadding="4" cellspacing="0">\n';
+      for (let i=0;i<r;i++){
+        t += '  <tr>\n';
+        for (let j=0;j<c;j++) t += '    <td>&nbsp;</td>\n';
+        t += '  </tr>\n';
+      }
+      t += '</table>\n';
+      insertAtCursor(t);
+    });
+  };
+
+  // ---------- File: New / Open / Save / Preview ----------
+  function loadDoc(html, title){
+    codearea.value = html;
+    docTitle.value = title || 'Adsız Belge';
+    dirty = false;
+    pushCodeToDesign();
+    setView('split');
+  }
+
+  document.getElementById('btnNew').onclick = function(){
+    if (dirty){
+      showConfirm('Yeni Belge', 'Kaydedilmemiş değişiklikler kaybolacak. Devam edilsin mi?', function(){
+        loadDoc(DEFAULT_HTML, 'Adsız Belge');
+      });
+    } else {
+      loadDoc(DEFAULT_HTML, 'Adsız Belge');
+    }
+  };
+
+  const fileInput = document.getElementById('fileInput');
+  document.getElementById('btnOpen').onclick = ()=> fileInput.click();
+  fileInput.addEventListener('change', function(){
+    const f = fileInput.files[0];
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = function(){ loadDoc(reader.result, f.name); };
+    reader.readAsText(f);
+    fileInput.value = '';
+  });
+
+  document.getElementById('btnSave').onclick = function(){
+    const blob = new Blob([codearea.value], {type:'text/html'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = (docTitle.value || 'index').replace(/[^a-z0-9_\-]/gi,'_') + '.html';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url), 2000);
+    dirty = false;
+    showInfo('Kaydedildi', 'Belge indirilenler klasörüne kaydedildi.');
+  };
+
+  document.getElementById('btnPreview').onclick = function(){
+    const blob = new Blob([codearea.value], {type:'text/html'});
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+  };
+
+  // ---------- Custom XP dialogs ----------
+  const overlay = document.getElementById('overlay');
+  const dlgTitle = document.getElementById('dlgTitle');
+  const dlgBody = document.getElementById('dlgBody');
+  const dlgButtons = document.getElementById('dlgButtons');
+  document.getElementById('dlgClose').onclick = ()=> overlay.style.display='none';
+
+  function showDialog(title, fields, onOk){
+    dlgTitle.textContent = title;
+    dlgBody.innerHTML = '';
+    fields.forEach(function(f){
+      const row = document.createElement('div'); row.className='row';
+      const lab = document.createElement('label'); lab.textContent = f.label;
+      const inp = document.createElement('input'); inp.id = 'fld_'+f.id; inp.placeholder = f.placeholder||'';
+      row.appendChild(lab); row.appendChild(inp); dlgBody.appendChild(row);
+    });
+    dlgButtons.innerHTML = '';
+    const ok = document.createElement('div'); ok.className='btn'; ok.textContent='Tamam';
+    const cancel = document.createElement('div'); cancel.className='btn'; cancel.textContent='İptal';
+    ok.onclick = function(){
+      const vals = {};
+      fields.forEach(f => vals[f.id] = document.getElementById('fld_'+f.id).value);
+      overlay.style.display='none';
+      onOk(vals);
+    };
+    cancel.onclick = ()=> overlay.style.display='none';
+    dlgButtons.appendChild(cancel); dlgButtons.appendChild(ok);
+    overlay.style.display='flex';
+  }
+
+  function showConfirm(title, msg, onYes){
+    dlgTitle.textContent = title;
+    dlgBody.innerHTML = '<div class="row">'+msg+'</div>';
+    dlgButtons.innerHTML='';
+    const yes = document.createElement('div'); yes.className='btn'; yes.textContent='Evet';
+    const no = document.createElement('div'); no.className='btn'; no.textContent='Hayır';
+    yes.onclick = ()=>{ overlay.style.display='none'; onYes(); };
+    no.onclick = ()=> overlay.style.display='none';
+    dlgButtons.appendChild(no); dlgButtons.appendChild(yes);
+    overlay.style.display='flex';
+  }
+
+  function showInfo(title, msg){
+    dlgTitle.textContent = title;
+    dlgBody.innerHTML = '<div class="row">'+msg+'</div>';
+    dlgButtons.innerHTML='';
+    const ok = document.createElement('div'); ok.className='btn'; ok.textContent='Tamam';
+    ok.onclick = ()=> overlay.style.display='none';
+    dlgButtons.appendChild(ok);
+    overlay.style.display='flex';
+  }
+
+  docTitle.addEventListener('input', function(){
+    const html = codearea.value;
+    if (/<title>[^<]*<\/title>/i.test(html)){
+      codearea.value = html.replace(/<title>[^<]*<\/title>/i, '<title>'+docTitle.value+'</title>');
+    }
+    pushCodeToDesign();
+  });
+
+  // ---------- Init ----------
+  loadDoc(DEFAULT_HTML, 'Adsız Belge');
+})();
+</script>
+</body>
+</html>

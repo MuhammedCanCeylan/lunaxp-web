@@ -1,0 +1,891 @@
+<!--
+EMULE 0.50A - WINDOWS XP NOSTALGIA SIMULATOR - ASSET LISTESI
+
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama |
+|------------|----------------------|------------|----------------------------------------------|
+| icon.png   | 32x32                | Zorunlu    | XP masaustu / uygulama ikonu                 |
+
+NOTLAR:
+- Bu uygulama gercek ED2K/Kad agina baglanmaz; tarayici icinde yerel eMule deneyimi simulasyonudur.
+- Dış XP Luna başlık çubuğu ve görev çubuğu ana WindowManager tarafından sağlanır; burada tekrar çizilmez.
+- alert(), confirm(), prompt() kullanılmaz. Mesajlar uygulama içi .xp-dialog ile gösterilir.
+- Harici CDN, Node.js, daemon, sistem servisi, streaming veya COOP/COEP gerekmez.
+-->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>eMule 0.50a</title>
+<style>
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden}
+body{font:11px Tahoma,Arial,sans-serif;color:#000;background:#ece9d8}
+button,input,select,textarea{font:11px Tahoma,Arial,sans-serif}
+button{cursor:default}
+.app{
+  width:100%;height:100%;display:grid;
+  grid-template-rows:25px 58px 1fr 22px;
+  background:#ece9d8
+}
+
+/* MENU */
+.menubar{display:flex;align-items:center;padding:0 4px;border-bottom:1px solid #aca899;background:#ece9d8}
+.menu{position:relative;height:24px;display:flex;align-items:center;padding:0 7px;cursor:default}
+.menu:hover,.menu.open{background:#316ac5;color:#fff}
+.dropdown{
+  display:none;position:absolute;left:0;top:23px;z-index:80;min-width:185px;padding:2px;
+  background:#fff;color:#000;border:1px solid #716f64;box-shadow:2px 2px 4px rgba(0,0,0,.35)
+}
+.menu.open .dropdown{display:block}
+.mi{height:22px;display:flex;align-items:center;padding:0 9px 0 25px;white-space:nowrap}
+.mi:hover{background:#316ac5;color:#fff}
+.mi.disabled{color:#999;pointer-events:none}
+.sep{height:1px;background:#aca899;border-bottom:1px solid #fff;margin:3px 2px}
+
+/* TOOLBAR */
+.toolbar{
+  display:flex;align-items:stretch;padding:3px 5px 2px;gap:2px;
+  background:#ece9d8;border-bottom:1px solid #aca899;overflow-x:auto
+}
+.tool{
+  min-width:59px;height:50px;border:1px solid transparent;background:transparent;padding:1px 4px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#111
+}
+.tool:hover{background:#f5f3eb;border:1px outset #fff}
+.tool:active{border-style:inset;background:#dedbd2}
+.tool.active{background:#d8e4f8;border:1px inset #fff}
+.ico{
+  position:relative;width:25px;height:25px;display:block;flex:0 0 auto
+}
+.ico.connect:before{
+  content:"";position:absolute;left:3px;top:4px;width:8px;height:16px;background:#b5b5b5;border:1px solid #555;
+  box-shadow:11px 0 0 #b5b5b5,11px 0 0 1px #555
+}
+.ico.connect:after{
+  content:"";position:absolute;left:9px;top:10px;width:8px;height:4px;background:#35a34b;border:1px solid #267735
+}
+.ico.server:before{content:"";position:absolute;inset:3px 5px;background:#c6c7c2;border:1px solid #555;box-shadow:inset 0 0 0 2px #eee}
+.ico.server:after{content:"";position:absolute;left:8px;right:8px;bottom:6px;height:3px;background:#4aa15c;box-shadow:0 -6px 0 #5b77b5}
+.ico.transfer:before{content:"";position:absolute;left:3px;top:5px;border:7px solid transparent;border-top-color:#2b6bc6;transform:rotate(45deg)}
+.ico.transfer:after{content:"";position:absolute;right:3px;bottom:4px;border:7px solid transparent;border-bottom-color:#2f9d4c;transform:rotate(45deg)}
+.ico.search:before{content:"";position:absolute;left:3px;top:2px;width:13px;height:13px;border:3px solid #4d78ae;border-radius:50%}
+.ico.search:after{content:"";position:absolute;width:10px;height:3px;background:#666;transform:rotate(45deg);left:14px;top:16px}
+.ico.shared:before{content:"";position:absolute;left:3px;top:5px;width:19px;height:15px;background:#e4c86c;border:1px solid #8c7736}
+.ico.shared:after{content:"";position:absolute;left:5px;top:3px;width:9px;height:5px;background:#e4c86c;border:1px solid #8c7736;border-bottom:0}
+.ico.msg:before{content:"";position:absolute;left:2px;top:4px;width:21px;height:15px;background:#fff;border:1px solid #555}
+.ico.msg:after{content:"";position:absolute;left:5px;top:6px;width:14px;height:8px;border-left:1px solid #777;border-bottom:1px solid #777;transform:skewY(-28deg)}
+.ico.irc:before{content:"#";position:absolute;inset:0;color:#356da9;font:bold 23px Georgia;text-align:center;line-height:25px}
+.ico.stats:before{content:"";position:absolute;left:3px;bottom:3px;width:4px;height:7px;background:#2f67ba;box-shadow:6px -5px 0 #4aa358,12px -12px 0 #c74b45,18px -16px 0 #d1a52e}
+.ico.options:before{content:"⚙";position:absolute;inset:0;font:23px Arial;text-align:center;line-height:25px;color:#777}
+.ico.help:before{content:"?";position:absolute;inset:1px;border-radius:50%;background:#376fb8;color:#fff;font:bold 18px Georgia;text-align:center;line-height:24px}
+
+/* CONTENT */
+.content{position:relative;min-height:0;background:#ece9d8}
+.view{display:none;position:absolute;inset:0;padding:6px;min-height:0}
+.view.active{display:block}
+.panel{
+  height:100%;min-height:0;border:1px solid #7f9db9;background:#fff;
+  display:flex;flex-direction:column
+}
+.panel-head{
+  min-height:26px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:3px 6px;
+  background:linear-gradient(#f9f9f9,#e2dfd6);border-bottom:1px solid #aca899
+}
+.panel-head b{color:#333}
+.panel-body{flex:1;min-height:0;overflow:auto;background:#fff}
+.table{width:100%;border-collapse:collapse;table-layout:fixed}
+.table th{
+  height:22px;padding:2px 5px;text-align:left;font-weight:normal;
+  background:linear-gradient(#fff,#e4e1d8);border-right:1px solid #aca899;border-bottom:1px solid #aca899
+}
+.table td{
+  height:23px;padding:2px 5px;border-right:1px solid #eee;border-bottom:1px solid #f2f2f2;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.table tr.selected td{background:#316ac5;color:#fff}
+.table tr:not(.selected):hover td{background:#e8f0ff}
+.status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;background:#aaa;border:1px solid #666}
+.status-dot.green{background:#34a853}.status-dot.yellow{background:#e3b326}.status-dot.red{background:#d34c44}
+
+.split{
+  height:100%;display:grid;grid-template-rows:minmax(155px,42%) 5px 1fr
+}
+.splitter{background:#ece9d8;border-top:1px solid #aca899;border-bottom:1px solid #fff}
+.subpanel{min-height:0;border:1px solid #7f9db9;background:#fff;display:flex;flex-direction:column}
+.subhead{
+  min-height:24px;padding:3px 6px;background:linear-gradient(#fafafa,#e4e1d8);
+  border-bottom:1px solid #aca899;display:flex;align-items:center;justify-content:space-between
+}
+.subbody{flex:1;min-height:0;overflow:auto}
+
+.progress-wrap{display:flex;align-items:center;gap:5px}
+.progress{
+  width:100%;height:13px;border:2px inset #fff;background:#fff;padding:1px
+}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,#41a85f,#69c77d)}
+.progress.red i{background:linear-gradient(90deg,#b42922,#e05d52)}
+.speed.down{color:#19733b}.speed.up{color:#9b3c28}
+.small{font-size:10px;color:#666}
+.muted{color:#777}
+
+/* search */
+.searchbar{
+  display:grid;grid-template-columns:80px minmax(150px,1fr) 80px 95px 82px;gap:5px;padding:7px;
+  border-bottom:1px solid #aca899;background:#ece9d8
+}
+.searchbar input,.searchbar select{
+  min-width:0;height:23px;background:#fff;border:2px inset #fff;padding:1px 4px
+}
+.xp-btn{
+  height:25px;min-width:75px;padding:1px 10px;background:#ece9d8;color:#000;border:2px outset #fff
+}
+.xp-btn:active:not(:disabled){border-style:inset}
+.xp-btn:disabled{color:#888;text-shadow:1px 1px #fff}
+
+/* messages */
+.messages-grid{height:100%;display:grid;grid-template-columns:180px 1fr}
+.contacts{border-right:1px solid #aca899;background:#f8f8f8;overflow:auto}
+.contact{padding:6px;border-bottom:1px solid #ddd}
+.contact.sel{background:#316ac5;color:#fff}
+.chat{display:grid;grid-template-rows:1fr 54px;min-height:0}
+.chatlog{overflow:auto;padding:8px;background:#fff;white-space:pre-wrap}
+.chatinput{display:flex;gap:5px;padding:6px;background:#ece9d8;border-top:1px solid #aca899}
+.chatinput input{flex:1;border:2px inset #fff;background:#fff;padding:3px}
+
+/* IRC */
+.ircgrid{height:100%;display:grid;grid-template-columns:1fr 145px;grid-template-rows:1fr 30px}
+.irclog{overflow:auto;background:#fff;padding:7px;white-space:pre-wrap}
+.nicklist{grid-column:2;grid-row:1/3;border-left:1px solid #aca899;background:#f7f7f7;padding:5px;overflow:auto}
+.ircinput{grid-column:1;display:flex;padding:4px;background:#ece9d8;border-top:1px solid #aca899}
+.ircinput input{flex:1;border:2px inset #fff;padding:2px}
+
+/* stats */
+.statgrid{height:100%;display:grid;grid-template-columns:210px 1fr}
+.stat-tree{border-right:1px solid #aca899;background:#fff;padding:6px;overflow:auto}
+.tree-title{font-weight:bold;margin:5px 0}
+.tree-row{padding:2px 0 2px 12px;color:#333}
+.graphs{padding:7px;display:grid;grid-template-rows:1fr 1fr;gap:7px;min-height:0;background:#fff}
+.graphbox{border:2px inset #fff;background:#050505;min-height:0;position:relative}
+.graphbox canvas{width:100%;height:100%;display:block}
+.graphlabel{position:absolute;left:6px;top:4px;color:#d7d7d7;font-size:10px}
+
+/* options */
+.options-layout{height:100%;display:grid;grid-template-columns:175px 1fr}
+.opt-nav{border-right:1px solid #aca899;background:#fff;padding:5px;overflow:auto}
+.opt-item{padding:5px 7px}
+.opt-item.sel{background:#316ac5;color:#fff}
+.opt-page{padding:12px;overflow:auto;background:#ece9d8}
+fieldset{border:1px solid #aca899;margin:0 0 10px;padding:10px}
+legend{padding:0 4px}
+.row{display:grid;grid-template-columns:165px minmax(0,1fr);gap:8px;align-items:center;margin:6px 0}
+.row input[type=text],.row input[type=number],.row select{
+  width:100%;height:23px;border:2px inset #fff;background:#fff;padding:1px 4px
+}
+.check{display:flex;gap:6px;align-items:center;margin:5px 0}
+.opt-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:10px}
+
+/* statusbar */
+.statusbar{
+  display:grid;grid-template-columns:minmax(0,1fr) 155px 155px 155px;gap:2px;padding:2px;
+  border-top:1px solid #aca899;background:#ece9d8
+}
+.status{
+  height:17px;border:1px inset #fff;padding:1px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.netstate{display:flex;align-items:center;gap:5px}
+
+/* dialogs */
+.dialog-shade{
+  display:none;position:absolute;inset:0;z-index:100;background:rgba(0,0,0,.18);
+  align-items:center;justify-content:center;padding:18px
+}
+.dialog-shade.show{display:flex}
+.xp-dialog{
+  width:min(470px,92vw);max-height:86%;display:flex;flex-direction:column;
+  background:#ece9d8;border:2px outset #fff;box-shadow:4px 5px 14px rgba(0,0,0,.45)
+}
+.dialog-title{
+  min-height:25px;display:flex;align-items:center;justify-content:space-between;padding:2px 3px 2px 7px;
+  background:linear-gradient(90deg,#0a246a,#3a6ea5);color:#fff;font-weight:bold
+}
+.dialog-title button{
+  width:21px;height:20px;padding:0;color:#fff;background:#d8503c;border:2px outset #fff;font-weight:bold
+}
+.dialog-body{padding:13px;overflow:auto;line-height:1.45}
+.dialog-actions{display:flex;justify-content:flex-end;gap:7px;padding:0 12px 11px}
+.dialog-actions button{min-width:82px;height:25px;background:#ece9d8;border:2px outset #fff}
+.dialog-actions button:active{border-style:inset}
+.infoicon{
+  float:left;width:32px;height:32px;margin:0 10px 8px 0;border-radius:50%;
+  background:#316ac5;color:#fff;text-align:center;line-height:32px;font:bold 23px Georgia
+}
+
+@media(max-width:850px){
+  .tool{min-width:52px}.statusbar{grid-template-columns:1fr 115px 115px}
+  .statusbar .status:nth-child(4){display:none}
+  .searchbar{grid-template-columns:75px 1fr 75px}.searchbar>*:nth-child(4){display:none}
+  .searchbar>*:nth-child(5){display:none}
+  .statgrid{grid-template-columns:150px 1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="menubar">
+    <div class="menu" data-menu>Dosya
+      <div class="dropdown">
+        <div class="mi" data-cmd="connect">Bağlan / Bağlantıyı Kes</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="exit">Çıkış</div>
+      </div>
+    </div>
+    <div class="menu" data-menu>Görünüm
+      <div class="dropdown">
+        <div class="mi" data-view="servers">Sunucular</div>
+        <div class="mi" data-view="transfers">Aktarımlar</div>
+        <div class="mi" data-view="search">Ara</div>
+        <div class="mi" data-view="shared">Paylaşılan Dosyalar</div>
+        <div class="mi" data-view="messages">Mesajlar</div>
+        <div class="mi" data-view="irc">IRC</div>
+        <div class="mi" data-view="statistics">İstatistikler</div>
+      </div>
+    </div>
+    <div class="menu" data-menu>Araçlar
+      <div class="dropdown">
+        <div class="mi" data-cmd="options">Seçenekler</div>
+        <div class="mi" data-cmd="import">Paylaşılan Dosya Ekle</div>
+        <div class="mi" data-cmd="clearcompleted">Tamamlananları Temizle</div>
+      </div>
+    </div>
+    <div class="menu" data-menu>Yardım
+      <div class="dropdown">
+        <div class="mi" data-cmd="help">Yardım</div>
+        <div class="mi" data-cmd="about">eMule Hakkında</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button class="tool" data-cmd="connect"><i class="ico connect"></i><span id="connectLabel">Bağlan</span></button>
+    <button class="tool" data-view="servers"><i class="ico server"></i>Sunucular</button>
+    <button class="tool active" data-view="transfers"><i class="ico transfer"></i>Aktarımlar</button>
+    <button class="tool" data-view="search"><i class="ico search"></i>Ara</button>
+    <button class="tool" data-view="shared"><i class="ico shared"></i>Paylaşılan</button>
+    <button class="tool" data-view="messages"><i class="ico msg"></i>Mesajlar</button>
+    <button class="tool" data-view="irc"><i class="ico irc"></i>IRC</button>
+    <button class="tool" data-view="statistics"><i class="ico stats"></i>İstatistik</button>
+    <button class="tool" data-cmd="options"><i class="ico options"></i>Seçenekler</button>
+    <button class="tool" data-cmd="help"><i class="ico help"></i>Yardım</button>
+  </div>
+
+  <main class="content">
+    <!-- SERVERS -->
+    <section class="view" id="view-servers">
+      <div class="panel">
+        <div class="panel-head"><b>Sunucu Listesi</b><span class="small">Simülasyon sunucuları</span></div>
+        <div class="panel-body">
+          <table class="table">
+            <colgroup><col style="width:28%"><col style="width:17%"><col style="width:10%"><col style="width:12%"><col style="width:12%"><col></colgroup>
+            <thead><tr><th>Sunucu Adı</th><th>IP</th><th>Kullanıcı</th><th>Dosya</th><th>Ping</th><th>Açıklama</th></tr></thead>
+            <tbody id="serverRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRANSFERS -->
+    <section class="view active" id="view-transfers">
+      <div class="split">
+        <div class="subpanel">
+          <div class="subhead"><b>İndirilenler</b><span id="downloadCount">0 dosya</span></div>
+          <div class="subbody">
+            <table class="table">
+              <colgroup><col style="width:31%"><col style="width:10%"><col style="width:19%"><col style="width:11%"><col style="width:10%"><col></colgroup>
+              <thead><tr><th>Dosya Adı</th><th>Boyut</th><th>İlerleme</th><th>Hız</th><th>Kaynaklar</th><th>Durum</th></tr></thead>
+              <tbody id="downloadRows"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="splitter"></div>
+        <div class="subpanel">
+          <div class="subhead"><b>Yüklenenler</b><span id="uploadCount">0 istemci</span></div>
+          <div class="subbody">
+            <table class="table">
+              <colgroup><col style="width:24%"><col style="width:32%"><col style="width:12%"><col style="width:12%"><col></colgroup>
+              <thead><tr><th>Kullanıcı</th><th>Dosya</th><th>Hız</th><th>Aktarılan</th><th>Durum</th></tr></thead>
+              <tbody id="uploadRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEARCH -->
+    <section class="view" id="view-search">
+      <div class="panel">
+        <div class="searchbar">
+          <label style="line-height:23px">Ad:</label>
+          <input id="searchText" type="text" value="open source">
+          <select id="searchType"><option>Tümü</option><option>Arşiv</option><option>Video</option><option>Ses</option><option>Disk İmajı</option></select>
+          <select id="searchMethod"><option>Kad Ağı</option><option>Sunucu</option><option>Genel</option></select>
+          <button class="xp-btn" id="searchBtn" type="button">Başlat</button>
+        </div>
+        <div class="panel-body">
+          <table class="table">
+            <colgroup><col style="width:40%"><col style="width:12%"><col style="width:10%"><col style="width:10%"><col style="width:11%"><col></colgroup>
+            <thead><tr><th>Dosya Adı</th><th>Boyut</th><th>Kaynaklar</th><th>Tam Kaynak</th><th>Tür</th><th>Son Görülme</th></tr></thead>
+            <tbody id="searchRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- SHARED -->
+    <section class="view" id="view-shared">
+      <div class="panel">
+        <div class="panel-head">
+          <b>Paylaşılan Dosyalar</b>
+          <div>
+            <input id="filePicker" type="file" multiple style="display:none">
+            <button class="xp-btn" id="addShareBtn" type="button">Dosya Ekle...</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <table class="table">
+            <colgroup><col style="width:38%"><col style="width:12%"><col style="width:18%"><col style="width:11%"><col style="width:10%"><col></colgroup>
+            <thead><tr><th>Dosya Adı</th><th>Boyut</th><th>eD2K Hash</th><th>İstekler</th><th>Aktarılan</th><th>Öncelik</th></tr></thead>
+            <tbody id="sharedRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- MESSAGES -->
+    <section class="view" id="view-messages">
+      <div class="panel">
+        <div class="panel-head"><b>Mesajlar</b><span class="small">Yerel nostalji simülasyonu</span></div>
+        <div class="panel-body messages-grid">
+          <div class="contacts" id="contacts"></div>
+          <div class="chat">
+            <div class="chatlog" id="chatLog"></div>
+            <div class="chatinput"><input id="chatInput" type="text" placeholder="Mesaj yazın..."><button class="xp-btn" id="sendMsg" type="button">Gönder</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- IRC -->
+    <section class="view" id="view-irc">
+      <div class="panel">
+        <div class="panel-head"><b>IRC</b><span class="small">#emule-xp (yerel demo)</span></div>
+        <div class="panel-body ircgrid">
+          <div class="irclog" id="ircLog"></div>
+          <div class="nicklist" id="nickList"></div>
+          <div class="ircinput"><input id="ircInput" type="text" placeholder="Kanala mesaj gönder..."></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="view" id="view-statistics">
+      <div class="panel">
+        <div class="panel-head"><b>İstatistikler</b><span id="sessionTime" class="small">Oturum: 00:00:00</span></div>
+        <div class="panel-body statgrid">
+          <div class="stat-tree" id="statTree"></div>
+          <div class="graphs">
+            <div class="graphbox"><span class="graphlabel">İndirme / Yükleme Hızı</span><canvas id="speedGraph"></canvas></div>
+            <div class="graphbox"><span class="graphlabel">Bağlantılar / Kaynaklar</span><canvas id="connGraph"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- OPTIONS -->
+    <section class="view" id="view-options">
+      <div class="panel">
+        <div class="panel-head"><b>Seçenekler</b><span class="small">Yerel ayarlar</span></div>
+        <div class="panel-body options-layout">
+          <div class="opt-nav" id="optNav"></div>
+          <div class="opt-page" id="optPage"></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="dialog-shade" id="dialogShade">
+      <div class="xp-dialog" role="dialog" aria-modal="true">
+        <div class="dialog-title"><span id="dialogTitle">eMule</span><button id="dialogX" type="button">×</button></div>
+        <div class="dialog-body" id="dialogBody"></div>
+        <div class="dialog-actions" id="dialogActions"></div>
+      </div>
+    </div>
+  </main>
+
+  <div class="statusbar">
+    <div class="status" id="statusText">Hazır</div>
+    <div class="status netstate"><span class="status-dot red" id="ed2kDot"></span><span id="ed2kText">eD2K: Bağlı değil</span></div>
+    <div class="status netstate"><span class="status-dot red" id="kadDot"></span><span id="kadText">Kad: Bağlı değil</span></div>
+    <div class="status"><span class="speed down">↓ <b id="downSpeed">0,0</b> kB/s</span> &nbsp; <span class="speed up">↑ <b id="upSpeed">0,0</b> kB/s</span></div>
+  </div>
+</div>
+
+<script>
+(()=>{
+'use strict';
+
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+const STORAGE='xp_emule_050a_sim_v2';
+const startTime=Date.now();
+
+const defaults={
+  connected:false,currentView:'transfers',
+  options:{
+    nick:'http://emule-project.net',
+    tcp:4662,udp:4672,downLimit:96,upLimit:24,
+    autoConnect:true,showSplash:true,startMinimized:false,
+    incoming:'C:\\Program Files\\eMule\\Incoming',
+    temp:'C:\\Program Files\\eMule\\Temp'
+  },
+  downloads:[
+    {name:'OpenSource_Linux_Distro.iso',sizeMB:702,progress:43.7,speed:31.4,sources:42,state:'İndiriliyor'},
+    {name:'Public_Domain_Film_Collection.avi',sizeMB:355,progress:78.2,speed:18.7,sources:19,state:'İndiriliyor'},
+    {name:'Freeware_Utilities_Pack.zip',sizeMB:84,progress:100,speed:0,sources:12,state:'Tamamlandı'}
+  ],
+  shares:[
+    {name:'Freeware_Utilities_Pack.zip',size:84*1024*1024,hash:'8F9C2C27179B6B21B0C042279E76B1F0',req:19,up:'12,4 MB',priority:'Normal'},
+    {name:'PublicDomain_Text_Archive.zip',size:26*1024*1024,hash:'A227E1B8E2A939E8655E9B196B1D90CB',req:8,up:'4,1 MB',priority:'Normal'}
+  ],
+  messages:{
+    'RetroPeer':['RetroPeer: Merhaba! XP günleri geri döndü.'],
+    'OpenSourceFan':['OpenSourceFan: Paylaşılan freeware paketini gördüm.']
+  },
+  selectedContact:'RetroPeer',
+  irc:['*** #emule-xp kanalına katıldınız','*** Bu kanal yalnızca yerel nostalji simülasyonudur.','RetroUser: selam millet :)']
+};
+
+function load(){
+  try{
+    const x=JSON.parse(localStorage.getItem(STORAGE)||'{}');
+    return {
+      ...structuredClone(defaults),...x,
+      options:{...defaults.options,...(x.options||{})},
+      messages:{...defaults.messages,...(x.messages||{})}
+    };
+  }catch{return structuredClone(defaults)}
+}
+let state=load();
+function save(){try{localStorage.setItem(STORAGE,JSON.stringify(state))}catch{}}
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const fmtSize=bytes=>{
+  if(bytes>=1073741824)return (bytes/1073741824).toFixed(2).replace('.',',')+' GB';
+  if(bytes>=1048576)return (bytes/1048576).toFixed(1).replace('.',',')+' MB';
+  if(bytes>=1024)return (bytes/1024).toFixed(1).replace('.',',')+' KB';
+  return bytes+' bayt';
+};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function fakeHash(input){
+  let a=0x67452301,b=0xefcdab89,c=0x98badcfe,d=0x10325476;
+  for(let i=0;i<input.length;i++){
+    const x=input.charCodeAt(i)+i*131;
+    a=((a<<5)-a+x)>>>0;b=((b<<7)^x^a)>>>0;c=((c<<3)+x+b)>>>0;d=((d<<11)^c^x)>>>0;
+  }
+  return [a,b,c,d].map(x=>x.toString(16).padStart(8,'0')).join('').toUpperCase();
+}
+
+/* navigation */
+function showView(name){
+  state.currentView=name;save();
+  $$('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+name));
+  $$('.tool[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===name));
+  if(name==='statistics')resizeGraphs();
+}
+$$('[data-view]').forEach(b=>b.addEventListener('click',()=>{showView(b.dataset.view);closeMenus()}));
+showView(state.currentView);
+
+/* menus */
+function closeMenus(){$$('[data-menu]').forEach(m=>m.classList.remove('open'))}
+$$('[data-menu]').forEach(m=>m.addEventListener('mousedown',e=>{
+  if(e.target.closest('.mi'))return;
+  const was=m.classList.contains('open');closeMenus();if(!was)m.classList.add('open');
+}));
+document.addEventListener('mousedown',e=>{if(!e.target.closest('[data-menu]'))closeMenus()});
+document.addEventListener('click',e=>{
+  const mi=e.target.closest('.mi[data-cmd]');if(mi){runCommand(mi.dataset.cmd);closeMenus()}
+});
+$$('[data-cmd]').forEach(b=>{if(!b.classList.contains('mi'))b.addEventListener('click',()=>runCommand(b.dataset.cmd))});
+
+function runCommand(cmd){
+  if(cmd==='connect')toggleConnection();
+  else if(cmd==='exit'){try{window.parent.postMessage({type:'XP_APP_CLOSE_REQUEST',app:'emule'},'*')}catch{}}
+  else if(cmd==='options')showView('options');
+  else if(cmd==='import')$('#filePicker').click();
+  else if(cmd==='clearcompleted'){state.downloads=state.downloads.filter(d=>d.progress<100);save();renderTransfers();setStatus('Tamamlanan aktarımlar temizlendi.')}
+  else if(cmd==='help')helpDialog();
+  else if(cmd==='about')aboutDialog();
+}
+
+/* connection */
+function toggleConnection(){
+  if(state.connected){
+    state.connected=false;save();renderConnection();setStatus('Bağlantı kesildi.');
+    return;
+  }
+  setStatus('eD2K sunucusuna bağlanılıyor...');
+  $('#connectLabel').textContent='İptal';
+  setTimeout(()=>{
+    state.connected=true;save();renderConnection();setStatus('Bağlandı. Yüksek Kimlik (simülasyon).');
+  },750);
+}
+function renderConnection(){
+  $('#connectLabel').textContent=state.connected?'Kes':'Bağlan';
+  $('#ed2kDot').className='status-dot '+(state.connected?'green':'red');
+  $('#kadDot').className='status-dot '+(state.connected?'green':'red');
+  $('#ed2kText').textContent='eD2K: '+(state.connected?'Bağlı':'Bağlı değil');
+  $('#kadText').textContent='Kad: '+(state.connected?'Bağlı':'Bağlı değil');
+}
+renderConnection();
+if(state.options.autoConnect&&!state.connected)setTimeout(toggleConnection,450);
+
+/* servers */
+const servers=[
+ {name:'Retro Mule Server 1',ip:'91.198.10.12:4661',users:'122.584',files:'18.204.190',ping:'42 ms',desc:'ED2K nostalgia node'},
+ {name:'Open Share Hub',ip:'185.77.22.40:4661',users:'84.910',files:'11.885.004',ping:'67 ms',desc:'Free / open content'},
+ {name:'Archive Node',ip:'195.20.31.11:4242',users:'36.201',files:'6.453.870',ping:'91 ms',desc:'Public-domain archive'},
+ {name:'Community Server',ip:'89.45.66.17:4661',users:'71.333',files:'9.922.114',ping:'54 ms',desc:'General ED2K demo'}
+];
+function renderServers(){
+ $('#serverRows').innerHTML=servers.map((s,i)=>`<tr data-server="${i}">
+  <td><span class="status-dot ${state.connected&&i===0?'green':'yellow'}"></span>${esc(s.name)}</td>
+  <td>${esc(s.ip)}</td><td>${s.users}</td><td>${s.files}</td><td>${s.ping}</td><td>${esc(s.desc)}</td>
+ </tr>`).join('');
+}
+renderServers();
+$('#serverRows').addEventListener('dblclick',e=>{
+ const tr=e.target.closest('tr[data-server]');if(!tr)return;
+ state.connected=true;save();renderConnection();renderServers();
+ setStatus(servers[+tr.dataset.server].name+' sunucusuna bağlandı.');
+});
+
+/* transfers */
+const uploadClients=[
+ {user:'[eMule] RetroPeer',file:'Freeware_Utilities_Pack.zip',speed:7.2,done:'5,8 MB',state:'Yükleniyor'},
+ {user:'aMule_OpenSource',file:'PublicDomain_Text_Archive.zip',speed:3.7,done:'2,1 MB',state:'Yükleniyor'}
+];
+function renderTransfers(){
+ $('#downloadRows').innerHTML=state.downloads.map((d,i)=>`<tr data-download="${i}">
+  <td>${esc(d.name)}</td><td>${d.sizeMB.toFixed(0)} MB</td>
+  <td><div class="progress ${d.state==='Hata'?'red':''}"><i style="width:${clamp(d.progress,0,100)}%"></i></div><span class="small">${d.progress.toFixed(1).replace('.',',')}%</span></td>
+  <td class="speed down">${d.progress>=100?'0,0':d.speed.toFixed(1).replace('.',',')} kB/s</td>
+  <td>${d.sources}</td><td>${esc(d.state)}</td>
+ </tr>`).join('');
+ $('#downloadCount').textContent=state.downloads.length+' dosya';
+ $('#uploadRows').innerHTML=uploadClients.map(u=>`<tr>
+  <td>${esc(u.user)}</td><td>${esc(u.file)}</td><td class="speed up">${u.speed.toFixed(1).replace('.',',')} kB/s</td><td>${u.done}</td><td>${u.state}</td>
+ </tr>`).join('');
+ $('#uploadCount').textContent=uploadClients.length+' istemci';
+}
+renderTransfers();
+
+$('#downloadRows').addEventListener('dblclick',e=>{
+ const tr=e.target.closest('tr[data-download]');if(!tr)return;
+ const d=state.downloads[+tr.dataset.download];
+ showDialog('Dosya Ayrıntıları',`
+  <b>${esc(d.name)}</b><br><br>
+  Boyut: ${d.sizeMB.toFixed(0)} MB<br>
+  İlerleme: %${d.progress.toFixed(1).replace('.',',')}<br>
+  Kaynaklar: ${d.sources}<br>
+  Durum: ${esc(d.state)}<br><br>
+  <span class="muted">Bu, gerçek eD2K aktarımı değil; yerel simülasyon kaydıdır.</span>
+ `,[{label:'Kapat',primary:true,action:hideDialog}]);
+});
+
+/* search */
+const catalog=[
+ ['Ubuntu_6.06_LTS_i386.iso',698,'Disk İmajı',83,19],
+ ['OpenOffice_2.0.4_Win32.exe',93,'Program',64,14],
+ ['Blender_Open_Movie_Elephants_Dream.avi',816,'Video',47,8],
+ ['Public_Domain_SciFi_Collection.avi',412,'Video',31,7],
+ ['Classical_Public_Domain_Recordings.zip',128,'Ses',55,21],
+ ['Freeware_XP_Utilities_Collection.zip',76,'Arşiv',92,33],
+ ['Open_Source_Code_Archive_2006.tar.gz',244,'Arşiv',28,6],
+ ['Linux_Magazine_Free_Issue.pdf',18,'Belge',17,9]
+];
+let currentResults=[];
+function doSearch(){
+ const q=$('#searchText').value.trim().toLowerCase();
+ const type=$('#searchType').value;
+ setStatus('Aranıyor...');
+ $('#searchRows').innerHTML='<tr><td colspan="6">Kad ve sunucu kaynakları aranıyor...</td></tr>';
+ setTimeout(()=>{
+   currentResults=catalog.filter(x=>(!q||x[0].toLowerCase().includes(q)||q==='open source')&&(type==='Tümü'||x[2]===type));
+   if(!currentResults.length)currentResults=catalog.slice(0,5);
+   renderSearch();setStatus(currentResults.length+' sonuç bulundu.');
+ },520);
+}
+function renderSearch(){
+ $('#searchRows').innerHTML=currentResults.map((r,i)=>`<tr data-result="${i}">
+  <td>${esc(r[0])}</td><td>${r[1]} MB</td><td>${r[3]}</td><td>${r[4]}</td><td>${esc(r[2])}</td><td>Şimdi</td>
+ </tr>`).join('');
+}
+$('#searchBtn').onclick=doSearch;
+$('#searchText').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch()});
+$('#searchRows').addEventListener('dblclick',e=>{
+ const tr=e.target.closest('tr[data-result]');if(!tr)return;
+ const r=currentResults[+tr.dataset.result];
+ if(state.downloads.some(d=>d.name===r[0]))return setStatus('Dosya zaten aktarım listesinde.');
+ state.downloads.push({name:r[0],sizeMB:r[1],progress:0,speed:10+Math.random()*28,sources:r[3],state:'İndiriliyor'});
+ save();renderTransfers();showView('transfers');setStatus(r[0]+' aktarımlara eklendi.');
+});
+
+/* shares */
+function renderShares(){
+ $('#sharedRows').innerHTML=state.shares.map((s,i)=>`<tr data-share="${i}">
+  <td>${esc(s.name)}</td><td>${fmtSize(s.size)}</td><td title="${esc(s.hash)}">${esc(s.hash.slice(0,12))}...</td>
+  <td>${s.req}</td><td>${esc(s.up)}</td><td>${esc(s.priority)}</td>
+ </tr>`).join('');
+}
+renderShares();
+$('#addShareBtn').onclick=()=>$('#filePicker').click();
+$('#filePicker').addEventListener('change',()=>{
+ const files=[...$('#filePicker').files];
+ files.forEach(f=>{
+  if(!state.shares.some(s=>s.name===f.name)){
+    state.shares.push({name:f.name,size:f.size,hash:fakeHash(f.name+':'+f.size),req:0,up:'0 B',priority:'Normal'});
+  }
+ });
+ save();renderShares();setStatus(files.length+' yerel dosya paylaşılan listeye eklendi. Dosya tarayıcı dışına gönderilmedi.');
+ $('#filePicker').value='';
+});
+$('#sharedRows').addEventListener('dblclick',e=>{
+ const tr=e.target.closest('tr[data-share]');if(!tr)return;
+ const s=state.shares[+tr.dataset.share];
+ showDialog('Paylaşılan Dosya',`
+  <b>${esc(s.name)}</b><br><br>
+  Boyut: ${fmtSize(s.size)}<br>
+  eD2K benzeri yerel hash:<br><span style="font-family:Courier New">${esc(s.hash)}</span><br><br>
+  <span class="muted">Bu hash nostalji simülasyonu için üretilmiştir ve gerçek ED2K hash'i değildir.</span>
+ `,[{label:'Kapat',primary:true,action:hideDialog}]);
+});
+
+/* messages */
+function renderContacts(){
+ const names=Object.keys(state.messages);
+ $('#contacts').innerHTML=names.map(n=>`<div class="contact ${n===state.selectedContact?'sel':''}" data-contact="${esc(n)}"><b>${esc(n)}</b><br><span class="small">eMule kullanıcısı</span></div>`).join('');
+ renderChat();
+}
+function renderChat(){
+ const lines=state.messages[state.selectedContact]||[];
+ $('#chatLog').textContent=lines.join('\n');
+ $('#chatLog').scrollTop=$('#chatLog').scrollHeight;
+}
+$('#contacts').addEventListener('click',e=>{
+ const c=e.target.closest('[data-contact]');if(!c)return;
+ state.selectedContact=c.dataset.contact;save();renderContacts();
+});
+function sendMessage(){
+ const v=$('#chatInput').value.trim();if(!v)return;
+ (state.messages[state.selectedContact]||(state.messages[state.selectedContact]=[])).push('Siz: '+v);
+ $('#chatInput').value='';save();renderChat();
+ setTimeout(()=>{
+   state.messages[state.selectedContact].push(state.selectedContact+': Mesaj alındı. Bu bir yerel simülasyondur.');
+   save();renderChat();
+ },550);
+}
+$('#sendMsg').onclick=sendMessage;
+$('#chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendMessage()});
+renderContacts();
+
+/* IRC */
+const nicks=['@RetroAdmin','+MuleFan','XP_User','OpenSourceFan','KadNode','RetroPeer'];
+function renderIRC(){
+ $('#ircLog').textContent=state.irc.join('\n');$('#ircLog').scrollTop=$('#ircLog').scrollHeight;
+ $('#nickList').innerHTML=nicks.map(n=>'<div>'+esc(n)+'</div>').join('');
+}
+$('#ircInput').addEventListener('keydown',e=>{
+ if(e.key!=='Enter')return;
+ const v=$('#ircInput').value.trim();if(!v)return;
+ if(v.toLowerCase()==='/clear')state.irc=[];
+ else state.irc.push('Siz: '+v);
+ $('#ircInput').value='';save();renderIRC();
+});
+renderIRC();
+
+/* statistics */
+const speedHistory=Array(120).fill(0).map(()=>({d:0,u:0,c:0}));
+function renderStatTree(){
+ const active=state.downloads.filter(d=>d.progress<100).length;
+ const complete=state.downloads.filter(d=>d.progress>=100).length;
+ const sources=state.downloads.reduce((a,d)=>a+d.sources,0);
+ $('#statTree').innerHTML=`
+  <div class="tree-title">Aktarım</div>
+  <div class="tree-row">İndirme: <b id="stDown">0,0 kB/s</b></div>
+  <div class="tree-row">Yükleme: <b id="stUp">0,0 kB/s</b></div>
+  <div class="tree-row">Aktif indirme: ${active}</div>
+  <div class="tree-row">Tamamlanan: ${complete}</div>
+  <div class="tree-title">Bağlantı</div>
+  <div class="tree-row">eD2K: ${state.connected?'Bağlı':'Bağlı değil'}</div>
+  <div class="tree-row">Kad: ${state.connected?'Bağlı':'Bağlı değil'}</div>
+  <div class="tree-row">Bilinen kaynak: ${sources}</div>
+  <div class="tree-title">Paylaşım</div>
+  <div class="tree-row">Paylaşılan dosya: ${state.shares.length}</div>
+ `;
+}
+renderStatTree();
+
+function resizeCanvas(canvas){
+ const r=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);
+ if(!r.width||!r.height)return null;
+ canvas.width=Math.round(r.width*dpr);canvas.height=Math.round(r.height*dpr);
+ const c=canvas.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);return {c,w:r.width,h:r.height};
+}
+function graph(canvas,down,up){
+ const x=resizeCanvas(canvas);if(!x)return;const {c,w,h}=x;
+ c.fillStyle='#040604';c.fillRect(0,0,w,h);
+ c.strokeStyle='#153415';c.lineWidth=1;
+ for(let i=0;i<8;i++){const yy=i*h/8;c.beginPath();c.moveTo(0,yy);c.lineTo(w,yy);c.stroke()}
+ for(let i=0;i<12;i++){const xx=i*w/12;c.beginPath();c.moveTo(xx,0);c.lineTo(xx,h);c.stroke()}
+ const max=Math.max(1,...down,...up)*1.15;
+ const draw=(arr,color)=>{
+   c.strokeStyle=color;c.lineWidth=1.5;c.beginPath();
+   arr.forEach((v,i)=>{const xx=i/(arr.length-1)*w,yy=h-(v/max)*(h-12);if(i===0)c.moveTo(xx,yy);else c.lineTo(xx,yy)});
+   c.stroke();
+ };
+ draw(down,'#31c75a');draw(up,'#df5449');
+}
+function resizeGraphs(){
+ graph($('#speedGraph'),speedHistory.map(x=>x.d),speedHistory.map(x=>x.u));
+ graph($('#connGraph'),speedHistory.map(x=>x.c),speedHistory.map(x=>Math.max(0,x.c*.25)));
+}
+window.addEventListener('resize',resizeGraphs);
+
+/* options */
+const optNames=['Genel','Bağlantı','Dizinler','Görünüm'];
+let optSelected='Genel';
+function renderOptNav(){
+ $('#optNav').innerHTML=optNames.map(n=>`<div class="opt-item ${n===optSelected?'sel':''}" data-opt="${n}">${esc(n)}</div>`).join('');
+}
+$('#optNav').addEventListener('click',e=>{
+ const el=e.target.closest('[data-opt]');if(!el)return;optSelected=el.dataset.opt;renderOptNav();renderOptPage();
+});
+function renderOptPage(){
+ const o=state.options;
+ let h='';
+ if(optSelected==='Genel')h=`
+  <fieldset><legend>Genel</legend>
+   <div class="row"><label>Kullanıcı adı:</label><input id="oNick" type="text" value="${esc(o.nick)}"></div>
+   <label class="check"><input id="oAuto" type="checkbox" ${o.autoConnect?'checked':''}> Başlangıçta otomatik bağlan</label>
+   <label class="check"><input id="oSplash" type="checkbox" ${o.showSplash?'checked':''}> Açılış ekranını göster</label>
+   <label class="check"><input id="oMin" type="checkbox" ${o.startMinimized?'checked':''}> Küçültülmüş başlat</label>
+  </fieldset>`;
+ if(optSelected==='Bağlantı')h=`
+  <fieldset><legend>Bağlantı</legend>
+   <div class="row"><label>TCP bağlantı noktası:</label><input id="oTcp" type="number" min="1" max="65535" value="${o.tcp}"></div>
+   <div class="row"><label>UDP bağlantı noktası:</label><input id="oUdp" type="number" min="1" max="65535" value="${o.udp}"></div>
+   <div class="row"><label>İndirme sınırı (kB/s):</label><input id="oDown" type="number" min="1" max="9999" value="${o.downLimit}"></div>
+   <div class="row"><label>Yükleme sınırı (kB/s):</label><input id="oUp" type="number" min="1" max="9999" value="${o.upLimit}"></div>
+   <div class="small">Bu değerler yalnızca simülasyonu etkiler; tarayıcı gerçek TCP/UDP eMule bağlantıları açmaz.</div>
+  </fieldset>`;
+ if(optSelected==='Dizinler')h=`
+  <fieldset><legend>Dizinler</legend>
+   <div class="row"><label>Gelen dosyalar:</label><input id="oIncoming" type="text" value="${esc(o.incoming)}"></div>
+   <div class="row"><label>Geçici dosyalar:</label><input id="oTemp" type="text" value="${esc(o.temp)}"></div>
+  </fieldset>`;
+ if(optSelected==='Görünüm')h=`
+  <fieldset><legend>Görünüm</legend>
+   <label class="check"><input type="checkbox" checked> Aktarım hızlarını durum çubuğunda göster</label>
+   <label class="check"><input type="checkbox" checked> Kaynak sayısını görüntüle</label>
+   <label class="check"><input type="checkbox"> İleri düzey denetimleri göster</label>
+  </fieldset>`;
+ h+=`<div class="opt-actions"><button class="xp-btn" id="optApply" type="button">Uygula</button></div>`;
+ $('#optPage').innerHTML=h;
+ $('#optApply').onclick=applyOptions;
+}
+function applyOptions(){
+ const o=state.options;
+ const val=id=>$(id)?$(id).value:null;
+ if($('#oNick'))o.nick=$('#oNick').value.trim()||defaults.options.nick;
+ if($('#oAuto'))o.autoConnect=$('#oAuto').checked;
+ if($('#oSplash'))o.showSplash=$('#oSplash').checked;
+ if($('#oMin'))o.startMinimized=$('#oMin').checked;
+ if($('#oTcp'))o.tcp=clamp(Number($('#oTcp').value)||4662,1,65535);
+ if($('#oUdp'))o.udp=clamp(Number($('#oUdp').value)||4672,1,65535);
+ if($('#oDown'))o.downLimit=clamp(Number($('#oDown').value)||96,1,9999);
+ if($('#oUp'))o.upLimit=clamp(Number($('#oUp').value)||24,1,9999);
+ if($('#oIncoming'))o.incoming=$('#oIncoming').value;
+ if($('#oTemp'))o.temp=$('#oTemp').value;
+ save();showDialog('eMule - Seçenekler','Ayarlar kaydedildi.',[{label:'Tamam',primary:true,action:hideDialog}]);
+}
+renderOptNav();renderOptPage();
+
+/* dialogs */
+const shade=$('#dialogShade');
+function showDialog(title,html,buttons){
+ $('#dialogTitle').textContent=title;$('#dialogBody').innerHTML=html;$('#dialogActions').innerHTML='';
+ (buttons||[{label:'Tamam',action:hideDialog}]).forEach(b=>{
+   const x=document.createElement('button');x.type='button';x.textContent=b.label;if(b.primary)x.style.outline='1px solid #000';
+   x.onclick=b.action||hideDialog;$('#dialogActions').appendChild(x);
+ });
+ shade.classList.add('show');
+}
+function hideDialog(){shade.classList.remove('show')}
+$('#dialogX').onclick=hideDialog;
+shade.addEventListener('mousedown',e=>{if(e.target===shade)hideDialog()});
+function helpDialog(){
+ showDialog('eMule Yardımı',`
+  <span class="infoicon">i</span>
+  <b>eMule XP Nostalgia Simulator</b><br><br>
+  Sunucular, Aktarımlar, Ara, Paylaşılan Dosyalar, Mesajlar, IRC ve İstatistikler bölümleri etkileşimlidir.<br><br>
+  Arama sonuçlarına çift tıklayarak yerel simülasyon indirmesi başlatabilirsiniz.
+ `,[{label:'Tamam',primary:true,action:hideDialog}]);
+}
+function aboutDialog(){
+ showDialog('eMule Hakkında',`
+  <span class="infoicon">i</span>
+  <b>eMule v0.50a — XP Nostalgia Simulator</b><br><br>
+  Bu uygulama gerçek eMule istemcisi değildir ve ED2K/Kad ağına bağlanmaz.<br>
+  Windows XP dönemi eMule arayüzünü tarayıcıda yeniden üretmek için hazırlanmış yerel bir simülasyondur.
+ `,[{label:'Tamam',primary:true,action:hideDialog}]);
+}
+window.alert=m=>showDialog('eMule',esc(m),[{label:'Tamam',primary:true,action:hideDialog}]);
+window.confirm=m=>{window.alert(m);return false};
+window.prompt=m=>{window.alert(m);return null};
+
+/* runtime simulation */
+function setStatus(t){$('#statusText').textContent=t}
+let tick=0;
+setInterval(()=>{
+ tick++;
+ let ds=0,us=0;
+ state.downloads.forEach(d=>{
+   if(state.connected&&d.progress<100&&d.state==='İndiriliyor'){
+     d.speed=clamp(d.speed+(Math.random()-.5)*5,3,state.options.downLimit);
+     d.progress=clamp(d.progress+d.speed/(d.sizeMB*1024)*4.8*100,0,100);
+     if(d.progress>=100){d.progress=100;d.speed=0;d.state='Tamamlandı';setStatus(d.name+' tamamlandı.')}
+   }
+   if(d.progress<100)ds+=d.speed;
+ });
+ if(state.connected)us=uploadClients.reduce((a,u)=>a+u.speed,0)*(0.85+Math.random()*.25);
+ if(!state.connected){ds=0;us=0}
+ $('#downSpeed').textContent=ds.toFixed(1).replace('.',',');
+ $('#upSpeed').textContent=us.toFixed(1).replace('.',',');
+ speedHistory.push({d:ds,u:us,c:state.connected?70+Math.random()*45:0});speedHistory.shift();
+ if($('#view-transfers').classList.contains('active')&&tick%2===0)renderTransfers();
+ if($('#view-statistics').classList.contains('active')){
+   renderStatTree();resizeGraphs();
+   const sd=$('#stDown'),su=$('#stUp');if(sd)sd.textContent=ds.toFixed(1).replace('.',',')+' kB/s';if(su)su.textContent=us.toFixed(1).replace('.',',')+' kB/s';
+ }
+ if(tick%5===0)save();
+ const sec=Math.floor((Date.now()-startTime)/1000),h=String(Math.floor(sec/3600)).padStart(2,'0'),m=String(Math.floor(sec%3600/60)).padStart(2,'0'),s=String(sec%60).padStart(2,'0');
+ $('#sessionTime').textContent='Oturum: '+h+':'+m+':'+s;
+},1000);
+
+document.addEventListener('keydown',e=>{
+ if(shade.classList.contains('show')){if(e.key==='Escape'){e.preventDefault();hideDialog()}return}
+ if(e.key==='F5'){e.preventDefault();renderServers();renderTransfers();renderShares();setStatus('Yenilendi.')}
+ if(e.ctrlKey&&e.key.toLowerCase()==='f'){e.preventDefault();showView('search');$('#searchText').focus()}
+});
+})();
+</script>
+</body>
+</html>

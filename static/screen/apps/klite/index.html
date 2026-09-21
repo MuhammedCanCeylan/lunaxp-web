@@ -1,0 +1,2856 @@
+<!--
+K-LITE CODEC PACK - XP EDITION - ASSET LISTESI
+
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama |
+|------------|----------------------|------------|-----------------------------------------|
+| icon.png   | 32x32                | Zorunlu    | Windows XP masaustu uygulama ikonu     |
+
+NOTLAR:
+- Harici resim asset'i kullanilmaz.
+- Uygulama iframe icinde calisir.
+- XP WindowManager zaten dis pencere basligini olusturur.
+- Bu nedenle ikinci titlebar/taskbar cizilmez.
+- Gercek Windows registry veya DirectShow sistemine erisim yapilmaz.
+- Codec testleri tarayicinin gercek HTML5 codec kabiliyetini test eder.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>K-Lite Codec Pack</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+body {
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    color: #000;
+    background: #ECE9D8;
+    user-select: none;
+}
+
+button,
+input,
+select {
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+}
+
+button {
+    min-height: 23px;
+    border: 2px outset #fff;
+    background: #ECE9D8;
+    padding: 2px 9px;
+    color: #000;
+}
+
+button:active {
+    border-style: inset;
+}
+
+button:disabled {
+    color: #888;
+}
+
+.app {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #ECE9D8;
+}
+
+/* =========================================================
+   INTERNAL MENU
+   ========================================================= */
+
+.menu-bar {
+    height: 25px;
+    flex: 0 0 25px;
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid #ACA899;
+    background: #ECE9D8;
+    padding-left: 2px;
+    position: relative;
+    z-index: 100;
+}
+
+.menu {
+    position: relative;
+}
+
+.menu > button {
+    height: 24px;
+    min-height: 24px;
+    padding: 1px 8px;
+    border: 1px solid transparent;
+    background: transparent;
+}
+
+.menu > button:hover,
+.menu.open > button {
+    border: 1px solid #316AC5;
+    background: #C1D2EE;
+}
+
+.dropdown {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 23px;
+    min-width: 205px;
+    padding: 2px;
+    background: #F5F4EA;
+    border: 1px solid #808080;
+    box-shadow: 2px 2px 3px rgba(0,0,0,.35);
+}
+
+.menu.open .dropdown {
+    display: block;
+}
+
+.dropdown button {
+    width: 100%;
+    height: 22px;
+    min-height: 22px;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    padding: 2px 22px 2px 8px;
+}
+
+.dropdown button:hover {
+    background: #316AC5;
+    color: #fff;
+}
+
+.separator {
+    height: 1px;
+    margin: 3px 4px;
+    background: #ACA899;
+}
+
+/* =========================================================
+   TOOLBAR
+   ========================================================= */
+
+.toolbar {
+    height: 46px;
+    flex: 0 0 46px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 7px;
+    border-top: 1px solid #fff;
+    border-bottom: 1px solid #ACA899;
+    background: linear-gradient(#F4F2E8, #E1DECD);
+}
+
+.tool-button {
+    height: 34px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 80px;
+    padding: 3px 8px;
+}
+
+.tool-icon {
+    width: 19px;
+    height: 19px;
+    position: relative;
+    flex: 0 0 19px;
+}
+
+.icon-scan {
+    border: 2px solid #316AC5;
+    border-radius: 50%;
+}
+
+.icon-scan::after {
+    content: "";
+    position: absolute;
+    width: 8px;
+    height: 2px;
+    right: -6px;
+    bottom: -3px;
+    background: #316AC5;
+    transform: rotate(45deg);
+}
+
+.icon-test {
+    border: 1px solid #555;
+    background:
+        linear-gradient(90deg,
+        #1b7c36 0 25%,
+        #f6cd33 25% 50%,
+        #e87c24 50% 75%,
+        #c83030 75%);
+}
+
+.icon-reset {
+    border-radius: 50%;
+    border: 2px solid #1668A8;
+}
+
+.icon-reset::before {
+    content: "↻";
+    position: absolute;
+    font-size: 19px;
+    left: 0;
+    top: -5px;
+    color: #1668A8;
+}
+
+.icon-log {
+    border: 1px solid #777;
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            #fff 0,
+            #fff 3px,
+            #777 4px,
+            #fff 5px
+        );
+}
+
+.toolbar-spacer {
+    flex: 1;
+}
+
+.version-box {
+    text-align: right;
+    line-height: 15px;
+    color: #555;
+}
+
+.version-box strong {
+    display: block;
+    color: #164E86;
+}
+
+/* =========================================================
+   MAIN
+   ========================================================= */
+
+.main {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    padding: 7px;
+    gap: 7px;
+}
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
+.sidebar {
+    width: 178px;
+    flex: 0 0 178px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.task-panel {
+    border: 1px solid #7F9DB9;
+    background: #fff;
+}
+
+.task-title {
+    height: 27px;
+    display: flex;
+    align-items: center;
+    padding: 0 7px;
+    font-weight: bold;
+    color: #164E86;
+    background: linear-gradient(#DCEBFA, #B7D2EB);
+    border-bottom: 1px solid #7F9DB9;
+}
+
+.task-list {
+    padding: 5px;
+}
+
+.task-list button {
+    width: 100%;
+    height: 28px;
+    text-align: left;
+    border: 1px solid transparent;
+    background: transparent;
+    padding-left: 8px;
+}
+
+.task-list button:hover {
+    border: 1px solid #7F9DB9;
+    background: #E8F2FC;
+}
+
+.task-list button.active {
+    border: 1px solid #316AC5;
+    background: #C1D2EE;
+    font-weight: bold;
+}
+
+.info-panel {
+    margin-top: auto;
+    padding: 8px;
+    border: 1px solid #ACA899;
+    background: #F8F7F0;
+    color: #555;
+    line-height: 16px;
+}
+
+.logo {
+    margin-bottom: 7px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    letter-spacing: -1px;
+    color: #1E4F86;
+}
+
+.logo span {
+    color: #D33A2C;
+}
+
+/* =========================================================
+   WORKSPACE
+   ========================================================= */
+
+.workspace {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    position: relative;
+    border: 1px solid #ACA899;
+    background: #fff;
+    overflow: hidden;
+}
+
+.page {
+    display: none;
+    height: 100%;
+    overflow: auto;
+    padding: 12px;
+}
+
+.page.active {
+    display: block;
+}
+
+.page-title {
+    margin: 0 0 4px;
+    font-size: 16px;
+    color: #174F86;
+    font-weight: normal;
+}
+
+.page-subtitle {
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    color: #555;
+    border-bottom: 1px solid #D6D2C4;
+}
+
+.group {
+    margin-bottom: 12px;
+    border: 1px solid #ACA899;
+    background: #F8F7F0;
+}
+
+.group-title {
+    padding: 5px 7px;
+    font-weight: bold;
+    background: #ECE9D8;
+    border-bottom: 1px solid #ACA899;
+}
+
+.group-body {
+    padding: 8px;
+}
+
+/* =========================================================
+   OVERVIEW
+   ========================================================= */
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 7px;
+}
+
+.summary-card {
+    min-height: 85px;
+    padding: 8px;
+    border: 1px solid #ACA899;
+    background: #fff;
+}
+
+.summary-card strong {
+    display: block;
+    color: #174F86;
+    margin-bottom: 5px;
+}
+
+.big-number {
+    font-size: 22px;
+    color: #333;
+    font-weight: bold;
+}
+
+.ok {
+    color: #1A7A25;
+}
+
+.warning {
+    color: #A25A00;
+}
+
+.bad {
+    color: #B50000;
+}
+
+/* =========================================================
+   COMPONENT TABLES
+   ========================================================= */
+
+.component-table,
+.codec-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+.component-table th,
+.component-table td,
+.codec-table th,
+.codec-table td {
+    border: 1px solid #D1CEC0;
+    padding: 5px 6px;
+    text-align: left;
+}
+
+.component-table th,
+.codec-table th {
+    background: #ECE9D8;
+    font-weight: normal;
+}
+
+.component-table tr:hover td,
+.codec-table tr:hover td {
+    background: #EAF3FC;
+}
+
+.status-pill {
+    display: inline-block;
+    padding: 1px 5px;
+    min-width: 62px;
+    border: 1px solid #999;
+    text-align: center;
+    background: #fff;
+}
+
+.status-enabled {
+    color: #17621D;
+    border-color: #6DAD70;
+    background: #EAF8E9;
+}
+
+.status-disabled {
+    color: #666;
+    background: #EEE;
+}
+
+.status-broken {
+    color: #A30000;
+    border-color: #CB7B7B;
+    background: #FFE5E5;
+}
+
+/* =========================================================
+   FIXES
+   ========================================================= */
+
+.fix-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 3px;
+    border-bottom: 1px solid #DDD8CA;
+}
+
+.fix-row:last-child {
+    border-bottom: 0;
+}
+
+.fix-row input {
+    margin-top: 2px;
+}
+
+.fix-description {
+    flex: 1;
+}
+
+.fix-description strong {
+    display: block;
+    margin-bottom: 3px;
+}
+
+/* =========================================================
+   FILE TEST
+   ========================================================= */
+
+.drop-zone {
+    min-height: 120px;
+    border: 2px dashed #7F9DB9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: #F5FAFF;
+    color: #345;
+    padding: 15px;
+}
+
+.drop-zone.drag {
+    background: #DDEEFF;
+    border-color: #316AC5;
+}
+
+.file-result {
+    display: none;
+    margin-top: 10px;
+}
+
+.file-result.visible {
+    display: block;
+}
+
+.property-grid {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    border-top: 1px solid #D1CEC0;
+    border-left: 1px solid #D1CEC0;
+}
+
+.property-grid > div {
+    padding: 5px;
+    border-right: 1px solid #D1CEC0;
+    border-bottom: 1px solid #D1CEC0;
+}
+
+.property-name {
+    background: #ECE9D8;
+}
+
+/* =========================================================
+   LOG
+   ========================================================= */
+
+.log-box {
+    height: 280px;
+    overflow: auto;
+    white-space: pre-wrap;
+    user-select: text;
+    font-family: "Courier New", monospace;
+    font-size: 11px;
+    padding: 7px;
+    border: 1px solid #7F9DB9;
+    background: #fff;
+}
+
+/* =========================================================
+   PROGRESS
+   ========================================================= */
+
+.progress-wrapper {
+    height: 18px;
+    padding: 2px;
+    margin: 7px 0;
+    border: 1px inset #fff;
+    background: #fff;
+}
+
+.progress {
+    height: 100%;
+    width: 0%;
+    background:
+        repeating-linear-gradient(
+            90deg,
+            #2E8B3C 0,
+            #2E8B3C 8px,
+            #52AD5C 8px,
+            #52AD5C 10px
+        );
+    transition: width .15s linear;
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.statusbar {
+    height: 22px;
+    flex: 0 0 22px;
+    padding: 2px;
+    display: flex;
+    gap: 2px;
+    border-top: 1px solid #ACA899;
+    background: #ECE9D8;
+}
+
+.status-segment {
+    height: 17px;
+    padding: 1px 6px;
+    display: flex;
+    align-items: center;
+    border: 1px inset #fff;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.status-main {
+    flex: 1;
+}
+
+/* =========================================================
+   XP DIALOG
+   ========================================================= */
+
+.dialog-overlay {
+    display: none;
+    position: absolute;
+    z-index: 1000;
+    inset: 0;
+    background: rgba(0,0,0,.2);
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+}
+
+.dialog-overlay.active {
+    display: flex;
+}
+
+.xp-dialog {
+    width: min(430px, 94%);
+    border: 1px solid #003C74;
+    background: #ECE9D8;
+    box-shadow: 4px 5px 13px rgba(0,0,0,.45);
+}
+
+.dialog-header {
+    height: 27px;
+    display: flex;
+    align-items: center;
+    padding: 0 7px;
+    color: #fff;
+    font-weight: bold;
+    background:
+        linear-gradient(
+            90deg,
+            #0058D6,
+            #3A93FF
+        );
+}
+
+.dialog-body {
+    padding: 15px;
+    line-height: 17px;
+}
+
+.dialog-buttons {
+    padding: 0 12px 12px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+/* ========================================================= */
+
+@media(max-width:700px) {
+    .sidebar {
+        width: 145px;
+        flex-basis: 145px;
+    }
+
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tool-button span:last-child {
+        display: none;
+    }
+
+    .tool-button {
+        min-width: 38px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app" id="app">
+
+    <!-- INTERNAL MENU -->
+
+    <div class="menu-bar">
+
+        <div class="menu">
+            <button>File</button>
+
+            <div class="dropdown">
+                <button data-command="test-file">
+                    Test media file...
+                </button>
+
+                <button data-command="export-log">
+                    Save diagnostic log
+                </button>
+
+                <div class="separator"></div>
+
+                <button data-command="about">
+                    About K-Lite Codec Pack
+                </button>
+            </div>
+        </div>
+
+        <div class="menu">
+            <button>Tools</button>
+
+            <div class="dropdown">
+                <button data-command="scan">
+                    Scan codec registry
+                </button>
+
+                <button data-command="codec-test">
+                    Browser codec test
+                </button>
+
+                <button data-command="fixes">
+                    Fixes
+                </button>
+
+                <button data-command="reset">
+                    Reset settings
+                </button>
+            </div>
+        </div>
+
+        <div class="menu">
+            <button>Help</button>
+
+            <div class="dropdown">
+                <button data-command="help">
+                    Help
+                </button>
+
+                <button data-command="about">
+                    About
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TOOLBAR -->
+
+    <div class="toolbar">
+
+        <button class="tool-button" data-command="scan">
+            <span class="tool-icon icon-scan"></span>
+            <span>Scan</span>
+        </button>
+
+        <button class="tool-button" data-command="codec-test">
+            <span class="tool-icon icon-test"></span>
+            <span>Codec Test</span>
+        </button>
+
+        <button class="tool-button" data-command="reset">
+            <span class="tool-icon icon-reset"></span>
+            <span>Reset</span>
+        </button>
+
+        <button class="tool-button" data-command="log">
+            <span class="tool-icon icon-log"></span>
+            <span>Log</span>
+        </button>
+
+        <div class="toolbar-spacer"></div>
+
+        <div class="version-box">
+            <strong>K-Lite Codec Pack</strong>
+            XP Edition 13.8.5
+        </div>
+
+    </div>
+
+    <div class="main">
+
+        <!-- SIDEBAR -->
+
+        <aside class="sidebar">
+
+            <div class="task-panel">
+
+                <div class="task-title">
+                    Codec Tweak Tool
+                </div>
+
+                <div class="task-list">
+
+                    <button class="active" data-page="overview">
+                        Overview
+                    </button>
+
+                    <button data-page="components">
+                        Installed Components
+                    </button>
+
+                    <button data-page="codecs">
+                        Codec Capability
+                    </button>
+
+                    <button data-page="filetest">
+                        Test Media File
+                    </button>
+
+                    <button data-page="fixes">
+                        Fixes
+                    </button>
+
+                    <button data-page="associations">
+                        File Associations
+                    </button>
+
+                    <button data-page="log">
+                        Diagnostic Log
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div class="info-panel">
+
+                <div class="logo">
+                    K-<span>Lite</span>
+                </div>
+
+                Codec Pack<br>
+                Windows XP Edition<br><br>
+
+                Virtual DirectShow configuration for the XP web desktop.
+
+            </div>
+
+        </aside>
+
+        <!-- WORKSPACE -->
+
+        <main class="workspace">
+
+            <!-- OVERVIEW -->
+
+            <section class="page active" id="page-overview">
+
+                <h1 class="page-title">
+                    K-Lite Codec Pack
+                </h1>
+
+                <div class="page-subtitle">
+                    Codec and filter configuration overview
+                </div>
+
+                <div class="summary-grid">
+
+                    <div class="summary-card">
+                        <strong>Installed Components</strong>
+                        <div class="big-number" id="componentCount">
+                            7
+                        </div>
+                        DirectShow components
+                    </div>
+
+                    <div class="summary-card">
+                        <strong>Codec Status</strong>
+                        <div class="big-number ok" id="healthyCount">
+                            6
+                        </div>
+                        healthy components
+                    </div>
+
+                    <div class="summary-card">
+                        <strong>Problems</strong>
+                        <div class="big-number warning" id="problemCount">
+                            1
+                        </div>
+                        registry reference
+                    </div>
+
+                </div>
+
+                <div class="group" style="margin-top:12px">
+
+                    <div class="group-title">
+                        System information
+                    </div>
+
+                    <div class="group-body">
+
+                        <div class="property-grid">
+
+                            <div class="property-name">
+                                Operating system
+                            </div>
+
+                            <div>
+                                Windows XP Professional SP3
+                                (Virtual Desktop)
+                            </div>
+
+                            <div class="property-name">
+                                Codec pack
+                            </div>
+
+                            <div>
+                                K-Lite Codec Pack 13.8.5
+                            </div>
+
+                            <div class="property-name">
+                                Architecture
+                            </div>
+
+                            <div id="architectureValue">
+                                Detecting...
+                            </div>
+
+                            <div class="property-name">
+                                Playback engine
+                            </div>
+
+                            <div>
+                                Browser HTML5 Media Engine
+                            </div>
+
+                            <div class="property-name">
+                                DirectShow
+                            </div>
+
+                            <div>
+                                Virtual compatibility layer
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="group">
+
+                    <div class="group-title">
+                        Quick tasks
+                    </div>
+
+                    <div class="group-body">
+
+                        <button data-command="scan">
+                            Scan for broken codecs
+                        </button>
+
+                        <button data-command="codec-test">
+                            Test codec support
+                        </button>
+
+                        <button data-command="test-file">
+                            Test a media file
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- COMPONENTS -->
+
+            <section class="page" id="page-components">
+
+                <h1 class="page-title">
+                    Installed Components
+                </h1>
+
+                <div class="page-subtitle">
+                    Manage the virtual DirectShow components installed
+                    by K-Lite Codec Pack.
+                </div>
+
+                <table class="component-table">
+
+                    <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Enabled</th>
+                    </tr>
+                    </thead>
+
+                    <tbody id="componentTableBody"></tbody>
+
+                </table>
+
+            </section>
+
+            <!-- CODEC SUPPORT -->
+
+            <section class="page" id="page-codecs">
+
+                <h1 class="page-title">
+                    Browser Codec Capability
+                </h1>
+
+                <div class="page-subtitle">
+                    Real-time test of formats supported by the current
+                    browser playback engine.
+                </div>
+
+                <div class="group">
+
+                    <div class="group-title">
+                        Decoder test
+                    </div>
+
+                    <div class="group-body">
+
+                        <button id="runCodecTest">
+                            Run Codec Test
+                        </button>
+
+                        <p>
+                            Unlike the virtual DirectShow component list,
+                            these results are queried directly from your
+                            browser.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <table class="codec-table">
+
+                    <thead>
+                    <tr>
+                        <th>Format</th>
+                        <th>MIME / Codec</th>
+                        <th>Browser response</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+
+                    <tbody id="codecTableBody"></tbody>
+
+                </table>
+
+            </section>
+
+            <!-- FILE TEST -->
+
+            <section class="page" id="page-filetest">
+
+                <h1 class="page-title">
+                    Test Media File
+                </h1>
+
+                <div class="page-subtitle">
+                    Check whether your browser can open a local
+                    audio or video file.
+                </div>
+
+                <div class="drop-zone" id="dropZone">
+
+                    <div>
+                        <b>Drop a media file here</b>
+                        <br><br>
+                        or
+                        <br><br>
+
+                        <button id="browseFile">
+                            Browse...
+                        </button>
+                    </div>
+
+                </div>
+
+                <div class="file-result" id="fileResult">
+
+                    <div class="group">
+
+                        <div class="group-title">
+                            Media information
+                        </div>
+
+                        <div class="group-body">
+
+                            <div class="property-grid">
+
+                                <div class="property-name">File</div>
+                                <div id="fileName">-</div>
+
+                                <div class="property-name">Size</div>
+                                <div id="fileSize">-</div>
+
+                                <div class="property-name">MIME</div>
+                                <div id="fileMime">-</div>
+
+                                <div class="property-name">Duration</div>
+                                <div id="fileDuration">-</div>
+
+                                <div class="property-name">Dimensions</div>
+                                <div id="fileDimensions">-</div>
+
+                                <div class="property-name">Result</div>
+                                <div id="fileStatus">-</div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- FIXES -->
+
+            <section class="page" id="page-fixes">
+
+                <h1 class="page-title">
+                    Fixes
+                </h1>
+
+                <div class="page-subtitle">
+                    Repair common codec and DirectShow configuration
+                    problems.
+                </div>
+
+                <div class="group">
+
+                    <div class="group-title">
+                        Available fixes
+                    </div>
+
+                    <div class="group-body">
+
+                        <label class="fix-row">
+
+                            <input
+                                type="checkbox"
+                                class="fix-checkbox"
+                                value="broken"
+                                checked
+                            >
+
+                            <span class="fix-description">
+
+                                <strong>
+                                    Detect and remove broken codec references
+                                </strong>
+
+                                Check the virtual registry for references
+                                to missing DirectShow filters.
+
+                            </span>
+
+                        </label>
+
+                        <label class="fix-row">
+
+                            <input
+                                type="checkbox"
+                                class="fix-checkbox"
+                                value="reregister"
+                            >
+
+                            <span class="fix-description">
+
+                                <strong>
+                                    Re-register DirectShow filters
+                                </strong>
+
+                                Restore registration state of the
+                                K-Lite filter set.
+
+                            </span>
+
+                        </label>
+
+                        <label class="fix-row">
+
+                            <input
+                                type="checkbox"
+                                class="fix-checkbox"
+                                value="settings"
+                            >
+
+                            <span class="fix-description">
+
+                                <strong>
+                                    Reset decoder preferences
+                                </strong>
+
+                                Restore recommended decoder priority
+                                settings.
+
+                            </span>
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+                <button id="applyFixes">
+                    Apply selected fixes
+                </button>
+
+                <div id="fixProgressArea" style="display:none">
+
+                    <div class="progress-wrapper">
+                        <div class="progress" id="fixProgress"></div>
+                    </div>
+
+                    <div id="fixProgressText">
+                        Starting...
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- ASSOCIATIONS -->
+
+            <section class="page" id="page-associations">
+
+                <h1 class="page-title">
+                    File Associations
+                </h1>
+
+                <div class="page-subtitle">
+                    Configure virtual media associations for the XP
+                    desktop.
+                </div>
+
+                <div class="group">
+
+                    <div class="group-title">
+                        Video formats
+                    </div>
+
+                    <div class="group-body" id="videoAssociations"></div>
+
+                </div>
+
+                <div class="group">
+
+                    <div class="group-title">
+                        Audio formats
+                    </div>
+
+                    <div class="group-body" id="audioAssociations"></div>
+
+                </div>
+
+                <button id="saveAssociations">
+                    Apply
+                </button>
+
+            </section>
+
+            <!-- LOG -->
+
+            <section class="page" id="page-log">
+
+                <h1 class="page-title">
+                    Diagnostic Log
+                </h1>
+
+                <div class="page-subtitle">
+                    Installed filters and browser playback information.
+                </div>
+
+                <div class="log-box" id="logBox"></div>
+
+                <div style="margin-top:7px">
+
+                    <button id="refreshLog">
+                        Refresh
+                    </button>
+
+                    <button data-command="export-log">
+                        Save Log
+                    </button>
+
+                </div>
+
+            </section>
+
+            <!-- DIALOG -->
+
+            <div class="dialog-overlay" id="dialogOverlay">
+
+                <div class="xp-dialog">
+
+                    <div class="dialog-header" id="dialogHeader">
+                        K-Lite Codec Pack
+                    </div>
+
+                    <div class="dialog-body" id="dialogBody"></div>
+
+                    <div class="dialog-buttons">
+
+                        <button id="dialogOk">
+                            OK
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- STATUS BAR -->
+
+    <div class="statusbar">
+
+        <div class="status-segment status-main" id="statusMain">
+            Ready
+        </div>
+
+        <div class="status-segment" id="statusProblems">
+            1 problem
+        </div>
+
+        <div class="status-segment">
+            XP SP3
+        </div>
+
+    </div>
+
+</div>
+
+<input
+    type="file"
+    id="mediaInput"
+    hidden
+    accept="video/*,audio/*,.avi,.mkv,.mp4,.mpg,.mpeg,.wmv,.mov,.webm,.mp3,.wav,.ogg,.flac,.aac,.m4a"
+>
+
+<script>
+(() => {
+    "use strict";
+
+    /* ======================================================
+       STATE
+       ====================================================== */
+
+    const components = [
+        {
+            name: "LAV Video Decoder",
+            type: "DirectShow Video Decoder",
+            enabled: true,
+            broken: false
+        },
+        {
+            name: "LAV Audio Decoder",
+            type: "DirectShow Audio Decoder",
+            enabled: true,
+            broken: false
+        },
+        {
+            name: "LAV Splitter",
+            type: "DirectShow Source Filter",
+            enabled: true,
+            broken: false
+        },
+        {
+            name: "DirectVobSub",
+            type: "Subtitle Filter",
+            enabled: true,
+            broken: false
+        },
+        {
+            name: "Media Player Classic",
+            type: "Media Player",
+            enabled: true,
+            broken: false
+        },
+        {
+            name: "Codec Tweak Tool",
+            type: "Configuration Tool",
+            enabled: true,
+            broken: false
+        },
+        {
+            name: "Old XviD Registry Entry",
+            type: "VFW Codec Reference",
+            enabled: false,
+            broken: true
+        }
+    ];
+
+    const codecTests = [
+        {
+            name: "H.264 / AVC",
+            type: "video",
+            mime: 'video/mp4; codecs="avc1.42E01E"'
+        },
+        {
+            name: "WebM VP8",
+            type: "video",
+            mime: 'video/webm; codecs="vp8"'
+        },
+        {
+            name: "WebM VP9",
+            type: "video",
+            mime: 'video/webm; codecs="vp9"'
+        },
+        {
+            name: "AV1",
+            type: "video",
+            mime: 'video/mp4; codecs="av01.0.05M.08"'
+        },
+        {
+            name: "MP3",
+            type: "audio",
+            mime: "audio/mpeg"
+        },
+        {
+            name: "AAC",
+            type: "audio",
+            mime: 'audio/mp4; codecs="mp4a.40.2"'
+        },
+        {
+            name: "Ogg Vorbis",
+            type: "audio",
+            mime: 'audio/ogg; codecs="vorbis"'
+        },
+        {
+            name: "FLAC",
+            type: "audio",
+            mime: "audio/flac"
+        },
+        {
+            name: "WAV",
+            type: "audio",
+            mime: 'audio/wav; codecs="1"'
+        }
+    ];
+
+    const defaultAssociations = {
+        avi: true,
+        mkv: true,
+        mp4: true,
+        mpg: true,
+        wmv: true,
+        mov: false,
+        webm: true,
+
+        mp3: true,
+        wav: true,
+        ogg: true,
+        flac: true,
+        aac: true,
+        m4a: true
+    };
+
+    let associations = loadJSON(
+        "klite-associations",
+        defaultAssociations
+    );
+
+    /* ======================================================
+       ELEMENTS
+       ====================================================== */
+
+    const statusMain =
+        document.getElementById("statusMain");
+
+    const statusProblems =
+        document.getElementById("statusProblems");
+
+    const componentTableBody =
+        document.getElementById("componentTableBody");
+
+    const codecTableBody =
+        document.getElementById("codecTableBody");
+
+    const componentCount =
+        document.getElementById("componentCount");
+
+    const healthyCount =
+        document.getElementById("healthyCount");
+
+    const problemCount =
+        document.getElementById("problemCount");
+
+    const architectureValue =
+        document.getElementById("architectureValue");
+
+    const mediaInput =
+        document.getElementById("mediaInput");
+
+    const dropZone =
+        document.getElementById("dropZone");
+
+    const fileResult =
+        document.getElementById("fileResult");
+
+    const fileName =
+        document.getElementById("fileName");
+
+    const fileSize =
+        document.getElementById("fileSize");
+
+    const fileMime =
+        document.getElementById("fileMime");
+
+    const fileDuration =
+        document.getElementById("fileDuration");
+
+    const fileDimensions =
+        document.getElementById("fileDimensions");
+
+    const fileStatus =
+        document.getElementById("fileStatus");
+
+    const dialogOverlay =
+        document.getElementById("dialogOverlay");
+
+    const dialogHeader =
+        document.getElementById("dialogHeader");
+
+    const dialogBody =
+        document.getElementById("dialogBody");
+
+    const logBox =
+        document.getElementById("logBox");
+
+    /* ======================================================
+       STORAGE
+       ====================================================== */
+
+    function loadJSON(key, fallback) {
+        try {
+            const raw = localStorage.getItem(key);
+
+            if (!raw) {
+                return { ...fallback };
+            }
+
+            return {
+                ...fallback,
+                ...JSON.parse(raw)
+            };
+        } catch (_) {
+            return { ...fallback };
+        }
+    }
+
+    function saveAssociations() {
+        try {
+            localStorage.setItem(
+                "klite-associations",
+                JSON.stringify(associations)
+            );
+        } catch (_) {}
+    }
+
+    /* ======================================================
+       GENERAL
+       ====================================================== */
+
+    function setStatus(text) {
+        statusMain.textContent = text;
+    }
+
+    function escapeHTML(value) {
+        const div = document.createElement("div");
+        div.textContent = String(value);
+        return div.innerHTML;
+    }
+
+    function showDialog(title, html) {
+        dialogHeader.textContent = title;
+        dialogBody.innerHTML = html;
+        dialogOverlay.classList.add("active");
+    }
+
+    function hideDialog() {
+        dialogOverlay.classList.remove("active");
+    }
+
+    function humanSize(bytes) {
+        if (!Number.isFinite(bytes)) {
+            return "-";
+        }
+
+        if (bytes < 1024) {
+            return bytes + " bytes";
+        }
+
+        if (bytes < 1024 * 1024) {
+            return (bytes / 1024).toFixed(1) + " KB";
+        }
+
+        if (bytes < 1024 * 1024 * 1024) {
+            return (
+                bytes / (1024 * 1024)
+            ).toFixed(1) + " MB";
+        }
+
+        return (
+            bytes / (1024 * 1024 * 1024)
+        ).toFixed(2) + " GB";
+    }
+
+    function formatDuration(seconds) {
+        if (!Number.isFinite(seconds)) {
+            return "Unknown";
+        }
+
+        const total = Math.round(seconds);
+
+        const hours =
+            Math.floor(total / 3600);
+
+        const minutes =
+            Math.floor((total % 3600) / 60);
+
+        const secs =
+            total % 60;
+
+        if (hours > 0) {
+            return (
+                hours +
+                ":" +
+                String(minutes).padStart(2, "0") +
+                ":" +
+                String(secs).padStart(2, "0")
+            );
+        }
+
+        return (
+            minutes +
+            ":" +
+            String(secs).padStart(2, "0")
+        );
+    }
+
+    /* ======================================================
+       PAGES
+       ====================================================== */
+
+    function openPage(name) {
+        document
+            .querySelectorAll(".page")
+            .forEach(page => {
+                page.classList.remove("active");
+            });
+
+        const target =
+            document.getElementById("page-" + name);
+
+        if (target) {
+            target.classList.add("active");
+        }
+
+        document
+            .querySelectorAll("[data-page]")
+            .forEach(button => {
+                button.classList.toggle(
+                    "active",
+                    button.dataset.page === name
+                );
+            });
+
+        closeMenus();
+
+        if (name === "log") {
+            refreshLog();
+        }
+    }
+
+    document
+        .querySelectorAll("[data-page]")
+        .forEach(button => {
+            button.addEventListener("click", () => {
+                openPage(button.dataset.page);
+            });
+        });
+
+    /* ======================================================
+       MENUS
+       ====================================================== */
+
+    function closeMenus() {
+        document
+            .querySelectorAll(".menu.open")
+            .forEach(menu => {
+                menu.classList.remove("open");
+            });
+    }
+
+    document
+        .querySelectorAll(".menu > button")
+        .forEach(button => {
+            button.addEventListener("click", event => {
+                event.stopPropagation();
+
+                const menu =
+                    button.closest(".menu");
+
+                const open =
+                    menu.classList.contains("open");
+
+                closeMenus();
+
+                if (!open) {
+                    menu.classList.add("open");
+                }
+            });
+        });
+
+    document.addEventListener("click", closeMenus);
+
+    /* ======================================================
+       COMPONENTS
+       ====================================================== */
+
+    function renderComponents() {
+        componentTableBody.innerHTML = "";
+
+        components.forEach((component, index) => {
+
+            const row =
+                document.createElement("tr");
+
+            let statusClass =
+                "status-enabled";
+
+            let status =
+                "Healthy";
+
+            if (component.broken) {
+                statusClass =
+                    "status-broken";
+
+                status =
+                    "Broken";
+            } else if (!component.enabled) {
+                statusClass =
+                    "status-disabled";
+
+                status =
+                    "Disabled";
+            }
+
+            row.innerHTML = `
+                <td>${escapeHTML(component.name)}</td>
+
+                <td>${escapeHTML(component.type)}</td>
+
+                <td>
+                    <span class="status-pill ${statusClass}">
+                        ${status}
+                    </span>
+                </td>
+
+                <td>
+                    <input
+                        type="checkbox"
+                        data-component-toggle="${index}"
+                        ${component.enabled ? "checked" : ""}
+                        ${component.broken ? "disabled" : ""}
+                    >
+                </td>
+            `;
+
+            componentTableBody.appendChild(row);
+        });
+
+        document
+            .querySelectorAll(
+                "[data-component-toggle]"
+            )
+            .forEach(input => {
+                input.addEventListener("change", () => {
+
+                    const index =
+                        Number(
+                            input.dataset.componentToggle
+                        );
+
+                    components[index].enabled =
+                        input.checked;
+
+                    renderComponents();
+                    updateSummary();
+
+                    setStatus(
+                        components[index].name +
+                        (
+                            input.checked
+                                ? " enabled."
+                                : " disabled."
+                        )
+                    );
+                });
+            });
+
+        updateSummary();
+    }
+
+    function updateSummary() {
+        const problems =
+            components.filter(
+                item => item.broken
+            ).length;
+
+        const healthy =
+            components.filter(
+                item =>
+                    !item.broken &&
+                    item.enabled
+            ).length;
+
+        componentCount.textContent =
+            components.length;
+
+        healthyCount.textContent =
+            healthy;
+
+        problemCount.textContent =
+            problems;
+
+        statusProblems.textContent =
+            problems === 1
+                ? "1 problem"
+                : problems + " problems";
+
+        problemCount.className =
+            problems
+                ? "big-number warning"
+                : "big-number ok";
+    }
+
+    /* ======================================================
+       REGISTRY SCAN
+       ====================================================== */
+
+    function scanRegistry() {
+        openPage("overview");
+
+        setStatus(
+            "Scanning virtual DirectShow registry..."
+        );
+
+        let progress = 0;
+
+        const timer =
+            setInterval(() => {
+
+                progress += 20;
+
+                setStatus(
+                    "Scanning virtual DirectShow registry... "
+                    + progress
+                    + "%"
+                );
+
+                if (progress >= 100) {
+                    clearInterval(timer);
+
+                    const broken =
+                        components.filter(
+                            item => item.broken
+                        );
+
+                    setStatus(
+                        "Scan complete. "
+                        + broken.length
+                        + " problem(s) found."
+                    );
+
+                    if (broken.length) {
+                        showDialog(
+                            "Codec Registry Scan",
+                            `
+                            <b>Scan completed.</b>
+
+                            <p>
+                                ${broken.length}
+                                broken codec/filter reference
+                                was detected.
+                            </p>
+
+                            <p>
+                                Open <b>Fixes</b> to repair
+                                the virtual registry.
+                            </p>
+                            `
+                        );
+                    } else {
+                        showDialog(
+                            "Codec Registry Scan",
+                            `
+                            <b>No problems found.</b>
+
+                            <p>
+                                All registered virtual
+                                DirectShow filters are valid.
+                            </p>
+                            `
+                        );
+                    }
+                }
+            }, 130);
+    }
+
+    /* ======================================================
+       CODEC TEST
+       ====================================================== */
+
+    function codecSupport(test) {
+        const element =
+            document.createElement(test.type);
+
+        const response =
+            element.canPlayType(test.mime);
+
+        return response || "";
+    }
+
+    function renderCodecTests() {
+        codecTableBody.innerHTML = "";
+
+        codecTests.forEach(test => {
+
+            const response =
+                codecSupport(test);
+
+            let status =
+                "Unsupported";
+
+            let className =
+                "status-broken";
+
+            if (response === "probably") {
+                status =
+                    "Supported";
+
+                className =
+                    "status-enabled";
+            } else if (response === "maybe") {
+                status =
+                    "Maybe";
+
+                className =
+                    "status-disabled";
+            }
+
+            const row =
+                document.createElement("tr");
+
+            row.innerHTML = `
+                <td>
+                    ${escapeHTML(test.name)}
+                </td>
+
+                <td>
+                    ${escapeHTML(test.mime)}
+                </td>
+
+                <td>
+                    ${response || "(empty)"}
+                </td>
+
+                <td>
+                    <span class="status-pill ${className}">
+                        ${status}
+                    </span>
+                </td>
+            `;
+
+            codecTableBody.appendChild(row);
+        });
+
+        setStatus(
+            "Browser codec capability test completed."
+        );
+    }
+
+    function runCodecTest() {
+        openPage("codecs");
+
+        renderCodecTests();
+    }
+
+    /* ======================================================
+       LOCAL FILE TEST
+       ====================================================== */
+
+    function testFile(file) {
+        if (!file) {
+            return;
+        }
+
+        openPage("filetest");
+
+        fileResult.classList.add("visible");
+
+        fileName.textContent =
+            file.name;
+
+        fileSize.textContent =
+            humanSize(file.size);
+
+        fileMime.textContent =
+            file.type || "Unknown";
+
+        fileDuration.textContent =
+            "Testing...";
+
+        fileDimensions.textContent =
+            "Testing...";
+
+        fileStatus.innerHTML =
+            '<span class="warning">Analyzing...</span>';
+
+        const lower =
+            file.name.toLowerCase();
+
+        const isAudio =
+            file.type.startsWith("audio/") ||
+            /\.(mp3|wav|ogg|oga|flac|aac|m4a)$/i
+                .test(lower);
+
+        const media =
+            document.createElement(
+                isAudio
+                    ? "audio"
+                    : "video"
+            );
+
+        const url =
+            URL.createObjectURL(file);
+
+        media.preload = "metadata";
+
+        let finished = false;
+
+        function cleanup() {
+            if (finished) {
+                return;
+            }
+
+            finished = true;
+
+            setTimeout(() => {
+                URL.revokeObjectURL(url);
+                media.removeAttribute("src");
+                media.load();
+            }, 200);
+        }
+
+        media.addEventListener(
+            "loadedmetadata",
+            () => {
+
+                fileDuration.textContent =
+                    formatDuration(
+                        media.duration
+                    );
+
+                if (
+                    !isAudio &&
+                    media.videoWidth
+                ) {
+                    fileDimensions.textContent =
+                        media.videoWidth +
+                        " × " +
+                        media.videoHeight;
+                } else {
+                    fileDimensions.textContent =
+                        isAudio
+                            ? "Audio file"
+                            : "Unknown";
+                }
+
+                fileStatus.innerHTML =
+                    '<span class="ok"><b>Playable</b></span>';
+
+                setStatus(
+                    "Media file successfully decoded."
+                );
+
+                cleanup();
+            },
+            { once: true }
+        );
+
+        media.addEventListener(
+            "error",
+            () => {
+
+                fileDuration.textContent =
+                    "Unavailable";
+
+                fileDimensions.textContent =
+                    "-";
+
+                fileStatus.innerHTML =
+                    '<span class="bad"><b>Codec not available</b></span>';
+
+                setStatus(
+                    "Browser could not decode the selected file."
+                );
+
+                cleanup();
+            },
+            { once: true }
+        );
+
+        media.src = url;
+    }
+
+    /* ======================================================
+       DRAG DROP
+       ====================================================== */
+
+    let dragCounter = 0;
+
+    dropZone.addEventListener(
+        "dragenter",
+        event => {
+            event.preventDefault();
+
+            dragCounter++;
+
+            dropZone.classList.add("drag");
+        }
+    );
+
+    dropZone.addEventListener(
+        "dragover",
+        event => {
+            event.preventDefault();
+        }
+    );
+
+    dropZone.addEventListener(
+        "dragleave",
+        event => {
+            event.preventDefault();
+
+            dragCounter--;
+
+            if (dragCounter <= 0) {
+                dragCounter = 0;
+                dropZone.classList.remove("drag");
+            }
+        }
+    );
+
+    dropZone.addEventListener(
+        "drop",
+        event => {
+            event.preventDefault();
+
+            dragCounter = 0;
+
+            dropZone.classList.remove("drag");
+
+            const file =
+                event.dataTransfer.files[0];
+
+            testFile(file);
+        }
+    );
+
+    document
+        .getElementById("browseFile")
+        .addEventListener(
+            "click",
+            () => mediaInput.click()
+        );
+
+    mediaInput.addEventListener(
+        "change",
+        () => {
+
+            testFile(
+                mediaInput.files[0]
+            );
+
+            mediaInput.value = "";
+        }
+    );
+
+    /* ======================================================
+       FIXES
+       ====================================================== */
+
+    function applyFixes() {
+        const selected =
+            Array.from(
+                document.querySelectorAll(
+                    ".fix-checkbox:checked"
+                )
+            ).map(input => input.value);
+
+        if (!selected.length) {
+            showDialog(
+                "Codec Tweak Tool",
+                "<p>Select at least one fix.</p>"
+            );
+
+            return;
+        }
+
+        const area =
+            document.getElementById(
+                "fixProgressArea"
+            );
+
+        const progress =
+            document.getElementById(
+                "fixProgress"
+            );
+
+        const text =
+            document.getElementById(
+                "fixProgressText"
+            );
+
+        area.style.display =
+            "block";
+
+        progress.style.width =
+            "0%";
+
+        let value = 0;
+
+        const timer =
+            setInterval(() => {
+
+                value += 10;
+
+                progress.style.width =
+                    value + "%";
+
+                if (value < 30) {
+                    text.textContent =
+                        "Scanning registry...";
+                } else if (value < 60) {
+                    text.textContent =
+                        "Checking DirectShow filters...";
+                } else if (value < 90) {
+                    text.textContent =
+                        "Applying fixes...";
+                } else {
+                    text.textContent =
+                        "Finalizing...";
+                }
+
+                if (value >= 100) {
+                    clearInterval(timer);
+
+                    if (
+                        selected.includes("broken")
+                    ) {
+                        components
+                            .filter(
+                                item => item.broken
+                            )
+                            .forEach(item => {
+                                item.broken = false;
+                                item.enabled = false;
+                                item.name =
+                                    item.name.replace(
+                                        "Old ",
+                                        "Removed "
+                                    );
+                            });
+                    }
+
+                    if (
+                        selected.includes(
+                            "reregister"
+                        )
+                    ) {
+                        components
+                            .filter(
+                                item =>
+                                    !item.name.startsWith(
+                                        "Removed "
+                                    )
+                            )
+                            .forEach(item => {
+                                item.enabled = true;
+                            });
+                    }
+
+                    renderComponents();
+                    updateSummary();
+
+                    text.textContent =
+                        "Completed.";
+
+                    setStatus(
+                        "Selected fixes applied."
+                    );
+
+                    showDialog(
+                        "Codec Tweak Tool",
+                        `
+                        <b>Fixes successfully applied.</b>
+
+                        <p>
+                            The virtual DirectShow configuration
+                            has been repaired.
+                        </p>
+                        `
+                    );
+                }
+
+            }, 90);
+    }
+
+    document
+        .getElementById("applyFixes")
+        .addEventListener(
+            "click",
+            applyFixes
+        );
+
+    /* ======================================================
+       ASSOCIATIONS
+       ====================================================== */
+
+    const videoExtensions =
+        ["avi", "mkv", "mp4", "mpg", "wmv", "mov", "webm"];
+
+    const audioExtensions =
+        ["mp3", "wav", "ogg", "flac", "aac", "m4a"];
+
+    function renderAssociationGroup(
+        element,
+        extensions
+    ) {
+        element.innerHTML = "";
+
+        extensions.forEach(ext => {
+
+            const label =
+                document.createElement("label");
+
+            label.style.display =
+                "inline-flex";
+
+            label.style.alignItems =
+                "center";
+
+            label.style.gap =
+                "4px";
+
+            label.style.width =
+                "95px";
+
+            label.style.margin =
+                "4px";
+
+            label.innerHTML = `
+                <input
+                    type="checkbox"
+                    data-association="${ext}"
+                    ${associations[ext] ? "checked" : ""}
+                >
+                .${ext.toUpperCase()}
+            `;
+
+            element.appendChild(label);
+        });
+    }
+
+    function renderAssociations() {
+        renderAssociationGroup(
+            document.getElementById(
+                "videoAssociations"
+            ),
+            videoExtensions
+        );
+
+        renderAssociationGroup(
+            document.getElementById(
+                "audioAssociations"
+            ),
+            audioExtensions
+        );
+    }
+
+    document
+        .getElementById("saveAssociations")
+        .addEventListener("click", () => {
+
+            document
+                .querySelectorAll(
+                    "[data-association]"
+                )
+                .forEach(input => {
+                    associations[
+                        input.dataset.association
+                    ] = input.checked;
+                });
+
+            saveAssociations();
+
+            setStatus(
+                "Virtual file associations updated."
+            );
+
+            showDialog(
+                "File Associations",
+                `
+                <p>
+                    File association settings have been
+                    saved for the XP web desktop.
+                </p>
+                `
+            );
+        });
+
+    /* ======================================================
+       RESET
+       ====================================================== */
+
+    function resetSettings() {
+        associations = {
+            ...defaultAssociations
+        };
+
+        saveAssociations();
+
+        components.forEach(
+            (component, index) => {
+
+                if (index < 6) {
+                    component.enabled =
+                        true;
+
+                    component.broken =
+                        false;
+                }
+            }
+        );
+
+        renderComponents();
+        renderAssociations();
+
+        setStatus(
+            "K-Lite settings reset."
+        );
+
+        showDialog(
+            "Reset Settings",
+            `
+            <b>Recommended settings restored.</b>
+
+            <p>
+                Virtual decoder preferences and file
+                associations have been reset.
+            </p>
+            `
+        );
+    }
+
+    /* ======================================================
+       LOG
+       ====================================================== */
+
+    function createLog() {
+        const lines = [];
+
+        lines.push(
+            "K-Lite Codec Pack - Diagnostic Log"
+        );
+
+        lines.push(
+            "==================================="
+        );
+
+        lines.push("");
+
+        lines.push(
+            "Package: K-Lite Codec Pack XP Edition 13.8.5"
+        );
+
+        lines.push(
+            "Environment: Windows XP Professional SP3 (Virtual)"
+        );
+
+        lines.push(
+            "Browser: " + navigator.userAgent
+        );
+
+        lines.push("");
+
+        lines.push(
+            "[DirectShow Components]"
+        );
+
+        components.forEach(item => {
+
+            lines.push(
+                item.name +
+                " | " +
+                item.type +
+                " | " +
+                (
+                    item.broken
+                        ? "BROKEN"
+                        : item.enabled
+                            ? "ENABLED"
+                            : "DISABLED"
+                )
+            );
+        });
+
+        lines.push("");
+
+        lines.push(
+            "[Browser Codec Capability]"
+        );
+
+        codecTests.forEach(test => {
+
+            const support =
+                codecSupport(test);
+
+            lines.push(
+                test.name +
+                " | " +
+                test.mime +
+                " | " +
+                (
+                    support ||
+                    "unsupported"
+                )
+            );
+        });
+
+        lines.push("");
+
+        lines.push(
+            "[File Associations]"
+        );
+
+        Object.keys(associations)
+            .forEach(ext => {
+                lines.push(
+                    "." +
+                    ext +
+                    " = " +
+                    (
+                        associations[ext]
+                            ? "associated"
+                            : "not associated"
+                    )
+                );
+            });
+
+        return lines.join("\n");
+    }
+
+    function refreshLog() {
+        logBox.textContent =
+            createLog();
+    }
+
+    function exportLog() {
+        const blob =
+            new Blob(
+                [createLog()],
+                {
+                    type: "text/plain;charset=utf-8"
+                }
+            );
+
+        const url =
+            URL.createObjectURL(blob);
+
+        const anchor =
+            document.createElement("a");
+
+        anchor.href =
+            url;
+
+        anchor.download =
+            "klite-diagnostic-log.txt";
+
+        anchor.click();
+
+        setTimeout(() => {
+            URL.revokeObjectURL(url);
+        }, 500);
+
+        setStatus(
+            "Diagnostic log exported."
+        );
+    }
+
+    document
+        .getElementById("refreshLog")
+        .addEventListener(
+            "click",
+            refreshLog
+        );
+
+    /* ======================================================
+       COMMANDS
+       ====================================================== */
+
+    function executeCommand(command) {
+
+        switch (command) {
+
+            case "scan":
+                scanRegistry();
+                break;
+
+            case "codec-test":
+                runCodecTest();
+                break;
+
+            case "test-file":
+                openPage("filetest");
+
+                setTimeout(
+                    () => mediaInput.click(),
+                    50
+                );
+                break;
+
+            case "fixes":
+                openPage("fixes");
+                break;
+
+            case "reset":
+                resetSettings();
+                break;
+
+            case "log":
+                openPage("log");
+                break;
+
+            case "export-log":
+                exportLog();
+                break;
+
+            case "help":
+                showDialog(
+                    "K-Lite Codec Pack Help",
+                    `
+                    <b>Codec Tweak Tool</b>
+
+                    <p>
+                        Use the navigation panel to inspect
+                        codecs, test media files, repair the
+                        virtual DirectShow registry and manage
+                        file associations.
+                    </p>
+
+                    <p>
+                        Browser Codec Capability performs a
+                        real HTML5 media support test.
+                    </p>
+                    `
+                );
+                break;
+
+            case "about":
+                showDialog(
+                    "About K-Lite Codec Pack",
+                    `
+                    <b>K-Lite Codec Pack XP Edition</b>
+
+                    <p>
+                        Retro web recreation inspired by
+                        K-Lite Codec Pack and Codec Tweak Tool.
+                    </p>
+
+                    <p>
+                        Target environment:
+                        Windows XP Professional SP3.
+                    </p>
+
+                    <p>
+                        This module does not install codecs
+                        into the host operating system.
+                        Browser codec tests use the actual
+                        HTML5 media engine.
+                    </p>
+                    `
+                );
+                break;
+        }
+
+        closeMenus();
+    }
+
+    document
+        .querySelectorAll("[data-command]")
+        .forEach(button => {
+            button.addEventListener(
+                "click",
+                () => {
+                    executeCommand(
+                        button.dataset.command
+                    );
+                }
+            );
+        });
+
+    document
+        .getElementById("runCodecTest")
+        .addEventListener(
+            "click",
+            runCodecTest
+        );
+
+    /* ======================================================
+       DIALOG
+       ====================================================== */
+
+    document
+        .getElementById("dialogOk")
+        .addEventListener(
+            "click",
+            hideDialog
+        );
+
+    dialogOverlay.addEventListener(
+        "mousedown",
+        event => {
+            if (
+                event.target ===
+                dialogOverlay
+            ) {
+                hideDialog();
+            }
+        }
+    );
+
+    /* ======================================================
+       KEYBOARD
+       ====================================================== */
+
+    document.addEventListener(
+        "keydown",
+        event => {
+
+            if (event.key === "Escape") {
+                hideDialog();
+                closeMenus();
+            }
+
+            if (
+                event.ctrlKey &&
+                event.key.toLowerCase() === "o"
+            ) {
+                event.preventDefault();
+
+                openPage("filetest");
+
+                mediaInput.click();
+            }
+        }
+    );
+
+    /* ======================================================
+       SYSTEM INFO
+       ====================================================== */
+
+    function detectArchitecture() {
+
+        let result =
+            "32-bit compatible environment";
+
+        if (
+            navigator.userAgent.includes(
+                "Win64"
+            ) ||
+            navigator.userAgent.includes(
+                "x86_64"
+            ) ||
+            navigator.userAgent.includes(
+                "x64"
+            )
+        ) {
+            result =
+                "64-bit browser / 32-bit XP compatibility";
+        }
+
+        architectureValue.textContent =
+            result;
+    }
+
+    /* ======================================================
+       INITIALIZATION
+       ====================================================== */
+
+    detectArchitecture();
+
+    renderComponents();
+
+    renderCodecTests();
+
+    renderAssociations();
+
+    refreshLog();
+
+    updateSummary();
+
+    setStatus(
+        "Ready - K-Lite Codec Pack configuration loaded."
+    );
+
+})();
+</script>
+
+</body>
+</html>

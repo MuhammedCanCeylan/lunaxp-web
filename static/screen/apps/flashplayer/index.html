@@ -1,0 +1,3071 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Macromedia Flash Player</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+
+    margin: 0;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+}
+
+body {
+
+    font-family: Tahoma, sans-serif;
+
+    font-size: 11px;
+
+    background: #ECE9D8;
+
+    color: #000;
+
+    user-select: none;
+
+}
+
+button,
+input {
+
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+
+}
+
+button {
+
+    border: 2px outset #fff;
+
+    background: #ECE9D8;
+
+    min-height: 23px;
+
+    padding:
+
+        2px
+        9px;
+
+}
+
+button:active {
+
+    border-style: inset;
+
+}
+
+
+/* ==========================================================
+   APPLICATION
+   ========================================================== */
+
+.app {
+
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+
+/* ==========================================================
+   MENU
+   ========================================================== */
+
+.menu-bar {
+
+    height: 25px;
+
+    flex: 0 0 25px;
+
+    display: flex;
+
+    align-items: stretch;
+
+    padding-left: 2px;
+
+    background: #ECE9D8;
+
+    border-bottom:
+
+        1px solid
+        #ACA899;
+
+    position: relative;
+
+    z-index: 100;
+
+}
+
+.menu {
+
+    position: relative;
+
+}
+
+.menu-button {
+
+    height: 24px;
+
+    min-height: 24px;
+
+    padding:
+
+        1px
+        8px;
+
+    border:
+
+        1px solid
+        transparent;
+
+    background: transparent;
+
+}
+
+.menu-button:hover,
+.menu.open .menu-button {
+
+    border-color:
+
+        #316AC5;
+
+    background:
+
+        #C1D2EE;
+
+}
+
+
+.dropdown {
+
+    display: none;
+
+    position: absolute;
+
+    top: 23px;
+    left: 0;
+
+    min-width: 190px;
+
+    padding: 2px;
+
+    background:
+
+        #F5F4EA;
+
+    border:
+
+        1px solid
+        #808080;
+
+    box-shadow:
+
+        2px
+        2px
+        4px
+        rgba(0,0,0,.35);
+
+}
+
+.menu.open .dropdown {
+
+    display: block;
+
+}
+
+.dropdown button {
+
+    width: 100%;
+
+    min-height: 23px;
+
+    border: 0;
+
+    text-align: left;
+
+    padding:
+
+        3px
+        20px
+        3px
+        8px;
+
+    background: transparent;
+
+}
+
+.dropdown button:hover {
+
+    color: white;
+
+    background:
+
+        #316AC5;
+
+}
+
+.separator {
+
+    height: 1px;
+
+    margin:
+
+        3px
+        4px;
+
+    background:
+
+        #ACA899;
+
+}
+
+
+/* ==========================================================
+   TOOLBAR
+   ========================================================== */
+
+.toolbar {
+
+    height: 38px;
+
+    flex: 0 0 38px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 4px;
+
+    padding:
+
+        4px
+        6px;
+
+    background:
+
+        linear-gradient(
+            #F7F5EC,
+            #DEDBC9
+        );
+
+    border-top:
+
+        1px solid
+        #fff;
+
+    border-bottom:
+
+        1px solid
+        #ACA899;
+
+}
+
+.tool-button {
+
+    min-width: 30px;
+
+    height: 28px;
+
+    padding:
+
+        1px
+        8px;
+
+}
+
+.toolbar-separator {
+
+    width: 1px;
+
+    height: 24px;
+
+    margin:
+
+        0
+        3px;
+
+    background:
+
+        #ACA899;
+
+    border-right:
+
+        1px solid
+        white;
+
+}
+
+.flash-brand {
+
+    margin-left: auto;
+
+    padding-right: 4px;
+
+    font-size: 12px;
+
+    font-weight: bold;
+
+    font-style: italic;
+
+    color: #9F161D;
+
+}
+
+.flash-brand span {
+
+    color: #555;
+
+    font-weight: normal;
+
+    font-style: normal;
+
+    margin-right: 4px;
+
+}
+
+
+/* ==========================================================
+   PLAYER AREA
+   ========================================================== */
+
+.player-shell {
+
+    flex: 1;
+
+    min-height: 0;
+
+    padding: 4px;
+
+    background:
+
+        #808080;
+
+    border-top:
+
+        1px solid
+        #444;
+
+    border-bottom:
+
+        1px solid
+        #fff;
+
+}
+
+.player-frame {
+
+    width: 100%;
+    height: 100%;
+
+    position: relative;
+
+    overflow: hidden;
+
+    background:
+
+        #FFFFFF;
+
+    border:
+
+        2px inset
+        #fff;
+
+}
+
+#ruffleContainer {
+
+    width: 100%;
+    height: 100%;
+
+    position: absolute;
+
+    inset: 0;
+
+}
+
+ruffle-player {
+
+    width: 100% !important;
+
+    height: 100% !important;
+
+    display: block;
+
+}
+
+
+/* ==========================================================
+   EMPTY STATE
+   ========================================================== */
+
+.empty-state {
+
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    text-align: center;
+
+    background:
+
+        #FFFFFF;
+
+    color: #444;
+
+}
+
+.empty-state.hidden {
+
+    display: none;
+
+}
+
+.flash-logo {
+
+    width: 110px;
+    height: 110px;
+
+    border-radius: 9px;
+
+    margin-bottom: 18px;
+
+    position: relative;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #E13339,
+            #A30E17
+        );
+
+    box-shadow:
+
+        inset
+        0
+        1px
+        3px
+        rgba(255,255,255,.65),
+
+        0
+        2px
+        6px
+        rgba(0,0,0,.35);
+
+}
+
+.flash-logo::before {
+
+    content: "";
+
+    position: absolute;
+
+    left: 25px;
+    top: 14px;
+
+    width: 65px;
+    height: 80px;
+
+    background: white;
+
+    clip-path:
+
+        polygon(
+            36% 0,
+            100% 0,
+            67% 43%,
+            91% 43%,
+            47% 100%,
+            57% 57%,
+            23% 57%
+        );
+
+}
+
+.empty-state h2 {
+
+    margin:
+
+        0
+        0
+        7px;
+
+    font-size: 17px;
+
+    font-weight: normal;
+
+}
+
+.empty-state p {
+
+    margin:
+
+        2px
+        0;
+
+    color: #777;
+
+}
+
+.open-large {
+
+    margin-top: 14px;
+
+    min-width: 110px;
+
+}
+
+
+/* ==========================================================
+   DROP OVERLAY
+   ========================================================== */
+
+.drop-overlay {
+
+    display: none;
+
+    position: absolute;
+
+    z-index: 50;
+
+    inset: 12px;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border:
+
+        2px dashed
+        white;
+
+    background:
+
+        rgba(
+            0,
+            73,
+            150,
+            .82
+        );
+
+    color: white;
+
+    font-weight: bold;
+
+    font-size: 15px;
+
+    pointer-events: none;
+
+}
+
+.player-frame.dragging
+.drop-overlay {
+
+    display: flex;
+
+}
+
+
+/* ==========================================================
+   STATUS BAR
+   ========================================================== */
+
+.status-bar {
+
+    height: 22px;
+
+    flex: 0 0 22px;
+
+    padding: 2px;
+
+    display: flex;
+
+    gap: 2px;
+
+    background:
+
+        #ECE9D8;
+
+}
+
+.status {
+
+    height: 17px;
+
+    display: flex;
+
+    align-items: center;
+
+    padding:
+
+        1px
+        6px;
+
+    border:
+
+        1px inset
+        #fff;
+
+    overflow: hidden;
+
+    white-space: nowrap;
+
+}
+
+.status-main {
+
+    flex: 1;
+
+}
+
+.status-version {
+
+    min-width: 110px;
+
+    justify-content: center;
+
+}
+
+
+/* ==========================================================
+   DIALOGS
+   ========================================================== */
+
+.dialog-overlay {
+
+    display: none;
+
+    position: absolute;
+
+    z-index: 1000;
+
+    inset: 0;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 15px;
+
+    background:
+
+        rgba(
+            0,
+            0,
+            0,
+            .22
+        );
+
+}
+
+.dialog-overlay.active {
+
+    display: flex;
+
+}
+
+.xp-dialog {
+
+    width:
+
+        min(
+            440px,
+            94%
+        );
+
+    background:
+
+        #ECE9D8;
+
+    border:
+
+        1px solid
+        #003C74;
+
+    box-shadow:
+
+        4px
+        5px
+        13px
+        rgba(0,0,0,.5);
+
+}
+
+.dialog-title {
+
+    height: 27px;
+
+    display: flex;
+
+    align-items: center;
+
+    padding:
+
+        0
+        7px;
+
+    color: white;
+
+    font-weight: bold;
+
+    background:
+
+        linear-gradient(
+            90deg,
+            #0058D6,
+            #3A93FF
+        );
+
+}
+
+.dialog-content {
+
+    padding:
+
+        15px
+        16px;
+
+    line-height: 17px;
+
+}
+
+.dialog-content h3 {
+
+    margin:
+
+        0
+        0
+        9px;
+
+    font-size: 13px;
+
+}
+
+.dialog-buttons {
+
+    padding:
+
+        0
+        12px
+        12px;
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 6px;
+
+}
+
+.dialog-buttons button {
+
+    min-width: 75px;
+
+}
+
+
+/* ==========================================================
+   METADATA TABLE
+   ========================================================== */
+
+.info-grid {
+
+    display: grid;
+
+    grid-template-columns:
+
+        110px
+        1fr;
+
+    border-top:
+
+        1px solid
+        #ACA899;
+
+    border-left:
+
+        1px solid
+        #ACA899;
+
+    margin-top: 8px;
+
+}
+
+.info-grid div {
+
+    padding: 4px;
+
+    border-right:
+
+        1px solid
+        #ACA899;
+
+    border-bottom:
+
+        1px solid
+        #ACA899;
+
+}
+
+.info-name {
+
+    background:
+
+        #E7E4D5;
+
+}
+
+
+/* ==========================================================
+   LOADING
+   ========================================================== */
+
+.loading {
+
+    position: absolute;
+
+    display: none;
+
+    z-index: 20;
+
+    inset: 0;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-direction: column;
+
+    background:
+
+        rgba(
+            255,
+            255,
+            255,
+            .92
+        );
+
+}
+
+.loading.active {
+
+    display: flex;
+
+}
+
+.progress-shell {
+
+    width: 220px;
+
+    height: 18px;
+
+    padding: 2px;
+
+    margin-top: 10px;
+
+    border:
+
+        1px inset
+        white;
+
+    background:
+
+        white;
+
+}
+
+.progress-bar {
+
+    height: 100%;
+
+    width: 0%;
+
+    background:
+
+        repeating-linear-gradient(
+            90deg,
+            #296DC1
+            0,
+
+            #296DC1
+            8px,
+
+            #5A9BE8
+            8px,
+
+            #5A9BE8
+            10px
+        );
+
+}
+
+
+/* ==========================================================
+   SMALL SCREEN
+   ========================================================== */
+
+@media(max-width: 550px) {
+
+    .flash-brand span {
+
+        display: none;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <!-- ==================================================
+         MENU BAR
+         ================================================== -->
+
+    <div class="menu-bar">
+
+
+        <div class="menu">
+
+            <button class="menu-button">
+                File
+            </button>
+
+            <div class="dropdown">
+
+                <button data-action="open">
+                    Open...
+                </button>
+
+                <button data-action="reload">
+                    Reload
+                </button>
+
+                <div class="separator"></div>
+
+                <button data-action="info">
+                    Movie Information
+                </button>
+
+                <div class="separator"></div>
+
+                <button data-action="close">
+                    Close Movie
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="menu">
+
+            <button class="menu-button">
+                View
+            </button>
+
+            <div class="dropdown">
+
+                <button data-action="fullscreen">
+                    Full Screen
+                </button>
+
+                <button data-action="fit">
+                    100% / Fit
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="menu">
+
+            <button class="menu-button">
+                Control
+            </button>
+
+            <div class="dropdown">
+
+                <button data-action="play">
+                    Play / Resume
+                </button>
+
+                <button data-action="pause">
+                    Pause
+                </button>
+
+                <button data-action="reload">
+                    Rewind / Restart
+                </button>
+
+                <div class="separator"></div>
+
+                <button data-action="volume-up">
+                    Volume Up
+                </button>
+
+                <button data-action="volume-down">
+                    Volume Down
+                </button>
+
+                <button data-action="mute">
+                    Mute
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="menu">
+
+            <button class="menu-button">
+                Help
+            </button>
+
+            <div class="dropdown">
+
+                <button data-action="about">
+                    About Macromedia Flash Player
+                </button>
+
+                <button data-action="ruffle">
+                    About Ruffle Runtime
+                </button>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- ==================================================
+         TOOLBAR
+         ================================================== -->
+
+    <div class="toolbar">
+
+
+        <button
+            class="tool-button"
+            id="openButton"
+            title="Open SWF"
+        >
+            Open
+        </button>
+
+
+        <div class="toolbar-separator"></div>
+
+
+        <button
+            class="tool-button"
+            id="playButton"
+            title="Play"
+        >
+            ▶
+        </button>
+
+
+        <button
+            class="tool-button"
+            id="pauseButton"
+            title="Pause"
+        >
+            Ⅱ
+        </button>
+
+
+        <button
+            class="tool-button"
+            id="restartButton"
+            title="Restart"
+        >
+            ↶
+        </button>
+
+
+        <div class="toolbar-separator"></div>
+
+
+        <button
+            class="tool-button"
+            id="volumeDown"
+            title="Volume Down"
+        >
+            −
+        </button>
+
+
+        <button
+            class="tool-button"
+            id="volumeUp"
+            title="Volume Up"
+        >
+            +
+        </button>
+
+
+        <button
+            class="tool-button"
+            id="fullscreenButton"
+            title="Full Screen"
+        >
+            ⛶
+        </button>
+
+
+        <div class="flash-brand">
+
+            <span>Macromedia</span>
+            Flash Player
+
+        </div>
+
+
+    </div>
+
+
+    <!-- ==================================================
+         PLAYER
+         ================================================== -->
+
+    <div class="player-shell">
+
+
+        <div
+            class="player-frame"
+            id="playerFrame"
+        >
+
+
+            <div
+                id="ruffleContainer"
+            ></div>
+
+
+            <div
+                class="empty-state"
+                id="emptyState"
+            >
+
+                <div class="flash-logo"></div>
+
+                <h2>
+                    Macromedia Flash Player
+                </h2>
+
+                <p>
+                    Standalone SWF Player
+                </p>
+
+                <p>
+                    Powered by the Ruffle Flash emulator
+                </p>
+
+                <button
+                    class="open-large"
+                    id="emptyOpenButton"
+                >
+                    Open SWF...
+                </button>
+
+            </div>
+
+
+            <div
+                class="loading"
+                id="loading"
+            >
+
+                <strong>
+                    Loading Flash movie...
+                </strong>
+
+                <div class="progress-shell">
+
+                    <div
+                        class="progress-bar"
+                        id="progressBar"
+                    ></div>
+
+                </div>
+
+            </div>
+
+
+            <div class="drop-overlay">
+                Drop SWF file here
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+    <!-- ==================================================
+         STATUS
+         ================================================== -->
+
+    <div class="status-bar">
+
+
+        <div
+            class="status status-main"
+            id="statusMain"
+        >
+            Ready
+        </div>
+
+
+        <div
+            class="status"
+            id="statusMovie"
+        >
+            No Movie
+        </div>
+
+
+        <div
+            class="status status-version"
+            id="statusVersion"
+        >
+            Flash Player
+        </div>
+
+
+    </div>
+
+
+    <!-- ==================================================
+         DIALOG
+         ================================================== -->
+
+    <div
+        class="dialog-overlay"
+        id="dialogOverlay"
+    >
+
+
+        <div class="xp-dialog">
+
+
+            <div
+                class="dialog-title"
+                id="dialogTitle"
+            >
+                Macromedia Flash Player
+            </div>
+
+
+            <div
+                class="dialog-content"
+                id="dialogContent"
+            ></div>
+
+
+            <div class="dialog-buttons">
+
+                <button id="dialogClose">
+                    OK
+                </button>
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+<input
+    id="fileInput"
+    type="file"
+    hidden
+    accept=".swf,application/x-shockwave-flash"
+>
+
+
+<script>
+
+/* ==========================================================
+   RUFFLE GLOBAL CONFIGURATION
+   ========================================================== */
+
+window.RufflePlayer =
+    window.RufflePlayer || {};
+
+
+window.RufflePlayer.config = {
+
+    autoplay: "auto",
+
+    unmuteOverlay:
+        "visible",
+
+    splashScreen:
+        false,
+
+    preloader:
+        true,
+
+    contextMenu:
+        true,
+
+    showSwfDownload:
+        false,
+
+    allowScriptAccess:
+        false,
+
+    allowNetworking:
+        "internal",
+
+    quality:
+        "high",
+
+    scale:
+        "showAll",
+
+    letterbox:
+        "on",
+
+    backgroundColor:
+        "#FFFFFF",
+
+    publicPath:
+        "./ruffle/"
+
+};
+
+</script>
+
+
+<script src="./ruffle/ruffle.js"></script>
+
+
+<script>
+
+(() => {
+
+"use strict";
+
+
+/* ==========================================================
+   ELEMENTS
+   ========================================================== */
+
+const container =
+    document.getElementById(
+        "ruffleContainer"
+    );
+
+
+const playerFrame =
+    document.getElementById(
+        "playerFrame"
+    );
+
+
+const emptyState =
+    document.getElementById(
+        "emptyState"
+    );
+
+
+const loading =
+    document.getElementById(
+        "loading"
+    );
+
+
+const progressBar =
+    document.getElementById(
+        "progressBar"
+    );
+
+
+const fileInput =
+    document.getElementById(
+        "fileInput"
+    );
+
+
+const statusMain =
+    document.getElementById(
+        "statusMain"
+    );
+
+
+const statusMovie =
+    document.getElementById(
+        "statusMovie"
+    );
+
+
+const statusVersion =
+    document.getElementById(
+        "statusVersion"
+    );
+
+
+const dialogOverlay =
+    document.getElementById(
+        "dialogOverlay"
+    );
+
+
+const dialogTitle =
+    document.getElementById(
+        "dialogTitle"
+    );
+
+
+const dialogContent =
+    document.getElementById(
+        "dialogContent"
+    );
+
+
+/* ==========================================================
+   STATE
+   ========================================================== */
+
+let player = null;
+
+let playerAPI = null;
+
+let currentFile = null;
+
+let currentBuffer = null;
+
+let volume = 1;
+
+let muted = false;
+
+let fitMode = true;
+
+let dragCounter = 0;
+
+
+/* ==========================================================
+   UTILITIES
+   ========================================================== */
+
+function setStatus(text) {
+
+    statusMain.textContent =
+        text;
+
+}
+
+
+function escapeHTML(text) {
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+    div.textContent =
+        String(text);
+
+    return div.innerHTML;
+
+}
+
+
+function humanSize(bytes) {
+
+    if (
+        !Number.isFinite(bytes)
+    ) {
+
+        return "Unknown";
+
+    }
+
+    if (
+        bytes < 1024
+    ) {
+
+        return (
+            bytes +
+            " bytes"
+        );
+
+    }
+
+    if (
+        bytes <
+        1024 * 1024
+    ) {
+
+        return (
+            (
+                bytes /
+                1024
+            ).toFixed(1)
+            +
+            " KB"
+        );
+
+    }
+
+    return (
+        (
+            bytes /
+            (
+                1024 *
+                1024
+            )
+        ).toFixed(2)
+        +
+        " MB"
+    );
+
+}
+
+
+function showDialog(
+    title,
+    html
+) {
+
+    dialogTitle.textContent =
+        title;
+
+    dialogContent.innerHTML =
+        html;
+
+    dialogOverlay.classList.add(
+        "active"
+    );
+
+}
+
+
+function hideDialog() {
+
+    dialogOverlay.classList.remove(
+        "active"
+    );
+
+}
+
+
+function closeMenus() {
+
+    document
+        .querySelectorAll(
+            ".menu.open"
+        )
+        .forEach(menu => {
+
+            menu.classList.remove(
+                "open"
+            );
+
+        });
+
+}
+
+
+/* ==========================================================
+   RUFFLE
+   ========================================================== */
+
+function createPlayer() {
+
+    if (player) {
+
+        return;
+
+    }
+
+    const ruffle =
+        window
+            .RufflePlayer
+            .newest();
+
+
+    player =
+        ruffle.createPlayer();
+
+
+    player.style.width =
+        "100%";
+
+    player.style.height =
+        "100%";
+
+
+    container.appendChild(
+        player
+    );
+
+
+    try {
+
+        playerAPI =
+            player.ruffle();
+
+    } catch (error) {
+
+        playerAPI =
+            player;
+
+    }
+
+
+    player.addEventListener(
+        "loadedmetadata",
+        () => {
+
+            loading.classList.remove(
+                "active"
+            );
+
+            progressBar.style.width =
+                "100%";
+
+
+            const metadata =
+                getMetadata();
+
+
+            if (
+                metadata &&
+                metadata.version
+            ) {
+
+                statusVersion.textContent =
+                    "Flash " +
+                    metadata.version;
+
+            } else {
+
+                statusVersion.textContent =
+                    "Flash Player";
+
+            }
+
+
+            setStatus(
+                "Flash movie loaded."
+            );
+
+        }
+    );
+
+}
+
+
+function getMetadata() {
+
+    try {
+
+        return (
+            playerAPI?.metadata
+            ||
+            player?.metadata
+            ||
+            null
+        );
+
+    } catch (_) {
+
+        return null;
+
+    }
+
+}
+
+
+/* ==========================================================
+   LOAD SWF
+   ========================================================== */
+
+async function loadSWF(file) {
+
+    if (!file) {
+
+        return;
+
+    }
+
+
+    if (
+        !file.name
+            .toLowerCase()
+            .endsWith(".swf")
+    ) {
+
+        showDialog(
+
+            "Macromedia Flash Player",
+
+            `
+            <h3>Invalid file type</h3>
+
+            <p>
+                Macromedia Flash Player can
+                open Shockwave Flash
+                <b>.swf</b> files.
+            </p>
+            `
+
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        createPlayer();
+
+
+        loading.classList.add(
+            "active"
+        );
+
+
+        progressBar.style.width =
+            "25%";
+
+
+        setStatus(
+            "Reading " +
+            file.name +
+            "..."
+        );
+
+
+        const buffer =
+            await file.arrayBuffer();
+
+
+        progressBar.style.width =
+            "55%";
+
+
+        currentFile =
+            file;
+
+        currentBuffer =
+            buffer;
+
+
+        emptyState.classList.add(
+            "hidden"
+        );
+
+
+        statusMovie.textContent =
+            file.name;
+
+
+        setStatus(
+            "Loading Flash movie..."
+        );
+
+
+        progressBar.style.width =
+            "75%";
+
+
+        await playerAPI.load({
+
+            data:
+                buffer,
+
+            swfFileName:
+                file.name,
+
+            allowScriptAccess:
+                false,
+
+            allowNetworking:
+                "internal",
+
+            autoplay:
+                "auto",
+
+            scale:
+                "showAll",
+
+            quality:
+                "high",
+
+            backgroundColor:
+                null
+
+        });
+
+
+        progressBar.style.width =
+            "100%";
+
+
+        setTimeout(() => {
+
+            loading.classList.remove(
+                "active"
+            );
+
+        }, 200);
+
+
+        setStatus(
+            "Playing: " +
+            file.name
+        );
+
+
+    } catch (error) {
+
+        loading.classList.remove(
+            "active"
+        );
+
+
+        console.error(
+            error
+        );
+
+
+        showDialog(
+
+            "Flash Player Error",
+
+            `
+            <h3>
+                Unable to open Flash movie
+            </h3>
+
+            <p>
+                The selected SWF could not be
+                loaded by the Ruffle runtime.
+            </p>
+
+            <p>
+                Some Flash features are not yet
+                fully emulated.
+            </p>
+            `
+
+        );
+
+
+        setStatus(
+            "Error loading SWF."
+        );
+
+    }
+
+}
+
+
+/* ==========================================================
+   RELOAD
+   ========================================================== */
+
+async function reloadMovie() {
+
+    if (
+        !currentBuffer ||
+        !currentFile ||
+        !playerAPI
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        setStatus(
+            "Restarting Flash movie..."
+        );
+
+
+        await playerAPI.load({
+
+            data:
+                currentBuffer,
+
+            swfFileName:
+                currentFile.name,
+
+            allowScriptAccess:
+                false,
+
+            allowNetworking:
+                "internal",
+
+            autoplay:
+                "auto",
+
+            scale:
+                "showAll",
+
+            quality:
+                "high"
+
+        });
+
+
+        setStatus(
+            "Playing: " +
+            currentFile.name
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            error
+        );
+
+    }
+
+}
+
+
+/* ==========================================================
+   PLAYBACK
+   ========================================================== */
+
+function playMovie() {
+
+    if (!playerAPI) {
+
+        return;
+
+    }
+
+    try {
+
+        if (
+            typeof playerAPI.resume ===
+            "function"
+        ) {
+
+            playerAPI.resume();
+
+        } else if (
+            typeof player.play ===
+            "function"
+        ) {
+
+            player.play();
+
+        }
+
+
+        setStatus(
+            "Playing."
+        );
+
+    } catch (_) {}
+
+}
+
+
+function pauseMovie() {
+
+    if (!playerAPI) {
+
+        return;
+
+    }
+
+    try {
+
+        if (
+            typeof playerAPI.suspend ===
+            "function"
+        ) {
+
+            playerAPI.suspend();
+
+        } else if (
+            typeof player.pause ===
+            "function"
+        ) {
+
+            player.pause();
+
+        }
+
+
+        setStatus(
+            "Paused."
+        );
+
+    } catch (_) {}
+
+}
+
+
+/* ==========================================================
+   VOLUME
+   ========================================================== */
+
+function applyVolume() {
+
+    if (!playerAPI) {
+
+        return;
+
+    }
+
+
+    try {
+
+        playerAPI.volume =
+            muted
+                ? 0
+                : volume;
+
+    } catch (_) {}
+
+}
+
+
+function volumeUp() {
+
+    muted = false;
+
+    volume =
+        Math.min(
+            1,
+            volume + .1
+        );
+
+
+    applyVolume();
+
+
+    setStatus(
+        "Volume: " +
+        Math.round(
+            volume * 100
+        )
+        +
+        "%"
+    );
+
+}
+
+
+function volumeDown() {
+
+    muted = false;
+
+    volume =
+        Math.max(
+            0,
+            volume - .1
+        );
+
+
+    applyVolume();
+
+
+    setStatus(
+        "Volume: " +
+        Math.round(
+            volume * 100
+        )
+        +
+        "%"
+    );
+
+}
+
+
+function toggleMute() {
+
+    muted =
+        !muted;
+
+
+    applyVolume();
+
+
+    setStatus(
+        muted
+            ? "Muted."
+            : (
+                "Volume: " +
+                Math.round(
+                    volume * 100
+                )
+                +
+                "%"
+            )
+    );
+
+}
+
+
+/* ==========================================================
+   FULL SCREEN
+   ========================================================== */
+
+function toggleFullscreen() {
+
+    if (!playerAPI) {
+
+        return;
+
+    }
+
+
+    try {
+
+        if (
+            playerAPI.isFullscreen
+        ) {
+
+            playerAPI.exitFullscreen();
+
+        } else {
+
+            playerAPI.requestFullscreen();
+
+        }
+
+    } catch (_) {
+
+        if (
+            document.fullscreenElement
+        ) {
+
+            document
+                .exitFullscreen()
+                .catch(() => {});
+
+        } else {
+
+            playerFrame
+                .requestFullscreen()
+                .catch(() => {});
+
+        }
+
+    }
+
+}
+
+
+/* ==========================================================
+   FIT MODE
+   ========================================================== */
+
+function toggleFit() {
+
+    fitMode =
+        !fitMode;
+
+
+    if (!player) {
+
+        return;
+
+    }
+
+
+    if (fitMode) {
+
+        player.style.width =
+            "100%";
+
+        player.style.height =
+            "100%";
+
+    } else {
+
+        player.style.width =
+            "550px";
+
+        player.style.height =
+            "400px";
+
+    }
+
+
+    setStatus(
+        fitMode
+            ? "Fit to window."
+            : "100% movie size."
+    );
+
+}
+
+
+/* ==========================================================
+   INFO
+   ========================================================== */
+
+function showMovieInfo() {
+
+    if (!currentFile) {
+
+        showDialog(
+
+            "Movie Information",
+
+            `
+            <p>
+                No Flash movie is currently open.
+            </p>
+            `
+
+        );
+
+        return;
+
+    }
+
+
+    const metadata =
+        getMetadata();
+
+
+    const width =
+        metadata?.width ??
+        "Unknown";
+
+
+    const height =
+        metadata?.height ??
+        "Unknown";
+
+
+    const frameRate =
+        metadata?.frameRate
+            ? (
+                Number(
+                    metadata.frameRate
+                ).toFixed(2)
+                +
+                " fps"
+            )
+            : "Unknown";
+
+
+    const flashVersion =
+        metadata?.version ??
+        "Unknown";
+
+
+    const asVersion =
+        metadata?.isActionScript3
+            ? "ActionScript 3"
+            : "ActionScript 1 / 2";
+
+
+    showDialog(
+
+        "Movie Information",
+
+        `
+        <h3>
+            ${escapeHTML(currentFile.name)}
+        </h3>
+
+        <div class="info-grid">
+
+            <div class="info-name">
+                File size
+            </div>
+
+            <div>
+                ${humanSize(currentFile.size)}
+            </div>
+
+
+            <div class="info-name">
+                Stage size
+            </div>
+
+            <div>
+                ${width} × ${height}
+            </div>
+
+
+            <div class="info-name">
+                Frame rate
+            </div>
+
+            <div>
+                ${frameRate}
+            </div>
+
+
+            <div class="info-name">
+                SWF version
+            </div>
+
+            <div>
+                ${flashVersion}
+            </div>
+
+
+            <div class="info-name">
+                Script
+            </div>
+
+            <div>
+                ${asVersion}
+            </div>
+
+        </div>
+        `
+
+    );
+
+}
+
+
+/* ==========================================================
+   CLOSE MOVIE
+   ========================================================== */
+
+function closeMovie() {
+
+    if (player) {
+
+        try {
+
+            player.remove();
+
+        } catch (_) {}
+
+    }
+
+
+    player =
+        null;
+
+    playerAPI =
+        null;
+
+    currentFile =
+        null;
+
+    currentBuffer =
+        null;
+
+
+    container.innerHTML =
+        "";
+
+
+    emptyState.classList.remove(
+        "hidden"
+    );
+
+
+    loading.classList.remove(
+        "active"
+    );
+
+
+    statusMovie.textContent =
+        "No Movie";
+
+
+    statusVersion.textContent =
+        "Flash Player";
+
+
+    setStatus(
+        "Ready"
+    );
+
+}
+
+
+/* ==========================================================
+   ABOUT
+   ========================================================== */
+
+function aboutFlash() {
+
+    showDialog(
+
+        "About Macromedia Flash Player",
+
+        `
+        <h3>
+            Macromedia Flash Player
+        </h3>
+
+        <p>
+            Windows XP style standalone
+            Flash movie player.
+        </p>
+
+        <p>
+            This recreation uses the open-source
+            Ruffle Flash emulator instead of the
+            discontinued Adobe/Macromedia plugin.
+        </p>
+
+        <p>
+            SWF playback is performed locally
+            inside the browser using WebAssembly.
+        </p>
+        `
+
+    );
+
+}
+
+
+function aboutRuffle() {
+
+    showDialog(
+
+        "Ruffle Runtime",
+
+        `
+        <h3>
+            Ruffle Flash Emulator
+        </h3>
+
+        <p>
+            Ruffle is an open-source Flash Player
+            emulator written in Rust.
+        </p>
+
+        <p>
+            Runtime:
+            <b>Local self-hosted WebAssembly</b>
+        </p>
+
+        <p>
+            No original Adobe Flash plugin is
+            installed or required.
+        </p>
+        `
+
+    );
+
+}
+
+
+/* ==========================================================
+   ACTIONS
+   ========================================================== */
+
+function action(name) {
+
+    switch (name) {
+
+        case "open":
+
+            fileInput.click();
+
+            break;
+
+
+        case "reload":
+
+            reloadMovie();
+
+            break;
+
+
+        case "play":
+
+            playMovie();
+
+            break;
+
+
+        case "pause":
+
+            pauseMovie();
+
+            break;
+
+
+        case "close":
+
+            closeMovie();
+
+            break;
+
+
+        case "fullscreen":
+
+            toggleFullscreen();
+
+            break;
+
+
+        case "fit":
+
+            toggleFit();
+
+            break;
+
+
+        case "volume-up":
+
+            volumeUp();
+
+            break;
+
+
+        case "volume-down":
+
+            volumeDown();
+
+            break;
+
+
+        case "mute":
+
+            toggleMute();
+
+            break;
+
+
+        case "info":
+
+            showMovieInfo();
+
+            break;
+
+
+        case "about":
+
+            aboutFlash();
+
+            break;
+
+
+        case "ruffle":
+
+            aboutRuffle();
+
+            break;
+
+    }
+
+
+    closeMenus();
+
+}
+
+
+/* ==========================================================
+   MENU EVENTS
+   ========================================================== */
+
+document
+    .querySelectorAll(
+        ".menu-button"
+    )
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            event => {
+
+                event.stopPropagation();
+
+
+                const menu =
+                    button.closest(
+                        ".menu"
+                    );
+
+
+                const wasOpen =
+                    menu.classList.contains(
+                        "open"
+                    );
+
+
+                closeMenus();
+
+
+                if (!wasOpen) {
+
+                    menu.classList.add(
+                        "open"
+                    );
+
+                }
+
+            }
+        );
+
+    });
+
+
+document
+    .querySelectorAll(
+        "[data-action]"
+    )
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                action(
+                    button.dataset.action
+                );
+
+            }
+        );
+
+    });
+
+
+document.addEventListener(
+    "click",
+    closeMenus
+);
+
+
+/* ==========================================================
+   TOOLBAR EVENTS
+   ========================================================== */
+
+document
+    .getElementById(
+        "openButton"
+    )
+    .addEventListener(
+        "click",
+        () => fileInput.click()
+    );
+
+
+document
+    .getElementById(
+        "emptyOpenButton"
+    )
+    .addEventListener(
+        "click",
+        () => fileInput.click()
+    );
+
+
+document
+    .getElementById(
+        "playButton"
+    )
+    .addEventListener(
+        "click",
+        playMovie
+    );
+
+
+document
+    .getElementById(
+        "pauseButton"
+    )
+    .addEventListener(
+        "click",
+        pauseMovie
+    );
+
+
+document
+    .getElementById(
+        "restartButton"
+    )
+    .addEventListener(
+        "click",
+        reloadMovie
+    );
+
+
+document
+    .getElementById(
+        "volumeUp"
+    )
+    .addEventListener(
+        "click",
+        volumeUp
+    );
+
+
+document
+    .getElementById(
+        "volumeDown"
+    )
+    .addEventListener(
+        "click",
+        volumeDown
+    );
+
+
+document
+    .getElementById(
+        "fullscreenButton"
+    )
+    .addEventListener(
+        "click",
+        toggleFullscreen
+    );
+
+
+/* ==========================================================
+   FILE INPUT
+   ========================================================== */
+
+fileInput.addEventListener(
+    "change",
+    () => {
+
+        const file =
+            fileInput.files[0];
+
+
+        if (file) {
+
+            loadSWF(file);
+
+        }
+
+
+        fileInput.value =
+            "";
+
+    }
+);
+
+
+/* ==========================================================
+   DRAG DROP
+   ========================================================== */
+
+playerFrame.addEventListener(
+    "dragenter",
+    event => {
+
+        event.preventDefault();
+
+        dragCounter++;
+
+        playerFrame.classList.add(
+            "dragging"
+        );
+
+    }
+);
+
+
+playerFrame.addEventListener(
+    "dragover",
+    event => {
+
+        event.preventDefault();
+
+    }
+);
+
+
+playerFrame.addEventListener(
+    "dragleave",
+    event => {
+
+        event.preventDefault();
+
+        dragCounter--;
+
+
+        if (
+            dragCounter <= 0
+        ) {
+
+            dragCounter = 0;
+
+            playerFrame.classList.remove(
+                "dragging"
+            );
+
+        }
+
+    }
+);
+
+
+playerFrame.addEventListener(
+    "drop",
+    event => {
+
+        event.preventDefault();
+
+
+        dragCounter = 0;
+
+
+        playerFrame.classList.remove(
+            "dragging"
+        );
+
+
+        const file =
+            event
+                .dataTransfer
+                .files[0];
+
+
+        if (file) {
+
+            loadSWF(file);
+
+        }
+
+    }
+);
+
+
+/* ==========================================================
+   DIALOG
+   ========================================================== */
+
+document
+    .getElementById(
+        "dialogClose"
+    )
+    .addEventListener(
+        "click",
+        hideDialog
+    );
+
+
+dialogOverlay.addEventListener(
+    "mousedown",
+    event => {
+
+        if (
+            event.target ===
+            dialogOverlay
+        ) {
+
+            hideDialog();
+
+        }
+
+    }
+);
+
+
+/* ==========================================================
+   KEYBOARD
+   ========================================================== */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+
+        if (
+            event.ctrlKey &&
+            event.key.toLowerCase() ===
+            "o"
+        ) {
+
+            event.preventDefault();
+
+            fileInput.click();
+
+            return;
+
+        }
+
+
+        if (
+            event.key ===
+            "Escape"
+        ) {
+
+            hideDialog();
+
+            closeMenus();
+
+        }
+
+
+        if (
+            event.key ===
+            " "
+        ) {
+
+            event.preventDefault();
+
+
+            try {
+
+                if (
+                    playerAPI?.suspended
+                ) {
+
+                    playMovie();
+
+                } else {
+
+                    pauseMovie();
+
+                }
+
+            } catch (_) {}
+
+        }
+
+
+        if (
+            event.key ===
+            "ArrowUp"
+        ) {
+
+            event.preventDefault();
+
+            volumeUp();
+
+        }
+
+
+        if (
+            event.key ===
+            "ArrowDown"
+        ) {
+
+            event.preventDefault();
+
+            volumeDown();
+
+        }
+
+    }
+);
+
+
+/* ==========================================================
+   RUNTIME CHECK
+   ========================================================== */
+
+window.addEventListener(
+    "load",
+    () => {
+
+
+        if (
+            !window.RufflePlayer ||
+            typeof window
+                .RufflePlayer
+                .newest !==
+                "function"
+        ) {
+
+            setStatus(
+                "Ruffle runtime failed to load."
+            );
+
+
+            showDialog(
+
+                "Flash Player Runtime",
+
+                `
+                <h3>
+                    Ruffle could not be initialized
+                </h3>
+
+                <p>
+                    Make sure the
+                    <b>ruffle</b>
+                    folder exists beside
+                    index.html.
+                </p>
+
+                <p>
+                    Also run this project through
+                    localhost instead of
+                    <b>file://</b>.
+                </p>
+                `
+
+            );
+
+            return;
+
+        }
+
+
+        setStatus(
+            "Ready - Open or drop a SWF file."
+        );
+
+    }
+);
+
+
+})();
+
+</script>
+
+
+</body>
+</html>

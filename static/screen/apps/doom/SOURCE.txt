@@ -1,0 +1,20 @@
+﻿DOOM (1993) - Windows XP Web Simulator
+
+Kaynak proje:
+https://github.com/kmadsdev/doom
+
+Teknik:
+linuxdoom-1.10 -> WebAssembly
+DOOM1.WAD shareware Episode 1
+
+Bu kurulum ticari/registered DOOM.WAD kullanmaz.
+Kurulan surum 1993 DOOM'un shareware Episode 1 surumudur.
+
+XP yolu:
+static/screen/apps/doom/
+
+Ana dosya:
+index.html
+
+Ikon:
+icon.png

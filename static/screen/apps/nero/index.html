@@ -1,0 +1,3972 @@
+<!--
+NERO BURNING ROM 6.6 - ASSET LISTESI
+
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama |
+|------------|----------------------|------------|------------------------------------------|
+| icon.png   | 32x32                | Zorunlu    | Windows XP masaustu / registry ikonu    |
+
+NOT:
+- Harici görsel kullanılmaz.
+- Ana XP WindowManager zaten dış pencere başlığını sağlar.
+- Bu uygulama ikinci titlebar veya taskbar çizmez.
+- Fiziksel CD/DVD yazımı tarayıcıdan yapılmaz.
+- Image Recorder gerçek ISO 9660 veri imajı üretir.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta
+    name="viewport"
+    content="width=device-width,initial-scale=1.0"
+>
+<title>Nero Burning ROM</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+body {
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    background: #ECE9D8;
+    color: #000;
+    user-select: none;
+}
+
+button,
+input,
+select {
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+}
+
+button {
+    min-height: 23px;
+    border: 2px outset #fff;
+    background: #ECE9D8;
+    padding: 2px 8px;
+}
+
+button:active {
+    border-style: inset;
+}
+
+button:disabled {
+    color: #888;
+}
+
+/* =========================================================
+   APP
+   ========================================================= */
+
+.app {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* =========================================================
+   MENU
+   ========================================================= */
+
+.menu-bar {
+    height: 25px;
+    flex: 0 0 25px;
+    display: flex;
+    align-items: stretch;
+    padding-left: 2px;
+    background: #ECE9D8;
+    border-bottom: 1px solid #ACA899;
+    position: relative;
+    z-index: 200;
+}
+
+.menu {
+    position: relative;
+}
+
+.menu-button {
+    height: 24px;
+    min-height: 24px;
+    border: 1px solid transparent;
+    background: transparent;
+    padding: 1px 8px;
+}
+
+.menu-button:hover,
+.menu.open .menu-button {
+    border-color: #316AC5;
+    background: #C1D2EE;
+}
+
+.dropdown {
+    display: none;
+    position: absolute;
+    top: 23px;
+    left: 0;
+    min-width: 215px;
+    padding: 2px;
+    border: 1px solid #808080;
+    background: #F5F4EA;
+    box-shadow: 2px 2px 5px rgba(0,0,0,.35);
+}
+
+.menu.open .dropdown {
+    display: block;
+}
+
+.dropdown button {
+    width: 100%;
+    height: 23px;
+    min-height: 23px;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    padding: 3px 18px 3px 8px;
+}
+
+.dropdown button:hover:not(:disabled) {
+    background: #316AC5;
+    color: white;
+}
+
+.menu-separator {
+    height: 1px;
+    margin: 3px 4px;
+    background: #ACA899;
+}
+
+/* =========================================================
+   TOOLBAR
+   ========================================================= */
+
+.toolbar {
+    height: 45px;
+    flex: 0 0 45px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 4px 6px;
+    border-top: 1px solid #fff;
+    border-bottom: 1px solid #ACA899;
+    background:
+        linear-gradient(
+            #F8F7F0,
+            #DDD9C8
+        );
+}
+
+.tool-button {
+    width: 36px;
+    height: 34px;
+    min-height: 34px;
+    padding: 0;
+    font-size: 16px;
+}
+
+.tool-separator {
+    height: 30px;
+    width: 1px;
+    margin: 0 3px;
+    background: #ACA899;
+    border-right: 1px solid #fff;
+}
+
+.recorder-box {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.recorder-box select {
+    width: 175px;
+}
+
+/* =========================================================
+   INFO BAR
+   ========================================================= */
+
+.info-bar {
+    height: 31px;
+    flex: 0 0 31px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 3px 8px;
+    background: #F4F2E9;
+    border-bottom: 1px solid #ACA899;
+}
+
+.nero-logo {
+    font-size: 16px;
+    font-style: italic;
+    font-weight: bold;
+    letter-spacing: -1px;
+    color: #D01616;
+}
+
+.compilation-name {
+    font-weight: bold;
+    color: #174F86;
+}
+
+.info-spacer {
+    flex: 1;
+}
+
+.disc-type {
+    color: #555;
+}
+
+/* =========================================================
+   MAIN
+   ========================================================= */
+
+.main {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    background: #fff;
+}
+
+/* =========================================================
+   COMPILATION TREE
+   ========================================================= */
+
+.tree-panel {
+    width: 205px;
+    flex: 0 0 205px;
+    border-right: 1px solid #808080;
+    background: white;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-heading {
+    height: 24px;
+    flex: 0 0 24px;
+    padding: 4px 6px;
+    background: #ECE9D8;
+    border-bottom: 1px solid #ACA899;
+    font-weight: bold;
+}
+
+.tree {
+    flex: 1;
+    padding: 7px;
+    overflow: auto;
+}
+
+.tree-row {
+    height: 22px;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.tree-indent {
+    width: 16px;
+}
+
+.tree-icon {
+    width: 18px;
+    text-align: center;
+    margin-right: 3px;
+}
+
+.tree-label {
+    padding: 2px 4px;
+}
+
+.tree-label.selected {
+    background: #316AC5;
+    color: white;
+}
+
+/* =========================================================
+   FILE LIST
+   ========================================================= */
+
+.file-panel {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.file-header {
+    height: 24px;
+    flex: 0 0 24px;
+    display: grid;
+    grid-template-columns:
+        minmax(170px, 1fr)
+        95px
+        105px
+        150px;
+    background: #ECE9D8;
+    border-bottom: 1px solid #ACA899;
+}
+
+.file-header > div {
+    padding: 4px 6px;
+    border-right: 1px solid #ACA899;
+}
+
+.file-list {
+    flex: 1;
+    overflow: auto;
+    position: relative;
+    background: white;
+}
+
+.file-row {
+    min-height: 22px;
+    display: grid;
+    grid-template-columns:
+        minmax(170px, 1fr)
+        95px
+        105px
+        150px;
+    align-items: center;
+}
+
+.file-row > div {
+    padding: 3px 6px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.file-row:hover {
+    background: #EAF3FC;
+}
+
+.file-row.selected {
+    background: #316AC5;
+    color: white;
+}
+
+.file-name {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.file-mini-icon {
+    width: 16px;
+    text-align: center;
+}
+
+.empty-list {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #777;
+    text-align: center;
+    pointer-events: none;
+}
+
+.empty-list.hidden {
+    display: none;
+}
+
+/* =========================================================
+   DROP
+   ========================================================= */
+
+.file-list.dragging::after {
+    content: "Drop files into compilation";
+    position: absolute;
+    inset: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px dashed white;
+    background: rgba(25,87,160,.86);
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    pointer-events: none;
+}
+
+/* =========================================================
+   CAPACITY
+   ========================================================= */
+
+.capacity-area {
+    height: 63px;
+    flex: 0 0 63px;
+    padding: 5px 8px 3px;
+    background: #ECE9D8;
+    border-top: 1px solid #ACA899;
+}
+
+.capacity-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 3px;
+}
+
+.capacity-track {
+    height: 22px;
+    position: relative;
+    border: 1px inset white;
+    background: white;
+    overflow: hidden;
+}
+
+.capacity-fill {
+    height: 100%;
+    width: 0%;
+    background:
+        repeating-linear-gradient(
+            90deg,
+            #276CC6 0,
+            #276CC6 9px,
+            #4A90E8 9px,
+            #4A90E8 11px
+        );
+}
+
+.capacity-fill.warning {
+    background:
+        repeating-linear-gradient(
+            90deg,
+            #D99D14 0,
+            #D99D14 9px,
+            #F2BB3B 9px,
+            #F2BB3B 11px
+        );
+}
+
+.capacity-fill.over {
+    background:
+        repeating-linear-gradient(
+            90deg,
+            #C52B2B 0,
+            #C52B2B 9px,
+            #E14A4A 9px,
+            #E14A4A 11px
+        );
+}
+
+.capacity-marker {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: #900;
+}
+
+.capacity-values {
+    margin-top: 3px;
+    color: #555;
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.status-bar {
+    height: 22px;
+    flex: 0 0 22px;
+    display: flex;
+    gap: 2px;
+    padding: 2px;
+    background: #ECE9D8;
+}
+
+.status-segment {
+    height: 17px;
+    padding: 1px 6px;
+    display: flex;
+    align-items: center;
+    border: 1px inset white;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.status-main {
+    flex: 1;
+}
+
+/* =========================================================
+   DIALOG
+   ========================================================= */
+
+.dialog-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0,0,0,.22);
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+}
+
+.dialog-overlay.active {
+    display: flex;
+}
+
+.xp-dialog {
+    width: min(470px, 95%);
+    border: 1px solid #003C74;
+    background: #ECE9D8;
+    box-shadow: 4px 5px 15px rgba(0,0,0,.5);
+}
+
+.dialog-title {
+    height: 27px;
+    padding: 0 7px;
+    display: flex;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    background:
+        linear-gradient(
+            90deg,
+            #0058D6,
+            #3A93FF
+        );
+}
+
+.dialog-body {
+    padding: 14px;
+    line-height: 17px;
+}
+
+.dialog-buttons {
+    padding: 0 12px 12px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.dialog-buttons button {
+    min-width: 78px;
+}
+
+.dialog-section {
+    border: 1px solid #ACA899;
+    background: #F8F7F0;
+    margin-bottom: 10px;
+}
+
+.dialog-section-title {
+    padding: 4px 6px;
+    font-weight: bold;
+    background: #ECE9D8;
+    border-bottom: 1px solid #ACA899;
+}
+
+.dialog-section-body {
+    padding: 8px;
+}
+
+.form-row {
+    min-height: 29px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.form-row label:first-child {
+    width: 120px;
+}
+
+.form-row select,
+.form-row input[type="text"] {
+    flex: 1;
+}
+
+/* =========================================================
+   BURN PROGRESS
+   ========================================================= */
+
+.burn-progress {
+    display: none;
+    margin-top: 9px;
+}
+
+.burn-progress.active {
+    display: block;
+}
+
+.progress-shell {
+    height: 18px;
+    padding: 2px;
+    border: 1px inset #fff;
+    background: white;
+}
+
+.progress-bar {
+    width: 0%;
+    height: 100%;
+    background:
+        repeating-linear-gradient(
+            90deg,
+            #23823A 0,
+            #23823A 8px,
+            #43A356 8px,
+            #43A356 10px
+        );
+}
+
+.progress-text {
+    margin-top: 4px;
+}
+
+/* ========================================================= */
+
+@media(max-width: 700px) {
+    .tree-panel {
+        width: 155px;
+        flex-basis: 155px;
+    }
+
+    .file-header,
+    .file-row {
+        grid-template-columns:
+            minmax(140px, 1fr)
+            80px;
+    }
+
+    .file-header > div:nth-child(n+3),
+    .file-row > div:nth-child(n+3) {
+        display: none;
+    }
+
+    .recorder-box span {
+        display: none;
+    }
+
+    .recorder-box select {
+        width: 120px;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="app" id="app">
+
+    <!-- ==================================================
+         MENU BAR
+         ================================================== -->
+
+    <div class="menu-bar">
+
+        <div class="menu">
+            <button class="menu-button">File</button>
+
+            <div class="dropdown">
+                <button data-action="new">
+                    New Compilation...
+                </button>
+
+                <button data-action="add">
+                    Add Files...
+                </button>
+
+                <div class="menu-separator"></div>
+
+                <button data-action="save-project">
+                    Save Compilation List...
+                </button>
+
+                <div class="menu-separator"></div>
+
+                <button data-action="properties">
+                    Compilation Properties
+                </button>
+            </div>
+        </div>
+
+        <div class="menu">
+            <button class="menu-button">Edit</button>
+
+            <div class="dropdown">
+                <button data-action="select-all">
+                    Select All
+                </button>
+
+                <button data-action="remove">
+                    Delete
+                </button>
+
+                <div class="menu-separator"></div>
+
+                <button data-action="clear">
+                    Clear Compilation
+                </button>
+            </div>
+        </div>
+
+        <div class="menu">
+            <button class="menu-button">Recorder</button>
+
+            <div class="dropdown">
+                <button data-action="burn">
+                    Burn Compilation...
+                </button>
+
+                <button data-action="disc-info">
+                    Disc Info
+                </button>
+
+                <button data-action="choose-recorder">
+                    Choose Recorder...
+                </button>
+            </div>
+        </div>
+
+        <div class="menu">
+            <button class="menu-button">Extras</button>
+
+            <div class="dropdown">
+                <button data-action="iso-info">
+                    ISO 9660 Information
+                </button>
+
+                <button data-action="verify">
+                    Verify Compilation
+                </button>
+            </div>
+        </div>
+
+        <div class="menu">
+            <button class="menu-button">Help</button>
+
+            <div class="dropdown">
+                <button data-action="about">
+                    About Nero Burning ROM
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ==================================================
+         TOOLBAR
+         ================================================== -->
+
+    <div class="toolbar">
+
+        <button
+            class="tool-button"
+            title="New Compilation"
+            data-action="new"
+        >
+            📄
+        </button>
+
+        <button
+            class="tool-button"
+            title="Add Files"
+            data-action="add"
+        >
+            📁
+        </button>
+
+        <button
+            class="tool-button"
+            title="Remove"
+            data-action="remove"
+        >
+            ✖
+        </button>
+
+        <div class="tool-separator"></div>
+
+        <button
+            class="tool-button"
+            title="Burn Compilation"
+            data-action="burn"
+        >
+            🔥
+        </button>
+
+        <button
+            class="tool-button"
+            title="Disc Information"
+            data-action="disc-info"
+        >
+            💿
+        </button>
+
+        <div class="tool-separator"></div>
+
+        <button
+            class="tool-button"
+            title="Compilation Properties"
+            data-action="properties"
+        >
+            ⚙
+        </button>
+
+        <div class="recorder-box">
+            <span>Recorder:</span>
+
+            <select id="recorderSelect">
+                <option value="image">
+                    Image Recorder [Virtual]
+                </option>
+
+                <option value="physical" disabled>
+                    Physical CD/DVD Recorder [Unavailable]
+                </option>
+            </select>
+        </div>
+
+    </div>
+
+    <!-- ==================================================
+         INFO BAR
+         ================================================== -->
+
+    <div class="info-bar">
+
+        <div class="nero-logo">
+            nero
+        </div>
+
+        <div class="compilation-name" id="compilationName">
+            New Compilation
+        </div>
+
+        <div class="info-spacer"></div>
+
+        <div class="disc-type" id="discTypeLabel">
+            CD-ROM (ISO)
+        </div>
+
+    </div>
+
+    <!-- ==================================================
+         MAIN
+         ================================================== -->
+
+    <div class="main">
+
+        <aside class="tree-panel">
+
+            <div class="panel-heading">
+                Compilation
+            </div>
+
+            <div class="tree">
+
+                <div class="tree-row">
+
+                    <div class="tree-icon">
+                        💿
+                    </div>
+
+                    <div
+                        class="tree-label selected"
+                        id="treeDiscName"
+                    >
+                        NEW
+                    </div>
+
+                </div>
+
+                <div class="tree-row">
+
+                    <div class="tree-indent"></div>
+
+                    <div class="tree-icon">
+                        📁
+                    </div>
+
+                    <div class="tree-label">
+                        Disc Root
+                    </div>
+
+                </div>
+
+            </div>
+
+        </aside>
+
+        <section class="file-panel">
+
+            <div class="file-header">
+                <div>Name</div>
+                <div>Size</div>
+                <div>Type</div>
+                <div>Modified</div>
+            </div>
+
+            <div
+                class="file-list"
+                id="fileList"
+            >
+
+                <div
+                    class="empty-list"
+                    id="emptyList"
+                >
+                    Add files to the compilation using
+                    <br>
+                    <b>File → Add Files</b>
+                    or drag them here.
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+    <!-- ==================================================
+         CAPACITY
+         ================================================== -->
+
+    <div class="capacity-area">
+
+        <div class="capacity-labels">
+
+            <span>
+                Disc Capacity
+            </span>
+
+            <span id="capacityName">
+                CD-R 700 MB
+            </span>
+
+        </div>
+
+        <div class="capacity-track">
+
+            <div
+                class="capacity-fill"
+                id="capacityFill"
+            ></div>
+
+            <div
+                class="capacity-marker"
+                id="capacityMarker"
+                style="left:100%"
+            ></div>
+
+        </div>
+
+        <div
+            class="capacity-values"
+            id="capacityValues"
+        >
+            0 MB / 700 MB
+        </div>
+
+    </div>
+
+    <!-- ==================================================
+         STATUS
+         ================================================== -->
+
+    <div class="status-bar">
+
+        <div
+            class="status-segment status-main"
+            id="statusMain"
+        >
+            Ready
+        </div>
+
+        <div
+            class="status-segment"
+            id="statusFiles"
+        >
+            0 files
+        </div>
+
+        <div
+            class="status-segment"
+            id="statusSize"
+        >
+            0 MB
+        </div>
+
+    </div>
+
+    <!-- ==================================================
+         DIALOG
+         ================================================== -->
+
+    <div
+        class="dialog-overlay"
+        id="dialogOverlay"
+    >
+
+        <div class="xp-dialog">
+
+            <div
+                class="dialog-title"
+                id="dialogTitle"
+            >
+                Nero Burning ROM
+            </div>
+
+            <div
+                class="dialog-body"
+                id="dialogBody"
+            ></div>
+
+            <div
+                class="dialog-buttons"
+                id="dialogButtons"
+            ></div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<input
+    type="file"
+    hidden
+    multiple
+    id="fileInput"
+>
+
+<script>
+
+(() => {
+
+"use strict";
+
+/* =========================================================
+   CONSTANTS
+   ========================================================= */
+
+const SECTOR_SIZE = 2048;
+
+const DISC_TYPES = {
+
+    cd: {
+        label: "CD-ROM (ISO)",
+        medium: "CD-R 700 MB",
+        capacity: 700 * 1024 * 1024
+    },
+
+    dvd: {
+        label: "DVD-ROM (ISO)",
+        medium: "DVD-R 4.7 GB",
+        capacity: 4700 * 1000 * 1000
+    },
+
+    dvddl: {
+        label: "DVD-ROM DL (ISO)",
+        medium: "DVD+R DL 8.5 GB",
+        capacity: 8500 * 1000 * 1000
+    }
+
+};
+
+/* =========================================================
+   STATE
+   ========================================================= */
+
+const state = {
+
+    files: [],
+
+    selected:
+        new Set(),
+
+    discType:
+        "cd",
+
+    volumeName:
+        "NEW",
+
+    compilationName:
+        "New Compilation"
+
+};
+
+/* =========================================================
+   ELEMENTS
+   ========================================================= */
+
+const fileInput =
+    document.getElementById(
+        "fileInput"
+    );
+
+const fileList =
+    document.getElementById(
+        "fileList"
+    );
+
+const emptyList =
+    document.getElementById(
+        "emptyList"
+    );
+
+const capacityFill =
+    document.getElementById(
+        "capacityFill"
+    );
+
+const capacityValues =
+    document.getElementById(
+        "capacityValues"
+    );
+
+const capacityName =
+    document.getElementById(
+        "capacityName"
+    );
+
+const statusMain =
+    document.getElementById(
+        "statusMain"
+    );
+
+const statusFiles =
+    document.getElementById(
+        "statusFiles"
+    );
+
+const statusSize =
+    document.getElementById(
+        "statusSize"
+    );
+
+const compilationName =
+    document.getElementById(
+        "compilationName"
+    );
+
+const treeDiscName =
+    document.getElementById(
+        "treeDiscName"
+    );
+
+const discTypeLabel =
+    document.getElementById(
+        "discTypeLabel"
+    );
+
+const dialogOverlay =
+    document.getElementById(
+        "dialogOverlay"
+    );
+
+const dialogTitle =
+    document.getElementById(
+        "dialogTitle"
+    );
+
+const dialogBody =
+    document.getElementById(
+        "dialogBody"
+    );
+
+const dialogButtons =
+    document.getElementById(
+        "dialogButtons"
+    );
+
+/* =========================================================
+   UTILITIES
+   ========================================================= */
+
+function humanSize(bytes) {
+
+    if (bytes < 1024) {
+        return bytes + " B";
+    }
+
+    if (bytes < 1024 * 1024) {
+        return (
+            bytes / 1024
+        ).toFixed(1) + " KB";
+    }
+
+    if (bytes < 1024 * 1024 * 1024) {
+        return (
+            bytes /
+            (1024 * 1024)
+        ).toFixed(1) + " MB";
+    }
+
+    return (
+        bytes /
+        (
+            1024 *
+            1024 *
+            1024
+        )
+    ).toFixed(2) + " GB";
+
+}
+
+
+function totalSize() {
+
+    return state.files.reduce(
+        (sum, item) =>
+            sum + item.file.size,
+        0
+    );
+
+}
+
+
+function fileType(file) {
+
+    const name =
+        file.name;
+
+    const dot =
+        name.lastIndexOf(".");
+
+    if (dot === -1) {
+        return "File";
+    }
+
+    return (
+        name
+            .slice(dot + 1)
+            .toUpperCase()
+        +
+        " File"
+    );
+
+}
+
+
+function setStatus(text) {
+
+    statusMain.textContent =
+        text;
+
+}
+
+
+function escapeHTML(value) {
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+    div.textContent =
+        String(value);
+
+    return div.innerHTML;
+
+}
+
+
+function downloadBlob(
+    blob,
+    filename
+) {
+
+    const url =
+        URL.createObjectURL(blob);
+
+    const anchor =
+        document.createElement(
+            "a"
+        );
+
+    anchor.href =
+        url;
+
+    anchor.download =
+        filename;
+
+    anchor.click();
+
+    setTimeout(
+        () => URL.revokeObjectURL(url),
+        1500
+    );
+
+}
+
+/* =========================================================
+   DIALOG SYSTEM
+   ========================================================= */
+
+function showDialog(
+    title,
+    html,
+    buttons = [
+        {
+            text: "OK",
+            click: closeDialog
+        }
+    ]
+) {
+
+    dialogTitle.textContent =
+        title;
+
+    dialogBody.innerHTML =
+        html;
+
+    dialogButtons.innerHTML =
+        "";
+
+    buttons.forEach(config => {
+
+        const button =
+            document.createElement(
+                "button"
+            );
+
+        button.textContent =
+            config.text;
+
+        button.addEventListener(
+            "click",
+            config.click
+        );
+
+        dialogButtons.appendChild(
+            button
+        );
+
+    });
+
+    dialogOverlay.classList.add(
+        "active"
+    );
+
+}
+
+
+function closeDialog() {
+
+    dialogOverlay.classList.remove(
+        "active"
+    );
+
+}
+
+/* =========================================================
+   FILE HANDLING
+   ========================================================= */
+
+function addFiles(files) {
+
+    const incoming =
+        Array.from(files);
+
+    incoming.forEach(file => {
+
+        if (
+            file.size >
+            0xFFFFFFFF
+        ) {
+
+            showDialog(
+                "Nero Burning ROM",
+                `
+                <b>File too large for this ISO mode.</b>
+
+                <p>
+                    ${escapeHTML(file.name)}
+                    exceeds the 4 GB ISO 9660 file-size limit
+                    used by this virtual recorder.
+                </p>
+                `
+            );
+
+            return;
+
+        }
+
+        state.files.push({
+            id:
+                crypto.randomUUID
+                    ? crypto.randomUUID()
+                    : (
+                        Date.now() +
+                        "-" +
+                        Math.random()
+                    ),
+
+            file
+        });
+
+    });
+
+    renderFiles();
+
+    updateCapacity();
+
+    setStatus(
+        incoming.length +
+        " file(s) added to compilation."
+    );
+
+}
+
+
+function removeSelected() {
+
+    if (!state.selected.size) {
+        return;
+    }
+
+    state.files =
+        state.files.filter(
+            item =>
+                !state.selected.has(
+                    item.id
+                )
+        );
+
+    state.selected.clear();
+
+    renderFiles();
+
+    updateCapacity();
+
+    setStatus(
+        "Selected files removed."
+    );
+
+}
+
+
+function clearCompilation() {
+
+    state.files = [];
+
+    state.selected.clear();
+
+    renderFiles();
+
+    updateCapacity();
+
+    setStatus(
+        "Compilation cleared."
+    );
+
+}
+
+/* =========================================================
+   RENDER FILES
+   ========================================================= */
+
+function renderFiles() {
+
+    fileList
+        .querySelectorAll(
+            ".file-row"
+        )
+        .forEach(row =>
+            row.remove()
+        );
+
+    emptyList.classList.toggle(
+        "hidden",
+        state.files.length > 0
+    );
+
+    state.files.forEach(
+        item => {
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+            row.className =
+                "file-row";
+
+            row.dataset.id =
+                item.id;
+
+            if (
+                state.selected.has(
+                    item.id
+                )
+            ) {
+
+                row.classList.add(
+                    "selected"
+                );
+
+            }
+
+            const modified =
+                item.file.lastModified
+                    ? new Date(
+                        item.file.lastModified
+                    ).toLocaleString()
+                    : "-";
+
+            row.innerHTML = `
+                <div class="file-name">
+                    <span class="file-mini-icon">
+                        📄
+                    </span>
+
+                    <span>
+                        ${escapeHTML(item.file.name)}
+                    </span>
+                </div>
+
+                <div>
+                    ${humanSize(item.file.size)}
+                </div>
+
+                <div>
+                    ${escapeHTML(fileType(item.file))}
+                </div>
+
+                <div>
+                    ${escapeHTML(modified)}
+                </div>
+            `;
+
+            row.addEventListener(
+                "click",
+                event => {
+
+                    if (
+                        !event.ctrlKey
+                    ) {
+                        state.selected.clear();
+                    }
+
+                    if (
+                        state.selected.has(
+                            item.id
+                        )
+                    ) {
+
+                        state.selected.delete(
+                            item.id
+                        );
+
+                    } else {
+
+                        state.selected.add(
+                            item.id
+                        );
+
+                    }
+
+                    renderFiles();
+
+                }
+            );
+
+            fileList.appendChild(
+                row
+            );
+
+        }
+    );
+
+}
+
+/* =========================================================
+   CAPACITY
+   ========================================================= */
+
+function updateCapacity() {
+
+    const config =
+        DISC_TYPES[
+            state.discType
+        ];
+
+    const used =
+        totalSize();
+
+    const ratio =
+        used /
+        config.capacity;
+
+    capacityFill.style.width =
+        Math.min(
+            100,
+            ratio * 100
+        )
+        +
+        "%";
+
+    capacityFill.className =
+        "capacity-fill";
+
+    if (ratio > 1) {
+
+        capacityFill.classList.add(
+            "over"
+        );
+
+    } else if (
+        ratio > .9
+    ) {
+
+        capacityFill.classList.add(
+            "warning"
+        );
+
+    }
+
+    capacityName.textContent =
+        config.medium;
+
+    capacityValues.textContent =
+        humanSize(used)
+        +
+        " / "
+        +
+        humanSize(
+            config.capacity
+        );
+
+    statusFiles.textContent =
+        state.files.length +
+        (
+            state.files.length === 1
+                ? " file"
+                : " files"
+        );
+
+    statusSize.textContent =
+        humanSize(used);
+
+    discTypeLabel.textContent =
+        config.label;
+
+}
+
+/* =========================================================
+   NEW COMPILATION
+   ========================================================= */
+
+function newCompilationDialog() {
+
+    showDialog(
+
+        "New Compilation",
+
+        `
+        <div class="dialog-section">
+
+            <div class="dialog-section-title">
+                Disc Type
+            </div>
+
+            <div class="dialog-section-body">
+
+                <div class="form-row">
+
+                    <label>
+                        Compilation:
+                    </label>
+
+                    <select id="newDiscType">
+
+                        <option value="cd">
+                            CD-ROM (ISO)
+                        </option>
+
+                        <option value="dvd">
+                            DVD-ROM (ISO)
+                        </option>
+
+                        <option value="dvddl">
+                            DVD-ROM DL (ISO)
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="form-row">
+
+                    <label>
+                        Volume label:
+                    </label>
+
+                    <input
+                        id="newVolumeName"
+                        type="text"
+                        maxlength="32"
+                        value="NEW"
+                    >
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <p>
+            ISO 9660 data compilation.
+        </p>
+        `,
+
+        [
+
+            {
+                text: "New",
+                click: () => {
+
+                    const type =
+                        document
+                            .getElementById(
+                                "newDiscType"
+                            )
+                            .value;
+
+                    let name =
+                        document
+                            .getElementById(
+                                "newVolumeName"
+                            )
+                            .value
+                            .trim();
+
+                    if (!name) {
+                        name = "NEW";
+                    }
+
+                    state.discType =
+                        type;
+
+                    state.volumeName =
+                        name;
+
+                    state.compilationName =
+                        name;
+
+                    state.files = [];
+
+                    state.selected.clear();
+
+                    compilationName.textContent =
+                        name;
+
+                    treeDiscName.textContent =
+                        name;
+
+                    renderFiles();
+                    updateCapacity();
+
+                    closeDialog();
+
+                    setStatus(
+                        "New compilation created."
+                    );
+
+                }
+            },
+
+            {
+                text: "Cancel",
+                click: closeDialog
+            }
+
+        ]
+
+    );
+
+}
+
+/* =========================================================
+   PROPERTIES
+   ========================================================= */
+
+function propertiesDialog() {
+
+    const config =
+        DISC_TYPES[
+            state.discType
+        ];
+
+    showDialog(
+        "Compilation Properties",
+
+        `
+        <div class="dialog-section">
+
+            <div class="dialog-section-title">
+                ISO
+            </div>
+
+            <div class="dialog-section-body">
+
+                <div class="form-row">
+                    <label>File system:</label>
+                    <b>ISO 9660</b>
+                </div>
+
+                <div class="form-row">
+                    <label>Character set:</label>
+                    <b>ISO 9660 / DOS compatible</b>
+                </div>
+
+                <div class="form-row">
+                    <label>Volume label:</label>
+                    <b>${escapeHTML(state.volumeName)}</b>
+                </div>
+
+                <div class="form-row">
+                    <label>Medium:</label>
+                    <b>${escapeHTML(config.medium)}</b>
+                </div>
+
+            </div>
+
+        </div>
+
+        <p>
+            The Image Recorder creates a real ISO 9660 image.
+            Files are placed in the root directory.
+        </p>
+        `
+    );
+
+}
+
+/* =========================================================
+   PROJECT LIST
+   ========================================================= */
+
+function saveProject() {
+
+    const project = {
+
+        application:
+            "Nero Burning ROM Web Edition",
+
+        volumeName:
+            state.volumeName,
+
+        discType:
+            state.discType,
+
+        created:
+            new Date().toISOString(),
+
+        files:
+            state.files.map(
+                item => ({
+                    name:
+                        item.file.name,
+
+                    size:
+                        item.file.size,
+
+                    modified:
+                        item.file.lastModified
+                })
+            )
+
+    };
+
+    const blob =
+        new Blob(
+            [
+                JSON.stringify(
+                    project,
+                    null,
+                    2
+                )
+            ],
+            {
+                type:
+                    "application/json"
+            }
+        );
+
+    downloadBlob(
+        blob,
+        state.volumeName +
+        "-compilation.json"
+    );
+
+    setStatus(
+        "Compilation list saved."
+    );
+
+}
+
+/* =========================================================
+   ISO 9660 HELPERS
+   ========================================================= */
+
+function writeASCII(
+    buffer,
+    offset,
+    length,
+    text,
+    pad = 0x20
+) {
+
+    buffer.fill(
+        pad,
+        offset,
+        offset + length
+    );
+
+    const encoded =
+        new TextEncoder()
+            .encode(
+                String(text)
+            );
+
+    buffer.set(
+        encoded.slice(
+            0,
+            length
+        ),
+        offset
+    );
+
+}
+
+
+function writeLE16(
+    buffer,
+    offset,
+    value
+) {
+
+    buffer[offset] =
+        value & 0xFF;
+
+    buffer[offset + 1] =
+        (value >>> 8) & 0xFF;
+
+}
+
+
+function writeBE16(
+    buffer,
+    offset,
+    value
+) {
+
+    buffer[offset] =
+        (value >>> 8) & 0xFF;
+
+    buffer[offset + 1] =
+        value & 0xFF;
+
+}
+
+
+function writeBoth16(
+    buffer,
+    offset,
+    value
+) {
+
+    writeLE16(
+        buffer,
+        offset,
+        value
+    );
+
+    writeBE16(
+        buffer,
+        offset + 2,
+        value
+    );
+
+}
+
+
+function writeLE32(
+    buffer,
+    offset,
+    value
+) {
+
+    buffer[offset] =
+        value & 0xFF;
+
+    buffer[offset + 1] =
+        (value >>> 8) & 0xFF;
+
+    buffer[offset + 2] =
+        (value >>> 16) & 0xFF;
+
+    buffer[offset + 3] =
+        (value >>> 24) & 0xFF;
+
+}
+
+
+function writeBE32(
+    buffer,
+    offset,
+    value
+) {
+
+    buffer[offset] =
+        (value >>> 24) & 0xFF;
+
+    buffer[offset + 1] =
+        (value >>> 16) & 0xFF;
+
+    buffer[offset + 2] =
+        (value >>> 8) & 0xFF;
+
+    buffer[offset + 3] =
+        value & 0xFF;
+
+}
+
+
+function writeBoth32(
+    buffer,
+    offset,
+    value
+) {
+
+    writeLE32(
+        buffer,
+        offset,
+        value
+    );
+
+    writeBE32(
+        buffer,
+        offset + 4,
+        value
+    );
+
+}
+
+
+function directoryDate(
+    date =
+        new Date()
+) {
+
+    return new Uint8Array([
+        Math.max(
+            0,
+            Math.min(
+                255,
+                date.getUTCFullYear() -
+                1900
+            )
+        ),
+
+        date.getUTCMonth() + 1,
+
+        date.getUTCDate(),
+
+        date.getUTCHours(),
+
+        date.getUTCMinutes(),
+
+        date.getUTCSeconds(),
+
+        0
+    ]);
+
+}
+
+
+function volumeDate(
+    date =
+        new Date()
+) {
+
+    const year =
+        String(
+            date.getUTCFullYear()
+        ).padStart(4, "0");
+
+    const month =
+        String(
+            date.getUTCMonth() + 1
+        ).padStart(2, "0");
+
+    const day =
+        String(
+            date.getUTCDate()
+        ).padStart(2, "0");
+
+    const hour =
+        String(
+            date.getUTCHours()
+        ).padStart(2, "0");
+
+    const minute =
+        String(
+            date.getUTCMinutes()
+        ).padStart(2, "0");
+
+    const second =
+        String(
+            date.getUTCSeconds()
+        ).padStart(2, "0");
+
+    return (
+        year +
+        month +
+        day +
+        hour +
+        minute +
+        second +
+        "00"
+    );
+
+}
+
+
+function sanitizeVolumeName(
+    value
+) {
+
+    return String(value)
+        .toUpperCase()
+        .replace(
+            /[^A-Z0-9_ ]/g,
+            "_"
+        )
+        .slice(
+            0,
+            32
+        );
+
+}
+
+
+function splitFileName(
+    name
+) {
+
+    const dot =
+        name.lastIndexOf(".");
+
+    if (
+        dot <= 0
+    ) {
+
+        return {
+            base: name,
+            extension: ""
+        };
+
+    }
+
+    return {
+
+        base:
+            name.slice(
+                0,
+                dot
+            ),
+
+        extension:
+            name.slice(
+                dot + 1
+            )
+
+    };
+
+}
+
+
+function cleanIsoText(
+    value
+) {
+
+    return String(value)
+        .toUpperCase()
+        .normalize("NFD")
+        .replace(
+            /[\u0300-\u036f]/g,
+            ""
+        )
+        .replace(
+            /[^A-Z0-9_]/g,
+            "_"
+        );
+
+}
+
+
+function makeUniqueIsoNames(
+    files
+) {
+
+    const used =
+        new Set();
+
+    return files.map(
+        item => {
+
+            const parts =
+                splitFileName(
+                    item.file.name
+                );
+
+            let base =
+                cleanIsoText(
+                    parts.base
+                )
+                .slice(
+                    0,
+                    8
+                );
+
+            let extension =
+                cleanIsoText(
+                    parts.extension
+                )
+                .slice(
+                    0,
+                    3
+                );
+
+            if (!base) {
+                base = "FILE";
+            }
+
+            let attempt =
+                extension
+                    ? (
+                        base +
+                        "." +
+                        extension
+                    )
+                    : base;
+
+            let index = 1;
+
+            while (
+                used.has(
+                    attempt
+                )
+            ) {
+
+                const suffix =
+                    "_" +
+                    index;
+
+                base =
+                    (
+                        cleanIsoText(
+                            parts.base
+                        )
+                        .slice(
+                            0,
+                            Math.max(
+                                1,
+                                8 -
+                                suffix.length
+                            )
+                        )
+                        +
+                        suffix
+                    )
+                    .slice(
+                        0,
+                        8
+                    );
+
+                attempt =
+                    extension
+                        ? (
+                            base +
+                            "." +
+                            extension
+                        )
+                        : base;
+
+                index++;
+
+            }
+
+            used.add(
+                attempt
+            );
+
+            return (
+                attempt +
+                ";1"
+            );
+
+        }
+    );
+
+}
+
+
+function createDirectoryRecord(
+    extent,
+    size,
+    flags,
+    identifier,
+    date =
+        new Date()
+) {
+
+    const idBytes =
+        identifier instanceof Uint8Array
+            ? identifier
+            : new TextEncoder()
+                .encode(
+                    identifier
+                );
+
+    const padding =
+        idBytes.length % 2 === 0
+            ? 1
+            : 0;
+
+    const length =
+        33 +
+        idBytes.length +
+        padding;
+
+    const record =
+        new Uint8Array(
+            length
+        );
+
+    record[0] =
+        length;
+
+    record[1] =
+        0;
+
+    writeBoth32(
+        record,
+        2,
+        extent
+    );
+
+    writeBoth32(
+        record,
+        10,
+        size
+    );
+
+    record.set(
+        directoryDate(
+            date
+        ),
+        18
+    );
+
+    record[25] =
+        flags;
+
+    record[26] =
+        0;
+
+    record[27] =
+        0;
+
+    writeBoth16(
+        record,
+        28,
+        1
+    );
+
+    record[32] =
+        idBytes.length;
+
+    record.set(
+        idBytes,
+        33
+    );
+
+    return record;
+
+}
+
+/* =========================================================
+   DIRECTORY SIZE CALCULATION
+   ========================================================= */
+
+function directoryPackedSize(
+    recordLengths
+) {
+
+    let position = 0;
+
+    for (
+        const length
+        of recordLengths
+    ) {
+
+        const offsetInSector =
+            position %
+            SECTOR_SIZE;
+
+        if (
+            offsetInSector +
+            length >
+            SECTOR_SIZE
+        ) {
+
+            position +=
+                SECTOR_SIZE -
+                offsetInSector;
+
+        }
+
+        position +=
+            length;
+
+    }
+
+    return (
+        Math.ceil(
+            position /
+            SECTOR_SIZE
+        )
+        *
+        SECTOR_SIZE
+    );
+
+}
+
+/* =========================================================
+   ISO CREATOR
+   ========================================================= */
+
+function createISOBlob() {
+
+    if (!state.files.length) {
+
+        throw new Error(
+            "Compilation is empty."
+        );
+
+    }
+
+    const isoNames =
+        makeUniqueIsoNames(
+            state.files
+        );
+
+    const placeholderLengths = [
+
+        34,
+        34,
+
+        ...isoNames.map(
+            name => {
+
+                const bytes =
+                    new TextEncoder()
+                        .encode(
+                            name
+                        );
+
+                return (
+                    33 +
+                    bytes.length +
+                    (
+                        bytes.length %
+                        2 === 0
+                            ? 1
+                            : 0
+                    )
+                );
+
+            }
+        )
+
+    ];
+
+    const rootDirBytes =
+        directoryPackedSize(
+            placeholderLengths
+        );
+
+    const rootDirSectors =
+        rootDirBytes /
+        SECTOR_SIZE;
+
+    const pvdSector =
+        16;
+
+    const terminatorSector =
+        17;
+
+    const lPathSector =
+        18;
+
+    const mPathSector =
+        19;
+
+    const rootSector =
+        20;
+
+    let nextSector =
+        rootSector +
+        rootDirSectors;
+
+    const fileLayouts =
+        state.files.map(
+            (item, index) => {
+
+                const sectors =
+                    Math.ceil(
+                        item.file.size /
+                        SECTOR_SIZE
+                    );
+
+                const layout = {
+
+                    item,
+                    isoName:
+                        isoNames[index],
+
+                    extent:
+                        nextSector,
+
+                    sectors,
+
+                    size:
+                        item.file.size
+
+                };
+
+                nextSector +=
+                    sectors;
+
+                return layout;
+
+            }
+        );
+
+    const totalSectors =
+        nextSector;
+
+    /* -----------------------------------------------------
+       SYSTEM AREA
+       ----------------------------------------------------- */
+
+    const systemArea =
+        new Uint8Array(
+            16 *
+            SECTOR_SIZE
+        );
+
+    /* -----------------------------------------------------
+       PRIMARY VOLUME DESCRIPTOR
+       ----------------------------------------------------- */
+
+    const pvd =
+        new Uint8Array(
+            SECTOR_SIZE
+        );
+
+    pvd[0] = 1;
+
+    writeASCII(
+        pvd,
+        1,
+        5,
+        "CD001",
+        0
+    );
+
+    pvd[6] = 1;
+
+    writeASCII(
+        pvd,
+        8,
+        32,
+        "NERO WEB IMAGE RECORDER"
+    );
+
+    writeASCII(
+        pvd,
+        40,
+        32,
+        sanitizeVolumeName(
+            state.volumeName
+        )
+    );
+
+    writeBoth32(
+        pvd,
+        80,
+        totalSectors
+    );
+
+    writeBoth16(
+        pvd,
+        120,
+        1
+    );
+
+    writeBoth16(
+        pvd,
+        124,
+        1
+    );
+
+    writeBoth16(
+        pvd,
+        128,
+        SECTOR_SIZE
+    );
+
+    const pathTableSize =
+        10;
+
+    writeBoth32(
+        pvd,
+        132,
+        pathTableSize
+    );
+
+    writeLE32(
+        pvd,
+        140,
+        lPathSector
+    );
+
+    writeLE32(
+        pvd,
+        144,
+        0
+    );
+
+    writeBE32(
+        pvd,
+        148,
+        mPathSector
+    );
+
+    writeBE32(
+        pvd,
+        152,
+        0
+    );
+
+    const rootRecord =
+        createDirectoryRecord(
+            rootSector,
+            rootDirBytes,
+            2,
+            new Uint8Array([0])
+        );
+
+    pvd.set(
+        rootRecord,
+        156
+    );
+
+    writeASCII(
+        pvd,
+        190,
+        128,
+        "NERO BURNING ROM WEB EDITION"
+    );
+
+    writeASCII(
+        pvd,
+        318,
+        128,
+        "NERO IMAGE RECORDER"
+    );
+
+    writeASCII(
+        pvd,
+        446,
+        128,
+        "NERO BURNING ROM"
+    );
+
+    const dateString =
+        volumeDate();
+
+    writeASCII(
+        pvd,
+        813,
+        16,
+        dateString,
+        0x30
+    );
+
+    pvd[829] = 0;
+
+    writeASCII(
+        pvd,
+        830,
+        16,
+        dateString,
+        0x30
+    );
+
+    pvd[846] = 0;
+
+    pvd[881] = 1;
+
+    /* -----------------------------------------------------
+       TERMINATOR
+       ----------------------------------------------------- */
+
+    const terminator =
+        new Uint8Array(
+            SECTOR_SIZE
+        );
+
+    terminator[0] = 255;
+
+    writeASCII(
+        terminator,
+        1,
+        5,
+        "CD001",
+        0
+    );
+
+    terminator[6] = 1;
+
+    /* -----------------------------------------------------
+       PATH TABLE LITTLE ENDIAN
+       ----------------------------------------------------- */
+
+    const lPath =
+        new Uint8Array(
+            SECTOR_SIZE
+        );
+
+    lPath[0] = 1;
+    lPath[1] = 0;
+
+    writeLE32(
+        lPath,
+        2,
+        rootSector
+    );
+
+    writeLE16(
+        lPath,
+        6,
+        1
+    );
+
+    lPath[8] = 0;
+    lPath[9] = 0;
+
+    /* -----------------------------------------------------
+       PATH TABLE BIG ENDIAN
+       ----------------------------------------------------- */
+
+    const mPath =
+        new Uint8Array(
+            SECTOR_SIZE
+        );
+
+    mPath[0] = 1;
+    mPath[1] = 0;
+
+    writeBE32(
+        mPath,
+        2,
+        rootSector
+    );
+
+    writeBE16(
+        mPath,
+        6,
+        1
+    );
+
+    mPath[8] = 0;
+    mPath[9] = 0;
+
+    /* -----------------------------------------------------
+       ROOT DIRECTORY
+       ----------------------------------------------------- */
+
+    const rootDirectory =
+        new Uint8Array(
+            rootDirBytes
+        );
+
+    const records = [
+
+        createDirectoryRecord(
+            rootSector,
+            rootDirBytes,
+            2,
+            new Uint8Array([0])
+        ),
+
+        createDirectoryRecord(
+            rootSector,
+            rootDirBytes,
+            2,
+            new Uint8Array([1])
+        ),
+
+        ...fileLayouts.map(
+            layout =>
+                createDirectoryRecord(
+                    layout.extent,
+                    layout.size,
+                    0,
+                    layout.isoName,
+                    new Date(
+                        layout
+                            .item
+                            .file
+                            .lastModified
+                        ||
+                        Date.now()
+                    )
+                )
+        )
+
+    ];
+
+    let dirPosition = 0;
+
+    records.forEach(
+        record => {
+
+            const offset =
+                dirPosition %
+                SECTOR_SIZE;
+
+            if (
+                offset +
+                record.length >
+                SECTOR_SIZE
+            ) {
+
+                dirPosition +=
+                    SECTOR_SIZE -
+                    offset;
+
+            }
+
+            rootDirectory.set(
+                record,
+                dirPosition
+            );
+
+            dirPosition +=
+                record.length;
+
+        }
+    );
+
+    /* -----------------------------------------------------
+       BUILD BLOB WITHOUT READING FULL FILES INTO RAM
+       ----------------------------------------------------- */
+
+    const parts = [
+
+        systemArea,
+        pvd,
+        terminator,
+        lPath,
+        mPath,
+        rootDirectory
+
+    ];
+
+    fileLayouts.forEach(
+        layout => {
+
+            parts.push(
+                layout.item.file
+            );
+
+            const padded =
+                layout.sectors *
+                SECTOR_SIZE;
+
+            const padding =
+                padded -
+                layout.size;
+
+            if (
+                padding > 0
+            ) {
+
+                parts.push(
+                    new Uint8Array(
+                        padding
+                    )
+                );
+
+            }
+
+        }
+    );
+
+    return new Blob(
+        parts,
+        {
+            type:
+                "application/x-iso9660-image"
+        }
+    );
+
+}
+
+/* =========================================================
+   BURN DIALOG
+   ========================================================= */
+
+function burnDialog() {
+
+    if (!state.files.length) {
+
+        showDialog(
+            "Burn Compilation",
+            `
+            <p>
+                The compilation is empty.
+            </p>
+
+            <p>
+                Add at least one file before
+                starting the recorder.
+            </p>
+            `
+        );
+
+        return;
+
+    }
+
+    const used =
+        totalSize();
+
+    const capacity =
+        DISC_TYPES[
+            state.discType
+        ].capacity;
+
+    if (
+        used >
+        capacity
+    ) {
+
+        showDialog(
+            "Disc Capacity",
+            `
+            <b>
+                There is not enough space
+                on this medium.
+            </b>
+
+            <p>
+                Compilation size:
+                ${humanSize(used)}
+            </p>
+
+            <p>
+                Medium capacity:
+                ${humanSize(capacity)}
+            </p>
+            `
+        );
+
+        return;
+
+    }
+
+    showDialog(
+
+        "Burn Compilation",
+
+        `
+        <div class="dialog-section">
+
+            <div class="dialog-section-title">
+                Recorder
+            </div>
+
+            <div class="dialog-section-body">
+
+                <div class="form-row">
+
+                    <label>
+                        Current recorder:
+                    </label>
+
+                    <b>
+                        Image Recorder
+                    </b>
+
+                </div>
+
+                <div class="form-row">
+
+                    <label>
+                        Write method:
+                    </label>
+
+                    <span>
+                        Disc-at-once
+                    </span>
+
+                </div>
+
+                <div class="form-row">
+
+                    <label>
+                        Write speed:
+                    </label>
+
+                    <select id="burnSpeed">
+
+                        <option>
+                            Maximum
+                        </option>
+
+                        <option>
+                            16x
+                        </option>
+
+                        <option>
+                            8x
+                        </option>
+
+                        <option>
+                            4x
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="form-row">
+
+                    <label></label>
+
+                    <label>
+
+                        <input
+                            id="verifyAfterBurn"
+                            type="checkbox"
+                            checked
+                        >
+
+                        Verify written data
+
+                    </label>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <p>
+            Output:
+            <b>
+                ${escapeHTML(state.volumeName)}.iso
+            </b>
+        </p>
+
+        <div
+            class="burn-progress"
+            id="burnProgress"
+        >
+
+            <div class="progress-shell">
+
+                <div
+                    class="progress-bar"
+                    id="burnProgressBar"
+                ></div>
+
+            </div>
+
+            <div
+                class="progress-text"
+                id="burnProgressText"
+            >
+                Preparing...
+            </div>
+
+        </div>
+        `,
+
+        [
+
+            {
+                text:
+                    "Burn",
+
+                click:
+                    startBurn
+            },
+
+            {
+                text:
+                    "Cancel",
+
+                click:
+                    closeDialog
+            }
+
+        ]
+
+    );
+
+}
+
+/* =========================================================
+   BURN
+   ========================================================= */
+
+function startBurn() {
+
+    const progressArea =
+        document.getElementById(
+            "burnProgress"
+        );
+
+    const bar =
+        document.getElementById(
+            "burnProgressBar"
+        );
+
+    const text =
+        document.getElementById(
+            "burnProgressText"
+        );
+
+    if (
+        !progressArea
+    ) {
+        return;
+    }
+
+    Array.from(
+        dialogButtons.children
+    )
+    .forEach(
+        button =>
+            button.disabled = true
+    );
+
+    progressArea.classList.add(
+        "active"
+    );
+
+    let progress = 0;
+
+    setStatus(
+        "Image Recorder preparing ISO image..."
+    );
+
+    const timer =
+        setInterval(
+            () => {
+
+                progress += 10;
+
+                bar.style.width =
+                    progress +
+                    "%";
+
+                if (
+                    progress < 30
+                ) {
+
+                    text.textContent =
+                        "Caching files...";
+
+                } else if (
+                    progress < 55
+                ) {
+
+                    text.textContent =
+                        "Generating ISO 9660 filesystem...";
+
+                } else if (
+                    progress < 80
+                ) {
+
+                    text.textContent =
+                        "Writing lead-in and file data...";
+
+                } else if (
+                    progress < 100
+                ) {
+
+                    text.textContent =
+                        "Finalizing image...";
+
+                } else {
+
+                    clearInterval(
+                        timer
+                    );
+
+                    try {
+
+                        text.textContent =
+                            "Creating ISO image...";
+
+                        const iso =
+                            createISOBlob();
+
+                        const filename =
+                            sanitizeVolumeName(
+                                state.volumeName
+                            )
+                            .replace(
+                                /\s+/g,
+                                "_"
+                            )
+                            +
+                            ".iso";
+
+                        downloadBlob(
+                            iso,
+                            filename
+                        );
+
+                        bar.style.width =
+                            "100%";
+
+                        text.textContent =
+                            "Burn process completed successfully.";
+
+                        setStatus(
+                            "ISO image successfully created."
+                        );
+
+                        setTimeout(
+                            () => {
+
+                                showDialog(
+                                    "Burn Process Completed",
+                                    `
+                                    <b>
+                                        Burn process completed successfully.
+                                    </b>
+
+                                    <p>
+                                        Image Recorder created:
+                                    </p>
+
+                                    <p>
+                                        <b>
+                                            ${escapeHTML(filename)}
+                                        </b>
+                                    </p>
+
+                                    <p>
+                                        Size:
+                                        ${humanSize(iso.size)}
+                                    </p>
+
+                                    <p>
+                                        This is an actual ISO 9660
+                                        data image containing the files
+                                        from the compilation.
+                                    </p>
+                                    `
+                                );
+
+                            },
+                            350
+                        );
+
+                    } catch (
+                        error
+                    ) {
+
+                        console.error(
+                            error
+                        );
+
+                        showDialog(
+                            "Nero Burning ROM",
+                            `
+                            <b>
+                                Image creation failed.
+                            </b>
+
+                            <p>
+                                ${escapeHTML(
+                                    error.message
+                                )}
+                            </p>
+                            `
+                        );
+
+                    }
+
+                }
+
+            },
+            100
+        );
+
+}
+
+/* =========================================================
+   VERIFY
+   ========================================================= */
+
+function verifyCompilation() {
+
+    if (
+        !state.files.length
+    ) {
+
+        showDialog(
+            "Verify Compilation",
+            "<p>The compilation is empty.</p>"
+        );
+
+        return;
+
+    }
+
+    const duplicateNames =
+        new Map();
+
+    state.files.forEach(
+        item => {
+
+            const key =
+                item.file.name
+                    .toLowerCase();
+
+            duplicateNames.set(
+                key,
+                (
+                    duplicateNames.get(
+                        key
+                    )
+                    ||
+                    0
+                )
+                +
+                1
+            );
+
+        }
+    );
+
+    const duplicateCount =
+        Array.from(
+            duplicateNames.values()
+        )
+        .filter(
+            value =>
+                value > 1
+        )
+        .length;
+
+    const tooLarge =
+        totalSize() >
+        DISC_TYPES[
+            state.discType
+        ].capacity;
+
+    showDialog(
+        "Verify Compilation",
+
+        `
+        <b>
+            Compilation verification complete.
+        </b>
+
+        <p>
+            Files:
+            ${state.files.length}
+        </p>
+
+        <p>
+            Total size:
+            ${humanSize(totalSize())}
+        </p>
+
+        <p>
+            Duplicate filenames:
+            ${duplicateCount}
+        </p>
+
+        <p>
+            Capacity:
+            ${
+                tooLarge
+                    ? '<span style="color:#B00000">Exceeded</span>'
+                    : '<span style="color:#147520">OK</span>'
+            }
+        </p>
+        `
+    );
+
+}
+
+/* =========================================================
+   INFO
+   ========================================================= */
+
+function discInfo() {
+
+    const config =
+        DISC_TYPES[
+            state.discType
+        ];
+
+    showDialog(
+        "Disc Information",
+
+        `
+        <div class="dialog-section">
+
+            <div class="dialog-section-title">
+                Virtual Medium
+            </div>
+
+            <div class="dialog-section-body">
+
+                <div class="form-row">
+                    <label>Recorder:</label>
+                    <b>Image Recorder</b>
+                </div>
+
+                <div class="form-row">
+                    <label>Medium:</label>
+                    <b>${escapeHTML(config.medium)}</b>
+                </div>
+
+                <div class="form-row">
+                    <label>Capacity:</label>
+                    <b>${humanSize(config.capacity)}</b>
+                </div>
+
+                <div class="form-row">
+                    <label>Used:</label>
+                    <b>${humanSize(totalSize())}</b>
+                </div>
+
+                <div class="form-row">
+                    <label>Sessions:</label>
+                    <b>1</b>
+                </div>
+
+            </div>
+
+        </div>
+        `
+    );
+
+}
+
+
+function recorderInfo() {
+
+    showDialog(
+        "Choose Recorder",
+
+        `
+        <b>
+            Available recorder
+        </b>
+
+        <p>
+            💿 Image Recorder [Virtual]
+        </p>
+
+        <hr>
+
+        <p>
+            Physical optical recorders are unavailable
+            from this iframe/browser environment.
+        </p>
+
+        <p>
+            Use Image Recorder to create an ISO file,
+            then burn that ISO with a native operating
+            system utility if desired.
+        </p>
+        `
+    );
+
+}
+
+
+function isoInfo() {
+
+    showDialog(
+        "ISO 9660 Information",
+
+        `
+        <h3>
+            ISO 9660 Image Recorder
+        </h3>
+
+        <p>
+            This Nero recreation generates a real
+            ISO 9660 data-disc image directly inside
+            the browser.
+        </p>
+
+        <p>
+            Compatibility mode:
+        </p>
+
+        <ul>
+            <li>2048-byte sectors</li>
+            <li>ISO 9660 Primary Volume Descriptor</li>
+            <li>Root directory</li>
+            <li>DOS-compatible 8.3 disc filenames</li>
+            <li>Single session</li>
+        </ul>
+
+        <p>
+            Original filenames remain visible inside
+            the Nero compilation; compatible ISO names
+            are generated when creating the image.
+        </p>
+        `
+    );
+
+}
+
+
+function about() {
+
+    showDialog(
+        "About Nero Burning ROM",
+
+        `
+        <h3>
+            Nero Burning ROM 6.6
+        </h3>
+
+        <p>
+            Windows XP Web Desktop Edition
+        </p>
+
+        <p>
+            Inspired by the classic Nero 6 generation
+            released during the Windows XP era.
+        </p>
+
+        <p>
+            <b>Image Recorder:</b>
+            Browser ISO 9660 implementation
+        </p>
+
+        <p>
+            Physical optical-disc recording is not
+            performed by this web edition.
+        </p>
+        `
+    );
+
+}
+
+/* =========================================================
+   SELECT ALL
+   ========================================================= */
+
+function selectAll() {
+
+    state.files.forEach(
+        item =>
+            state.selected.add(
+                item.id
+            )
+    );
+
+    renderFiles();
+
+}
+
+/* =========================================================
+   ACTION DISPATCH
+   ========================================================= */
+
+function executeAction(
+    action
+) {
+
+    switch (
+        action
+    ) {
+
+        case "new":
+            newCompilationDialog();
+            break;
+
+        case "add":
+            fileInput.click();
+            break;
+
+        case "remove":
+            removeSelected();
+            break;
+
+        case "clear":
+            clearCompilation();
+            break;
+
+        case "select-all":
+            selectAll();
+            break;
+
+        case "burn":
+            burnDialog();
+            break;
+
+        case "save-project":
+            saveProject();
+            break;
+
+        case "properties":
+            propertiesDialog();
+            break;
+
+        case "disc-info":
+            discInfo();
+            break;
+
+        case "choose-recorder":
+            recorderInfo();
+            break;
+
+        case "iso-info":
+            isoInfo();
+            break;
+
+        case "verify":
+            verifyCompilation();
+            break;
+
+        case "about":
+            about();
+            break;
+
+    }
+
+    closeMenus();
+
+}
+
+/* =========================================================
+   MENU
+   ========================================================= */
+
+function closeMenus() {
+
+    document
+        .querySelectorAll(
+            ".menu.open"
+        )
+        .forEach(
+            menu =>
+                menu.classList.remove(
+                    "open"
+                )
+        );
+
+}
+
+
+document
+    .querySelectorAll(
+        ".menu-button"
+    )
+    .forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                event => {
+
+                    event.stopPropagation();
+
+                    const menu =
+                        button.closest(
+                            ".menu"
+                        );
+
+                    const open =
+                        menu.classList.contains(
+                            "open"
+                        );
+
+                    closeMenus();
+
+                    if (!open) {
+
+                        menu.classList.add(
+                            "open"
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+
+document
+    .querySelectorAll(
+        "[data-action]"
+    )
+    .forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                () =>
+                    executeAction(
+                        button.dataset.action
+                    )
+            );
+
+        }
+    );
+
+
+document.addEventListener(
+    "click",
+    closeMenus
+);
+
+/* =========================================================
+   INPUT
+   ========================================================= */
+
+fileInput.addEventListener(
+    "change",
+    () => {
+
+        addFiles(
+            fileInput.files
+        );
+
+        fileInput.value =
+            "";
+
+    }
+);
+
+/* =========================================================
+   DRAG AND DROP
+   ========================================================= */
+
+let dragCounter = 0;
+
+
+fileList.addEventListener(
+    "dragenter",
+    event => {
+
+        event.preventDefault();
+
+        dragCounter++;
+
+        fileList.classList.add(
+            "dragging"
+        );
+
+    }
+);
+
+
+fileList.addEventListener(
+    "dragover",
+    event => {
+
+        event.preventDefault();
+
+    }
+);
+
+
+fileList.addEventListener(
+    "dragleave",
+    event => {
+
+        event.preventDefault();
+
+        dragCounter--;
+
+        if (
+            dragCounter <= 0
+        ) {
+
+            dragCounter = 0;
+
+            fileList.classList.remove(
+                "dragging"
+            );
+
+        }
+
+    }
+);
+
+
+fileList.addEventListener(
+    "drop",
+    event => {
+
+        event.preventDefault();
+
+        dragCounter = 0;
+
+        fileList.classList.remove(
+            "dragging"
+        );
+
+        addFiles(
+            event.dataTransfer.files
+        );
+
+    }
+);
+
+/* =========================================================
+   DIALOG
+   ========================================================= */
+
+dialogOverlay.addEventListener(
+    "mousedown",
+    event => {
+
+        if (
+            event.target ===
+            dialogOverlay
+        ) {
+
+            closeDialog();
+
+        }
+
+    }
+);
+
+/* =========================================================
+   KEYBOARD
+   ========================================================= */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.ctrlKey &&
+            event.key.toLowerCase() ===
+            "o"
+        ) {
+
+            event.preventDefault();
+
+            fileInput.click();
+
+            return;
+
+        }
+
+        if (
+            event.ctrlKey &&
+            event.key.toLowerCase() ===
+            "a"
+        ) {
+
+            event.preventDefault();
+
+            selectAll();
+
+            return;
+
+        }
+
+        if (
+            event.key ===
+            "Delete"
+        ) {
+
+            removeSelected();
+
+        }
+
+        if (
+            event.key ===
+            "Escape"
+        ) {
+
+            closeDialog();
+
+            closeMenus();
+
+        }
+
+        if (
+            event.ctrlKey &&
+            event.key.toLowerCase() ===
+            "b"
+        ) {
+
+            event.preventDefault();
+
+            burnDialog();
+
+        }
+
+    }
+);
+
+/* =========================================================
+   INITIALIZE
+   ========================================================= */
+
+renderFiles();
+
+updateCapacity();
+
+setStatus(
+    "Ready - Create a data compilation or add files."
+);
+
+})();
+
+</script>
+
+</body>
+</html>

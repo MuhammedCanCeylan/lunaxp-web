@@ -1,0 +1,33 @@
+﻿Spider Solitaire for Windows XP Web Simulator
+
+Selected project:
+https://github.com/lrusso/Spider
+
+Upstream description:
+Spider Solitaire game developed in JavaScript.
+
+The upstream README says it is based on:
+https://games.gameboss.com/spidersolitairewindowsxp/index.html?lang=en
+
+Upstream differences include:
+- bug fixes
+- fixed bitmaps
+- restart button
+- fullscreen layout
+- mobile compatibility
+- English and Spanish support
+
+This installer:
+- copies Spider.htm to index.html for the XP WindowManager
+- preserves Spider.htm for upstream references
+- adds iframe-fit CSS
+- replaces browser-native popup behavior with an in-page XP dialog
+- creates a local 32x32 transparent icon.png
+
+No:
+- Moonlight
+- Sunshine
+- Parsec
+- Node.js runtime server
+- COOP/COEP
+- ISO

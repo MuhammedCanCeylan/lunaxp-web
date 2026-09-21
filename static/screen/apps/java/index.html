@@ -1,0 +1,623 @@
+<!--
+JAVA(TM) CONTROL PANEL - WINDOWS XP WEB SIMULATOR
+
+ASSET TABLE
+| File     | Size  | Required | Purpose |
+|----------|-------|----------|---------|
+| icon.png | 32x32 | Yes      | Generic Java coffee-cup style app icon |
+
+IMPLEMENTATION NOTES
+- Faithful browser-side reconstruction of the Windows-era Java Control Panel (javacpl.exe).
+- Tabs: General, Update, Java, Security, Advanced.
+- Settings persist in localStorage.
+- Cache entries, JRE runtime rows, certificates, proxy settings, update schedule,
+  and advanced settings are interactive simulations.
+- This does NOT install or execute a JVM and does not change the host Windows registry.
+- No second XP titlebar/taskbar; parent WindowManager owns the outer chrome.
+- No native alert(), confirm(), prompt(); dialogs are in-page .xp-dialog.
+-->
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Java Denetim Masası</title>
+<style>
+:root{--xp:#ECE9D8;--line:#ACA899;--blue:#316AC5;--navy:#0A246A}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden}
+body,button,input,select{font:11px Tahoma,Arial,sans-serif}
+body{background:var(--xp);color:#000}
+button{cursor:default}
+.app{
+  width:100%;height:100%;min-width:570px;min-height:430px;
+  display:grid;grid-template-rows:50px 28px minmax(0,1fr) 45px;
+  background:var(--xp)
+}
+.brand{
+  display:flex;align-items:center;padding:6px 12px;background:#fff;border-bottom:1px solid #9e9e9e
+}
+.cup{
+  width:33px;height:33px;position:relative;margin-right:9px
+}
+.cup:before{
+  content:"";position:absolute;left:8px;top:13px;width:17px;height:12px;
+  background:#fff;border:2px solid #677784;border-radius:2px 2px 8px 8px;
+  box-shadow:inset 0 -3px 0 #d9e1e5
+}
+.cup:after{
+  content:"";position:absolute;left:24px;top:15px;width:8px;height:7px;
+  border:2px solid #677784;border-left:0;border-radius:0 7px 7px 0
+}
+.steam{position:absolute;width:3px;height:13px;border-radius:50%;border-left:2px solid #d25a2d;transform:rotate(18deg)}
+.s1{left:10px;top:0}.s2{left:17px;top:2px}.s3{left:23px;top:0}
+.brandTitle{font:normal 18px "Trebuchet MS",Tahoma,sans-serif;color:#1d4268}
+.brandSub{font-size:10px;color:#666;margin-top:1px}
+
+.tabs{display:flex;align-items:end;padding-left:8px;border-bottom:1px solid #9c9c9c;background:var(--xp)}
+.tab{
+  height:25px;padding:2px 13px;border:1px solid #9c9c9c;border-bottom:0;
+  border-radius:3px 3px 0 0;background:#d4d0c8;margin-right:1px
+}
+.tab.active{height:27px;background:var(--xp);font-weight:bold;position:relative;top:1px}
+
+.content{position:relative;min-height:0;padding:9px 11px 7px}
+.page{display:none;height:100%;overflow:auto}
+.page.active{display:block}
+
+.group{position:relative;border:1px solid #a5a5a5;padding:13px 10px 10px;margin:8px 2px 12px}
+.legend{position:absolute;left:8px;top:-8px;background:var(--xp);padding:0 4px;color:#333}
+.groupRow{display:grid;grid-template-columns:58px 1fr auto;gap:10px;align-items:center}
+.groupIcon{
+  width:45px;height:40px;border:1px solid #8d989f;background:linear-gradient(#fff,#dce8ef);
+  display:flex;align-items:center;justify-content:center;color:#315f84;font:bold 23px Georgia,serif
+}
+.desc{line-height:1.42;color:#333}
+.xpbtn{min-width:86px;height:25px;padding:1px 10px;background:var(--xp);border:2px outset #fff;color:#000}
+.xpbtn:active:not(:disabled){border-style:inset}
+.xpbtn:disabled{color:#888;text-shadow:1px 1px #fff}
+.smallbtn{min-width:65px;height:23px}
+.check{display:flex;align-items:center;gap:6px;margin:7px 0}
+.radio{display:flex;align-items:center;gap:6px;margin:6px 0}
+.row{display:grid;grid-template-columns:145px 1fr;gap:8px;align-items:center;margin:7px 0}
+.textbox,.selectbox{width:100%;height:24px;padding:2px 4px;background:#fff;border:2px inset #fff}
+.hint{font-size:10px;color:#666;line-height:1.42}
+.link{color:#03c;text-decoration:underline;cursor:pointer}
+
+.footer{
+  display:flex;justify-content:flex-end;align-items:center;gap:7px;padding:9px 11px;
+  border-top:1px solid #aaa;background:var(--xp)
+}
+
+/* Tables */
+.listbox{border:2px inset #fff;background:#fff;min-height:150px;overflow:auto}
+.grid{
+  width:100%;border-collapse:collapse;background:#fff;font-size:10px
+}
+.grid th{
+  text-align:left;font-weight:normal;background:#ECE9D8;border-right:1px solid #aaa;
+  border-bottom:1px solid #aaa;padding:4px 5px;white-space:nowrap
+}
+.grid td{padding:4px 5px;border-bottom:1px solid #eee;white-space:nowrap}
+.grid tr.sel td{background:#316AC5;color:#fff}
+.actions{display:flex;justify-content:flex-end;gap:6px;margin-top:7px}
+
+/* Security slider */
+.securityLayout{display:grid;grid-template-columns:100px 1fr;gap:14px;align-items:center}
+.sliderWrap{height:170px;display:flex;justify-content:center;align-items:center}
+.vertical{
+  writing-mode:vertical-lr;direction:rtl;width:25px;height:150px
+}
+.levelTitle{font-weight:bold;color:#174f88;margin-bottom:5px}
+.levelBox{padding:8px;border:1px solid #c2c2c2;background:#f8f8f8;line-height:1.5}
+.exceptionList{margin-top:8px}
+
+/* advanced tree */
+.tree{
+  border:2px inset #fff;background:#fff;padding:6px 8px;height:260px;overflow:auto
+}
+.treeSection{font-weight:bold;margin:6px 0 3px}
+.treeItem{margin:3px 0 3px 17px;display:flex;align-items:flex-start;gap:5px}
+.indent2{margin-left:35px}
+
+/* progress */
+.progress{height:18px;border:2px inset #fff;background:#fff;padding:2px;margin-top:9px}
+.progress i{display:block;height:100%;width:0;background:#316AC5;transition:width .15s linear}
+
+/* dialogs */
+.shade{
+  display:none;position:absolute;inset:0;z-index:9000;background:rgba(0,0,0,.18);
+  align-items:center;justify-content:center;padding:18px
+}
+.shade.show{display:flex}
+.xp-dialog{
+  width:min(500px,94vw);max-height:90%;display:flex;flex-direction:column;
+  background:var(--xp);border:2px outset #fff;box-shadow:4px 5px 15px rgba(0,0,0,.5)
+}
+.dtitle{
+  min-height:25px;padding:2px 3px 2px 7px;color:#fff;font-weight:bold;
+  background:linear-gradient(90deg,#0A246A,#3A6EA5);
+  display:flex;align-items:center;justify-content:space-between
+}
+.dx{width:21px;height:20px;padding:0;color:#fff;background:#D8503C;border:2px outset #fff;font-weight:bold}
+.dbody{padding:13px;overflow:auto;line-height:1.45}
+.dactions{display:flex;justify-content:flex-end;gap:7px;padding:0 12px 11px}
+.dactions button{min-width:80px;height:25px;background:var(--xp);border:2px outset #fff}
+.msg{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start}
+.infoicon{
+  width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  color:#fff;background:#316AC5;border:1px solid #174B9E;font:bold 23px Georgia,serif
+}
+.warnicon{
+  width:32px;height:32px;clip-path:polygon(50% 0,100% 100%,0 100%);
+  background:#f2cd3a;position:relative
+}
+.warnicon:after{content:"!";position:absolute;left:12px;top:8px;font:bold 19px Arial;color:#333}
+.cupLarge{width:70px;height:70px;margin:0 auto 8px;position:relative}
+.cupLarge .bowl{position:absolute;left:15px;top:29px;width:38px;height:26px;border:3px solid #657581;border-radius:3px 3px 14px 14px;background:#fff;box-shadow:inset 0 -6px #dae2e7}
+.cupLarge .handle{position:absolute;left:52px;top:34px;width:15px;height:15px;border:3px solid #657581;border-left:0;border-radius:0 12px 12px 0}
+.cupLarge .st{position:absolute;top:3px;width:5px;height:27px;border-left:3px solid #d25a2d;border-radius:50%;transform:rotate(17deg)}
+.cupLarge .a{left:22px}.cupLarge .b{left:34px;top:7px}.cupLarge .c{left:46px}
+
+/* nested mini dialog fields */
+.two{display:grid;grid-template-columns:115px 1fr;gap:7px;align-items:center;margin:6px 0}
+.certArea{display:grid;grid-template-columns:150px 1fr;gap:8px;margin-bottom:8px}
+.miniTabs{display:flex;gap:3px;margin-bottom:7px}
+.miniTab{height:22px;padding:1px 8px;border:1px solid #999;background:#d4d0c8}
+.miniTab.active{background:#fff;font-weight:bold}
+
+@media(max-width:690px){
+ .app{min-width:520px}.tab{padding:2px 8px}.groupRow{grid-template-columns:45px 1fr}.groupRow>.xpbtn{grid-column:2}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="brand">
+    <div class="cup"><span class="steam s1"></span><span class="steam s2"></span><span class="steam s3"></span></div>
+    <div><div class="brandTitle">Java Denetim Masası</div><div class="brandSub">Java™ Platform ayarları</div></div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="general">Genel</button>
+    <button class="tab" data-tab="update">Güncelle</button>
+    <button class="tab" data-tab="java">Java</button>
+    <button class="tab" data-tab="security">Güvenlik</button>
+    <button class="tab" data-tab="advanced">Gelişmiş</button>
+  </nav>
+
+  <main class="content">
+    <section class="page active" id="general">
+      <fieldset class="group">
+        <legend class="legend">Hakkında</legend>
+        <div class="groupRow">
+          <div class="groupIcon">i</div>
+          <div class="desc">Bilgisayarınızda kullanılan Java sürümü hakkında bilgi görüntüleyin.</div>
+          <button class="xpbtn" id="aboutBtn">Hakkında...</button>
+        </div>
+      </fieldset>
+
+      <fieldset class="group">
+        <legend class="legend">Ağ Ayarları</legend>
+        <div class="groupRow">
+          <div class="groupIcon">↔</div>
+          <div class="desc">Java uygulamalarının ve Java Web Start'ın Internet'e nasıl bağlanacağını yapılandırın.</div>
+          <button class="xpbtn" id="networkBtn">Ağ Ayarları...</button>
+        </div>
+      </fieldset>
+
+      <fieldset class="group">
+        <legend class="legend">Geçici Internet Dosyaları</legend>
+        <div class="groupRow">
+          <div class="groupIcon">▣</div>
+          <div class="desc">Java Plug-in ve Java Web Start tarafından kullanılan geçici dosyaları görüntüleyin veya silin.</div>
+          <div style="display:flex;gap:6px;flex-direction:column">
+            <button class="xpbtn" id="cacheSettingsBtn">Ayarlar...</button>
+            <button class="xpbtn" id="cacheViewBtn">Görüntüle...</button>
+          </div>
+        </div>
+      </fieldset>
+    </section>
+
+    <section class="page" id="update">
+      <div class="desc" style="margin:5px 4px 13px">
+        Java Update, Java platformunuz için kullanılabilir güncelleştirmeleri denetler.
+      </div>
+      <fieldset class="group">
+        <legend class="legend">Java Update</legend>
+        <label class="check"><input id="autoUpdate" type="checkbox"> Güncelleştirmeleri Otomatik Olarak Denetle</label>
+        <div class="row"><label>Bana bildir:</label>
+          <select class="selectbox" id="notifyMode">
+            <option value="download">İndirmeden önce</option>
+            <option value="install">Yüklemeden önce</option>
+          </select>
+        </div>
+        <div class="row"><label>Denetleme sıklığı:</label>
+          <select class="selectbox" id="frequency">
+            <option value="daily">Günlük</option>
+            <option value="weekly">Haftalık</option>
+            <option value="monthly">Aylık</option>
+          </select>
+        </div>
+        <div class="row"><label>Gün / saat:</label><input class="textbox" id="scheduleText" value="Pazar 10:00"></div>
+        <div class="actions">
+          <button class="xpbtn" id="updateNowBtn">Şimdi Güncelle</button>
+        </div>
+      </fieldset>
+      <div class="hint">Bu XP web simülatörü gerçek Oracle güncelleme sunucusuna bağlanmaz; güncelleme akışı yerel olarak simüle edilir.</div>
+    </section>
+
+    <section class="page" id="java">
+      <div class="desc" style="margin:5px 4px 10px">
+        Java uygulamaları ve applet'ler için kullanılacak Java Runtime Environment sürümlerini görüntüleyin ve yönetin.
+      </div>
+      <fieldset class="group">
+        <legend class="legend">Java Runtime Environment Ayarları</legend>
+        <div class="listbox">
+          <table class="grid" id="runtimeTable">
+            <thead><tr><th>Ürün</th><th>Sürüm</th><th>Konum</th><th>Çalışma Zamanı Parametreleri</th><th>Etkin</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="actions">
+          <button class="xpbtn smallbtn" id="runtimeAdd">Ekle</button>
+          <button class="xpbtn smallbtn" id="runtimeEdit">Düzenle</button>
+          <button class="xpbtn smallbtn" id="runtimeRemove">Kaldır</button>
+        </div>
+      </fieldset>
+    </section>
+
+    <section class="page" id="security">
+      <label class="check" style="font-weight:bold;margin:6px 3px 10px">
+        <input id="browserJava" type="checkbox"> Tarayıcıda Java içeriğini etkinleştir
+      </label>
+
+      <fieldset class="group">
+        <legend class="legend">Güvenlik Düzeyi</legend>
+        <div class="securityLayout">
+          <div class="sliderWrap"><input class="vertical" id="securityLevel" type="range" min="0" max="2" step="1"></div>
+          <div>
+            <div class="levelTitle" id="securityTitle">Yüksek</div>
+            <div class="levelBox" id="securityDesc"></div>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="group">
+        <legend class="legend">Sertifikalar</legend>
+        <div class="groupRow">
+          <div class="groupIcon">✓</div>
+          <div class="desc">Güvenilen sertifikaları, güvenli site sertifikalarını ve imzalayan sertifikaları yönetin.</div>
+          <button class="xpbtn" id="certBtn">Sertifikalar...</button>
+        </div>
+      </fieldset>
+    </section>
+
+    <section class="page" id="advanced">
+      <div class="desc" style="margin:4px 2px 7px">Aşağıdaki gelişmiş Java ayarlarını yapılandırın.</div>
+      <div class="tree" id="advancedTree"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <button class="xpbtn" id="okBtn">Tamam</button>
+    <button class="xpbtn" id="cancelBtn">İptal</button>
+    <button class="xpbtn" id="applyBtn">Uygula</button>
+  </footer>
+
+  <div class="shade" id="shade">
+    <div class="xp-dialog">
+      <div class="dtitle"><span id="dtitle">Java Denetim Masası</span><button class="dx" id="dx">×</button></div>
+      <div class="dbody" id="dbody"></div>
+      <div class="dactions" id="dactions"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const KEY='xp_java_control_panel_v4';
+
+const defaults={
+  autoUpdate:true,
+  notifyMode:'download',
+  frequency:'weekly',
+  scheduleText:'Pazar 10:00',
+  browserJava:true,
+  securityLevel:1,
+  network:{mode:'browser',host:'',port:'8080',bypassLocal:true},
+  cache:{keep:true,location:'C:\\Documents and Settings\\Owner\\Application Data\\Sun\\Java\\Deployment\\cache',size:1000,compression:'None'},
+  runtimes:[
+    {product:'1.6.0_45',version:'1.6.0_45',location:'C:\\Program Files\\Java\\jre6',params:'',enabled:true}
+  ],
+  cacheItems:[
+    {type:'Uygulama',name:'Java Web Start Demo',vendor:'Sun Microsystems, Inc.',date:'12.09.2013',size:'428 KB'},
+    {type:'Applet',name:'Java Test Applet',vendor:'Sun Microsystems, Inc.',date:'07.08.2013',size:'91 KB'}
+  ],
+  certs:[
+    {type:'Güvenilen Sertifikalar',name:'VeriSign Class 3 Public Primary CA',issuer:'VeriSign, Inc.'},
+    {type:'Güvenilen Sertifikalar',name:'Thawte Premium Server CA',issuer:'Thawte Consulting'}
+  ],
+  advanced:{
+    consoleShow:false,consoleHide:true,consoleDontStart:false,
+    tracing:false,logging:false,
+    browserMozilla:true,browserIe:true,
+    shortcutAlwaysAsk:true,shortcutAlwaysAllow:false,shortcutNeverAllow:false,
+    associationPrompt:true,
+    tls10:true,ssl30:true,ssl20hello:false,
+    browserKeystore:true,blacklist:true,
+    authCache:true,systemTray:true,quickStarter:true
+  }
+};
+let original=null,state=null,selectedRuntime=0,selectedCert=-1,dirty=false;
+
+function clone(x){return JSON.parse(JSON.stringify(x))}
+function load(){try{return Object.assign(clone(defaults),JSON.parse(localStorage.getItem(KEY)||'{}'))}catch{return clone(defaults)}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));original=clone(state);dirty=false;$('#applyBtn').disabled=true}catch{}}
+state=load(); original=clone(state);
+
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function changed(){dirty=true;$('#applyBtn').disabled=false}
+function closeApp(){try{window.parent.postMessage({type:'XP_APP_CLOSE_REQUEST',app:'java'},'*')}catch{}}
+
+/* dialogs */
+const shade=$('#shade');
+function showDialog(title,html,buttons){
+  $('#dtitle').textContent=title;$('#dbody').innerHTML=html;$('#dactions').innerHTML='';
+  (buttons||[{label:'Tamam',action:hideDialog}]).forEach(b=>{
+    const x=document.createElement('button');x.type='button';x.textContent=b.label;x.onclick=b.action||hideDialog;$('#dactions').appendChild(x)
+  });
+  shade.classList.add('show');
+}
+function hideDialog(){shade.classList.remove('show')}
+$('#dx').onclick=hideDialog;
+shade.addEventListener('mousedown',e=>{if(e.target===shade)hideDialog()});
+function info(msg,title='Java Denetim Masası'){
+  showDialog(title,`<div class="msg"><div class="infoicon">i</div><div>${esc(msg).replace(/\n/g,'<br>')}</div></div>`)
+}
+function warn(msg,title='Java Denetim Masası'){
+  showDialog(title,`<div class="msg"><div class="warnicon"></div><div>${esc(msg).replace(/\n/g,'<br>')}</div></div>`)
+}
+
+/* tabs */
+$$('[data-tab]').forEach(b=>b.onclick=()=>{
+  $$('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));
+  $$('.page').forEach(x=>x.classList.toggle('active',x.id===b.dataset.tab));
+});
+
+/* state <-> controls */
+function render(){
+  $('#autoUpdate').checked=state.autoUpdate;
+  $('#notifyMode').value=state.notifyMode;
+  $('#frequency').value=state.frequency;
+  $('#scheduleText').value=state.scheduleText;
+  $('#browserJava').checked=state.browserJava;
+  $('#securityLevel').value=state.securityLevel;
+  renderSecurity();
+  renderRuntimes();
+  renderAdvanced();
+  $('#applyBtn').disabled=!dirty;
+}
+function pull(){
+  state.autoUpdate=$('#autoUpdate').checked;
+  state.notifyMode=$('#notifyMode').value;
+  state.frequency=$('#frequency').value;
+  state.scheduleText=$('#scheduleText').value;
+  state.browserJava=$('#browserJava').checked;
+  state.securityLevel=Number($('#securityLevel').value);
+}
+['autoUpdate','notifyMode','frequency','scheduleText','browserJava','securityLevel'].forEach(id=>{
+  $('#'+id).addEventListener('change',()=>{pull();changed();if(id==='securityLevel')renderSecurity()})
+});
+
+/* about */
+$('#aboutBtn').onclick=()=>showDialog('Java Hakkında',`
+  <div class="cupLarge">
+    <div class="bowl"></div><div class="handle"></div>
+    <span class="st a"></span><span class="st b"></span><span class="st c"></span>
+  </div>
+  <div style="text-align:center">
+    <b>Java™ Platform, Standard Edition</b><br>
+    Sürüm 6 Güncelleme 45<br>
+    (build 1.6.0_45-b06)<br><br>
+    <span class="hint">Windows XP Web Simulator için tarihsel Java Denetim Masası profili.</span>
+  </div>
+`);
+
+/* Network Settings */
+$('#networkBtn').onclick=()=>{
+  const n=state.network;
+  showDialog('Ağ Ayarları',`
+    <label class="radio"><input type="radio" name="netmode" value="browser" ${n.mode==='browser'?'checked':''}> Tarayıcı ayarlarını kullan</label>
+    <label class="radio"><input type="radio" name="netmode" value="direct" ${n.mode==='direct'?'checked':''}> Doğrudan bağlantı</label>
+    <label class="radio"><input type="radio" name="netmode" value="manual" ${n.mode==='manual'?'checked':''}> Proxy sunucusu kullan</label>
+    <div class="two"><label>Adres:</label><input class="textbox" id="proxyHost" value="${esc(n.host)}"></div>
+    <div class="two"><label>Bağlantı noktası:</label><input class="textbox" id="proxyPort" value="${esc(n.port)}"></div>
+    <label class="check"><input id="bypassLocal" type="checkbox" ${n.bypassLocal?'checked':''}> Yerel adresler için proxy sunucusunu atla</label>
+  `,[
+    {label:'Tamam',action:()=>{
+      const mode=document.querySelector('input[name=netmode]:checked')?.value||'browser';
+      state.network={mode,host:$('#proxyHost').value.trim(),port:$('#proxyPort').value.trim(),bypassLocal:$('#bypassLocal').checked};
+      changed();hideDialog()
+    }},
+    {label:'İptal',action:hideDialog}
+  ]);
+};
+
+/* Cache settings / viewer */
+$('#cacheSettingsBtn').onclick=()=>{
+  const c=state.cache;
+  showDialog('Geçici Dosya Ayarları',`
+    <label class="check"><input id="cacheKeep" type="checkbox" ${c.keep?'checked':''}> Geçici dosyaları bilgisayarımda tut</label>
+    <div class="two"><label>Konum:</label><input class="textbox" id="cacheLoc" value="${esc(c.location)}"></div>
+    <div class="two"><label>Disk alanı:</label><input class="textbox" id="cacheSize" type="number" min="0" max="5000" value="${c.size}"></div>
+    <div class="two"><label>JAR sıkıştırma:</label>
+      <select class="selectbox" id="compression">
+        <option ${c.compression==='None'?'selected':''}>None</option>
+        <option ${c.compression==='Low'?'selected':''}>Low</option>
+        <option ${c.compression==='High'?'selected':''}>High</option>
+      </select>
+    </div>
+  `,[
+    {label:'Dosyaları Sil...',action:()=>showDeleteCacheDialog()},
+    {label:'Tamam',action:()=>{
+      state.cache.keep=$('#cacheKeep').checked;state.cache.location=$('#cacheLoc').value;state.cache.size=Number($('#cacheSize').value)||0;state.cache.compression=$('#compression').value;
+      changed();hideDialog()
+    }},
+    {label:'İptal',action:hideDialog}
+  ])
+};
+function showDeleteCacheDialog(){
+  showDialog('Dosyaları ve Uygulamaları Sil',`
+    <div>Silmek istediğiniz öğeleri seçin:</div>
+    <label class="check"><input id="delApps" type="checkbox" checked> İzleme ve günlük dosyaları</label>
+    <label class="check"><input id="delCache" type="checkbox" checked> Önbelleğe alınmış uygulamalar ve applet'ler</label>
+  `,[
+    {label:'Tamam',action:()=>{if($('#delCache').checked)state.cacheItems=[];changed();hideDialog();info('Seçilen geçici Java dosyaları silindi.')}},
+    {label:'İptal',action:hideDialog}
+  ])
+}
+$('#cacheViewBtn').onclick=showCacheViewer;
+function showCacheViewer(){
+  const rows=state.cacheItems.length?state.cacheItems.map((x,i)=>`<tr data-cache="${i}"><td>${esc(x.type)}</td><td>${esc(x.name)}</td><td>${esc(x.vendor)}</td><td>${esc(x.date)}</td><td>${esc(x.size)}</td></tr>`).join(''):'<tr><td colspan="5">Önbellekte uygulama yok.</td></tr>';
+  showDialog('Java Önbellek Görüntüleyicisi',`
+    <div class="miniTabs"><button class="miniTab active">Uygulamalar</button><button class="miniTab">Silinen Uygulamalar</button></div>
+    <div class="listbox" style="min-height:210px"><table class="grid"><thead><tr><th>Tür</th><th>Ad</th><th>Sağlayıcı</th><th>Son Çalıştırma</th><th>Boyut</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="hint" style="margin-top:7px">Bu liste XP simülasyonundaki Java önbelleğini temsil eder.</div>
+  `,[{label:'Kapat',action:hideDialog}]);
+}
+
+/* Update simulation */
+$('#updateNowBtn').onclick=()=>{
+  showDialog('Java Update',`
+    <div>Java güncelleştirmeleri denetleniyor...</div>
+    <div class="progress"><i id="updateBar"></i></div>
+    <div class="hint" id="updateStatus" style="margin-top:6px">Sunucuya bağlanılıyor...</div>
+  `,[{label:'İptal',action:hideDialog}]);
+  let p=0;
+  const t=setInterval(()=>{
+    if(!shade.classList.contains('show')){clearInterval(t);return}
+    p=Math.min(100,p+7);
+    const bar=$('#updateBar');if(bar)bar.style.width=p+'%';
+    if(p>=100){
+      clearInterval(t);
+      const st=$('#updateStatus');if(st)st.textContent='Bu tarihsel XP profili için çevrimiçi güncelleme yapılmaz.';
+      $('#dactions').innerHTML='';
+      const b=document.createElement('button');b.textContent='Kapat';b.onclick=hideDialog;$('#dactions').appendChild(b);
+    }
+  },120);
+};
+
+/* runtimes */
+function renderRuntimes(){
+  $('#runtimeTable tbody').innerHTML=state.runtimes.map((r,i)=>`
+    <tr data-ri="${i}" class="${i===selectedRuntime?'sel':''}">
+      <td>${esc(r.product)}</td><td>${esc(r.version)}</td><td>${esc(r.location)}</td><td>${esc(r.params)}</td><td>${r.enabled?'✓':''}</td>
+    </tr>`).join('');
+  $$('[data-ri]').forEach(tr=>tr.onclick=()=>{selectedRuntime=Number(tr.dataset.ri);renderRuntimes()});
+}
+function runtimeDialog(index=null){
+  const r=index===null?{product:'1.6.0',version:'1.6.0',location:'C:\\Program Files\\Java\\jre6',params:'',enabled:true}:state.runtimes[index];
+  showDialog(index===null?'Java Runtime Ekle':'Java Runtime Ayarları',`
+    <div class="two"><label>Ürün:</label><input class="textbox" id="rtProduct" value="${esc(r.product)}"></div>
+    <div class="two"><label>Sürüm:</label><input class="textbox" id="rtVersion" value="${esc(r.version)}"></div>
+    <div class="two"><label>Konum:</label><input class="textbox" id="rtLocation" value="${esc(r.location)}"></div>
+    <div class="two"><label>Parametreler:</label><input class="textbox" id="rtParams" value="${esc(r.params)}"></div>
+    <label class="check"><input id="rtEnabled" type="checkbox" ${r.enabled?'checked':''}> Etkin</label>
+  `,[
+    {label:'Tamam',action:()=>{
+      const n={product:$('#rtProduct').value,version:$('#rtVersion').value,location:$('#rtLocation').value,params:$('#rtParams').value,enabled:$('#rtEnabled').checked};
+      if(index===null){state.runtimes.push(n);selectedRuntime=state.runtimes.length-1}else state.runtimes[index]=n;
+      changed();hideDialog();renderRuntimes()
+    }},
+    {label:'İptal',action:hideDialog}
+  ])
+}
+$('#runtimeAdd').onclick=()=>runtimeDialog(null);
+$('#runtimeEdit').onclick=()=>{if(state.runtimes[selectedRuntime])runtimeDialog(selectedRuntime)};
+$('#runtimeRemove').onclick=()=>{
+  if(!state.runtimes[selectedRuntime])return;
+  showDialog('Java Runtime Kaldır',`<div class="msg"><div class="warnicon"></div><div>Seçili Java Runtime kaydı kaldırılsın mı?</div></div>`,[
+    {label:'Evet',action:()=>{state.runtimes.splice(selectedRuntime,1);selectedRuntime=Math.max(0,selectedRuntime-1);changed();hideDialog();renderRuntimes()}},
+    {label:'Hayır',action:hideDialog}
+  ])
+};
+
+/* Security */
+const secText=[
+  ['Orta','İmzalanmamış veya doğrulanamayan içeriklerde daha fazla güvenlik uyarısı gösterilir. Bu seçenek yalnızca tarihsel simülasyon içindir.'],
+  ['Yüksek','Güvenilmeyen Java içeriği için güvenlik uyarıları gösterilir ve kullanıcıdan onay istenir.'],
+  ['Çok Yüksek','Yalnızca güvenilir bir yetkili tarafından imzalanmış ve geçerli sertifikaya sahip Java içeriğine izin verilir.']
+];
+function renderSecurity(){
+  const [t,d]=secText[Number(state.securityLevel)||0];
+  $('#securityTitle').textContent=t;$('#securityDesc').textContent=d
+}
+$('#certBtn').onclick=certDialog;
+function certDialog(){
+  const rows=state.certs.length?state.certs.map((c,i)=>`<tr data-ci="${i}" class="${i===selectedCert?'sel':''}"><td>${esc(c.type)}</td><td>${esc(c.name)}</td><td>${esc(c.issuer)}</td></tr>`).join(''):'<tr><td colspan="3">Sertifika yok.</td></tr>';
+  showDialog('Sertifikalar',`
+    <div class="certArea"><label>Sertifika türü:</label>
+      <select class="selectbox" id="certType">
+        <option>Güvenilen Sertifikalar</option><option>Güvenli Site</option><option>İmzalayan CA</option><option>İstemci Kimlik Doğrulaması</option>
+      </select>
+    </div>
+    <div class="listbox" style="min-height:190px"><table class="grid"><thead><tr><th>Tür</th><th>Verilen Ad</th><th>Veren</th></tr></thead><tbody>${rows}</tbody></table></div>
+  `,[
+    {label:'İçe Aktar...',action:()=>{hideDialog();importCertDialog()}},
+    {label:'Kaldır',action:()=>{if(selectedCert>=0){state.certs.splice(selectedCert,1);selectedCert=-1;changed();hideDialog();certDialog()}}},
+    {label:'Kapat',action:hideDialog}
+  ]);
+  setTimeout(()=>$$('[data-ci]').forEach(tr=>tr.onclick=()=>{selectedCert=Number(tr.dataset.ci);hideDialog();certDialog()}),0)
+}
+function importCertDialog(){
+  showDialog('Sertifika İçe Aktar',`
+    <div class="two"><label>Ad:</label><input class="textbox" id="certName" value="Imported Certificate"></div>
+    <div class="two"><label>Veren:</label><input class="textbox" id="certIssuer" value="Certificate Authority"></div>
+    <div class="two"><label>Tür:</label><select class="selectbox" id="certKind"><option>Güvenilen Sertifikalar</option><option>Güvenli Site</option><option>İmzalayan CA</option></select></div>
+    <div class="hint">Tarayıcı güvenliği nedeniyle bu simülasyon gerçek Windows/Java keystore dosyasına yazmaz.</div>
+  `,[
+    {label:'İçe Aktar',action:()=>{state.certs.push({type:$('#certKind').value,name:$('#certName').value,issuer:$('#certIssuer').value});changed();hideDialog();certDialog()}},
+    {label:'İptal',action:hideDialog}
+  ])
+}
+
+/* Advanced */
+const ADV_GROUPS=[
+ ['Hata Ayıklama',[['tracing','İzlemeyi etkinleştir'],['logging','Günlük kaydını etkinleştir']]],
+ ['Java Konsolu',[['consoleShow','Konsolu göster'],['consoleHide','Konsolu gizle'],['consoleDontStart','Konsolu başlatma']]],
+ ['Tarayıcılar için Varsayılan Java',[['browserIe','Microsoft Internet Explorer'],['browserMozilla','Mozilla ailesi']]],
+ ['Kısayol Oluşturma',[['shortcutAlwaysAsk','Her zaman sor'],['shortcutAlwaysAllow','Her zaman izin ver'],['shortcutNeverAllow','Asla izin verme']]],
+ ['JNLP Dosya/MIME İlişkilendirmeleri',[['associationPrompt','Kullanıcıya ilişkilendirme için sor']]],
+ ['Güvenlik',[['browserKeystore','Tarayıcı anahtar deposundaki sertifikaları ve anahtarları kullan'],['blacklist','Kara liste iptal denetimini etkinleştir'],['authCache','Kimlik doğrulama parolasını önbelleğe al']]],
+ ['Gelişmiş Güvenlik Ayarları',[['ssl20hello','SSL 2.0 uyumlu ClientHello biçimini kullan'],['ssl30','SSL 3.0 kullan'],['tls10','TLS 1.0 kullan']]],
+ ['Çeşitli',[['systemTray','Java simgesini sistem tepsisine yerleştir'],['quickStarter','Java Quick Starter']]]
+];
+function renderAdvanced(){
+  $('#advancedTree').innerHTML=ADV_GROUPS.map(([g,items])=>`
+    <div class="treeSection">⊞ ${esc(g)}</div>
+    ${items.map(([k,l])=>`<label class="treeItem"><input type="checkbox" data-adv="${k}" ${state.advanced[k]?'checked':''}> <span>${esc(l)}</span></label>`).join('')}
+  `).join('');
+  $$('[data-adv]').forEach(c=>c.onchange=()=>{state.advanced[c.dataset.adv]=c.checked;changed()})
+}
+
+/* footer */
+$('#applyBtn').onclick=()=>{pull();save();info('Java ayarları uygulandı.')};
+$('#okBtn').onclick=()=>{pull();save();closeApp()};
+$('#cancelBtn').onclick=()=>{state=clone(original);closeApp()};
+
+/* native popup ban */
+window.alert=m=>info(String(m));window.confirm=m=>{info(String(m));return false};window.prompt=m=>{info(String(m));return null};
+
+document.addEventListener('keydown',e=>{
+  if(shade.classList.contains('show')){if(e.key==='Escape'){e.preventDefault();hideDialog()}return}
+  if(e.key==='Escape'){e.preventDefault();$('#cancelBtn').click()}
+});
+
+render();
+})();
+</script>
+</body>
+</html>

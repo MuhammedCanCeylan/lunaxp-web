@@ -1,0 +1,3064 @@
+<!--
+OUTLOOK EXPRESS 6 XP SIMULATOR - ASSET LISTESI
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama |
+|------------|---------------------|------------|----------------------|
+| icon.png   | 32x32               | Zorunlu    | XP Masaustu ikonu    |
+
+NOT:
+- Ana Luna pencere baslik cubugu bu dosyada YOKTUR.
+- Ana WindowManager zaten pencere cercevesini ve baslik cubugunu saglar.
+- Uygulama tamamen HTML/CSS/JS ile calisir.
+- Harici CDN, Node.js, API, WebSocket veya iframe gerekmez.
+-->
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Outlook Express</title>
+
+<style>
+:root{
+    --face:#ECE9D8;
+    --border:#ACA899;
+    --dark:#716F64;
+    --blueborder:#7F9DB9;
+    --selection:#316AC5;
+    --selection-text:#fff;
+    --toolbar-hi:#fff;
+    --toolbar-lo:#808080;
+}
+
+*{
+    box-sizing:border-box;
+}
+
+html,
+body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+}
+
+body{
+    font-family:Tahoma,sans-serif;
+    font-size:11px;
+    color:#000;
+    background:var(--face);
+    user-select:none;
+}
+
+button,
+input,
+select,
+textarea{
+    font-family:Tahoma,sans-serif;
+    font-size:11px;
+}
+
+button{
+    background:var(--face);
+    border:2px outset #fff;
+    min-height:22px;
+    color:#000;
+}
+
+button:active{
+    border-style:inset;
+}
+
+input,
+select,
+textarea{
+    border:1px solid #7F9DB9;
+    background:#fff;
+}
+
+.hidden{
+    display:none!important;
+}
+
+/* ==========================================================
+   ROOT
+========================================================== */
+
+#oe{
+    width:100%;
+    height:100%;
+    display:grid;
+    grid-template-rows:21px 49px minmax(0,1fr) 20px;
+    background:var(--face);
+    position:relative;
+}
+
+/* ==========================================================
+   MENUS
+========================================================== */
+
+.menu-bar{
+    height:21px;
+    display:flex;
+    align-items:center;
+    padding:1px 2px;
+    background:var(--face);
+    border-bottom:1px solid var(--border);
+    position:relative;
+    z-index:100;
+}
+
+.menu-button{
+    padding:2px 7px 3px;
+    border:1px solid transparent;
+    height:19px;
+    line-height:13px;
+    cursor:default;
+}
+
+.menu-button:hover,
+.menu-button.active{
+    background:#316AC5;
+    color:#fff;
+}
+
+.popup-menu{
+    position:absolute;
+    display:none;
+    min-width:215px;
+    top:20px;
+    background:var(--face);
+    border:1px solid #808080;
+    padding:2px;
+    box-shadow:
+        inset 1px 1px #fff,
+        inset -1px -1px #404040,
+        2px 2px 3px rgba(0,0,0,.25);
+    color:#000;
+    z-index:300;
+}
+
+.popup-menu.visible{
+    display:block;
+}
+
+.menu-item{
+    display:grid;
+    grid-template-columns:23px 1fr auto;
+    align-items:center;
+    min-height:21px;
+    padding:1px 9px 1px 2px;
+    white-space:nowrap;
+}
+
+.menu-item:hover:not(.disabled){
+    background:#316AC5;
+    color:#fff;
+}
+
+.menu-item.disabled{
+    color:#888;
+}
+
+.menu-check{
+    text-align:center;
+}
+
+.menu-shortcut{
+    margin-left:25px;
+}
+
+.menu-separator{
+    height:2px;
+    margin:2px 3px;
+    border-top:1px solid #ACA899;
+    border-bottom:1px solid #fff;
+}
+
+/* ==========================================================
+   TOOLBAR
+========================================================== */
+
+.toolbar{
+    height:49px;
+    display:flex;
+    align-items:stretch;
+    padding:2px 3px;
+    background:var(--face);
+    border-top:1px solid #fff;
+    border-bottom:1px solid #ACA899;
+}
+
+.tool-button{
+    min-width:54px;
+    height:43px;
+    border:1px solid transparent;
+    background:transparent;
+    padding:2px 4px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    gap:1px;
+}
+
+.tool-button:hover:not(:disabled){
+    border:1px solid #0A246A;
+    background:#F5F4EA;
+}
+
+.tool-button:active:not(:disabled){
+    background:#D9D5C6;
+    border:1px solid #0A246A;
+}
+
+.tool-button:disabled{
+    opacity:.4;
+}
+
+.tool-icon{
+    width:21px;
+    height:20px;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font:bold 17px Arial,sans-serif;
+    color:#174B9B;
+    line-height:20px;
+}
+
+.tool-label{
+    white-space:nowrap;
+}
+
+.tool-separator{
+    width:2px;
+    margin:2px 3px;
+    border-left:1px solid #ACA899;
+    border-right:1px solid #fff;
+}
+
+/* CSS tool icons */
+
+.ico-envelope{
+    width:20px;
+    height:14px;
+    background:#FFF7C0;
+    border:1px solid #555;
+    position:relative;
+}
+
+.ico-envelope:before{
+    content:"";
+    position:absolute;
+    left:1px;
+    right:1px;
+    top:1px;
+    height:9px;
+    clip-path:polygon(0 0,50% 70%,100% 0,100% 15%,50% 85%,0 15%);
+    background:#496C9E;
+}
+
+.ico-envelope.new:after{
+    content:"";
+    position:absolute;
+    right:-5px;
+    top:-5px;
+    width:8px;
+    height:8px;
+    background:#F9D441;
+    border:1px solid #8E6B00;
+    border-radius:50%;
+}
+
+.ico-arrow{
+    font-size:19px;
+    font-weight:bold;
+    color:#2063AD;
+}
+
+.ico-delete{
+    color:#CF2929;
+    font-size:21px;
+}
+
+.ico-address{
+    width:18px;
+    height:18px;
+    border:1px solid #765B19;
+    background:#F8D353;
+    position:relative;
+}
+
+.ico-address:after{
+    content:"";
+    position:absolute;
+    left:4px;
+    right:4px;
+    top:4px;
+    height:7px;
+    border:1px solid #735D2D;
+    background:#fff;
+}
+
+.ico-find{
+    width:12px;
+    height:12px;
+    border:2px solid #315A8C;
+    border-radius:50%;
+    position:relative;
+}
+
+.ico-find:after{
+    content:"";
+    position:absolute;
+    width:7px;
+    height:2px;
+    background:#315A8C;
+    transform:rotate(45deg);
+    right:-6px;
+    bottom:-3px;
+}
+
+/* ==========================================================
+   MAIN LAYOUT
+========================================================== */
+
+#workspace{
+    min-height:0;
+    display:grid;
+    grid-template-columns:195px 4px minmax(0,1fr);
+    background:#fff;
+}
+
+#leftPane{
+    min-width:125px;
+    background:var(--face);
+    display:grid;
+    grid-template-rows:minmax(150px,1fr) 5px 145px;
+    overflow:hidden;
+}
+
+.pane-title{
+    height:21px;
+    line-height:19px;
+    padding-left:6px;
+    background:linear-gradient(90deg,#7B9ACB,#CED8E9);
+    color:#fff;
+    font-weight:bold;
+    text-shadow:1px 1px #566783;
+    border-bottom:1px solid #637A9A;
+}
+
+.folder-box,
+.contacts-box{
+    min-height:0;
+    background:#fff;
+    border-right:1px solid #ACA899;
+    overflow:auto;
+}
+
+.folder-tree{
+    padding:4px 2px;
+}
+
+.folder-row{
+    height:21px;
+    display:flex;
+    align-items:center;
+    padding:1px 4px;
+    cursor:default;
+    white-space:nowrap;
+}
+
+.folder-row.root{
+    font-weight:bold;
+}
+
+.folder-row.local{
+    font-weight:bold;
+    padding-left:18px;
+}
+
+.folder-row.child{
+    padding-left:32px;
+}
+
+.folder-row:hover{
+    background:#E8EEF7;
+}
+
+.folder-row.selected{
+    background:#316AC5;
+    color:#fff;
+}
+
+.folder-glyph{
+    width:18px;
+    text-align:center;
+    font-family:Arial,sans-serif;
+    font-size:13px;
+    color:#E4B627;
+}
+
+.folder-row.selected .folder-glyph{
+    color:#FFE77C;
+}
+
+.unread-count{
+    margin-left:4px;
+    font-weight:bold;
+}
+
+/* contacts */
+
+.contact-list{
+    padding:3px;
+}
+
+.contact{
+    height:22px;
+    display:flex;
+    align-items:center;
+    gap:5px;
+    padding:1px 3px;
+}
+
+.contact:hover{
+    background:#E8EEF7;
+}
+
+.contact-icon{
+    width:16px;
+    height:16px;
+    border-radius:50%;
+    background:#78A2D8;
+    border:1px solid #345A8A;
+    position:relative;
+}
+
+.contact-icon:after{
+    content:"";
+    position:absolute;
+    left:3px;
+    right:3px;
+    bottom:2px;
+    height:5px;
+    background:#F4D5B3;
+    border-radius:6px 6px 2px 2px;
+}
+
+.contact-icon:before{
+    content:"";
+    position:absolute;
+    width:5px;
+    height:5px;
+    border-radius:50%;
+    background:#F4D5B3;
+    left:4px;
+    top:2px;
+}
+
+/* splitters */
+
+.splitter-v{
+    cursor:col-resize;
+    background:#ECE9D8;
+    border-left:1px solid #fff;
+    border-right:1px solid #ACA899;
+}
+
+.splitter-h{
+    cursor:row-resize;
+    background:#ECE9D8;
+    border-top:1px solid #fff;
+    border-bottom:1px solid #ACA899;
+}
+
+/* ==========================================================
+   RIGHT SIDE
+========================================================== */
+
+#mailArea{
+    min-width:0;
+    min-height:0;
+    display:grid;
+    grid-template-rows:minmax(110px,42%) 5px minmax(100px,58%);
+    background:#fff;
+}
+
+#messagePane{
+    min-height:0;
+    display:grid;
+    grid-template-rows:22px minmax(0,1fr);
+    border-bottom:1px solid #ACA899;
+}
+
+.message-header{
+    display:grid;
+    grid-template-columns:25px 22px 190px minmax(180px,1fr) 130px;
+    height:22px;
+    background:var(--face);
+    border-bottom:1px solid #808080;
+}
+
+.message-col{
+    overflow:hidden;
+    white-space:nowrap;
+    padding:3px 5px;
+    border-right:1px solid #ACA899;
+    border-left:1px solid #fff;
+    box-shadow:inset 0 1px #fff;
+}
+
+#messageList{
+    min-height:0;
+    overflow:auto;
+    background:#fff;
+}
+
+.message-row{
+    min-height:20px;
+    display:grid;
+    grid-template-columns:25px 22px 190px minmax(180px,1fr) 130px;
+    align-items:center;
+    white-space:nowrap;
+    cursor:default;
+}
+
+.message-row:nth-child(even){
+    background:#FBFBFB;
+}
+
+.message-row:hover{
+    background:#E8EEF7;
+}
+
+.message-row.selected{
+    background:#316AC5;
+    color:#fff;
+}
+
+.message-row.unread{
+    font-weight:bold;
+}
+
+.message-cell{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    padding:2px 5px;
+}
+
+.status-glyph{
+    text-align:center;
+    font-family:Arial,sans-serif;
+}
+
+.attach-glyph{
+    text-align:center;
+}
+
+/* preview */
+
+#previewPane{
+    min-height:0;
+    display:grid;
+    grid-template-rows:auto minmax(0,1fr);
+    background:#fff;
+}
+
+.preview-header{
+    min-height:66px;
+    padding:5px 7px;
+    background:#F4F3EB;
+    border-bottom:1px solid #ACA899;
+    line-height:18px;
+}
+
+.preview-row{
+    display:grid;
+    grid-template-columns:58px minmax(0,1fr);
+}
+
+.preview-label{
+    font-weight:bold;
+}
+
+.preview-subject{
+    font-weight:bold;
+}
+
+#previewBody{
+    min-height:0;
+    overflow:auto;
+    padding:13px 16px;
+    user-select:text;
+    font-family:Arial,sans-serif;
+    font-size:13px;
+    line-height:1.45;
+    background:#fff;
+}
+
+.preview-empty{
+    height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#777;
+    font-family:Tahoma,sans-serif;
+    font-size:11px;
+}
+
+.oe-watermark{
+    text-align:center;
+}
+
+.oe-logo{
+    width:52px;
+    height:52px;
+    border-radius:50%;
+    margin:0 auto 7px;
+    background:
+        radial-gradient(circle at 37% 35%,#DDEEFF 0 12%,transparent 13%),
+        linear-gradient(135deg,#79B6EF,#2356A9);
+    border:2px solid #17447F;
+    position:relative;
+}
+
+.oe-logo:before{
+    content:"";
+    position:absolute;
+    left:10px;
+    top:16px;
+    width:29px;
+    height:20px;
+    background:#fff8c8;
+    border:1px solid #555;
+}
+
+.oe-logo:after{
+    content:"";
+    position:absolute;
+    left:12px;
+    top:18px;
+    width:27px;
+    height:13px;
+    background:#316AC5;
+    clip-path:polygon(0 0,50% 65%,100% 0,100% 15%,50% 83%,0 15%);
+}
+
+/* ==========================================================
+   COMPOSE VIEW - not a second OS window
+========================================================== */
+
+#composeView{
+    min-height:0;
+    display:none;
+    grid-column:1 / -1;
+    grid-row:1 / -1;
+    background:var(--face);
+    grid-template-rows:37px auto minmax(0,1fr) 20px;
+}
+
+#composeView.visible{
+    display:grid;
+}
+
+.compose-toolbar{
+    height:37px;
+    display:flex;
+    align-items:center;
+    padding:2px 4px;
+    background:var(--face);
+    border-bottom:1px solid #ACA899;
+}
+
+.compose-tool{
+    min-width:52px;
+    height:31px;
+    background:transparent;
+    border:1px solid transparent;
+}
+
+.compose-tool:hover{
+    border:1px solid #0A246A;
+    background:#F7F6EE;
+}
+
+.compose-fields{
+    padding:5px 8px;
+    background:var(--face);
+    border-bottom:1px solid #ACA899;
+}
+
+.compose-row{
+    min-height:25px;
+    display:grid;
+    grid-template-columns:57px minmax(0,1fr);
+    align-items:center;
+}
+
+.compose-row label{
+    padding-right:6px;
+    text-align:right;
+}
+
+.compose-row input{
+    width:100%;
+    height:21px;
+    padding:2px 4px;
+}
+
+#composeBody{
+    min-height:0;
+    overflow:auto;
+    background:#fff;
+    padding:8px;
+    outline:none;
+    user-select:text;
+    font:13px Arial,sans-serif;
+    line-height:1.4;
+}
+
+.compose-status{
+    height:20px;
+    padding:2px 5px;
+    border-top:1px solid #fff;
+    background:var(--face);
+}
+
+#attachmentBar{
+    display:none;
+    min-height:25px;
+    grid-template-columns:57px minmax(0,1fr);
+    align-items:start;
+    margin-top:3px;
+}
+
+#attachmentBar.visible{
+    display:grid;
+}
+
+.attachment-list{
+    border:1px solid #7F9DB9;
+    background:#fff;
+    min-height:23px;
+    padding:3px;
+}
+
+.attachment-pill{
+    display:inline-block;
+    margin:1px 3px 1px 0;
+    padding:2px 5px;
+    background:#ECE9D8;
+    border:1px solid #ACA899;
+}
+
+/* ==========================================================
+   STATUS BAR
+========================================================== */
+
+.status-bar{
+    height:20px;
+    display:grid;
+    grid-template-columns:minmax(120px,1fr) 135px 160px;
+    gap:2px;
+    padding:2px;
+    background:var(--face);
+    border-top:1px solid #fff;
+}
+
+.status-section{
+    height:16px;
+    line-height:14px;
+    padding:0 4px;
+    border-top:1px solid #808080;
+    border-left:1px solid #808080;
+    border-right:1px solid #fff;
+    border-bottom:1px solid #fff;
+    white-space:nowrap;
+    overflow:hidden;
+}
+
+/* ==========================================================
+   INTERNAL XP DIALOGS
+========================================================== */
+
+.dialog-layer{
+    display:none;
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,.12);
+    z-index:1000;
+    align-items:center;
+    justify-content:center;
+}
+
+.dialog-layer.visible{
+    display:flex;
+}
+
+.xp-dialog{
+    width:390px;
+    max-width:calc(100% - 24px);
+    background:var(--face);
+    border:2px outset #fff;
+    box-shadow:3px 4px 10px rgba(0,0,0,.28);
+}
+
+.dialog-heading{
+    min-height:26px;
+    padding:6px 9px 4px;
+    font-weight:bold;
+    border-bottom:1px solid #ACA899;
+    background:linear-gradient(#F8F7F0,#E2DFD0);
+}
+
+.dialog-content{
+    padding:12px;
+}
+
+.dialog-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:7px;
+    padding:0 12px 11px;
+}
+
+.dialog-actions button{
+    min-width:75px;
+}
+
+.dialog-icon-layout{
+    display:grid;
+    grid-template-columns:40px 1fr;
+    gap:10px;
+}
+
+.info-icon{
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    background:#2774D5;
+    border:1px solid #174384;
+    color:#fff;
+    text-align:center;
+    font:bold 23px/32px Arial;
+}
+
+.form-row{
+    display:grid;
+    grid-template-columns:110px minmax(0,1fr);
+    gap:7px;
+    align-items:center;
+    min-height:28px;
+}
+
+.form-row label{
+    text-align:right;
+}
+
+.form-row input,
+.form-row select{
+    height:21px;
+    width:100%;
+}
+
+.groupbox{
+    margin:7px 0;
+    padding:12px 8px 8px;
+    border:1px solid #ACA899;
+    position:relative;
+}
+
+.groupbox-title{
+    position:absolute;
+    top:-7px;
+    left:8px;
+    background:var(--face);
+    padding:0 4px;
+}
+
+/* find */
+
+.find-results{
+    margin-top:8px;
+    border:1px solid #7F9DB9;
+    height:150px;
+    background:#fff;
+    overflow:auto;
+}
+
+.find-result{
+    padding:4px 5px;
+    border-bottom:1px solid #EEE;
+}
+
+.find-result:hover{
+    background:#316AC5;
+    color:#fff;
+}
+
+/* address book */
+
+.address-list{
+    height:185px;
+    overflow:auto;
+    background:#fff;
+    border:1px solid #7F9DB9;
+}
+
+.address-row{
+    padding:4px 6px;
+}
+
+.address-row:hover,
+.address-row.selected{
+    background:#316AC5;
+    color:#fff;
+}
+
+/* responsive */
+
+@media(max-width:650px){
+    #workspace{
+        grid-template-columns:150px 4px minmax(0,1fr);
+    }
+
+    .message-header,
+    .message-row{
+        grid-template-columns:23px 22px 130px minmax(140px,1fr);
+    }
+
+    .message-header > :last-child,
+    .message-row > :last-child{
+        display:none;
+    }
+
+    .status-bar{
+        grid-template-columns:1fr 100px;
+    }
+
+    .status-section:last-child{
+        display:none;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="oe">
+
+    <!-- ====================================================
+         MENU BAR
+    ===================================================== -->
+    <div class="menu-bar">
+
+        <div class="menu-button" data-menu="fileMenu"><u>F</u>ile</div>
+        <div class="menu-button" data-menu="editMenu"><u>E</u>dit</div>
+        <div class="menu-button" data-menu="viewMenu"><u>V</u>iew</div>
+        <div class="menu-button" data-menu="toolsMenu"><u>T</u>ools</div>
+        <div class="menu-button" data-menu="messageMenu"><u>M</u>essage</div>
+        <div class="menu-button" data-menu="helpMenu"><u>H</u>elp</div>
+
+        <!-- FILE -->
+        <div class="popup-menu" id="fileMenu">
+            <div class="menu-item" data-action="newMail">
+                <span></span>
+                <span>New <u>M</u>ail Message</span>
+                <span class="menu-shortcut">Ctrl+N</span>
+            </div>
+
+            <div class="menu-separator"></div>
+
+            <div class="menu-item" data-action="openSelected">
+                <span></span>
+                <span><u>O</u>pen</span>
+                <span>Ctrl+O</span>
+            </div>
+
+            <div class="menu-item" data-action="saveMessage">
+                <span></span>
+                <span><u>S</u>ave As...</span>
+                <span></span>
+            </div>
+
+            <div class="menu-separator"></div>
+
+            <div class="menu-item" data-action="printMessage">
+                <span></span>
+                <span><u>P</u>rint...</span>
+                <span>Ctrl+P</span>
+            </div>
+
+            <div class="menu-separator"></div>
+
+            <div class="menu-item" data-action="importSim">
+                <span></span>
+                <span><u>I</u>mport</span>
+                <span></span>
+            </div>
+
+            <div class="menu-item" data-action="exportSim">
+                <span></span>
+                <span><u>E</u>xport</span>
+                <span></span>
+            </div>
+
+            <div class="menu-separator"></div>
+
+            <div class="menu-item" data-action="exitApp">
+                <span></span>
+                <span>E<u>x</u>it</span>
+                <span>Alt+F4</span>
+            </div>
+        </div>
+
+        <!-- EDIT -->
+        <div class="popup-menu" id="editMenu">
+            <div class="menu-item" data-action="selectAll">
+                <span></span>
+                <span>Select <u>A</u>ll</span>
+                <span>Ctrl+A</span>
+            </div>
+
+            <div class="menu-separator"></div>
+
+            <div class="menu-item" data-action="find">
+                <span></span>
+                <span><u>F</u>ind</span>
+                <span>Ctrl+Shift+F</span>
+            </div>
+        </div>
+
+        <!-- VIEW -->
+        <div class="popup-menu" id="viewMenu">
+            <div class="menu-item" data-action="togglePreview">
+                <span class="menu-check" id="previewCheck">✓</span>
+                <span>Preview <u>P</u>ane</span>
+                <span></span>
+            </div>
+
+            <div class="menu-item" data-action="toggleContacts">
+                <span class="menu-check" id="contactsCheck">✓</span>
+                <span><u>C</u>ontacts</span>
+                <span></span>
+            </div>
+
+            <div class="menu-separator"></div>
+
+            <div class="menu-item" data-action="refresh">
+                <span></span>
+                <span><u>R</u>efresh</span>
+                <span>F5</span>
+            </div>
+        </div>
+
+        <!-- TOOLS -->
+        <div class="popup-menu" id="toolsMenu">
+            <div class="menu-item" data-action="sendReceive">
+                <span></span>
+                <span><u>S</u>end and Receive</span>
+                <span>Ctrl+M</span>
+            </div>
+
+            <div class="menu-item" data-action="addressBook">
+                <span></span>
+                <span><u>A</u>ddress Book...</span>
+                <span>Ctrl+Shift+B</span>
+            </div>
+
+            <div class="menu-separator"></div>
+
+            <div class="menu-item" data-action="accounts">
+                <span></span>
+                <span><u>A</u>ccounts...</span>
+                <span></span>
+            </div>
+
+            <div class="menu-item" data-action="options">
+                <span></span>
+                <span><u>O</u>ptions...</span>
+                <span></span>
+            </div>
+        </div>
+
+        <!-- MESSAGE -->
+        <div class="popup-menu" id="messageMenu">
+            <div class="menu-item" data-action="reply">
+                <span></span>
+                <span><u>R</u>eply to Sender</span>
+                <span>Ctrl+R</span>
+            </div>
+
+            <div class="menu-item" data-action="replyAll">
+                <span></span>
+                <span>Reply to <u>A</u>ll</span>
+                <span>Ctrl+Shift+R</span>
+            </div>
+
+            <div class="menu-item" data-action="forward">
+                <span></span>
+                <span><u>F</u>orward</span>
+                <span>Ctrl+F</span>
+            </div>
+
+            <div class="menu-separator"></div>
+
+            <div class="menu-item" data-action="markRead">
+                <span></span>
+                <span>Mark as <u>R</u>ead</span>
+                <span></span>
+            </div>
+
+            <div class="menu-item" data-action="markUnread">
+                <span></span>
+                <span>Mark as <u>U</u>nread</span>
+                <span></span>
+            </div>
+
+            <div class="menu-separator"></div>
+
+            <div class="menu-item" data-action="delete">
+                <span></span>
+                <span><u>D</u>elete</span>
+                <span>Del</span>
+            </div>
+        </div>
+
+        <!-- HELP -->
+        <div class="popup-menu" id="helpMenu">
+            <div class="menu-item" data-action="help">
+                <span></span>
+                <span><u>C</u>ontents and Index</span>
+                <span>F1</span>
+            </div>
+
+            <div class="menu-separator"></div>
+
+            <div class="menu-item" data-action="about">
+                <span></span>
+                <span><u>A</u>bout Microsoft Outlook Express</span>
+                <span></span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ====================================================
+         TOOLBAR
+    ===================================================== -->
+    <div class="toolbar">
+
+        <button class="tool-button" data-action="newMail">
+            <div class="tool-icon">
+                <div class="ico-envelope new"></div>
+            </div>
+            <div class="tool-label">Create Mail</div>
+        </button>
+
+        <div class="tool-separator"></div>
+
+        <button class="tool-button" data-action="reply" id="tbReply">
+            <div class="tool-icon ico-arrow">↶</div>
+            <div class="tool-label">Reply</div>
+        </button>
+
+        <button class="tool-button" data-action="replyAll" id="tbReplyAll">
+            <div class="tool-icon ico-arrow">↶↶</div>
+            <div class="tool-label">Reply All</div>
+        </button>
+
+        <button class="tool-button" data-action="forward" id="tbForward">
+            <div class="tool-icon ico-arrow">→</div>
+            <div class="tool-label">Forward</div>
+        </button>
+
+        <div class="tool-separator"></div>
+
+        <button class="tool-button" data-action="printMessage">
+            <div class="tool-icon">▣</div>
+            <div class="tool-label">Print</div>
+        </button>
+
+        <button class="tool-button" data-action="delete" id="tbDelete">
+            <div class="tool-icon ico-delete">×</div>
+            <div class="tool-label">Delete</div>
+        </button>
+
+        <div class="tool-separator"></div>
+
+        <button class="tool-button" data-action="sendReceive">
+            <div class="tool-icon ico-arrow">⇅</div>
+            <div class="tool-label">Send/Recv</div>
+        </button>
+
+        <div class="tool-separator"></div>
+
+        <button class="tool-button" data-action="addressBook">
+            <div class="tool-icon">
+                <div class="ico-address"></div>
+            </div>
+            <div class="tool-label">Addresses</div>
+        </button>
+
+        <button class="tool-button" data-action="find">
+            <div class="tool-icon">
+                <div class="ico-find"></div>
+            </div>
+            <div class="tool-label">Find</div>
+        </button>
+
+    </div>
+
+    <!-- ====================================================
+         WORKSPACE
+    ===================================================== -->
+    <div id="workspace">
+
+        <aside id="leftPane">
+
+            <section class="folder-box">
+                <div class="pane-title">Folders</div>
+                <div class="folder-tree" id="folderTree"></div>
+            </section>
+
+            <div class="splitter-h"></div>
+
+            <section class="contacts-box" id="contactsPane">
+                <div class="pane-title">Contacts</div>
+                <div class="contact-list" id="contactList"></div>
+            </section>
+
+        </aside>
+
+        <div class="splitter-v" id="leftSplitter"></div>
+
+        <main id="mailArea">
+
+            <section id="messagePane">
+
+                <div class="message-header">
+                    <div class="message-col"></div>
+                    <div class="message-col"></div>
+                    <div class="message-col">From</div>
+                    <div class="message-col">Subject</div>
+                    <div class="message-col">Received</div>
+                </div>
+
+                <div id="messageList"></div>
+
+            </section>
+
+            <div class="splitter-h" id="previewSplitter"></div>
+
+            <section id="previewPane">
+
+                <div class="preview-header" id="previewHeader">
+                    <div class="preview-row">
+                        <span class="preview-label">From:</span>
+                        <span id="previewFrom"></span>
+                    </div>
+
+                    <div class="preview-row">
+                        <span class="preview-label">Date:</span>
+                        <span id="previewDate"></span>
+                    </div>
+
+                    <div class="preview-row">
+                        <span class="preview-label">To:</span>
+                        <span id="previewTo"></span>
+                    </div>
+
+                    <div class="preview-row">
+                        <span class="preview-label">Subject:</span>
+                        <span class="preview-subject" id="previewSubject"></span>
+                    </div>
+                </div>
+
+                <div id="previewBody">
+                    <div class="preview-empty">
+                        <div class="oe-watermark">
+                            <div class="oe-logo"></div>
+                            <strong>Outlook Express</strong><br>
+                            No message selected
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+        </main>
+
+        <!-- ==================================================
+             COMPOSE MODE
+        =================================================== -->
+        <section id="composeView">
+
+            <div class="compose-toolbar">
+
+                <button class="compose-tool" id="composeSend">
+                    Send
+                </button>
+
+                <button class="compose-tool" id="composeSave">
+                    Save
+                </button>
+
+                <button class="compose-tool" id="composeAttach">
+                    Attach...
+                </button>
+
+                <button class="compose-tool" id="composeAddresses">
+                    To...
+                </button>
+
+                <div style="flex:1"></div>
+
+                <button class="compose-tool" id="composeClose">
+                    Close
+                </button>
+
+            </div>
+
+            <div class="compose-fields">
+
+                <div class="compose-row">
+                    <label>To:</label>
+                    <input id="composeTo" type="text">
+                </div>
+
+                <div class="compose-row">
+                    <label>Cc:</label>
+                    <input id="composeCc" type="text">
+                </div>
+
+                <div class="compose-row">
+                    <label>Subject:</label>
+                    <input id="composeSubject" type="text">
+                </div>
+
+                <div id="attachmentBar">
+                    <label style="text-align:right;padding-right:6px">
+                        Attach:
+                    </label>
+
+                    <div class="attachment-list" id="attachmentList"></div>
+                </div>
+
+            </div>
+
+            <div id="composeBody" contenteditable="true"></div>
+
+            <div class="compose-status" id="composeStatus">
+                Ready
+            </div>
+
+        </section>
+
+    </div>
+
+    <!-- STATUS -->
+    <div class="status-bar">
+        <div class="status-section" id="statusText">Ready</div>
+        <div class="status-section" id="statusCount"></div>
+        <div class="status-section">Local Folders</div>
+    </div>
+
+
+    <!-- ====================================================
+         MESSAGE DIALOG
+    ===================================================== -->
+    <div class="dialog-layer" id="messageDialog">
+        <div class="xp-dialog">
+            <div class="dialog-heading" id="messageDialogTitle">
+                Outlook Express
+            </div>
+
+            <div class="dialog-content">
+                <div class="dialog-icon-layout">
+                    <div class="info-icon">i</div>
+                    <div id="messageDialogText"></div>
+                </div>
+            </div>
+
+            <div class="dialog-actions">
+                <button data-close-dialog="messageDialog">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====================================================
+         ACCOUNTS
+    ===================================================== -->
+    <div class="dialog-layer" id="accountsDialog">
+        <div class="xp-dialog" style="width:450px">
+
+            <div class="dialog-heading">
+                Internet Accounts
+            </div>
+
+            <div class="dialog-content">
+
+                <div class="groupbox">
+                    <span class="groupbox-title">Mail</span>
+
+                    <div style="
+                        height:90px;
+                        border:1px solid #7F9DB9;
+                        background:#fff;
+                        padding:5px;
+                    ">
+                        <strong>Local Mail Account</strong><br>
+                        mail.example.net<br>
+                        Type: POP3
+                    </div>
+
+                    <div style="margin-top:8px;text-align:right">
+                        <button id="accountAdd">Add...</button>
+                        <button id="accountProperties">Properties</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="dialog-actions">
+                <button data-close-dialog="accountsDialog">Close</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ====================================================
+         ACCOUNT WIZARD
+    ===================================================== -->
+    <div class="dialog-layer" id="accountWizard">
+        <div class="xp-dialog" style="width:440px">
+
+            <div class="dialog-heading">
+                Internet Connection Wizard
+            </div>
+
+            <div class="dialog-content">
+
+                <div style="font-size:13px;font-weight:bold;margin-bottom:11px">
+                    Internet E-mail Address
+                </div>
+
+                <p>
+                    Enter the e-mail address that you want to use for this
+                    simulated account.
+                </p>
+
+                <div class="form-row">
+                    <label>E-mail address:</label>
+                    <input id="wizardEmail" type="text"
+                           value="user@example.com">
+                </div>
+
+                <div class="form-row">
+                    <label>Incoming server:</label>
+                    <input id="wizardIncoming" type="text"
+                           value="pop.example.com">
+                </div>
+
+                <div class="form-row">
+                    <label>Outgoing server:</label>
+                    <input id="wizardOutgoing" type="text"
+                           value="smtp.example.com">
+                </div>
+
+                <p style="color:#666">
+                    This XP simulation does not connect to a real POP3 or SMTP
+                    service.
+                </p>
+
+            </div>
+
+            <div class="dialog-actions">
+                <button id="wizardFinish">Finish</button>
+                <button data-close-dialog="accountWizard">Cancel</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ====================================================
+         OPTIONS
+    ===================================================== -->
+    <div class="dialog-layer" id="optionsDialog">
+
+        <div class="xp-dialog" style="width:430px">
+
+            <div class="dialog-heading">
+                Options
+            </div>
+
+            <div class="dialog-content">
+
+                <div class="groupbox">
+                    <span class="groupbox-title">General</span>
+
+                    <label>
+                        <input type="checkbox" id="optCheckMail" checked>
+                        Check for new messages at startup
+                    </label>
+
+                    <br><br>
+
+                    <label>
+                        <input type="checkbox" id="optPlaySound" checked>
+                        Play sound when new messages arrive
+                    </label>
+
+                    <br><br>
+
+                    <label>
+                        <input type="checkbox" id="optPreview" checked>
+                        Show preview pane
+                    </label>
+                </div>
+
+                <div class="groupbox">
+                    <span class="groupbox-title">Read</span>
+
+                    <label>
+                        <input type="checkbox" id="optAutoRead" checked>
+                        Mark messages read when displayed in preview pane
+                    </label>
+                </div>
+
+            </div>
+
+            <div class="dialog-actions">
+                <button id="optionsOK">OK</button>
+                <button data-close-dialog="optionsDialog">Cancel</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ====================================================
+         FIND
+    ===================================================== -->
+    <div class="dialog-layer" id="findDialog">
+
+        <div class="xp-dialog" style="width:485px">
+
+            <div class="dialog-heading">
+                Find Message
+            </div>
+
+            <div class="dialog-content">
+
+                <div class="form-row" style="grid-template-columns:90px 1fr">
+                    <label>Search:</label>
+                    <input id="findText" type="text">
+                </div>
+
+                <div style="text-align:right;margin-top:5px">
+                    <button id="findNow">Find Now</button>
+                </div>
+
+                <div class="find-results" id="findResults"></div>
+
+            </div>
+
+            <div class="dialog-actions">
+                <button data-close-dialog="findDialog">Close</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ====================================================
+         ADDRESS BOOK
+    ===================================================== -->
+    <div class="dialog-layer" id="addressDialog">
+
+        <div class="xp-dialog" style="width:430px">
+
+            <div class="dialog-heading">
+                Address Book - Main Identity's Contacts
+            </div>
+
+            <div class="dialog-content">
+
+                <div class="address-list" id="addressList"></div>
+
+            </div>
+
+            <div class="dialog-actions">
+                <button id="addressTo">To -&gt;</button>
+                <button data-close-dialog="addressDialog">Close</button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- file selector, invisible -->
+    <input id="attachmentInput" type="file" multiple hidden>
+
+</div>
+
+
+<script>
+(() => {
+    "use strict";
+
+    const $ = id => document.getElementById(id);
+
+    /* ======================================================
+       DATA
+    ====================================================== */
+
+    const defaultData = {
+        currentFolder: "Inbox",
+        selectedMessage: null,
+        previewVisible: true,
+        contactsVisible: true,
+
+        options: {
+            checkMail: true,
+            playSound: true,
+            autoRead: true
+        },
+
+        contacts: [
+            {
+                name: "Alex Johnson",
+                email: "alex@example.com"
+            },
+            {
+                name: "Chris Miller",
+                email: "chris@example.com"
+            },
+            {
+                name: "Family",
+                email: "family@example.com"
+            },
+            {
+                name: "Windows XP User",
+                email: "xpuser@example.com"
+            }
+        ],
+
+        folders: {
+            Inbox: [
+                {
+                    id: 101,
+                    from: "Microsoft Outlook Express Team",
+                    fromEmail: "outlookexpress@example.com",
+                    to: "Windows XP User <xpuser@example.com>",
+                    subject: "Welcome to Outlook Express 6",
+                    date: "9/21/2006 10:32 PM",
+                    unread: true,
+                    attachment: false,
+                    body:
+`Welcome to Microsoft Outlook Express.
+
+Outlook Express makes it easy to send and receive e-mail and participate in Internet newsgroups.
+
+This web recreation stores all simulated messages locally in your browser.
+
+Try Create Mail, Reply, Forward, Delete, Send/Recv, Addresses and Find from the toolbar.`
+                },
+
+                {
+                    id: 102,
+                    from: "Alex Johnson",
+                    fromEmail: "alex@example.com",
+                    to: "Windows XP User <xpuser@example.com>",
+                    subject: "LAN party this weekend",
+                    date: "9/20/2006 8:14 PM",
+                    unread: true,
+                    attachment: false,
+                    body:
+`Hey,
+
+Are we still doing the LAN party on Saturday?
+
+I can bring the network switch and a few extra Ethernet cables.
+
+Alex`
+                },
+
+                {
+                    id: 103,
+                    from: "Family",
+                    fromEmail: "family@example.com",
+                    to: "Windows XP User <xpuser@example.com>",
+                    subject: "Holiday photos",
+                    date: "9/18/2006 4:01 PM",
+                    unread: false,
+                    attachment: true,
+                    body:
+`Hello!
+
+I've attached the photographs from our trip.
+
+The original Outlook Express would display the attachment in the message header.
+
+See you soon.`
+                },
+
+                {
+                    id: 104,
+                    from: "Chris Miller",
+                    fromEmail: "chris@example.com",
+                    to: "Windows XP User <xpuser@example.com>",
+                    subject: "Re: Windows XP setup",
+                    date: "9/16/2006 11:45 AM",
+                    unread: false,
+                    attachment: false,
+                    body:
+`Thanks for helping with the Windows XP computer.
+
+Everything is working now, including the printer and Internet connection.
+
+Chris`
+                }
+            ],
+
+            Outbox: [],
+
+            "Sent Items": [
+                {
+                    id: 201,
+                    from: "Windows XP User",
+                    fromEmail: "xpuser@example.com",
+                    to: "Alex Johnson <alex@example.com>",
+                    subject: "Re: LAN party",
+                    date: "9/19/2006 7:30 PM",
+                    unread: false,
+                    attachment: false,
+                    body:
+`Saturday works for me.
+
+I'll bring a couple of games.
+
+See you then.`
+                }
+            ],
+
+            "Deleted Items": [],
+
+            Drafts: []
+        }
+    };
+
+    let state = loadState();
+
+    let composeAttachments = [];
+    let addressSelection = null;
+
+    /* ======================================================
+       STORAGE
+    ====================================================== */
+
+    function cloneDefault(){
+        return JSON.parse(JSON.stringify(defaultData));
+    }
+
+    function loadState(){
+        try{
+            const raw = localStorage.getItem("xp-outlook-express-state");
+
+            if(!raw){
+                return cloneDefault();
+            }
+
+            const parsed = JSON.parse(raw);
+
+            return {
+                ...cloneDefault(),
+                ...parsed,
+                folders:{
+                    ...cloneDefault().folders,
+                    ...(parsed.folders || {})
+                }
+            };
+        }
+        catch{
+            return cloneDefault();
+        }
+    }
+
+    function saveState(){
+        try{
+            localStorage.setItem(
+                "xp-outlook-express-state",
+                JSON.stringify(state)
+            );
+        }
+        catch{
+            /* localStorage unavailable: simulation remains in memory */
+        }
+    }
+
+    /* ======================================================
+       MENU
+    ====================================================== */
+
+    const menuButtons = [
+        ...document.querySelectorAll(".menu-button")
+    ];
+
+    const menus = [
+        ...document.querySelectorAll(".popup-menu")
+    ];
+
+    function closeMenus(){
+        menuButtons.forEach(x => x.classList.remove("active"));
+        menus.forEach(x => x.classList.remove("visible"));
+    }
+
+    menuButtons.forEach(button => {
+        button.addEventListener("mousedown", event => {
+            event.stopPropagation();
+
+            const menu = $(button.dataset.menu);
+            const open = menu.classList.contains("visible");
+
+            closeMenus();
+
+            if(!open){
+                button.classList.add("active");
+                menu.classList.add("visible");
+
+                menu.style.left =
+                    Math.min(
+                        button.offsetLeft,
+                        window.innerWidth - menu.offsetWidth - 4
+                    ) + "px";
+            }
+        });
+    });
+
+    document.addEventListener("mousedown", event => {
+        if(!event.target.closest(".menu-bar")){
+            closeMenus();
+        }
+    });
+
+    /* ======================================================
+       DIALOGS
+    ====================================================== */
+
+    function showDialog(id){
+        closeMenus();
+        $(id).classList.add("visible");
+    }
+
+    function closeDialog(id){
+        $(id).classList.remove("visible");
+    }
+
+    document.querySelectorAll("[data-close-dialog]")
+        .forEach(button => {
+            button.addEventListener("click", () => {
+                closeDialog(button.dataset.closeDialog);
+            });
+        });
+
+    function message(title, text){
+        $("messageDialogTitle").textContent = title;
+        $("messageDialogText").textContent = text;
+        showDialog("messageDialog");
+    }
+
+    /* ======================================================
+       FOLDERS
+    ====================================================== */
+
+    const folderOrder = [
+        "Inbox",
+        "Outbox",
+        "Sent Items",
+        "Deleted Items",
+        "Drafts"
+    ];
+
+    function unreadCount(folder){
+        return (state.folders[folder] || [])
+            .filter(m => m.unread)
+            .length;
+    }
+
+    function renderFolders(){
+        const tree = $("folderTree");
+
+        tree.innerHTML = "";
+
+        const root = document.createElement("div");
+        root.className = "folder-row root";
+        root.innerHTML =
+            `<span class="folder-glyph">▣</span> Outlook Express`;
+        tree.appendChild(root);
+
+        const local = document.createElement("div");
+        local.className = "folder-row local";
+        local.innerHTML =
+            `<span class="folder-glyph">▾</span> Local Folders`;
+        tree.appendChild(local);
+
+        folderOrder.forEach(folder => {
+            const row = document.createElement("div");
+
+            row.className =
+                "folder-row child" +
+                (folder === state.currentFolder ? " selected" : "");
+
+            const unread = unreadCount(folder);
+
+            row.innerHTML =
+                `<span class="folder-glyph">◆</span>` +
+                `<span>${escapeHTML(folder)}</span>` +
+                (unread
+                    ? `<span class="unread-count">(${unread})</span>`
+                    : "");
+
+            row.addEventListener("click", () => {
+                state.currentFolder = folder;
+                state.selectedMessage = null;
+
+                saveState();
+                renderAll();
+            });
+
+            tree.appendChild(row);
+        });
+    }
+
+    /* ======================================================
+       CONTACTS
+    ====================================================== */
+
+    function renderContacts(){
+        const list = $("contactList");
+
+        list.innerHTML = "";
+
+        state.contacts.forEach(contact => {
+            const row = document.createElement("div");
+
+            row.className = "contact";
+
+            row.innerHTML =
+                `<span class="contact-icon"></span>` +
+                `<span>${escapeHTML(contact.name)}</span>`;
+
+            row.addEventListener("dblclick", () => {
+                openCompose({
+                    to: contact.email
+                });
+            });
+
+            list.appendChild(row);
+        });
+    }
+
+    /* ======================================================
+       MESSAGE LIST
+    ====================================================== */
+
+    function getMessages(){
+        return state.folders[state.currentFolder] || [];
+    }
+
+    function selectedMessage(){
+        return getMessages().find(
+            message => message.id === state.selectedMessage
+        ) || null;
+    }
+
+    function renderMessages(){
+        const list = $("messageList");
+
+        list.innerHTML = "";
+
+        const messages = getMessages();
+
+        if(messages.length === 0){
+            list.innerHTML =
+                `<div style="
+                    padding:13px;
+                    color:#777;
+                    text-align:center;
+                ">There are no messages in this folder.</div>`;
+        }
+
+        messages.forEach(message => {
+            const row = document.createElement("div");
+
+            row.className =
+                "message-row" +
+                (message.unread ? " unread" : "") +
+                (message.id === state.selectedMessage
+                    ? " selected"
+                    : "");
+
+            row.innerHTML = `
+                <div class="message-cell status-glyph">
+                    ${message.unread ? "✉" : "▱"}
+                </div>
+
+                <div class="message-cell attach-glyph">
+                    ${message.attachment ? "⌕" : ""}
+                </div>
+
+                <div class="message-cell">
+                    ${escapeHTML(
+                        state.currentFolder === "Sent Items"
+                            ? message.to
+                            : message.from
+                    )}
+                </div>
+
+                <div class="message-cell">
+                    ${escapeHTML(message.subject)}
+                </div>
+
+                <div class="message-cell">
+                    ${escapeHTML(message.date)}
+                </div>
+            `;
+
+            row.addEventListener("click", () => {
+                selectMessage(message.id);
+            });
+
+            row.addEventListener("dblclick", () => {
+                selectMessage(message.id);
+            });
+
+            list.appendChild(row);
+        });
+
+        updateStatusCount();
+        updateToolbar();
+    }
+
+    function selectMessage(id){
+        state.selectedMessage = id;
+
+        const message = selectedMessage();
+
+        if(message && state.options.autoRead){
+            message.unread = false;
+        }
+
+        saveState();
+
+        renderFolders();
+        renderMessages();
+        renderPreview();
+    }
+
+    /* ======================================================
+       PREVIEW
+    ====================================================== */
+
+    function renderPreview(){
+        const message = selectedMessage();
+
+        if(!message){
+            $("previewFrom").textContent = "";
+            $("previewDate").textContent = "";
+            $("previewTo").textContent = "";
+            $("previewSubject").textContent = "";
+
+            $("previewBody").innerHTML = `
+                <div class="preview-empty">
+                    <div class="oe-watermark">
+                        <div class="oe-logo"></div>
+                        <strong>Outlook Express</strong><br>
+                        No message selected
+                    </div>
+                </div>
+            `;
+
+            return;
+        }
+
+        $("previewFrom").textContent =
+            `${message.from} <${message.fromEmail}>`;
+
+        $("previewDate").textContent = message.date;
+        $("previewTo").textContent = message.to;
+        $("previewSubject").textContent = message.subject;
+
+        $("previewBody").innerHTML =
+            `<div>${escapeHTML(message.body)
+                .replace(/\n/g,"<br>")}</div>` +
+            (
+                message.attachment
+                ? `<hr>
+                   <div style="font:11px Tahoma">
+                       Attachment: holiday-photos.zip
+                   </div>`
+                : ""
+            );
+    }
+
+    /* ======================================================
+       TOOLBAR
+    ====================================================== */
+
+    function updateToolbar(){
+        const enabled = Boolean(selectedMessage());
+
+        [
+            "tbReply",
+            "tbReplyAll",
+            "tbForward",
+            "tbDelete"
+        ].forEach(id => {
+            $(id).disabled = !enabled;
+        });
+    }
+
+    /* ======================================================
+       COMPOSE
+    ====================================================== */
+
+    function openCompose(data = {}){
+        closeMenus();
+
+        $("composeTo").value = data.to || "";
+        $("composeCc").value = data.cc || "";
+        $("composeSubject").value = data.subject || "";
+        $("composeBody").innerText = data.body || "";
+
+        composeAttachments = [];
+
+        renderAttachments();
+
+        $("composeView").classList.add("visible");
+        $("composeStatus").textContent = "Ready";
+
+        setTimeout(() => {
+            if(!$("composeTo").value){
+                $("composeTo").focus();
+            }
+            else if(!$("composeSubject").value){
+                $("composeSubject").focus();
+            }
+            else{
+                $("composeBody").focus();
+            }
+        },10);
+    }
+
+    function closeCompose(){
+        $("composeView").classList.remove("visible");
+
+        $("composeTo").value = "";
+        $("composeCc").value = "";
+        $("composeSubject").value = "";
+        $("composeBody").innerHTML = "";
+
+        composeAttachments = [];
+        renderAttachments();
+    }
+
+    function createComposeMessage(){
+        return {
+            id: Date.now(),
+            from: "Windows XP User",
+            fromEmail: "xpuser@example.com",
+            to: $("composeTo").value.trim(),
+            cc: $("composeCc").value.trim(),
+            subject:
+                $("composeSubject").value.trim() ||
+                "(no subject)",
+            date: new Date().toLocaleString(),
+            unread:false,
+            attachment:composeAttachments.length > 0,
+            attachments:[...composeAttachments],
+            body:$("composeBody").innerText
+        };
+    }
+
+    function sendCompose(){
+        const to = $("composeTo").value.trim();
+
+        if(!to){
+            message(
+                "Outlook Express",
+                "The message cannot be sent because one or more recipients were not specified."
+            );
+            return;
+        }
+
+        const mail = createComposeMessage();
+
+        state.folders["Sent Items"].unshift(mail);
+
+        saveState();
+
+        closeCompose();
+
+        $("statusText").textContent = "Message sent";
+
+        state.currentFolder = "Sent Items";
+        state.selectedMessage = mail.id;
+
+        renderAll();
+    }
+
+    function saveDraft(){
+        const mail = createComposeMessage();
+
+        state.folders.Drafts.unshift(mail);
+
+        saveState();
+
+        closeCompose();
+
+        state.currentFolder = "Drafts";
+        state.selectedMessage = mail.id;
+
+        renderAll();
+
+        $("statusText").textContent =
+            "Message saved to Drafts";
+    }
+
+    function reply(all = false){
+        const mail = selectedMessage();
+
+        if(!mail){
+            return;
+        }
+
+        openCompose({
+            to:mail.fromEmail,
+            cc:all ? mail.to : "",
+            subject:
+                mail.subject.toLowerCase().startsWith("re:")
+                    ? mail.subject
+                    : "Re: " + mail.subject,
+
+            body:
+`\n\n----- Original Message -----\nFrom: ${mail.from} <${mail.fromEmail}>\nTo: ${mail.to}\nSent: ${mail.date}\nSubject: ${mail.subject}\n\n${mail.body}`
+        });
+    }
+
+    function forward(){
+        const mail = selectedMessage();
+
+        if(!mail){
+            return;
+        }
+
+        openCompose({
+            subject:
+                mail.subject.toLowerCase().startsWith("fw:")
+                    ? mail.subject
+                    : "Fw: " + mail.subject,
+
+            body:
+`\n\n----- Original Message -----\nFrom: ${mail.from} <${mail.fromEmail}>\nTo: ${mail.to}\nSent: ${mail.date}\nSubject: ${mail.subject}\n\n${mail.body}`
+        });
+    }
+
+    $("composeSend").addEventListener("click",sendCompose);
+    $("composeSave").addEventListener("click",saveDraft);
+    $("composeClose").addEventListener("click",closeCompose);
+
+    /* ======================================================
+       ATTACHMENTS
+    ====================================================== */
+
+    $("composeAttach").addEventListener("click", () => {
+        $("attachmentInput").click();
+    });
+
+    $("attachmentInput").addEventListener("change", event => {
+        [...event.target.files].forEach(file => {
+            composeAttachments.push(file.name);
+        });
+
+        event.target.value = "";
+
+        renderAttachments();
+    });
+
+    function renderAttachments(){
+        const bar = $("attachmentBar");
+        const list = $("attachmentList");
+
+        list.innerHTML = "";
+
+        if(composeAttachments.length === 0){
+            bar.classList.remove("visible");
+            return;
+        }
+
+        bar.classList.add("visible");
+
+        composeAttachments.forEach((name,index) => {
+            const pill = document.createElement("span");
+
+            pill.className = "attachment-pill";
+            pill.textContent = name + "  ×";
+            pill.title = "Click to remove";
+
+            pill.addEventListener("click", () => {
+                composeAttachments.splice(index,1);
+                renderAttachments();
+            });
+
+            list.appendChild(pill);
+        });
+    }
+
+    /* ======================================================
+       DELETE / READ
+    ====================================================== */
+
+    function deleteSelected(){
+        const message = selectedMessage();
+
+        if(!message){
+            return;
+        }
+
+        const source = state.folders[state.currentFolder];
+
+        const index = source.findIndex(
+            m => m.id === message.id
+        );
+
+        if(index < 0){
+            return;
+        }
+
+        source.splice(index,1);
+
+        if(state.currentFolder !== "Deleted Items"){
+            state.folders["Deleted Items"].unshift(message);
+        }
+
+        state.selectedMessage = null;
+
+        saveState();
+        renderAll();
+
+        $("statusText").textContent = "Message deleted";
+    }
+
+    function markSelected(read){
+        const message = selectedMessage();
+
+        if(!message){
+            return;
+        }
+
+        message.unread = !read;
+
+        saveState();
+
+        renderFolders();
+        renderMessages();
+    }
+
+    /* ======================================================
+       SEND / RECEIVE
+    ====================================================== */
+
+    let receiveBusy = false;
+
+    function sendReceive(){
+        if(receiveBusy){
+            return;
+        }
+
+        receiveBusy = true;
+
+        $("statusText").textContent =
+            "Checking for new messages...";
+
+        setTimeout(() => {
+            const possibilities = [
+                {
+                    from:"Windows Update",
+                    fromEmail:"update@example.com",
+                    subject:"Automatic Updates are ready",
+                    body:
+`Updates are ready for your computer.
+
+This is a simulated message generated by the Outlook Express XP recreation.`
+                },
+                {
+                    from:"Alex Johnson",
+                    fromEmail:"alex@example.com",
+                    subject:"Re: LAN party this weekend",
+                    body:
+`Perfect.
+
+I'll be there around 7 PM.
+
+Alex`
+                },
+                {
+                    from:"Internet Service Provider",
+                    fromEmail:"support@example.net",
+                    subject:"Monthly Internet newsletter",
+                    body:
+`Thank you for using our Internet service.
+
+This simulated message recreates the experience of downloading new mail using Outlook Express.`
+                }
+            ];
+
+            const source =
+                possibilities[
+                    Math.floor(
+                        Math.random() * possibilities.length
+                    )
+                ];
+
+            const mail = {
+                id:Date.now(),
+                from:source.from,
+                fromEmail:source.fromEmail,
+                to:"Windows XP User <xpuser@example.com>",
+                subject:source.subject,
+                date:new Date().toLocaleString(),
+                unread:true,
+                attachment:false,
+                body:source.body
+            };
+
+            state.folders.Inbox.unshift(mail);
+
+            saveState();
+
+            receiveBusy = false;
+
+            $("statusText").textContent =
+                "1 new message received";
+
+            renderAll();
+        },900);
+    }
+
+    /* ======================================================
+       FIND
+    ====================================================== */
+
+    function openFind(){
+        $("findText").value = "";
+        $("findResults").innerHTML = "";
+        showDialog("findDialog");
+
+        setTimeout(() => $("findText").focus(),20);
+    }
+
+    function performFind(){
+        const query =
+            $("findText").value.trim().toLowerCase();
+
+        const results = $("findResults");
+
+        results.innerHTML = "";
+
+        if(!query){
+            return;
+        }
+
+        const found = [];
+
+        Object.entries(state.folders)
+            .forEach(([folder,messages]) => {
+                messages.forEach(mail => {
+                    if(
+                        mail.subject.toLowerCase().includes(query) ||
+                        mail.from.toLowerCase().includes(query) ||
+                        mail.body.toLowerCase().includes(query)
+                    ){
+                        found.push({
+                            folder,
+                            mail
+                        });
+                    }
+                });
+            });
+
+        if(found.length === 0){
+            results.innerHTML =
+                `<div style="padding:8px;color:#777">
+                    No messages found.
+                 </div>`;
+
+            return;
+        }
+
+        found.forEach(result => {
+            const row = document.createElement("div");
+
+            row.className = "find-result";
+
+            row.innerHTML =
+                `<strong>${escapeHTML(result.mail.subject)}</strong><br>` +
+                `${escapeHTML(result.folder)} - ` +
+                `${escapeHTML(result.mail.from)}`;
+
+            row.addEventListener("dblclick", () => {
+                state.currentFolder = result.folder;
+                state.selectedMessage = result.mail.id;
+
+                closeDialog("findDialog");
+
+                renderAll();
+            });
+
+            results.appendChild(row);
+        });
+    }
+
+    $("findNow").addEventListener("click",performFind);
+
+    $("findText").addEventListener("keydown",event => {
+        if(event.key === "Enter"){
+            performFind();
+        }
+    });
+
+    /* ======================================================
+       ADDRESS BOOK
+    ====================================================== */
+
+    function openAddressBook(){
+        addressSelection = null;
+
+        const list = $("addressList");
+
+        list.innerHTML = "";
+
+        state.contacts.forEach((contact,index) => {
+            const row = document.createElement("div");
+
+            row.className = "address-row";
+
+            row.textContent =
+                `${contact.name} <${contact.email}>`;
+
+            row.addEventListener("click", () => {
+                list.querySelectorAll(".address-row")
+                    .forEach(x =>
+                        x.classList.remove("selected")
+                    );
+
+                row.classList.add("selected");
+
+                addressSelection = index;
+            });
+
+            row.addEventListener("dblclick", () => {
+                addressSelection = index;
+                selectAddress();
+            });
+
+            list.appendChild(row);
+        });
+
+        showDialog("addressDialog");
+    }
+
+    function selectAddress(){
+        if(addressSelection === null){
+            return;
+        }
+
+        const contact =
+            state.contacts[addressSelection];
+
+        closeDialog("addressDialog");
+
+        if(!$("composeView").classList.contains("visible")){
+            openCompose({
+                to:contact.email
+            });
+        }
+        else{
+            const current = $("composeTo").value.trim();
+
+            $("composeTo").value =
+                current
+                    ? current + "; " + contact.email
+                    : contact.email;
+        }
+    }
+
+    $("addressTo").addEventListener("click",selectAddress);
+    $("composeAddresses").addEventListener("click",openAddressBook);
+
+    /* ======================================================
+       ACCOUNTS
+    ====================================================== */
+
+    $("accountAdd").addEventListener("click", () => {
+        closeDialog("accountsDialog");
+        showDialog("accountWizard");
+    });
+
+    $("accountProperties").addEventListener("click", () => {
+        message(
+            "Local Mail Account Properties",
+            "POP3: pop.example.com\nSMTP: smtp.example.com\n\nThis account is simulated and does not transmit credentials or mail."
+        );
+    });
+
+    $("wizardFinish").addEventListener("click", () => {
+        closeDialog("accountWizard");
+
+        message(
+            "Internet Connection Wizard",
+            "Congratulations. You have successfully entered all of the information required to set up your simulated account."
+        );
+    });
+
+    /* ======================================================
+       OPTIONS
+    ====================================================== */
+
+    function openOptions(){
+        $("optCheckMail").checked =
+            state.options.checkMail;
+
+        $("optPlaySound").checked =
+            state.options.playSound;
+
+        $("optAutoRead").checked =
+            state.options.autoRead;
+
+        $("optPreview").checked =
+            state.previewVisible;
+
+        showDialog("optionsDialog");
+    }
+
+    $("optionsOK").addEventListener("click", () => {
+        state.options.checkMail =
+            $("optCheckMail").checked;
+
+        state.options.playSound =
+            $("optPlaySound").checked;
+
+        state.options.autoRead =
+            $("optAutoRead").checked;
+
+        state.previewVisible =
+            $("optPreview").checked;
+
+        saveState();
+
+        closeDialog("optionsDialog");
+
+        applyLayout();
+    });
+
+    /* ======================================================
+       LAYOUT
+    ====================================================== */
+
+    function applyLayout(){
+        if(state.previewVisible){
+            $("previewPane").style.display = "grid";
+            $("previewSplitter").style.display = "block";
+
+            $("mailArea").style.gridTemplateRows =
+                "minmax(110px,42%) 5px minmax(100px,58%)";
+
+            $("previewCheck").textContent = "✓";
+        }
+        else{
+            $("previewPane").style.display = "none";
+            $("previewSplitter").style.display = "none";
+
+            $("mailArea").style.gridTemplateRows =
+                "minmax(0,1fr) 0 0";
+
+            $("previewCheck").textContent = "";
+        }
+
+        if(state.contactsVisible){
+            $("contactsPane").style.display = "block";
+
+            $("leftPane").style.gridTemplateRows =
+                "minmax(150px,1fr) 5px 145px";
+
+            $("contactsCheck").textContent = "✓";
+        }
+        else{
+            $("contactsPane").style.display = "none";
+
+            $("leftPane").style.gridTemplateRows =
+                "minmax(0,1fr) 0 0";
+
+            $("contactsCheck").textContent = "";
+        }
+    }
+
+    /* ======================================================
+       STATUS
+    ====================================================== */
+
+    function updateStatusCount(){
+        const messages = getMessages();
+
+        const unread =
+            messages.filter(m => m.unread).length;
+
+        $("statusCount").textContent =
+            `${messages.length} message` +
+            (messages.length === 1 ? "" : "s") +
+            (unread ? `, ${unread} unread` : "");
+    }
+
+    /* ======================================================
+       ACTION DISPATCH
+    ====================================================== */
+
+    function action(name){
+        closeMenus();
+
+        switch(name){
+
+            case "newMail":
+                openCompose();
+                break;
+
+            case "reply":
+                reply(false);
+                break;
+
+            case "replyAll":
+                reply(true);
+                break;
+
+            case "forward":
+                forward();
+                break;
+
+            case "delete":
+                deleteSelected();
+                break;
+
+            case "sendReceive":
+            case "refresh":
+                sendReceive();
+                break;
+
+            case "addressBook":
+                openAddressBook();
+                break;
+
+            case "find":
+                openFind();
+                break;
+
+            case "markRead":
+                markSelected(true);
+                break;
+
+            case "markUnread":
+                markSelected(false);
+                break;
+
+            case "togglePreview":
+                state.previewVisible =
+                    !state.previewVisible;
+
+                saveState();
+                applyLayout();
+                break;
+
+            case "toggleContacts":
+                state.contactsVisible =
+                    !state.contactsVisible;
+
+                saveState();
+                applyLayout();
+                break;
+
+            case "accounts":
+                showDialog("accountsDialog");
+                break;
+
+            case "options":
+                openOptions();
+                break;
+
+            case "openSelected":
+                if(!selectedMessage()){
+                    message(
+                        "Outlook Express",
+                        "Select a message first."
+                    );
+                }
+                break;
+
+            case "selectAll":
+                document.querySelectorAll(".message-row")
+                    .forEach(row => {
+                        row.style.outline =
+                            "1px dotted #666";
+                    });
+
+                $("statusText").textContent =
+                    "All visible messages selected";
+                break;
+
+            case "saveMessage":
+                message(
+                    "Save Message",
+                    "The original Outlook Express could save messages as .eml files. File export is represented here without opening a browser download dialog."
+                );
+                break;
+
+            case "printMessage":
+                message(
+                    "Print",
+                    "Printing is simulated so that the browser's own print dialog does not interrupt the Windows XP desktop simulation."
+                );
+                break;
+
+            case "importSim":
+                message(
+                    "Outlook Express Import",
+                    "Import Mail and Address Book functionality is represented by the simulation. No external Outlook Express DBX files are modified."
+                );
+                break;
+
+            case "exportSim":
+                message(
+                    "Outlook Express Export",
+                    "Your simulated mail remains stored locally in the browser profile."
+                );
+                break;
+
+            case "exitApp":
+                message(
+                    "Outlook Express",
+                    "Use the Close button on the main Windows XP window to exit Outlook Express."
+                );
+                break;
+
+            case "help":
+                message(
+                    "Outlook Express Help",
+                    "Select a folder on the left, choose a message to preview it, or use Create Mail to compose a new message. Send/Recv generates simulated incoming mail."
+                );
+                break;
+
+            case "about":
+                message(
+                    "About Microsoft Outlook Express",
+                    "Microsoft Outlook Express 6\n\nWindows XP-style browser recreation.\n\nThis simulation contains no Microsoft executable code and does not connect to real mail servers."
+                );
+                break;
+        }
+    }
+
+    document.querySelectorAll("[data-action]")
+        .forEach(element => {
+            element.addEventListener("click", () => {
+                action(element.dataset.action);
+            });
+        });
+
+    /* ======================================================
+       KEYBOARD
+    ====================================================== */
+
+    document.addEventListener("keydown",event => {
+
+        const compose =
+            $("composeView").classList.contains("visible");
+
+        if(event.key === "Escape"){
+            closeMenus();
+        }
+
+        if(event.key === "F1"){
+            event.preventDefault();
+            action("help");
+            return;
+        }
+
+        if(event.key === "F5"){
+            event.preventDefault();
+            action("refresh");
+            return;
+        }
+
+        if(
+            event.key === "Delete" &&
+            !compose &&
+            !event.target.matches("input,textarea")
+        ){
+            event.preventDefault();
+            deleteSelected();
+            return;
+        }
+
+        if(event.ctrlKey && !event.shiftKey){
+
+            switch(event.key.toLowerCase()){
+
+                case "n":
+                    event.preventDefault();
+                    openCompose();
+                    break;
+
+                case "r":
+                    event.preventDefault();
+                    reply(false);
+                    break;
+
+                case "f":
+                    if(!compose){
+                        event.preventDefault();
+                        forward();
+                    }
+                    break;
+
+                case "m":
+                    event.preventDefault();
+                    sendReceive();
+                    break;
+            }
+        }
+
+        if(event.ctrlKey && event.shiftKey){
+
+            switch(event.key.toLowerCase()){
+
+                case "r":
+                    event.preventDefault();
+                    reply(true);
+                    break;
+
+                case "f":
+                    event.preventDefault();
+                    openFind();
+                    break;
+
+                case "b":
+                    event.preventDefault();
+                    openAddressBook();
+                    break;
+            }
+        }
+    });
+
+    /* ======================================================
+       SPLITTERS
+    ====================================================== */
+
+    let draggingLeft = false;
+
+    $("leftSplitter").addEventListener(
+        "mousedown",
+        () => draggingLeft = true
+    );
+
+    document.addEventListener("mouseup", () => {
+        draggingLeft = false;
+    });
+
+    document.addEventListener("mousemove",event => {
+        if(!draggingLeft){
+            return;
+        }
+
+        const width =
+            Math.max(
+                125,
+                Math.min(340,event.clientX)
+            );
+
+        $("workspace").style.gridTemplateColumns =
+            `${width}px 4px minmax(0,1fr)`;
+    });
+
+    let draggingPreview = false;
+
+    $("previewSplitter").addEventListener(
+        "mousedown",
+        () => draggingPreview = true
+    );
+
+    document.addEventListener("mouseup", () => {
+        draggingPreview = false;
+    });
+
+    document.addEventListener("mousemove",event => {
+        if(!draggingPreview){
+            return;
+        }
+
+        const area =
+            $("mailArea").getBoundingClientRect();
+
+        const relative =
+            event.clientY - area.top;
+
+        const max =
+            area.height - 105;
+
+        const first =
+            Math.max(
+                90,
+                Math.min(max,relative)
+            );
+
+        $("mailArea").style.gridTemplateRows =
+            `${first}px 5px minmax(100px,1fr)`;
+    });
+
+    /* ======================================================
+       HELPERS
+    ====================================================== */
+
+    function escapeHTML(value){
+        return String(value ?? "")
+            .replaceAll("&","&amp;")
+            .replaceAll("<","&lt;")
+            .replaceAll(">","&gt;")
+            .replaceAll('"',"&quot;")
+            .replaceAll("'","&#039;");
+    }
+
+    function renderAll(){
+        renderFolders();
+        renderContacts();
+        renderMessages();
+        renderPreview();
+        applyLayout();
+        updateStatusCount();
+    }
+
+    /* ======================================================
+       INITIALIZE
+    ====================================================== */
+
+    renderAll();
+
+    if(state.options.checkMail){
+        $("statusText").textContent =
+            "Ready - Outlook Express";
+    }
+
+})();
+</script>
+
+</body>
+</html>

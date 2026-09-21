@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Adres Defteri - Ana Kimlik</title>
+<style>
+:root{
+  --xp:#ECE9D8;--border:#ACA899;--blue:#316AC5;--dark:#0A246A;
+  --input:#7F9DB9;--white:#fff;--gray:#808080;--pane:#D6E5F5;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden}
+body{font:11px Tahoma,sans-serif;background:var(--xp);color:#000;user-select:none}
+button,input,select,textarea{font:11px Tahoma,sans-serif}
+#app{width:100%;height:100%;display:flex;flex-direction:column;background:var(--xp)}
+.menubar{height:21px;display:flex;align-items:stretch;border-bottom:1px solid var(--border);background:var(--xp);z-index:200}
+.menu{position:relative;padding:3px 8px;white-space:nowrap}
+.menu:hover,.menu.open{background:var(--blue);color:#fff}
+.dropdown{display:none;position:absolute;top:100%;left:0;min-width:205px;padding:2px;background:#fff;border:1px solid var(--border);box-shadow:2px 2px 5px rgba(0,0,0,.35);color:#000;z-index:5000}
+.menu.open>.dropdown{display:block}
+.mi{height:22px;display:flex;align-items:center;padding:0 9px 0 25px;position:relative;white-space:nowrap}
+.mi:hover{background:var(--blue);color:#fff}
+.mi.disabled{color:#999;pointer-events:none}
+.mi .key{margin-left:auto;padding-left:28px}
+.mi .mark{position:absolute;left:7px}
+.sep{height:1px;background:#D4D0C8;margin:3px 2px}
+
+.toolbar{height:37px;display:flex;align-items:center;padding:2px 5px;gap:2px;border-bottom:1px solid var(--border);background:var(--xp)}
+.tb{min-width:44px;height:31px;padding:1px 6px;border:1px solid transparent;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.tb:hover{border-color:#9DB9E1;background:#DDEAF8}
+.tb:active{border-style:inset;background:#CADDF3}
+.tb-icon{font-size:16px;line-height:16px}
+.vsep{width:1px;height:27px;background:#C5C2B8;margin:0 4px}
+
+.searchbar{height:27px;padding:3px 7px;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border);background:var(--xp)}
+.searchbar input{height:20px;width:230px;border:1px solid var(--input);background:#fff;padding:1px 4px;outline:none}
+.searchbar input:focus{border-color:var(--blue)}
+.xp-btn{min-width:72px;height:23px;padding:0 11px;background:var(--xp);border:2px outset #fff;color:#000}
+.xp-btn:active{border-style:inset}
+.xp-btn:disabled{color:#999}
+
+.main{flex:1;min-height:0;display:flex;background:#fff}
+.tree{width:205px;flex:0 0 205px;border-right:1px solid #9EB6CE;background:#fff;overflow:auto;padding:5px 3px}
+.tree-title{font-weight:bold;padding:4px 5px 6px;color:#444}
+.tree-item{height:23px;display:flex;align-items:center;gap:6px;padding:2px 5px 2px 7px;white-space:nowrap}
+.tree-item:hover{background:#E8F1FB}
+.tree-item.sel{background:var(--blue);color:#fff}
+.tree-icon{width:16px;text-align:center}
+.content{flex:1;min-width:0;overflow:auto;background:#fff;position:relative}
+table{border-collapse:separate;border-spacing:0;width:100%;table-layout:fixed}
+thead th{position:sticky;top:0;height:21px;background:var(--xp);font-weight:normal;text-align:left;padding:2px 7px;border-top:1px solid #fff;border-left:1px solid #fff;border-right:1px solid var(--border);border-bottom:1px solid var(--border);z-index:2}
+tbody td{height:22px;padding:2px 7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-bottom:1px solid transparent}
+tbody tr:hover td{background:#E8F0FC}
+tbody tr.sel td{background:var(--blue);color:#fff}
+.namecell{display:flex;align-items:center;gap:6px;min-width:0}
+.person-icon{width:16px;text-align:center}
+.empty{position:absolute;inset:30px 0 0;display:none;align-items:center;justify-content:center;color:#666}
+.status{height:21px;display:flex;align-items:center;gap:2px;padding:2px 3px;background:var(--xp);border-top:1px solid var(--border)}
+.status .cell{height:16px;padding:1px 6px;border:1px solid;border-color:#9A9A9A #fff #fff #9A9A9A;white-space:nowrap}
+.status .grow{flex:1;min-width:0}
+
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.12);z-index:10000;align-items:center;justify-content:center}
+.dialog{background:var(--xp);border:1px solid #003C74;box-shadow:3px 3px 12px rgba(0,0,0,.45);min-width:330px;max-width:92vw}
+.dlg-head{height:24px;display:flex;align-items:center;justify-content:space-between;padding:0 4px 0 7px;background:linear-gradient(#3A93FF,#0054E3);color:#fff;font-weight:bold}
+.dlg-x{width:21px;height:19px;border:1px solid #fff;border-radius:3px;background:linear-gradient(#F39A82,#D6421F);color:#fff;font-weight:bold;line-height:15px}
+.dlg-body{padding:12px 14px;background:var(--xp)}
+.dlg-foot{padding:0 14px 12px;display:flex;justify-content:flex-end;gap:7px}
+.tabs{display:flex;margin-bottom:-1px;padding-left:8px}
+.tab{padding:4px 10px;background:var(--xp);border:1px solid var(--border);border-bottom:none;margin-right:2px}
+.tab.active{padding-top:5px;background:#fff;position:relative;z-index:2}
+.tabbox{border:1px solid var(--border);background:var(--xp);padding:12px;min-height:238px}
+.formgrid{display:grid;grid-template-columns:105px 1fr;gap:7px 8px;align-items:center}
+.formgrid input,.formgrid textarea,.formgrid select{width:100%;border:1px solid var(--input);background:#fff;padding:2px 4px;outline:none}
+.formgrid input{height:21px}
+.formgrid textarea{height:64px;resize:none}
+fieldset{border:1px solid var(--border);padding:9px;margin-top:9px}
+legend{padding:0 4px}
+.group-layout{display:grid;grid-template-columns:1fr 34px 1fr;gap:8px;align-items:center}
+.listbox{height:170px;border:1px solid var(--input);background:#fff;overflow:auto}
+.listrow{padding:3px 5px}
+.listrow.sel{background:var(--blue);color:#fff}
+.midbuttons{display:flex;flex-direction:column;gap:7px}
+.smallbtn{width:32px;height:24px;border:2px outset #fff;background:var(--xp)}
+.smallbtn:active{border-style:inset}
+.about{display:flex;gap:12px;align-items:flex-start;line-height:1.55}
+.bigicon{font-size:36px}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="menubar" id="menubar"></div>
+
+  <div class="toolbar">
+    <button class="tb" data-action="newContact" title="Yeni Kişi"><span class="tb-icon">👤</span><span>Yeni</span></button>
+    <button class="tb" data-action="newGroup" title="Yeni Grup"><span class="tb-icon">👥</span><span>Yeni Grup</span></button>
+    <div class="vsep"></div>
+    <button class="tb" data-action="properties" title="Özellikler"><span class="tb-icon">📇</span><span>Özellikler</span></button>
+    <button class="tb" data-action="delete" title="Sil"><span class="tb-icon">❌</span><span>Sil</span></button>
+    <div class="vsep"></div>
+    <button class="tb" data-action="find" title="Kişi Bul"><span class="tb-icon">🔎</span><span>Kişi Bul</span></button>
+  </div>
+
+  <div class="searchbar">
+    <span>Kişi ara:</span>
+    <input id="searchBox" type="text" autocomplete="off" placeholder="Ad, e-posta veya telefon">
+    <button class="xp-btn" id="clearSearch">Temizle</button>
+  </div>
+
+  <div class="main">
+    <aside class="tree" id="tree"></aside>
+    <section class="content">
+      <table id="contactTable">
+        <colgroup>
+          <col style="width:27%"><col style="width:31%"><col style="width:21%"><col style="width:21%">
+        </colgroup>
+        <thead>
+          <tr><th data-sort="displayName">Ad</th><th data-sort="email">E-posta Adresi</th><th data-sort="businessPhone">İş Telefonu</th><th data-sort="homePhone">Ev Telefonu</th></tr>
+        </thead>
+        <tbody id="contactBody"></tbody>
+      </table>
+      <div class="empty" id="emptyState">Bu klasörde kişi yok.</div>
+    </section>
+  </div>
+
+  <div class="status" id="statusbar">
+    <div class="cell" id="countCell">0 kişi</div>
+    <div class="cell grow" id="descCell">Ana Kimlik'in Kişileri</div>
+    <div class="cell" id="storeCell">Muhammed Can Ceylan.wab</div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+
+<input class="hidden" type="file" id="importInput" accept=".csv,.vcf,.txt,text/csv,text/vcard">
+
+<script>
+(function(){
+'use strict';
+
+const USER = 'Muhammed Can Ceylan';
+const WAB_PATH = 'C:\\Documents and Settings\\' + USER + '\\Application Data\\Microsoft\\Address Book\\' + USER + '.wab';
+const LS_KEY = 'xp_wab_data_v1';
+
+const state = {
+  data: null,
+  folder: 'contacts',
+  selectedIds: new Set(),
+  sortKey: 'displayName',
+  sortDir: 1,
+  query: '',
+  menusOpen: null,
+  toolbarVisible: true,
+  statusVisible: true
+};
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const uid = p => p + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+
+function defaultData(){
+  return {
+    version:1,
+    owner:USER,
+    contacts:[
+      {id:'c-demo-1',firstName:'Ayşe',middleName:'',lastName:'Yılmaz',displayName:'Ayşe Yılmaz',email:'ayse@example.com',homePhone:'0212 555 01 01',businessPhone:'0212 555 10 10',mobilePhone:'0532 555 11 22',company:'Örnek Ltd.',jobTitle:'Proje Yöneticisi',homeAddress:'İstanbul',businessAddress:'İstanbul',birthday:'',web:'',notes:'Örnek kişi kaydı.'},
+      {id:'c-demo-2',firstName:'Mehmet',middleName:'',lastName:'Kaya',displayName:'Mehmet Kaya',email:'mehmet@example.com',homePhone:'',businessPhone:'0312 555 22 33',mobilePhone:'0542 555 44 55',company:'Kaya Bilişim',jobTitle:'Teknik Uzman',homeAddress:'Ankara',businessAddress:'Ankara',birthday:'',web:'',notes:''}
+    ],
+    groups:[
+      {id:'g-friends',name:'Arkadaşlar',memberIds:['c-demo-1']},
+      {id:'g-work',name:'İş',memberIds:['c-demo-2']}
+    ]
+  };
+}
+
+function vfs(){
+  try { return window.parent && window.parent.vfs ? window.parent.vfs : null; } catch(e){ return null; }
+}
+function resolveNode(path){
+  const fs=vfs(); if(!fs||typeof fs.resolvePath!=='function') return null;
+  try{return fs.resolvePath(path)}catch(e){return null}
+}
+function readNodeText(node){
+  if(!node) return '';
+  if(typeof node.content==='string') return node.content;
+  if(typeof node.data==='string') return node.data;
+  if(typeof node.text==='string') return node.text;
+  return '';
+}
+function tryWriteVfs(text){
+  const fs=vfs(); if(!fs) return false;
+  try{
+    if(typeof fs.writeFile==='function'){
+      const r=fs.writeFile(WAB_PATH,text,{type:'Windows Adres Defteri',extension:'.wab'});
+      if(r!==false) return true;
+    }
+  }catch(e){}
+  try{
+    const node=resolveNode(WAB_PATH);
+    if(node){ node.content=text; if(typeof fs.save==='function') fs.save(); return true; }
+  }catch(e){}
+  try{
+    const dir='C:\\Documents and Settings\\'+USER+'\\Application Data\\Microsoft\\Address Book';
+    if(typeof fs.createFile==='function'){
+      fs.createFile(dir,USER+'.wab',text,{type:'Windows Adres Defteri'});
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+function loadData(){
+  try{
+    const node=resolveNode(WAB_PATH);
+    const txt=readNodeText(node);
+    if(txt){ const d=JSON.parse(txt); if(d&&Array.isArray(d.contacts)&&Array.isArray(d.groups)) return d; }
+  }catch(e){}
+  try{
+    const txt=localStorage.getItem(LS_KEY);
+    if(txt){const d=JSON.parse(txt);if(d&&Array.isArray(d.contacts)&&Array.isArray(d.groups))return d}
+  }catch(e){}
+  return defaultData();
+}
+function saveData(){
+  const txt=JSON.stringify(state.data,null,2);
+  try{localStorage.setItem(LS_KEY,txt)}catch(e){}
+  tryWriteVfs(txt);
+  renderAll();
+}
+
+const MENUS=[
+ {label:'Dosya',items:[
+  {label:'Yeni Kişi...',key:'Ctrl+N',act:'newContact'},
+  {label:'Yeni Grup...',key:'Ctrl+G',act:'newGroup'},'-',
+  {label:'İçe Aktar...',act:'import'},
+  {label:'Dışa Aktar...',act:'export'},'-',
+  {label:'Özellikler',key:'Alt+Enter',act:'properties'},'-',
+  {label:'Çıkış',key:'Alt+F4',act:'exit'}
+ ]},
+ {label:'Düzen',items:[
+  {label:'Tümünü Seç',key:'Ctrl+A',act:'selectAll'},
+  {label:'Seçimi Temizle',act:'clearSelection'},'-',
+  {label:'Sil',key:'Delete',act:'delete'}
+ ]},
+ {label:'Görünüm',items:[
+  {label:'Araç Çubuğu',act:'toggleToolbar',check:()=>state.toolbarVisible},
+  {label:'Durum Çubuğu',act:'toggleStatus',check:()=>state.statusVisible},'-',
+  {label:'Yenile',key:'F5',act:'refresh'}
+ ]},
+ {label:'Araçlar',items:[
+  {label:'Kişi Bul...',key:'Ctrl+F',act:'find'},
+  {label:'Adres Defteri Seçenekleri...',act:'options'}
+ ]},
+ {label:'Yardım',items:[
+  {label:'Yardım Konuları',key:'F1',act:'help'},'-',
+  {label:'Adres Defteri Hakkında',act:'about'}
+ ]}
+];
+
+function buildMenus(){
+ const bar=$('menubar');bar.innerHTML='';
+ MENUS.forEach((m,mi)=>{
+  const root=document.createElement('div');root.className='menu';root.textContent=m.label;
+  const dd=document.createElement('div');dd.className='dropdown';
+  m.items.forEach(it=>{
+   if(it==='-'){const s=document.createElement('div');s.className='sep';dd.appendChild(s);return}
+   const row=document.createElement('div');row.className='mi'+(it.disabled?' disabled':'');
+   const mark=document.createElement('span');mark.className='mark';mark.textContent=it.check&&it.check()?'✓':'';
+   const lbl=document.createElement('span');lbl.textContent=it.label;
+   const key=document.createElement('span');key.className='key';key.textContent=it.key||'';
+   row.append(mark,lbl,key);
+   row.addEventListener('click',e=>{e.stopPropagation();closeMenus();runAction(it.act)});
+   dd.appendChild(row);
+  });
+  root.appendChild(dd);
+  root.addEventListener('click',e=>{
+    e.stopPropagation();
+    const open=root.classList.contains('open');closeMenus();
+    if(!open){root.classList.add('open');state.menusOpen=root}
+  });
+  root.addEventListener('mouseenter',()=>{if(state.menusOpen&&state.menusOpen!==root){closeMenus();root.classList.add('open');state.menusOpen=root}});
+  bar.appendChild(root);
+ });
+}
+function closeMenus(){document.querySelectorAll('.menu.open').forEach(x=>x.classList.remove('open'));state.menusOpen=null}
+
+function renderTree(){
+ const t=$('tree');
+ let html='<div class="tree-title">Adres Defteri</div>';
+ html+=treeRow('contacts','📒',"Ana Kimlik'in Kişileri");
+ html+=treeRow('shared','📗','Paylaşılan Kişiler');
+ if(state.data.groups.length){
+   html+='<div class="tree-title" style="padding-top:10px">Gruplar</div>';
+   state.data.groups.slice().sort((a,b)=>a.name.localeCompare(b.name,'tr')).forEach(g=>html+=treeRow('group:'+g.id,'👥',g.name));
+ }
+ t.innerHTML=html;
+ t.querySelectorAll('.tree-item').forEach(el=>el.addEventListener('click',()=>{state.folder=el.dataset.folder;state.selectedIds.clear();renderAll()}));
+}
+function treeRow(id,icon,name){return '<div class="tree-item '+(state.folder===id?'sel':'')+'" data-folder="'+esc(id)+'"><span class="tree-icon">'+icon+'</span><span>'+esc(name)+'</span></div>'}
+
+function visibleContacts(){
+ let arr=state.data.contacts.slice();
+ if(state.folder.startsWith('group:')){
+   const id=state.folder.slice(6),g=state.data.groups.find(x=>x.id===id);
+   const set=new Set(g?g.memberIds:[]);arr=arr.filter(c=>set.has(c.id));
+ } else if(state.folder==='shared') arr=[];
+ const q=state.query.trim().toLocaleLowerCase('tr');
+ if(q) arr=arr.filter(c=>[c.displayName,c.email,c.homePhone,c.businessPhone,c.mobilePhone,c.company].join(' ').toLocaleLowerCase('tr').includes(q));
+ arr.sort((a,b)=>String(a[state.sortKey]||'').localeCompare(String(b[state.sortKey]||''),'tr')*state.sortDir);
+ return arr;
+}
+function renderTable(){
+ const arr=visibleContacts(),tb=$('contactBody');tb.innerHTML='';
+ arr.forEach(c=>{
+  const tr=document.createElement('tr');tr.dataset.id=c.id;if(state.selectedIds.has(c.id))tr.classList.add('sel');
+  tr.innerHTML='<td><div class="namecell"><span class="person-icon">👤</span><span>'+esc(c.displayName||'(Adsız)')+'</span></div></td>'+
+  '<td>'+esc(c.email)+'</td><td>'+esc(c.businessPhone)+'</td><td>'+esc(c.homePhone)+'</td>';
+  tr.addEventListener('click',e=>{
+   if(e.ctrlKey){state.selectedIds.has(c.id)?state.selectedIds.delete(c.id):state.selectedIds.add(c.id)}
+   else if(e.shiftKey){state.selectedIds.add(c.id)}
+   else{state.selectedIds.clear();state.selectedIds.add(c.id)}
+   renderTable();updateStatus();
+  });
+  tr.addEventListener('dblclick',()=>openContactDialog(c));
+  tb.appendChild(tr);
+ });
+ $('emptyState').style.display=arr.length?'none':'flex';
+}
+function updateStatus(){
+ const n=visibleContacts().length;
+ $('countCell').textContent=n+' kişi';
+ let label="Ana Kimlik'in Kişileri";
+ if(state.folder==='shared')label='Paylaşılan Kişiler';
+ if(state.folder.startsWith('group:')){const g=state.data.groups.find(x=>x.id===state.folder.slice(6));if(g)label=g.name}
+ $('descCell').textContent=state.selectedIds.size?state.selectedIds.size+' öğe seçildi':label;
+}
+function renderAll(){renderTree();renderTable();updateStatus();buildMenus()}
+
+function dlg(cfg){
+ const ov=$('overlay');ov.innerHTML='';
+ const d=document.createElement('div');d.className='dialog';d.style.width=(cfg.width||420)+'px';
+ const head=document.createElement('div');head.className='dlg-head';
+ const title=document.createElement('span');title.textContent=cfg.title||'Adres Defteri';
+ const x=document.createElement('button');x.className='dlg-x';x.textContent='X';x.addEventListener('click',()=>closeDlg());
+ head.append(title,x);d.appendChild(head);
+ const body=document.createElement('div');body.className='dlg-body';
+ if(typeof cfg.body==='string')body.innerHTML=cfg.body;else if(cfg.body)body.appendChild(cfg.body);
+ d.appendChild(body);
+ const foot=document.createElement('div');foot.className='dlg-foot';
+ (cfg.buttons||[{label:'Tamam'}]).forEach(b=>{
+  const bt=document.createElement('button');bt.className='xp-btn';bt.textContent=b.label;
+  bt.addEventListener('click',()=>{const r=b.onClick?b.onClick(body,d):undefined;if(r!==false)closeDlg()});foot.appendChild(bt)
+ });
+ d.appendChild(foot);ov.appendChild(d);ov.style.display='flex';
+ setTimeout(()=>{const f=d.querySelector('input,select,textarea,button');if(f)f.focus()},0);
+ return {d,body};
+}
+function closeDlg(){$('overlay').style.display='none';$('overlay').innerHTML=''}
+
+function contactForm(c){
+ const v=k=>esc(c[k]||'');
+ const wrap=document.createElement('div');
+ wrap.innerHTML=
+ '<div class="tabs"><div class="tab active" data-tab="name">Ad</div><div class="tab" data-tab="home">Ev</div><div class="tab" data-tab="business">İş</div><div class="tab" data-tab="personal">Kişisel</div></div>'+
+ '<div class="tabbox">'+
+ '<div class="tabpage" data-page="name"><div class="formgrid">'+
+ '<label>Ad:</label><input data-f="firstName" value="'+v('firstName')+'">'+
+ '<label>İkinci Ad:</label><input data-f="middleName" value="'+v('middleName')+'">'+
+ '<label>Soyad:</label><input data-f="lastName" value="'+v('lastName')+'">'+
+ '<label>Görünen Ad:</label><input data-f="displayName" value="'+v('displayName')+'">'+
+ '<label>E-posta Adresi:</label><input data-f="email" value="'+v('email')+'">'+
+ '</div></div>'+
+ '<div class="tabpage hidden" data-page="home"><div class="formgrid">'+
+ '<label>Ev Telefonu:</label><input data-f="homePhone" value="'+v('homePhone')+'">'+
+ '<label>Cep Telefonu:</label><input data-f="mobilePhone" value="'+v('mobilePhone')+'">'+
+ '<label>Ev Adresi:</label><textarea data-f="homeAddress">'+v('homeAddress')+'</textarea>'+
+ '<label>Web Sayfası:</label><input data-f="web" value="'+v('web')+'">'+
+ '</div></div>'+
+ '<div class="tabpage hidden" data-page="business"><div class="formgrid">'+
+ '<label>Şirket:</label><input data-f="company" value="'+v('company')+'">'+
+ '<label>Görev:</label><input data-f="jobTitle" value="'+v('jobTitle')+'">'+
+ '<label>İş Telefonu:</label><input data-f="businessPhone" value="'+v('businessPhone')+'">'+
+ '<label>İş Adresi:</label><textarea data-f="businessAddress">'+v('businessAddress')+'</textarea>'+
+ '</div></div>'+
+ '<div class="tabpage hidden" data-page="personal"><div class="formgrid">'+
+ '<label>Doğum Günü:</label><input data-f="birthday" value="'+v('birthday')+'" placeholder="gg.aa.yyyy">'+
+ '<label>Notlar:</label><textarea data-f="notes">'+v('notes')+'</textarea>'+
+ '</div></div></div>';
+ wrap.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  wrap.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===t));
+  wrap.querySelectorAll('.tabpage').forEach(p=>p.classList.toggle('hidden',p.dataset.page!==t.dataset.tab));
+ }));
+ return wrap;
+}
+function collectContact(form,c){
+ form.querySelectorAll('[data-f]').forEach(el=>c[el.dataset.f]=el.value.trim());
+ if(!c.displayName)c.displayName=[c.firstName,c.middleName,c.lastName].filter(Boolean).join(' ')||c.email||'(Adsız)';
+ return c;
+}
+function openContactDialog(existing){
+ const isNew=!existing,c=existing?JSON.parse(JSON.stringify(existing)):{id:uid('c'),firstName:'',middleName:'',lastName:'',displayName:'',email:'',homePhone:'',businessPhone:'',mobilePhone:'',company:'',jobTitle:'',homeAddress:'',businessAddress:'',birthday:'',web:'',notes:''};
+ const form=contactForm(c);
+ dlg({title:(isNew?'Yeni Kişi':'Özellikler'),width:500,body:form,buttons:[
+  {label:'Tamam',onClick:()=>{
+    collectContact(form,c);
+    if(isNew)state.data.contacts.push(c);else Object.assign(existing,c);
+    saveData();
+  }},
+  {label:'İptal'}
+ ]});
+}
+
+function openGroupDialog(existing){
+ const isNew=!existing,g=existing?JSON.parse(JSON.stringify(existing)):{id:uid('g'),name:'Yeni Grup',memberIds:[]};
+ const wrap=document.createElement('div');
+ wrap.innerHTML='<div class="formgrid" style="grid-template-columns:70px 1fr;margin-bottom:10px"><label>Grup Adı:</label><input id="gname" value="'+esc(g.name)+'"></div>'+
+ '<div class="group-layout"><div><div style="margin-bottom:4px">Kişiler:</div><div class="listbox" id="allContacts"></div></div>'+
+ '<div class="midbuttons"><button class="smallbtn" id="addMember">&gt;</button><button class="smallbtn" id="removeMember">&lt;</button></div>'+
+ '<div><div style="margin-bottom:4px">Üyeler:</div><div class="listbox" id="members"></div></div></div>';
+ let leftSel=null,rightSel=null;
+ function redraw(){
+  const all=wrap.querySelector('#allContacts'),members=wrap.querySelector('#members');
+  all.innerHTML='';members.innerHTML='';
+  state.data.contacts.filter(c=>!g.memberIds.includes(c.id)).forEach(c=>{const r=document.createElement('div');r.className='listrow'+(leftSel===c.id?' sel':'');r.textContent=c.displayName;r.onclick=()=>{leftSel=c.id;redraw()};all.appendChild(r)});
+  g.memberIds.map(id=>state.data.contacts.find(c=>c.id===id)).filter(Boolean).forEach(c=>{const r=document.createElement('div');r.className='listrow'+(rightSel===c.id?' sel':'');r.textContent=c.displayName;r.onclick=()=>{rightSel=c.id;redraw()};members.appendChild(r)});
+ }
+ wrap.querySelector('#addMember').onclick=()=>{if(leftSel&&!g.memberIds.includes(leftSel)){g.memberIds.push(leftSel);leftSel=null;redraw()}};
+ wrap.querySelector('#removeMember').onclick=()=>{if(rightSel){g.memberIds=g.memberIds.filter(x=>x!==rightSel);rightSel=null;redraw()}};
+ redraw();
+ dlg({title:isNew?'Yeni Grup':'Grup Özellikleri',width:560,body:wrap,buttons:[
+  {label:'Tamam',onClick:()=>{
+    g.name=wrap.querySelector('#gname').value.trim()||'Adsız Grup';
+    if(isNew)state.data.groups.push(g);else Object.assign(existing,g);
+    saveData();
+  }},
+  {label:'İptal'}
+ ]});
+}
+
+function selectedContacts(){return state.data.contacts.filter(c=>state.selectedIds.has(c.id))}
+function properties(){
+ if(state.folder.startsWith('group:')&&state.selectedIds.size===0){const g=state.data.groups.find(x=>x.id===state.folder.slice(6));if(g)return openGroupDialog(g)}
+ const c=selectedContacts()[0];if(c)openContactDialog(c)
+}
+function confirmDelete(){
+ const cs=selectedContacts();
+ if(!cs.length&&state.folder.startsWith('group:')){
+  const g=state.data.groups.find(x=>x.id===state.folder.slice(6));if(!g)return;
+  dlg({title:'Grubu Sil',body:'<div>“'+esc(g.name)+'” grubunu silmek istediğinizden emin misiniz?</div>',buttons:[
+   {label:'Evet',onClick:()=>{state.data.groups=state.data.groups.filter(x=>x.id!==g.id);state.folder='contacts';saveData()}},{label:'Hayır'}
+  ]});return;
+ }
+ if(!cs.length)return;
+ dlg({title:'Kişileri Sil',body:'<div>Seçili '+cs.length+' kişiyi Adres Defteri’nden silmek istediğinizden emin misiniz?</div>',buttons:[
+  {label:'Evet',onClick:()=>{
+   const ids=new Set(cs.map(c=>c.id));state.data.contacts=state.data.contacts.filter(c=>!ids.has(c.id));
+   state.data.groups.forEach(g=>g.memberIds=g.memberIds.filter(id=>!ids.has(id)));state.selectedIds.clear();saveData()
+  }},{label:'Hayır'}
+ ]});
+}
+
+function exportCsv(){
+ const rows=[['Ad','E-posta','Ev Telefonu','İş Telefonu','Cep Telefonu','Şirket','Görev','Ev Adresi','İş Adresi','Notlar']];
+ state.data.contacts.forEach(c=>rows.push([c.displayName,c.email,c.homePhone,c.businessPhone,c.mobilePhone,c.company,c.jobTitle,c.homeAddress,c.businessAddress,c.notes]));
+ const csv='\uFEFF'+rows.map(r=>r.map(x=>'"'+String(x||'').replace(/"/g,'""')+'"').join(',')).join('\r\n');
+ downloadBlob(csv,'text/csv;charset=utf-8',USER+'-Adres-Defteri.csv');
+}
+function downloadBlob(data,type,name){
+ const blob=new Blob([data],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),250);
+}
+function parseCsv(text){
+ const rows=[];let row=[],cur='',q=false;
+ for(let i=0;i<text.length;i++){const ch=text[i];
+  if(q){if(ch==='"'&&text[i+1]==='"'){cur+='"';i++}else if(ch==='"')q=false;else cur+=ch}
+  else if(ch==='"')q=true;else if(ch===','){row.push(cur);cur=''}else if(ch==='\n'){row.push(cur.replace(/\r$/,''));rows.push(row);row=[];cur=''}else cur+=ch
+ }
+ if(cur||row.length){row.push(cur);rows.push(row)}
+ return rows;
+}
+function importFile(file){
+ const reader=new FileReader();
+ reader.onload=()=>{
+  const text=String(reader.result||'');
+  if(/BEGIN:VCARD/i.test(text)){
+   const cards=text.split(/END:VCARD/i).map(x=>x.trim()).filter(Boolean);let count=0;
+   cards.forEach(card=>{
+    const get=k=>{const m=card.match(new RegExp('^'+k+'[^:]*:(.*)$','mi'));return m?m[1].trim():''};
+    const name=get('FN')||get('N').split(';').filter(Boolean).reverse().join(' ');
+    state.data.contacts.push({id:uid('c'),displayName:name||'(Adsız)',firstName:'',middleName:'',lastName:'',email:get('EMAIL'),homePhone:get('TEL'),businessPhone:'',mobilePhone:'',company:get('ORG'),jobTitle:get('TITLE'),homeAddress:'',businessAddress:'',birthday:get('BDAY'),web:get('URL'),notes:get('NOTE')});count++;
+   });saveData();message(count+' kişi içe aktarıldı.');return;
+  }
+  const rows=parseCsv(text);if(rows.length<2){message('İçe aktarılacak geçerli kayıt bulunamadı.');return}
+  const hdr=rows[0].map(x=>x.toLocaleLowerCase('tr'));let count=0;
+  rows.slice(1).forEach(r=>{if(!r.some(Boolean))return;const val=n=>r[hdr.indexOf(n)]||'';
+    state.data.contacts.push({id:uid('c'),displayName:val('ad')||val('name')||'(Adsız)',firstName:'',middleName:'',lastName:'',email:val('e-posta')||val('email'),homePhone:val('ev telefonu'),businessPhone:val('iş telefonu'),mobilePhone:val('cep telefonu'),company:val('şirket'),jobTitle:val('görev'),homeAddress:val('ev adresi'),businessAddress:val('iş adresi'),birthday:'',web:'',notes:val('notlar')});count++;
+  });saveData();message(count+' kişi içe aktarıldı.');
+ };
+ reader.readAsText(file,'UTF-8');
+}
+function message(text,title='Adres Defteri'){dlg({title,body:'<div style="line-height:1.5">'+esc(text)+'</div>',buttons:[{label:'Tamam'}]})}
+function help(){
+ dlg({title:'Adres Defteri Yardımı',width:470,body:'<div style="line-height:1.55"><b>Adres Defteri ile kişilerinizin bilgilerini saklayabilirsiniz.</b><br><br>• Yeni kişi eklemek için <b>Yeni</b> düğmesini kullanın.<br>• Birden fazla kişiyi düzenlemek için gruplar oluşturabilirsiniz.<br>• Kişileri ad, e-posta veya telefonla arayabilirsiniz.<br>• Dosya menüsünden CSV/vCard içe aktarabilir ve CSV dışa aktarabilirsiniz.<br><br>Veriler yerel olarak saklanır ve XP sanal dosya sistemi kullanılabiliyorsa kullanıcı WAB kaydına da yazılır.</div>'});
+}
+function about(){
+ dlg({title:'Adres Defteri Hakkında',width:430,body:'<div class="about"><div class="bigicon">📒</div><div><b>Microsoft Windows Adres Defteri</b><br>Windows XP Professional simülasyonu<br><br>WAB uyumlu kişi yönetimi deneyimi.<br><br>Simülasyon uygulaması — web tabanlı Windows XP projesi.</div></div>'});
+}
+function options(){
+ dlg({title:'Adres Defteri Seçenekleri',width:460,body:'<fieldset><legend>Adres Defteri Dosyası</legend><div style="padding:4px 2px;word-break:break-all">'+esc(WAB_PATH)+'</div></fieldset><fieldset><legend>Görünüm</legend><div>Adres Defteri kayıtları ayrıntılar görünümünde gösterilir.</div></fieldset>',buttons:[{label:'Tamam'}]});
+}
+
+function runAction(a){
+ switch(a){
+  case'newContact':openContactDialog();break;
+  case'newGroup':openGroupDialog();break;
+  case'properties':properties();break;
+  case'delete':confirmDelete();break;
+  case'find':$('searchBox').focus();$('searchBox').select();break;
+  case'import':$('importInput').click();break;
+  case'export':exportCsv();break;
+  case'selectAll':visibleContacts().forEach(c=>state.selectedIds.add(c.id));renderTable();updateStatus();break;
+  case'clearSelection':state.selectedIds.clear();renderTable();updateStatus();break;
+  case'toggleToolbar':state.toolbarVisible=!state.toolbarVisible;document.querySelector('.toolbar').classList.toggle('hidden',!state.toolbarVisible);buildMenus();break;
+  case'toggleStatus':state.statusVisible=!state.statusVisible;$('statusbar').classList.toggle('hidden',!state.statusVisible);buildMenus();break;
+  case'refresh':state.data=loadData();renderAll();break;
+  case'options':options();break;
+  case'help':help();break;
+  case'about':about();break;
+  case'exit':
+   try{if(window.parent&&window.parent.windowManager)window.parent.windowManager.close('wab');}catch(e){}
+   break;
+ }
+}
+
+$('searchBox').addEventListener('input',e=>{state.query=e.target.value;state.selectedIds.clear();renderTable();updateStatus()});
+$('clearSearch').addEventListener('click',()=>{$('searchBox').value='';state.query='';renderTable();updateStatus()});
+$('importInput').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(f)importFile(f);e.target.value=''});
+document.querySelectorAll('.tb').forEach(b=>b.addEventListener('click',()=>runAction(b.dataset.action)));
+document.addEventListener('click',closeMenus);
+document.addEventListener('keydown',e=>{
+ if($('overlay').style.display==='flex'){if(e.key==='Escape'){e.preventDefault();closeDlg()}return}
+ if(e.key==='F5'){e.preventDefault();runAction('refresh');return}
+ if(e.key==='F1'){e.preventDefault();help();return}
+ if(e.key==='Delete'){e.preventDefault();confirmDelete();return}
+ if(e.key==='Enter'&&state.selectedIds.size===1){e.preventDefault();properties();return}
+ if(e.altKey&&e.key==='Enter'){e.preventDefault();properties();return}
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='n'){e.preventDefault();openContactDialog();return}
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='g'){e.preventDefault();openGroupDialog();return}
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='f'){e.preventDefault();runAction('find');return}
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='a'){e.preventDefault();runAction('selectAll');return}
+});
+
+document.querySelectorAll('thead th[data-sort]').forEach(th=>th.addEventListener('click',()=>{
+ const k=th.dataset.sort;if(state.sortKey===k)state.sortDir*=-1;else{state.sortKey=k;state.sortDir=1}renderTable()
+}));
+
+state.data=loadData();
+saveData();
+try{if(window.parent&&window.parent.windowManager&&typeof window.parent.windowManager.setTitle==='function')window.parent.windowManager.setTitle('wab','Adres Defteri - Ana Kimlik')}catch(e){}
+})();
+</script>
+</body>
+</html>

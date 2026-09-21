@@ -1,0 +1,463 @@
+﻿<!--
+WINDOWS XP DENETIM MASASI - ASSET LISTESI
+| Dosya adi | Boyut | Zorunlu | Aciklama |
+| icon.png  | 32x32 | Evet    | XP uygulama ikonu |
+-->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Denetim Masası</title>
+<style>
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden}
+body{font:11px Tahoma,sans-serif;color:#000;background:#fff}
+button,input,select{font:11px Tahoma,sans-serif}
+.app{width:100%;height:100%;display:grid;grid-template-rows:27px 42px 1fr 22px;background:#fff}
+.menubar{display:flex;align-items:center;padding:0 4px;background:#ece9d8;border-bottom:1px solid #aca899}
+.menuitem{padding:5px 7px}
+.menuitem:hover{background:#316ac5;color:#fff}
+.toolbar{display:flex;align-items:center;gap:4px;padding:4px 6px;background:#ece9d8;border-bottom:1px solid #aca899}
+.tb{height:29px;min-width:65px;background:#ece9d8;border:1px solid transparent}
+.tb:hover{border:1px outset #fff}
+.tb:active{border-style:inset}
+.sep{width:1px;height:27px;background:#aca899;border-right:1px solid #fff;margin:0 3px}
+.address{height:24px;min-width:0;flex:1;background:#fff;border:2px inset #fff;display:flex;align-items:center;gap:5px;padding:1px 5px}
+.address img{width:16px;height:16px}
+.main{min-height:0;display:grid;grid-template-columns:205px 1fr}
+.sidebar{overflow:auto;background:linear-gradient(180deg,#7da4e8,#5a75b6);padding:10px 8px}
+.sidebox{margin-bottom:10px;background:#d6e2f8;border:1px solid rgba(255,255,255,.55);border-radius:3px;overflow:hidden}
+.sidehead{padding:5px 8px;font-weight:bold;color:#215dc6;background:linear-gradient(90deg,#fff,#d8e4f8)}
+.sidebody{padding:7px 8px;color:#14366e}
+.sidelink{display:flex;gap:5px;align-items:flex-start;padding:3px 0;cursor:default}
+.sidelink:hover{text-decoration:underline;color:#003399}
+.sidelink img{width:16px;height:16px}
+.content{position:relative;overflow:auto;padding:18px 22px 30px;background:#fff}
+.heading{font-size:19px;font-weight:normal;color:#003399;margin:0 0 16px}
+.category-grid{display:grid;grid-template-columns:repeat(2,minmax(245px,1fr));gap:15px 30px;max-width:900px}
+.category{display:grid;grid-template-columns:48px 1fr;gap:8px;min-height:82px;padding:3px;cursor:default}
+.category:hover .ct{text-decoration:underline}
+.category>img{width:40px;height:40px;object-fit:contain}
+.ct{font-size:13px;font-weight:bold;color:#003399;margin-bottom:3px}
+.cd{color:#333;line-height:1.35}
+.subs{margin-top:5px;color:#003399;line-height:1.5}
+.classic-grid{display:none;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:16px 12px;max-width:900px}
+.classic-item{text-align:center;min-height:85px;padding:7px 4px;border:1px solid transparent;cursor:default}
+.classic-item:hover{background:#eef4ff;border-color:#b6c9e7}
+.classic-item img{display:block;width:32px;height:32px;margin:0 auto 6px;object-fit:contain}
+.status{display:flex;align-items:center;justify-content:space-between;padding:0 7px;background:#ece9d8;border-top:1px solid #aca899;color:#444}
+.shade{display:none;position:absolute;inset:0;z-index:50;background:rgba(0,0,0,.18);align-items:center;justify-content:center;padding:18px}
+.shade.show{display:flex}
+.xp-dialog{width:min(560px,92%);max-height:88%;display:flex;flex-direction:column;background:#ece9d8;border:2px outset #fff;box-shadow:3px 4px 12px rgba(0,0,0,.45)}
+.cap{min-height:25px;display:flex;align-items:center;justify-content:space-between;padding:2px 3px 2px 7px;color:#fff;font-weight:bold;background:linear-gradient(90deg,#0a246a,#3a6ea5)}
+.cap button{width:21px;height:20px;padding:0;color:#fff;background:#d8503c;border:2px outset #fff;font-weight:bold}
+.body{padding:12px;overflow:auto;min-height:120px}
+.actions{display:flex;justify-content:flex-end;gap:7px;padding:0 12px 11px}
+.xp-btn{min-width:78px;height:25px;background:#ece9d8;border:2px outset #fff}
+.xp-btn:active{border-style:inset}
+fieldset{border:1px solid #aca899;margin:0 0 11px;padding:10px}
+legend{padding:0 4px}
+.row{display:grid;grid-template-columns:170px minmax(0,1fr);gap:8px;align-items:center;margin:7px 0}
+.row input[type=text],.row select{width:100%;height:23px;border:2px inset #fff;background:#fff;padding:1px 4px}
+.row input[type=range]{width:100%}
+.check{display:flex;align-items:center;gap:6px;margin:6px 0}
+.preview{min-height:62px;background:#3a6ea5;border:2px inset #fff;color:#fff;display:flex;align-items:center;justify-content:center;padding:8px}
+.program-list{border:2px inset #fff;background:#fff;max-height:230px;overflow:auto}
+.program{display:grid;grid-template-columns:32px 1fr;gap:7px;align-items:center;padding:6px;border-bottom:1px solid #eee}
+.program img{width:28px;height:28px;object-fit:contain}
+.note{padding:7px;background:#ffffe1;border:1px solid #aca899;margin:8px 0}
+.muted{color:#666}
+.doublebox{height:46px;background:#fff;border:2px inset #fff;display:flex;align-items:center;justify-content:center;font-weight:bold}
+@media(max-width:680px){
+  .main{grid-template-columns:155px 1fr}
+  .category-grid{grid-template-columns:1fr}
+  .category{grid-template-columns:38px 1fr}
+  .category>img{width:32px;height:32px}
+  .row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="menubar">
+    <div class="menuitem">Dosya</div>
+    <div class="menuitem">Düzen</div>
+    <div class="menuitem">Görünüm</div>
+    <div class="menuitem">Sık Kullanılanlar</div>
+    <div class="menuitem">Araçlar</div>
+    <div class="menuitem">Yardım</div>
+  </div>
+
+  <div class="toolbar">
+    <button class="tb" id="backBtn">← Geri</button>
+    <button class="tb" id="upBtn">↑ Yukarı</button>
+    <div class="sep"></div>
+    <button class="tb" id="searchBtn">🔍 Ara</button>
+    <button class="tb" id="foldersBtn">📁 Klasörler</button>
+    <div class="sep"></div>
+    <span>Adres</span>
+    <div class="address">
+      <img src="./icons/control.png" onerror="this.onerror=null;this.src='../../icons/window-0.png';" alt="">
+      <span>Denetim Masası</span>
+    </div>
+  </div>
+
+  <div class="main">
+    <aside class="sidebar">
+      <div class="sidebox">
+        <div class="sidehead">Denetim Masası</div>
+        <div class="sidebody">
+          <div class="sidelink" id="toggleView">
+            <img src="./icons/control.png" onerror="this.onerror=null;this.src='../../icons/window-0.png';" alt="">
+            <span>Klasik Görünüme Geç</span>
+          </div>
+        </div>
+      </div>
+      <div class="sidebox">
+        <div class="sidehead">Ayrıca Bkz.</div>
+        <div class="sidebody">
+          <div class="sidelink" data-open="windowsupdate">Windows Update</div>
+          <div class="sidelink" data-open="help">Yardım ve Destek</div>
+        </div>
+      </div>
+      <div class="sidebox">
+        <div class="sidehead">Ayrıntılar</div>
+        <div class="sidebody">
+          <b>Denetim Masası</b><br><br>
+          Bilgisayarınızın görünümünü ve çalışma biçimini değiştiren ayarları yapılandırın.
+        </div>
+      </div>
+    </aside>
+
+    <section class="content">
+      <h1 class="heading" id="heading">Bir kategori seçin</h1>
+      <div class="category-grid" id="categoryGrid"></div>
+      <div class="classic-grid" id="classicGrid"></div>
+
+      <div class="shade" id="shade">
+        <div class="xp-dialog">
+          <div class="cap">
+            <span id="dlgTitle">Ayarlar</span>
+            <button id="dlgX" type="button">×</button>
+          </div>
+          <div class="body" id="dlgBody"></div>
+          <div class="actions">
+            <button class="xp-btn" id="applyBtn" type="button">Uygula</button>
+            <button class="xp-btn" id="okBtn" type="button">Tamam</button>
+            <button class="xp-btn" id="cancelBtn" type="button">İptal</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="status">
+    <span id="statusLeft">9 kategori</span>
+    <span>Microsoft Windows XP Professional</span>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+const F='./icons/control.png';
+const I={
+  appearance:'./icons/display.png',
+  network:'./icons/network.png',
+  programs:'./icons/programs.png',
+  sounds:'./icons/sound.png',
+  system:'./icons/system.png',
+  hardware:'./icons/hardware.png',
+  users:'./icons/users.png',
+  regional:'./icons/regional.png',
+  accessibility:'./icons/accessibility.png',
+  internet:'./icons/internet.png',
+  mouse:'./icons/mouse.png',
+  keyboard:'./icons/keyboard.png',
+  power:'./icons/power.png',
+  date:'./icons/date.png'
+};
+
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function img(src,alt=''){return '<img src="'+src+'" alt="" onerror="this.onerror=null;this.src=\''+F+'\';">'}
+
+const categories=[
+  ['appearance','Görünüm ve Temalar',I.appearance,'Masaüstü görünümünü, ekran ayarlarını ve görev çubuğunu değiştirin.','Görüntü • Görev Çubuğu ve Başlat Menüsü'],
+  ['network','Ağ ve Internet Bağlantıları',I.network,'Internet ve yerel ağ bağlantılarınızı görüntüleyin ve yapılandırın.','Ağ Bağlantıları • Internet Seçenekleri'],
+  ['programs','Program Ekle veya Kaldır',I.programs,'Yüklü programları görüntüleyin ve Windows bileşenlerini yönetin.','Yüklü programlar'],
+  ['sounds','Sesler, Konuşma ve Ses Aygıtları',I.sounds,'Ses düzeyini ve sistem seslerini yapılandırın.','Ses Efektleri ve Ses Aygıtları'],
+  ['performance','Performans ve Bakım',I.system,'Sistem bilgilerini ve güç seçeneklerini görüntüleyin.','Sistem • Güç Seçenekleri'],
+  ['hardware','Yazıcılar ve Diğer Donanım',I.hardware,'Fare, klavye ve bağlı donanım ayarlarını değiştirin.','Fare • Klavye'],
+  ['users','Kullanıcı Hesapları',I.users,'Kullanıcı hesaplarını ve oturum ayarlarını yönetin.','Kullanıcı Hesapları'],
+  ['regional','Tarih, Saat, Dil ve Bölge Seçenekleri',I.regional,'Saat, sayı, tarih ve dil biçimlerini ayarlayın.','Tarih ve Saat • Bölge ve Dil Seçenekleri'],
+  ['accessibility','Erişilebilirlik Seçenekleri',I.accessibility,'Klavye, ekran ve ses erişilebilirlik seçeneklerini ayarlayın.','Erişilebilirlik Seçenekleri']
+];
+
+const classic=[
+  ['display','Görüntü',I.appearance],
+  ['taskbar','Görev Çubuğu ve Başlat Menüsü',I.programs],
+  ['network','Ağ Bağlantıları',I.network],
+  ['internet','Internet Seçenekleri',I.internet],
+  ['addremove','Program Ekle veya Kaldır',I.programs],
+  ['sounds','Ses Efektleri ve Ses Aygıtları',I.sounds],
+  ['system','Sistem',I.system],
+  ['power','Güç Seçenekleri',I.power],
+  ['mouse','Fare',I.mouse],
+  ['keyboard','Klavye',I.keyboard],
+  ['users','Kullanıcı Hesapları',I.users],
+  ['date','Tarih ve Saat',I.date],
+  ['regional','Bölge ve Dil Seçenekleri',I.regional],
+  ['accessibility','Erişilebilirlik Seçenekleri',I.accessibility]
+];
+
+let classicMode=false;
+let currentApply=null;
+
+const categoryGrid=document.getElementById('categoryGrid');
+const classicGrid=document.getElementById('classicGrid');
+const heading=document.getElementById('heading');
+const statusLeft=document.getElementById('statusLeft');
+const shade=document.getElementById('shade');
+const dlgTitle=document.getElementById('dlgTitle');
+const dlgBody=document.getElementById('dlgBody');
+const applyBtn=document.getElementById('applyBtn');
+
+function render(){
+  categoryGrid.innerHTML=categories.map(c=>
+    '<div class="category" data-category="'+c[0]+'">'+img(c[2],c[1])+
+    '<div><div class="ct">'+esc(c[1])+'</div><div class="cd">'+esc(c[3])+
+    '</div><div class="subs">'+esc(c[4])+'</div></div></div>'
+  ).join('');
+
+  classicGrid.innerHTML=classic.map(x=>
+    '<div class="classic-item" data-open="'+x[0]+'">'+img(x[2],x[1])+'<span>'+esc(x[1])+'</span></div>'
+  ).join('');
+
+  categoryGrid.style.display=classicMode?'none':'grid';
+  classicGrid.style.display=classicMode?'grid':'none';
+  heading.textContent=classicMode?'Denetim Masası':'Bir kategori seçin';
+  document.querySelector('#toggleView span').textContent=classicMode?'Kategori Görünümüne Geç':'Klasik Görünüme Geç';
+  statusLeft.textContent=classicMode?(classic.length+' öğe'):(categories.length+' kategori');
+}
+
+function pdoc(){try{return window.parent&&window.parent!==window?window.parent.document:null}catch(_){return null}}
+function parentWin(){try{return window.parent&&window.parent!==window?window.parent:null}catch(_){return null}}
+function store(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(_){}}
+function load(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(_){return d}}
+
+function show(title,html,apply){
+  dlgTitle.textContent=title;
+  dlgBody.innerHTML=html;
+  currentApply=typeof apply==='function'?apply:null;
+  applyBtn.style.display=currentApply?'inline-block':'none';
+  shade.classList.add('show');
+}
+function close(){shade.classList.remove('show');currentApply=null}
+
+document.getElementById('toggleView').onclick=()=>{classicMode=!classicMode;render()};
+document.getElementById('backBtn').onclick=()=>{classicMode=false;render()};
+document.getElementById('upBtn').onclick=()=>{classicMode=false;render()};
+document.getElementById('searchBtn').onclick=()=>show('Ara','<p>Denetim Masası öğeleri kategori ve klasik görünümde listelenir.</p>');
+document.getElementById('foldersBtn').onclick=()=>show('Klasörler','<p>Denetim Masası sistem ayarlarını içerir.</p>');
+document.getElementById('dlgX').onclick=close;
+document.getElementById('cancelBtn').onclick=close;
+document.getElementById('okBtn').onclick=()=>{if(currentApply)currentApply();close()};
+applyBtn.onclick=()=>{if(currentApply)currentApply()};
+shade.onmousedown=e=>{if(e.target===shade)close()};
+
+document.querySelectorAll('[data-open]').forEach(x=>x.onclick=()=>openApplet(x.dataset.open));
+
+categoryGrid.onclick=e=>{
+  const el=e.target.closest('[data-category]');
+  if(!el)return;
+  const map={appearance:'display',network:'network',programs:'addremove',sounds:'sounds',performance:'system',hardware:'mouse',users:'users',regional:'date',accessibility:'accessibility'};
+  openApplet(map[el.dataset.category]||el.dataset.category);
+};
+
+classicGrid.onclick=e=>{
+  const el=e.target.closest('[data-open]');
+  if(el)openApplet(el.dataset.open);
+};
+
+function openApplet(id){
+  if(id==='display')return displayApplet();
+  if(id==='taskbar')return taskbarApplet();
+  if(id==='network')return networkApplet();
+  if(id==='internet')return internetApplet();
+  if(id==='addremove')return programsApplet();
+  if(id==='sounds')return soundApplet();
+  if(id==='system')return systemApplet();
+  if(id==='power')return powerApplet();
+  if(id==='mouse')return mouseApplet();
+  if(id==='keyboard')return keyboardApplet();
+  if(id==='users')return usersApplet();
+  if(id==='date')return dateApplet();
+  if(id==='regional')return regionalApplet();
+  if(id==='accessibility')return accessibilityApplet();
+  if(id==='windowsupdate')return show('Windows Update','<p>Windows Update bu yerel simülasyonda çevrimdışı tutulur.</p>');
+  if(id==='help')return show('Yardım ve Destek','<p>Denetim Masası ayarları Windows XP simülasyonunu yapılandırır.</p>');
+}
+
+function displayApplet(){
+  const s=load('xp_cp_display',{color:'#3a6ea5'});
+  show('Görüntü Özellikleri',
+    '<fieldset><legend>Masaüstü</legend><div class="preview" id="deskPreview">Windows XP Masaüstü</div>'+
+    '<div class="row"><label>Masaüstü rengi:</label><input id="deskColor" type="color" value="'+esc(s.color)+'"></div></fieldset>'+
+    '<div class="note">Uygula, ana XP masaüstünün arka plan rengini değiştirir.</div>',
+    ()=>{
+      const c=document.getElementById('deskColor').value;
+      store('xp_cp_display',{color:c});
+      const d=pdoc(),desk=d&&d.getElementById('desktop');
+      if(desk)desk.style.backgroundColor=c;
+    }
+  );
+  const c=document.getElementById('deskColor'),p=document.getElementById('deskPreview');
+  p.style.background=c.value;
+  c.oninput=()=>p.style.background=c.value;
+}
+
+function taskbarApplet(){
+  const d=pdoc(),tb=d&&d.querySelector('.taskbar');
+  const unlocked=tb?tb.classList.contains('xp-taskbar-unlocked'):false;
+  const auto=tb?tb.classList.contains('xp-taskbar-auto-hide'):false;
+  const notTop=tb?tb.classList.contains('xp-taskbar-not-top'):false;
+  show('Görev Çubuğu ve Başlat Menüsü Özellikleri',
+    '<fieldset><legend>Görev çubuğu görünümü</legend>'+
+    '<label class="check"><input id="tbLock" type="checkbox" '+(!unlocked?'checked':'')+'> Görev çubuğunu kilitle</label>'+
+    '<label class="check"><input id="tbAuto" type="checkbox" '+(auto?'checked':'')+'> Görev çubuğunu otomatik gizle</label>'+
+    '<label class="check"><input id="tbTop" type="checkbox" '+(!notTop?'checked':'')+'> Görev çubuğunu diğer pencerelerin üzerinde tut</label></fieldset>',
+    ()=>{
+      const d=pdoc(),bar=d&&d.querySelector('.taskbar'); if(!bar)return;
+      bar.classList.toggle('xp-taskbar-unlocked',!document.getElementById('tbLock').checked);
+      bar.classList.toggle('xp-taskbar-auto-hide',document.getElementById('tbAuto').checked);
+      bar.classList.toggle('xp-taskbar-not-top',!document.getElementById('tbTop').checked);
+    }
+  );
+}
+
+function networkApplet(){
+  show('Ağ Bağlantıları',
+    '<fieldset><legend>Yerel Ağ</legend>'+
+    '<div class="row"><b>Durum:</b><span>'+(navigator.onLine?'Bağlı':'Bağlı değil')+'</span></div>'+
+    '<div class="row"><b>Bağlantı:</b><span>Yerel Ağ Bağlantısı</span></div>'+
+    '<div class="row"><b>Protokol:</b><span>TCP/IP</span></div></fieldset>'+
+    '<div class="note">Gerçek Windows ağ bağdaştırıcısı değiştirilmez.</div>');
+}
+
+function internetApplet(){
+  const home=load('xp_cp_home','http://www.msn.com/');
+  show('Internet Özellikleri',
+    '<fieldset><legend>Giriş sayfası</legend><div class="row"><label>Adres:</label><input id="homePage" type="text" value="'+esc(home)+'"></div></fieldset>',
+    ()=>store('xp_cp_home',document.getElementById('homePage').value.trim())
+  );
+}
+
+function programsApplet(){
+  let apps=[];
+  try{
+    const p=parentWin();
+    if(p&&p.appRegistry&&Array.isArray(p.appRegistry.apps))apps=p.appRegistry.apps;
+  }catch(_){}
+  if(!apps.length)apps=[
+    {title:'Internet Explorer',icon:I.internet},
+    {title:'Paint',icon:'../../icons/paint_file-3.png'},
+    {title:'Not Defteri',icon:'../../icons/notepad-0.png'}
+  ];
+  show('Program Ekle veya Kaldır',
+    '<p>Şu anda yüklü programlar:</p><div class="program-list">'+apps.slice(0,150).map(a=>
+      '<div class="program">'+img(a.icon||F,a.title||a.id)+'<div><b>'+esc(a.title||a.id||'Program')+'</b><br><span class="muted">Yüklü</span></div></div>'
+    ).join('')+'</div><div class="note">Bu simülasyon gerçek dosyaları kaldırmaz.</div>');
+}
+
+function soundApplet(){
+  let v=75;
+  const d=pdoc(),sl=d&&d.getElementById('xpMasterVolume');
+  if(sl)v=Number(sl.value)||75;
+  show('Ses Efektleri ve Ses Aygıtları',
+    '<fieldset><legend>Aygıt ses düzeyi</legend><div class="row"><label>Ses düzeyi:</label><input id="vol" type="range" min="0" max="100" value="'+v+'"></div>'+
+    '<label class="check"><input id="mute" type="checkbox"> Sessiz</label></fieldset>',
+    ()=>{
+      const d=pdoc(),s=d&&d.getElementById('xpMasterVolume'); if(!s)return;
+      s.value=document.getElementById('mute').checked?0:document.getElementById('vol').value;
+      s.dispatchEvent(new Event('input',{bubbles:true}));
+      s.dispatchEvent(new Event('change',{bubbles:true}));
+    }
+  );
+}
+
+function systemApplet(){
+  show('Sistem Özellikleri',
+    '<fieldset><legend>Genel</legend><p><b>Microsoft Windows XP Professional</b><br>Sürüm 2002<br>Service Pack 3</p>'+
+    '<p>Kayıtlı kullanıcı:<br><b>Owner</b></p><p>Bilgisayar:<br>Intel Pentium 4 2.40 GHz<br>512 MB RAM</p></fieldset>'+
+    '<div class="muted">'+esc(navigator.userAgent)+'</div>');
+}
+
+function powerApplet(){
+  const s=load('xp_cp_power',{monitor:'20'});
+  show('Güç Seçenekleri Özellikleri',
+    '<fieldset><legend>Güç düzenleri</legend><div class="row"><label>Monitörü kapat:</label><select id="pm">'+
+    ['5','10','20','30','never'].map(x=>'<option value="'+x+'" '+(s.monitor===x?'selected':'')+'>'+(x==='never'?'Hiçbir zaman':x+' dakika sonra')+'</option>').join('')+
+    '</select></div></fieldset>',
+    ()=>store('xp_cp_power',{monitor:document.getElementById('pm').value})
+  );
+}
+
+function mouseApplet(){
+  show('Fare Özellikleri',
+    '<fieldset><legend>Düğmeler</legend><div class="row"><label>Çift tıklama hızı:</label><input type="range" min="0" max="100" value="50"></div>'+
+    '<div class="doublebox" id="dbl">Burayı çift tıklayın</div></fieldset><div id="dblText" class="muted">Test bekleniyor.</div>');
+  document.getElementById('dbl').ondblclick=()=>document.getElementById('dblText').textContent='Çift tıklama algılandı.';
+}
+
+function keyboardApplet(){
+  show('Klavye Özellikleri',
+    '<fieldset><legend>Karakter yineleme</legend><div class="row"><label>Yineleme gecikmesi:</label><input type="range" min="0" max="100" value="45"></div>'+
+    '<div class="row"><label>Yineleme hızı:</label><input type="range" min="0" max="100" value="70"></div></fieldset>'+
+    '<div class="note">Gerçek işletim sistemi klavye ayarı değiştirilmez.</div>');
+}
+
+function usersApplet(){
+  show('Kullanıcı Hesapları',
+    '<fieldset><legend>Bir hesap seçin</legend>'+
+    '<div class="program">'+img(I.users,'Owner')+'<div><b>Owner</b><br><span class="muted">Bilgisayar yöneticisi</span></div></div>'+
+    '<div class="program">'+img(I.users,'Guest')+'<div><b>Guest</b><br><span class="muted">Konuk hesabı kapalı</span></div></div></fieldset>');
+}
+
+function dateApplet(){
+  const now=new Date();
+  show('Tarih ve Saat Özellikleri',
+    '<fieldset><legend>Tarih ve Saat</legend><div class="row"><b>Tarih:</b><span>'+esc(now.toLocaleDateString('tr-TR'))+'</span></div>'+
+    '<div class="row"><b>Saat:</b><span id="live">'+esc(now.toLocaleTimeString('tr-TR'))+'</span></div>'+
+    '<div class="row"><b>Saat dilimi:</b><span>'+esc(Intl.DateTimeFormat().resolvedOptions().timeZone||'Yerel')+'</span></div></fieldset>'+
+    '<div class="note">Tarayıcı güvenliği nedeniyle gerçek sistem saati değiştirilmez.</div>');
+  const live=document.getElementById('live');
+  const timer=setInterval(()=>{
+    if(!shade.classList.contains('show')){clearInterval(timer);return}
+    live.textContent=new Date().toLocaleTimeString('tr-TR');
+  },1000);
+}
+
+function regionalApplet(){
+  show('Bölge ve Dil Seçenekleri',
+    '<fieldset><legend>Standartlar ve biçimler</legend><div class="row"><label>Biçim:</label><select><option>Türkçe (Türkiye)</option><option>English (United States)</option></select></div>'+
+    '<div class="row"><label>Konum:</label><select><option>Türkiye</option></select></div></fieldset>');
+}
+
+function accessibilityApplet(){
+  const s=load('xp_cp_access',{sticky:false,contrast:false});
+  show('Erişilebilirlik Seçenekleri',
+    '<fieldset><legend>Klavye</legend><label class="check"><input id="sticky" type="checkbox" '+(s.sticky?'checked':'')+'> Yapışkan Tuşları kullan</label></fieldset>'+
+    '<fieldset><legend>Görüntü</legend><label class="check"><input id="contrast" type="checkbox" '+(s.contrast?'checked':'')+'> Yüksek Karşıtlık kullan</label></fieldset>',
+    ()=>store('xp_cp_access',{sticky:document.getElementById('sticky').checked,contrast:document.getElementById('contrast').checked})
+  );
+}
+
+render();
+})();
+</script>
+</body>
+</html>
+
+

@@ -1,0 +1,1158 @@
+<!--
+LIMEWIRE WEB EDITION - ASSET LISTESI
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama |
+|------------|----------------------|------------|----------------------------------------------|
+| icon.png   | 32x32                | Zorunlu    | XP masaustu / Start Menu LimeWire ikonu     |
+
+NOTLAR
+- Bu uygulama Windows XP donemi LimeWire 4.x deneyimini web icinde yeniden olusturur.
+- Gercek Gnutella/P2P agina baglanmaz; arama, peer, download ve upload akislari yerel simule edilir.
+- Kullanici kendi yerel dosyalarini Library'ye ekleyebilir; bunlar sadece bu oturumda onizlenebilir.
+- Dis Luna baslik cubugu / minimize / maximize / close parent WindowManager tarafindan cizilir.
+- Native alert(), confirm(), prompt() kullanilmaz; tum mesajlar .xp-dialog ile verilir.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LimeWire</title>
+<style>
+:root{
+  --xp:#ECE9D8;
+  --xp-line:#ACA899;
+  --xp-inset:#7F9DB9;
+  --lime:#8fbd2c;
+  --lime-dark:#4f7611;
+  --lime-soft:#dcebb7;
+  --blue:#316AC5;
+  --navy:#0A246A;
+  --text:#111;
+}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden}
+body,button,input,select,textarea{font:11px Tahoma,Arial,sans-serif}
+body{background:var(--xp);color:var(--text)}
+button{cursor:default}
+#app{
+  width:100%;height:100%;min-width:820px;min-height:560px;
+  display:grid;
+  grid-template-rows:25px 46px 33px minmax(0,1fr) 145px 22px;
+  background:var(--xp);
+}
+
+/* Menu */
+.menubar{
+  display:flex;align-items:center;padding:0 4px;
+  border-bottom:1px solid var(--xp-line);background:var(--xp);user-select:none
+}
+.menu{position:relative;height:24px;padding:0 7px;display:flex;align-items:center}
+.menu:hover,.menu.open{background:var(--blue);color:#fff}
+.dropdown{
+  display:none;position:absolute;left:0;top:23px;z-index:12000;
+  min-width:230px;padding:2px;background:#fff;color:#000;
+  border:1px solid #716F64;box-shadow:2px 2px 4px rgba(0,0,0,.35)
+}
+.menu.open .dropdown{display:block}
+.mi{min-height:22px;display:flex;align-items:center;padding:3px 8px 3px 25px;white-space:nowrap}
+.mi:hover{background:var(--blue);color:#fff}
+.mi.disabled{color:#999;pointer-events:none}
+.shortcut{margin-left:auto;padding-left:20px;color:#777}
+.mi:hover .shortcut{color:#fff}
+.sep{height:1px;background:var(--xp-line);border-bottom:1px solid #fff;margin:3px 2px}
+
+/* Branded top strip */
+.brandbar{
+  display:flex;align-items:center;padding:4px 7px;gap:8px;
+  background:linear-gradient(#f7f9f1,#e1e9ce);
+  border-bottom:1px solid #9aaa75
+}
+.brandMark{
+  width:36px;height:36px;border-radius:50%;position:relative;
+  background:radial-gradient(circle at 45% 45%,#e8f6bd 0 42%,#9dcb3c 43% 73%,#5c8a16 74% 100%);
+  border:1px solid #486b13;box-shadow:inset 0 0 0 1px rgba(255,255,255,.7)
+}
+.brandMark:before,.brandMark:after{
+  content:"";position:absolute;left:17px;top:5px;width:1px;height:26px;background:#5e8b22
+}
+.brandMark:after{transform:rotate(60deg)}
+.brandSlice{position:absolute;left:17px;top:5px;width:1px;height:26px;background:#5e8b22;transform:rotate(120deg)}
+.brandText{min-width:135px}
+.brandName{font:bold 18px "Trebuchet MS",Tahoma,sans-serif;color:#557f18;line-height:18px}
+.brandSub{font-size:9px;color:#64704f}
+.mainToolbar{display:flex;align-items:center;gap:3px;margin-left:2px}
+.tb{
+  min-width:52px;height:31px;border:1px solid transparent;background:transparent;padding:2px 6px;
+  display:flex;align-items:center;justify-content:center;gap:4px
+}
+.tb:hover{background:#fff;border-color:#97a47b}
+.tb:active{border:1px inset #fff;background:#dce6c9}
+.tb b{font-size:15px;color:#557f18}
+.connectionChip{
+  margin-left:auto;min-width:150px;height:30px;border:1px solid #a4aa98;background:#fff;
+  display:flex;align-items:center;padding:4px 7px;gap:8px
+}
+.bars{height:18px;display:flex;align-items:end;gap:2px}
+.bars i{display:block;width:4px;background:#bbb;border:1px solid #999}
+.bars i:nth-child(1){height:5px}.bars i:nth-child(2){height:8px}.bars i:nth-child(3){height:11px}.bars i:nth-child(4){height:14px}.bars i:nth-child(5){height:17px}
+.bars.online i{background:#83b329;border-color:#5c8115}
+.connectionText{line-height:1.2}.connectionText b{display:block;color:#4e6e18}
+
+/* Main nav */
+.navtabs{
+  display:flex;align-items:end;padding-left:6px;background:#d6d8cf;border-bottom:1px solid #858a7a
+}
+.nav{
+  height:30px;min-width:112px;padding:3px 13px;margin-right:2px;
+  border:1px solid #9fa391;border-bottom:0;border-radius:4px 4px 0 0;
+  background:linear-gradient(#f6f6f2,#d5d7cd);font-weight:bold;color:#444
+}
+.nav.active{
+  height:32px;position:relative;top:1px;background:#fff;color:#547c18;
+  border-color:#7f866f
+}
+
+/* View pages */
+.main{position:relative;min-height:0;background:#fff}
+.page{display:none;position:absolute;inset:0;min-height:0}
+.page.active{display:grid}
+#searchPage{grid-template-columns:210px minmax(0,1fr)}
+#monitorPage,#connectionsPage,#libraryPage{grid-template-columns:1fr}
+
+.side{
+  background:#f3f4ef;border-right:1px solid #9da092;padding:8px;overflow:auto
+}
+.sideTitle{
+  font-weight:bold;color:#536b2f;margin:2px 0 7px;padding-bottom:4px;border-bottom:1px solid #c7cbbb
+}
+.searchBox{
+  display:grid;grid-template-columns:1fr auto;gap:4px;margin-bottom:8px
+}
+.textbox,.selectbox{
+  height:24px;background:#fff;border:2px inset #fff;padding:2px 4px
+}
+.textbox{width:100%}.selectbox{width:100%}
+.go{
+  min-width:52px;height:24px;background:var(--xp);border:2px outset #fff;font-weight:bold
+}
+.go:active{border-style:inset}
+.filter{
+  display:flex;align-items:center;gap:5px;padding:4px 3px;border-radius:2px;cursor:default
+}
+.filter:hover{background:#e3ead2}
+.filter.active{background:#cadca5;border:1px solid #9eb66a;padding:3px 2px}
+.filterIcon{width:18px;text-align:center;font-size:14px}
+.check{display:flex;align-items:center;gap:6px;margin:6px 0}
+.hint{font-size:10px;color:#676d60;line-height:1.4}
+
+.contentPane{display:grid;grid-template-rows:30px minmax(0,1fr);min-width:0}
+.listHeader{
+  display:flex;align-items:center;padding:3px 7px;background:#f3f4ef;border-bottom:1px solid #aaa
+}
+.listHeader b{color:#4f6e18}.listHeader span{margin-left:6px;color:#666}
+.headerActions{margin-left:auto;display:flex;gap:5px}
+.smallBtn{height:23px;min-width:68px;background:var(--xp);border:2px outset #fff}
+.smallBtn:active{border-style:inset}
+.tableWrap{min-height:0;overflow:auto;background:#fff}
+.grid{
+  width:100%;border-collapse:collapse;table-layout:fixed;background:#fff;font-size:10px
+}
+.grid th{
+  position:sticky;top:0;z-index:2;text-align:left;font-weight:normal;
+  background:#ECE9D8;border-right:1px solid #aaa;border-bottom:1px solid #888;
+  padding:4px 5px;white-space:nowrap
+}
+.grid td{
+  padding:4px 5px;border-bottom:1px solid #eee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.grid tr:nth-child(even) td{background:#fafafa}
+.grid tr.sel td{background:#316AC5;color:#fff}
+.grid tr:hover:not(.sel) td{background:#eef4e1}
+.stars{color:#db9e12;letter-spacing:-1px}
+.speedFast{color:#2f7e18;font-weight:bold}
+.fileType{font-weight:bold;color:#52771d}
+
+/* Monitor */
+.monitorSplit{
+  display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:7px;height:100%;min-height:0;background:#e7e8e2
+}
+.panel{
+  background:#fff;border:1px solid #a0a497;display:grid;grid-template-rows:27px minmax(0,1fr)
+}
+.panelTitle{
+  padding:5px 7px;background:linear-gradient(#f6f7f3,#dfe2d7);border-bottom:1px solid #aaa;
+  font-weight:bold;color:#506c24
+}
+.log{overflow:auto;padding:5px;font:11px "Courier New",monospace;white-space:pre-wrap}
+.logLine{padding:1px 0;border-bottom:1px dotted #eee}
+
+/* Connections */
+.connectionLayout{display:grid;grid-template-rows:36px minmax(0,1fr);height:100%}
+.connectionTop{display:flex;align-items:center;padding:6px 8px;background:#f3f4ef;border-bottom:1px solid #aaa;gap:7px}
+.connectionTop .smallBtn:first-of-type{margin-left:auto}
+.peerQuality{display:inline-block;width:48px;height:8px;background:#ddd;border:1px solid #aaa}
+.peerQuality i{display:block;height:100%;background:#83b329}
+
+/* Library */
+.libraryLayout{display:grid;grid-template-columns:185px minmax(0,1fr);height:100%}
+.libraryTree{background:#f3f4ef;border-right:1px solid #aaa;padding:7px;overflow:auto}
+.treeItem{padding:4px 5px;cursor:default}
+.treeItem:hover{background:#e1e7d4}.treeItem.active{background:#cadca5;border:1px solid #a6b780;padding:3px 4px}
+.libraryContent{display:grid;grid-template-rows:33px minmax(0,1fr)}
+.libraryTools{display:flex;align-items:center;gap:5px;padding:4px 7px;background:#f3f4ef;border-bottom:1px solid #aaa}
+.libraryTools b{color:#4f6e18;margin-right:auto}
+
+/* Transfers */
+.transfers{
+  min-height:0;background:#e7e8e2;border-top:1px solid #858a7a;
+  display:grid;grid-template-rows:27px minmax(0,1fr)
+}
+.transferTabs{display:flex;align-items:end;padding-left:6px;background:#d6d8cf}
+.transferTab{
+  height:25px;min-width:98px;border:1px solid #999;border-bottom:0;background:#d7d9d1;
+  margin-right:2px;padding:2px 10px
+}
+.transferTab.active{height:27px;position:relative;top:1px;background:#fff;font-weight:bold;color:#557c18}
+.transferPane{display:none;position:relative;min-height:0;background:#fff}
+.transferPane.active{display:grid;grid-template-columns:minmax(0,1fr) 118px}
+.transferList{overflow:auto}
+.transferActions{border-left:1px solid #aaa;background:#f3f4ef;padding:6px;display:flex;flex-direction:column;gap:5px}
+.progressOuter{height:12px;border:1px solid #8a8a8a;background:#fff;padding:1px}
+.progressInner{height:100%;background:linear-gradient(90deg,#6e9d22,#a7d34e)}
+.stateDone{color:#397717;font-weight:bold}
+.statePaused{color:#9a6a00}
+.stateError{color:#a22}
+
+/* Status */
+.statusbar{
+  display:grid;grid-template-columns:minmax(0,1fr) 125px 100px 110px;gap:2px;padding:2px;background:var(--xp)
+}
+.status{
+  height:18px;line-height:16px;padding:0 5px;border:1px inset #fff;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+
+/* Dialog */
+.shade{
+  display:none;position:absolute;inset:0;z-index:15000;background:rgba(0,0,0,.18);
+  align-items:center;justify-content:center;padding:18px
+}
+.shade.show{display:flex}
+.xp-dialog{
+  width:min(560px,95vw);max-height:90%;display:flex;flex-direction:column;
+  background:var(--xp);border:2px outset #fff;box-shadow:4px 5px 15px rgba(0,0,0,.5)
+}
+.dtitle{
+  min-height:25px;padding:2px 3px 2px 7px;color:#fff;font-weight:bold;
+  background:linear-gradient(90deg,#0A246A,#3A6EA5);display:flex;align-items:center;justify-content:space-between
+}
+.dx{width:21px;height:20px;padding:0;color:#fff;background:#D8503C;border:2px outset #fff;font-weight:bold}
+.dbody{padding:13px;overflow:auto;line-height:1.45}
+.dactions{display:flex;justify-content:flex-end;gap:7px;padding:0 12px 11px}
+.xpbtn{min-width:82px;height:25px;background:var(--xp);border:2px outset #fff;padding:1px 10px}
+.xpbtn:active{border-style:inset}
+.msg{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start}
+.infoicon{
+  width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  color:#fff;background:#316AC5;border:1px solid #174B9E;font:bold 23px Georgia,serif
+}
+.warnicon{
+  width:32px;height:32px;clip-path:polygon(50% 0,100% 100%,0 100%);
+  background:#F2CD3A;position:relative
+}
+.warnicon:after{content:"!";position:absolute;left:12px;top:8px;font:bold 19px Arial;color:#333}
+.row{display:grid;grid-template-columns:155px minmax(0,1fr);gap:8px;align-items:center;margin:7px 0}
+.group{position:relative;border:1px solid #aaa;padding:13px 10px 9px;margin:10px 0 12px}
+.legend{position:absolute;top:-8px;left:8px;background:var(--xp);padding:0 4px}
+.aboutLogo{
+  width:82px;height:82px;border-radius:50%;position:relative;margin:0 auto 8px;
+  background:radial-gradient(circle at 45% 45%,#e8f6bd 0 42%,#9dcb3c 43% 73%,#5c8a16 74% 100%);
+  border:1px solid #486b13
+}
+.aboutLogo:before,.aboutLogo:after{
+  content:"";position:absolute;left:40px;top:12px;width:2px;height:57px;background:#5e8b22
+}
+.aboutLogo:after{transform:rotate(60deg)}
+.aboutLogo i{position:absolute;left:40px;top:12px;width:2px;height:57px;background:#5e8b22;transform:rotate(120deg)}
+.notice{margin-top:10px;padding:7px;background:#fff7d7;border:1px solid #d7c25e;color:#5b5229}
+input[type=file]{display:none}
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- menus -->
+  <div class="menubar">
+    <div class="menu" data-menu>File
+      <div class="dropdown">
+        <div class="mi" data-cmd="connect">Connect</div>
+        <div class="mi" data-cmd="disconnect">Disconnect</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="importFiles">Add Files to Library...</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="exit">Exit</div>
+      </div>
+    </div>
+    <div class="menu" data-menu>View
+      <div class="dropdown">
+        <div class="mi" data-view="search">Search</div>
+        <div class="mi" data-view="monitor">Monitor</div>
+        <div class="mi" data-view="connections">Connections</div>
+        <div class="mi" data-view="library">Library</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="clearSearch">Clear Search Results</div>
+      </div>
+    </div>
+    <div class="menu" data-menu>Navigation
+      <div class="dropdown">
+        <div class="mi" data-view="search">Search</div>
+        <div class="mi" data-view="connections">Connections</div>
+        <div class="mi" data-view="library">Library</div>
+      </div>
+    </div>
+    <div class="menu" data-menu>Tools
+      <div class="dropdown">
+        <div class="mi" data-cmd="options">Options...</div>
+        <div class="mi" data-cmd="statistics">Statistics</div>
+      </div>
+    </div>
+    <div class="menu" data-menu>Help
+      <div class="dropdown">
+        <div class="mi" data-cmd="help">Using LimeWire</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="about">About LimeWire</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- branded strip -->
+  <div class="brandbar">
+    <div class="brandMark"><span class="brandSlice"></span></div>
+    <div class="brandText">
+      <div class="brandName">LimeWire</div>
+      <div class="brandSub">Gnutella-style sharing simulator</div>
+    </div>
+    <div class="mainToolbar">
+      <button class="tb" data-view="search"><b>⌕</b> Search</button>
+      <button class="tb" data-view="library"><b>▣</b> Library</button>
+      <button class="tb" data-cmd="importFiles"><b>＋</b> Add Files</button>
+      <button class="tb" data-cmd="connect"><b>↔</b> Connect</button>
+    </div>
+    <div class="connectionChip">
+      <div class="bars" id="signalBars"><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="connectionText"><b id="connState">Disconnected</b><span id="connDetail">0 peers</span></div>
+    </div>
+  </div>
+
+  <!-- primary navigation -->
+  <div class="navtabs">
+    <button class="nav active" data-view="search">Search</button>
+    <button class="nav" data-view="monitor">Monitor</button>
+    <button class="nav" data-view="connections">Connections</button>
+    <button class="nav" data-view="library">Library</button>
+  </div>
+
+  <!-- pages -->
+  <main class="main">
+    <section class="page active" id="searchPage">
+      <aside class="side">
+        <div class="sideTitle">Search For Files</div>
+        <div class="searchBox">
+          <input id="searchInput" class="textbox" placeholder="Type search terms..." autocomplete="off">
+          <button id="searchBtn" class="go">Search</button>
+        </div>
+        <div class="sideTitle">File Type</div>
+        <div class="filter active" data-type="All"><span class="filterIcon">★</span> All Types</div>
+        <div class="filter" data-type="Audio"><span class="filterIcon">♫</span> Audio</div>
+        <div class="filter" data-type="Video"><span class="filterIcon">▶</span> Video</div>
+        <div class="filter" data-type="Images"><span class="filterIcon">▧</span> Images</div>
+        <div class="filter" data-type="Documents"><span class="filterIcon">▤</span> Documents</div>
+        <div class="filter" data-type="Programs"><span class="filterIcon">⚙</span> Programs</div>
+        <div class="sideTitle" style="margin-top:12px">Search Options</div>
+        <label class="check"><input id="onlyHigh" type="checkbox"> High quality sources</label>
+        <label class="check"><input id="hideBusy" type="checkbox"> Hide busy hosts</label>
+        <div class="hint" style="margin-top:9px">
+          Search results are generated locally for the XP simulation. No real Gnutella search traffic is sent.
+        </div>
+      </aside>
+
+      <div class="contentPane">
+        <div class="listHeader">
+          <b id="resultTitle">Search</b><span id="resultCount">Enter a query to begin.</span>
+          <div class="headerActions">
+            <button class="smallBtn" id="downloadBtn">Download</button>
+            <button class="smallBtn" id="previewBtn">Preview</button>
+          </div>
+        </div>
+        <div class="tableWrap">
+          <table class="grid" id="resultsTable">
+            <thead>
+              <tr>
+                <th style="width:30%">Name</th>
+                <th style="width:8%">Type</th>
+                <th style="width:10%">Size</th>
+                <th style="width:10%">Speed</th>
+                <th style="width:9%">#</th>
+                <th style="width:13%">Quality</th>
+                <th style="width:20%">Vendor / Host</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="monitorPage">
+      <div class="monitorSplit">
+        <div class="panel">
+          <div class="panelTitle">Incoming Searches</div>
+          <div class="log" id="searchMonitor"></div>
+        </div>
+        <div class="panel">
+          <div class="panelTitle">Upload Requests</div>
+          <div class="log" id="uploadMonitor"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="connectionsPage">
+      <div class="connectionLayout">
+        <div class="connectionTop">
+          <span><b>Gnutella Network</b> — simulated peer mesh</span>
+          <button class="smallBtn" data-cmd="connect">Connect</button>
+          <button class="smallBtn" data-cmd="disconnect">Disconnect</button>
+          <button class="smallBtn" id="addPeerBtn">Add Peer</button>
+        </div>
+        <div class="tableWrap">
+          <table class="grid" id="peerTable">
+            <thead><tr>
+              <th style="width:22%">Host</th><th style="width:12%">Type</th><th style="width:12%">Status</th>
+              <th style="width:12%">Uptime</th><th style="width:12%">Messages</th><th style="width:18%">Vendor</th><th style="width:12%">Quality</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="libraryPage">
+      <div class="libraryLayout">
+        <div class="libraryTree">
+          <div class="sideTitle">Library</div>
+          <div class="treeItem active" data-lib="All">▣ All Files</div>
+          <div class="treeItem" data-lib="Audio">♫ Audio</div>
+          <div class="treeItem" data-lib="Video">▶ Video</div>
+          <div class="treeItem" data-lib="Images">▧ Images</div>
+          <div class="treeItem" data-lib="Documents">▤ Documents</div>
+          <div class="treeItem" data-lib="Programs">⚙ Programs</div>
+          <div class="treeItem" data-lib="Completed">✓ Completed Downloads</div>
+          <div class="sideTitle" style="margin-top:14px">Shared</div>
+          <div class="hint">Files added here are local to the simulator. They are not uploaded to a real network.</div>
+        </div>
+        <div class="libraryContent">
+          <div class="libraryTools">
+            <b id="libraryTitle">All Files</b>
+            <button class="smallBtn" data-cmd="importFiles">Add Files...</button>
+            <button class="smallBtn" id="removeLibraryBtn">Remove</button>
+            <button class="smallBtn" id="openLibraryBtn">Open / Preview</button>
+          </div>
+          <div class="tableWrap">
+            <table class="grid" id="libraryTable">
+              <thead><tr>
+                <th style="width:38%">Name</th><th style="width:10%">Type</th><th style="width:12%">Size</th>
+                <th style="width:16%">Added</th><th style="width:12%">Shared</th><th style="width:12%">Origin</th>
+              </tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- downloads/uploads -->
+  <section class="transfers">
+    <div class="transferTabs">
+      <button class="transferTab active" data-transfer="downloads">Downloads <span id="downloadCount"></span></button>
+      <button class="transferTab" data-transfer="uploads">Uploads <span id="uploadCount"></span></button>
+    </div>
+    <div class="transferPane active" id="downloadsPane">
+      <div class="transferList">
+        <table class="grid" id="downloadTable">
+          <thead><tr>
+            <th style="width:33%">Name</th><th style="width:12%">Size</th><th style="width:14%">Status</th>
+            <th style="width:13%">Speed</th><th style="width:16%">Progress</th><th style="width:12%">Time Left</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="transferActions">
+        <button class="smallBtn" id="pauseDlBtn">Pause</button>
+        <button class="smallBtn" id="resumeDlBtn">Resume</button>
+        <button class="smallBtn" id="cancelDlBtn">Cancel</button>
+        <button class="smallBtn" id="clearDlBtn">Clear Done</button>
+      </div>
+    </div>
+    <div class="transferPane" id="uploadsPane">
+      <div class="transferList">
+        <table class="grid" id="uploadTable">
+          <thead><tr>
+            <th style="width:35%">File</th><th style="width:20%">Host</th><th style="width:15%">Status</th>
+            <th style="width:15%">Speed</th><th style="width:15%">Progress</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="transferActions">
+        <button class="smallBtn" id="clearUploadsBtn">Clear</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="statusbar">
+    <div class="status" id="statusText">LimeWire ready.</div>
+    <div class="status" id="statusFiles">0 shared files</div>
+    <div class="status" id="statusDl">0 downloads</div>
+    <div class="status" id="statusMode">Leaf</div>
+  </div>
+
+  <input id="fileInput" type="file" multiple>
+
+  <!-- dialogs -->
+  <div class="shade" id="shade">
+    <div class="xp-dialog">
+      <div class="dtitle"><span id="dtitle">LimeWire</span><button class="dx" id="dx" type="button">×</button></div>
+      <div class="dbody" id="dbody"></div>
+      <div class="dactions" id="dactions"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(()=>{
+'use strict';
+
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const STORE='xp_limewire_web_v5';
+
+const catalog=[
+  {name:'Creative Commons Chill Mix.mp3',type:'Audio',size:7340032,ext:'mp3',speed:118,sources:8,quality:5,vendor:'LimeWire 4.12',host:'24.18.44.91'},
+  {name:'Open Audio Archive - Live Session.ogg',type:'Audio',size:11800000,ext:'ogg',speed:92,sources:5,quality:4,vendor:'BearShare',host:'68.32.10.14'},
+  {name:'Public Domain Piano Nocturne.mp3',type:'Audio',size:5520000,ext:'mp3',speed:155,sources:12,quality:5,vendor:'LimeWire',host:'81.22.74.102'},
+  {name:'Community Podcast Episode 12.mp3',type:'Audio',size:26300000,ext:'mp3',speed:64,sources:3,quality:3,vendor:'FrostWire',host:'70.91.22.5'},
+  {name:'Open Movie Trailer 720p.avi',type:'Video',size:92300000,ext:'avi',speed:171,sources:9,quality:5,vendor:'LimeWire',host:'75.42.13.88'},
+  {name:'NASA Shuttle Launch Public Domain.mpg',type:'Video',size:146000000,ext:'mpg',speed:133,sources:6,quality:4,vendor:'gtk-gnutella',host:'12.44.180.2'},
+  {name:'Blender Open Movie Clip.avi',type:'Video',size:58200000,ext:'avi',speed:101,sources:4,quality:4,vendor:'LimeWire',host:'89.18.11.44'},
+  {name:'Space Photo Collection.zip',type:'Images',size:15200000,ext:'zip',speed:84,sources:4,quality:4,vendor:'Phex',host:'82.64.7.20'},
+  {name:'Vintage Computer Wallpaper.jpg',type:'Images',size:1280000,ext:'jpg',speed:45,sources:2,quality:4,vendor:'LimeWire',host:'66.31.9.71'},
+  {name:'RFC 2616 HTTP Specification.pdf',type:'Documents',size:1680000,ext:'pdf',speed:35,sources:7,quality:5,vendor:'LimeWire',host:'24.99.41.8'},
+  {name:'Linux Command Line Reference.txt',type:'Documents',size:219000,ext:'txt',speed:18,sources:11,quality:5,vendor:'FrostWire',host:'91.33.4.16'},
+  {name:'Open Source Networking Guide.pdf',type:'Documents',size:3900000,ext:'pdf',speed:49,sources:3,quality:4,vendor:'LimeWire',host:'74.62.15.17'},
+  {name:'7-Zip Portable Open Source.zip',type:'Programs',size:2400000,ext:'zip',speed:72,sources:10,quality:5,vendor:'LimeWire',host:'71.60.110.9'},
+  {name:'VLC Portable Open Source.zip',type:'Programs',size:31200000,ext:'zip',speed:83,sources:6,quality:4,vendor:'LimeWire',host:'90.16.3.50'}
+];
+
+const defaultState={
+  connected:false,
+  activeType:'All',
+  libraryFilter:'All',
+  query:'',
+  downloads:[],
+  uploads:[],
+  library:[
+    {id:'sample-readme',name:'Shared Documents Readme.txt',type:'Documents',size:2480,added:'2006-04-18 15:42',shared:true,origin:'Local',virtual:true}
+  ],
+  settings:{
+    ultrapeer:false,
+    maxDownloads:4,
+    maxUploads:3,
+    downloadSpeed:180,
+    shareFinished:true,
+    startupConnect:true,
+    username:'limeuser'
+  }
+};
+
+let state=loadState();
+let currentResults=[];
+let selectedResult=-1,selectedDownload=-1,selectedLibrary=-1;
+let selectedUpload=-1;
+let localFiles=new Map();
+let monitorTimer=null,networkTimer=null,transferTimer=null;
+let peerStartedAt=Date.now();
+let peers=[];
+let monitorSearches=[],monitorUploads=[];
+let currentView='search';
+
+const shade=$('#shade');
+
+function clone(x){return JSON.parse(JSON.stringify(x))}
+function loadState(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(STORE)||'null');
+    if(!raw)return clone(defaultState);
+    return {
+      ...clone(defaultState),
+      ...raw,
+      settings:{...clone(defaultState.settings),...(raw.settings||{})}
+    }
+  }catch{return clone(defaultState)}
+}
+function saveState(){
+  try{localStorage.setItem(STORE,JSON.stringify(state))}catch{}
+}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function id(){return 'x'+Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
+function fmtBytes(n){
+  n=Number(n)||0;
+  if(n<1024)return n+' B';
+  if(n<1048576)return (n/1024).toFixed(n<10240?1:0)+' KB';
+  if(n<1073741824)return (n/1048576).toFixed(n<10485760?1:0)+' MB';
+  return (n/1073741824).toFixed(2)+' GB'
+}
+function nowStamp(){
+  const d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')
+}
+function status(s){$('#statusText').textContent=s}
+function typeFromName(name,type=''){
+  if(type)return type;
+  const ext=(name.split('.').pop()||'').toLowerCase();
+  if(['mp3','wav','ogg','flac','m4a'].includes(ext))return'Audio';
+  if(['mp4','avi','mpg','mpeg','mov','webm'].includes(ext))return'Video';
+  if(['jpg','jpeg','png','gif','bmp','webp'].includes(ext))return'Images';
+  if(['pdf','txt','doc','docx','rtf','html','htm','csv'].includes(ext))return'Documents';
+  return'Programs'
+}
+function qualityStars(n){return `<span class="stars">${'★'.repeat(n)}${'☆'.repeat(5-n)}</span>`}
+
+/* dialogs */
+function showDialog(title,html,buttons){
+  $('#dtitle').textContent=title;$('#dbody').innerHTML=html;$('#dactions').innerHTML='';
+  (buttons||[{label:'OK',action:hideDialog}]).forEach(b=>{
+    const x=document.createElement('button');x.className='xpbtn';x.type='button';x.textContent=b.label;x.disabled=!!b.disabled;x.onclick=b.action||hideDialog;$('#dactions').appendChild(x)
+  });
+  shade.classList.add('show')
+}
+function hideDialog(){shade.classList.remove('show')}
+$('#dx').onclick=hideDialog;
+shade.addEventListener('mousedown',e=>{if(e.target===shade)hideDialog()});
+function info(msg,title='LimeWire'){
+  showDialog(title,`<div class="msg"><div class="infoicon">i</div><div>${esc(msg).replace(/\n/g,'<br>')}</div></div>`)
+}
+function warn(msg,title='LimeWire'){
+  showDialog(title,`<div class="msg"><div class="warnicon"></div><div>${esc(msg).replace(/\n/g,'<br>')}</div></div>`)
+}
+
+/* native popup ban */
+window.alert=m=>info(String(m));
+window.confirm=m=>{info(String(m));return false};
+window.prompt=m=>{info(String(m));return null};
+
+/* menus */
+function closeMenus(){$$('[data-menu]').forEach(m=>m.classList.remove('open'))}
+$$('[data-menu]').forEach(m=>m.addEventListener('mousedown',e=>{
+  if(e.target.closest('.mi'))return;
+  const was=m.classList.contains('open');closeMenus();if(!was)m.classList.add('open')
+}));
+document.addEventListener('mousedown',e=>{if(!e.target.closest('[data-menu]'))closeMenus()});
+document.addEventListener('click',e=>{
+  const v=e.target.closest('[data-view]')?.dataset.view;
+  if(v){closeMenus();setView(v);return}
+  const cmd=e.target.closest('[data-cmd]')?.dataset.cmd;
+  if(cmd){closeMenus();run(cmd)}
+});
+
+/* view */
+function setView(name){
+  currentView=name;
+  $$('.nav').forEach(b=>b.classList.toggle('active',b.dataset.view===name));
+  $$('.page').forEach(p=>p.classList.toggle('active',p.id===name+'Page'));
+  if(name==='connections')renderPeers();
+  if(name==='library')renderLibrary();
+}
+$$('.nav').forEach(b=>b.onclick=()=>setView(b.dataset.view));
+
+/* network */
+function generatePeers(){
+  const vendors=['LimeWire 4.12.3','LimeWire 4.10.9','BearShare 5.2','gtk-gnutella','Phex 3.0','FrostWire 4.2'];
+  peers=Array.from({length:6+Math.floor(Math.random()*4)},(_,i)=>({
+    host:`${20+Math.floor(Math.random()*190)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${2+Math.floor(Math.random()*250)}:${6346}`,
+    type:i<2?'Ultrapeer':'Peer',
+    status:'Connected',
+    since:Date.now()-Math.floor(Math.random()*3600000),
+    messages:100+Math.floor(Math.random()*8000),
+    vendor:vendors[Math.floor(Math.random()*vendors.length)],
+    quality:55+Math.floor(Math.random()*45)
+  }))
+}
+function connect(){
+  if(state.connected){status('Already connected.');return}
+  state.connected=true;peerStartedAt=Date.now();generatePeers();saveState();renderConnection();renderPeers();
+  status('Connected to the simulated Gnutella network.');
+  lineMonitor('search',`[network] Handshake complete. ${peers.length} peers connected.`);
+  startNetworkActivity()
+}
+function disconnect(){
+  if(!state.connected)return;
+  state.connected=false;peers=[];saveState();renderConnection();renderPeers();
+  clearInterval(networkTimer);networkTimer=null;
+  status('Disconnected from network.');
+  lineMonitor('search','[network] Disconnected.')
+}
+function renderConnection(){
+  $('#signalBars').classList.toggle('online',state.connected);
+  $('#connState').textContent=state.connected?(state.settings.ultrapeer?'Ultrapeer':'Connected'):'Disconnected';
+  $('#connDetail').textContent=state.connected?`${peers.length||'…'} peers`:'0 peers';
+  $('#statusMode').textContent=state.settings.ultrapeer?'Ultrapeer':'Leaf'
+}
+function renderPeers(){
+  const tbody=$('#peerTable tbody');
+  tbody.innerHTML=peers.length?peers.map((p,i)=>{
+    const sec=Math.max(0,Math.floor((Date.now()-p.since)/1000));
+    const up=`${Math.floor(sec/60)}m ${sec%60}s`;
+    return `<tr>
+      <td>${esc(p.host)}</td><td>${esc(p.type)}</td><td>${esc(p.status)}</td><td>${up}</td>
+      <td>${p.messages.toLocaleString()}</td><td>${esc(p.vendor)}</td>
+      <td><span class="peerQuality"><i style="width:${p.quality}%"></i></span></td>
+    </tr>`
+  }).join(''):`<tr><td colspan="7">Not connected.</td></tr>`;
+  renderConnection()
+}
+$('#addPeerBtn').onclick=()=>{
+  if(!state.connected){warn('Connect to the network first.');return}
+  peers.push({
+    host:`${30+Math.floor(Math.random()*180)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*250)}:6346`,
+    type:'Peer',status:'Connected',since:Date.now(),messages:0,vendor:'LimeWire 4.12.3',quality:80
+  });
+  renderPeers()
+};
+
+function startNetworkActivity(){
+  clearInterval(networkTimer);
+  networkTimer=setInterval(()=>{
+    if(!state.connected)return;
+    peers.forEach(p=>{p.messages+=Math.floor(Math.random()*40);p.quality=Math.max(30,Math.min(100,p.quality+Math.floor(Math.random()*11)-5))});
+    if(currentView==='connections')renderPeers();
+    if(Math.random()<.75){
+      const terms=['mp3','wallpaper','linux','open source','manual','video clip','live recording','photos','driver','podcast'];
+      lineMonitor('search',`${fakeHost()} searched for "${terms[Math.floor(Math.random()*terms.length)]}"`);
+    }
+    if(Math.random()<.28 && state.library.length){
+      const f=state.library[Math.floor(Math.random()*state.library.length)];
+      const host=fakeHost();
+      lineMonitor('upload',`${host} requested ${f.name}`);
+      simulateUpload(f,host)
+    }
+  },1800)
+}
+function fakeHost(){return `${20+Math.floor(Math.random()*200)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*250)}`}
+function lineMonitor(which,text){
+  const arr=which==='search'?monitorSearches:monitorUploads;
+  arr.push(`${new Date().toLocaleTimeString()}  ${text}`);
+  if(arr.length>120)arr.splice(0,arr.length-120);
+  const el=which==='search'?$('#searchMonitor'):$('#uploadMonitor');
+  el.innerHTML=arr.map(x=>`<div class="logLine">${esc(x)}</div>`).join('');
+  el.scrollTop=el.scrollHeight
+}
+
+/* Search */
+let activeType=state.activeType||'All';
+$$('.filter').forEach(f=>f.onclick=()=>{
+  $$('.filter').forEach(x=>x.classList.toggle('active',x===f));
+  activeType=f.dataset.type;state.activeType=activeType;saveState();
+  if(state.query)performSearch()
+});
+$('#searchBtn').onclick=performSearch;
+$('#searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')performSearch()});
+
+function hashString(s){
+  let h=2166136261>>>0;
+  for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}
+  return h>>>0
+}
+function generatedResults(q){
+  const h=hashString(q.toLowerCase());
+  const extsByType={
+    Audio:['mp3','ogg'],Video:['avi','mpg','mp4'],Images:['jpg','png'],Documents:['pdf','txt','doc'],Programs:['zip','exe']
+  };
+  const words=['full','archive','collection','demo','live','remaster','classic','portable','guide','sample','edition'];
+  const types=activeType==='All'?Object.keys(extsByType):[activeType];
+  const out=[];
+  for(let i=0;i<9;i++){
+    const type=types[(h+i*7)%types.length],exts=extsByType[type],ext=exts[(h+i)%exts.length];
+    const word=words[(h+i*11)%words.length];
+    const sizeBase=type==='Video'?60e6:type==='Audio'?4e6:type==='Images'?800e3:type==='Programs'?6e6:400e3;
+    const size=Math.floor(sizeBase*(.7+((h>>((i%4)*4)&15)/10)+i*.08));
+    out.push({
+      name:`${q} ${word} ${i+1}.${ext}`,type,size,ext,
+      speed:35+((h+i*31)%170),sources:1+((h+i*17)%14),
+      quality:2+((h+i)%4),vendor:['LimeWire','BearShare','Phex','FrostWire'][(h+i)%4],host:fakeHost()
+    })
+  }
+  return out
+}
+function performSearch(){
+  const q=$('#searchInput').value.trim();
+  if(!q){warn('Enter a search term.');return}
+  state.query=q;saveState();
+  if(!state.connected){
+    connect();
+  }
+  let res=catalog.filter(x=>{
+    const typeOK=activeType==='All'||x.type===activeType;
+    const queryOK=x.name.toLowerCase().includes(q.toLowerCase())||q.length<3;
+    return typeOK&&queryOK
+  });
+  if(res.length<8)res=res.concat(generatedResults(q));
+  if($('#onlyHigh').checked)res=res.filter(x=>x.quality>=4);
+  if($('#hideBusy').checked)res=res.filter((_,i)=>i%4!==0);
+  currentResults=res.slice(0,40).map(x=>({...x}));
+  selectedResult=-1;renderResults();
+  $('#resultTitle').textContent=`Search: ${q}`;
+  $('#resultCount').textContent=`${currentResults.length} results`;
+  status(`Search returned ${currentResults.length} results for "${q}".`);
+  lineMonitor('search',`You searched for "${q}"`);
+}
+function renderResults(){
+  $('#resultsTable tbody').innerHTML=currentResults.map((r,i)=>`
+    <tr data-ri="${i}" class="${i===selectedResult?'sel':''}">
+      <td title="${esc(r.name)}">${esc(r.name)}</td>
+      <td class="fileType">${esc(r.type)}</td>
+      <td>${fmtBytes(r.size)}</td>
+      <td class="speedFast">${r.speed} KB/s</td>
+      <td>${r.sources}</td>
+      <td>${qualityStars(r.quality)}</td>
+      <td>${esc(r.vendor)} — ${esc(r.host)}</td>
+    </tr>`).join('');
+  $$('[data-ri]').forEach(tr=>{
+    tr.onclick=()=>{selectedResult=Number(tr.dataset.ri);renderResults()};
+    tr.ondblclick=()=>{selectedResult=Number(tr.dataset.ri);startDownload(currentResults[selectedResult])}
+  })
+}
+$('#downloadBtn').onclick=()=>{
+  if(selectedResult<0){warn('Select a search result first.');return}
+  startDownload(currentResults[selectedResult])
+};
+$('#previewBtn').onclick=()=>{
+  if(selectedResult<0){warn('Select a search result first.');return}
+  previewEntry(currentResults[selectedResult],false)
+};
+
+/* Download simulator */
+function startDownload(file){
+  if(!file)return;
+  const active=state.downloads.filter(d=>d.status==='Downloading').length;
+  const d={
+    id:id(),name:file.name,type:file.type,size:file.size,
+    progress:0,status:active>=state.settings.maxDownloads?'Queued':'Downloading',
+    speed:0,baseSpeed:file.speed||80,sources:file.sources||1,created:Date.now()
+  };
+  state.downloads.unshift(d);selectedDownload=0;saveState();renderDownloads();status(`Added "${file.name}" to downloads.`);
+  if(!transferTimer)startTransferLoop()
+}
+function startTransferLoop(){
+  clearInterval(transferTimer);
+  transferTimer=setInterval(()=>{
+    let active=state.downloads.filter(d=>d.status==='Downloading').length;
+    for(const d of state.downloads){
+      if(d.status==='Queued' && active<state.settings.maxDownloads){d.status='Downloading';active++}
+      if(d.status!=='Downloading')continue;
+      const jitter=.72+Math.random()*.55;
+      d.speed=Math.max(8,Math.round(Math.min(state.settings.downloadSpeed,d.baseSpeed)*jitter));
+      const bytesPerTick=d.speed*1024*.7;
+      d.progress=Math.min(100,d.progress+(bytesPerTick/d.size*100));
+      if(d.progress>=100){
+        d.progress=100;d.speed=0;d.status='Complete';
+        completeDownload(d)
+      }
+    }
+    for(const u of state.uploads){
+      if(u.status!=='Uploading')continue;
+      u.progress=Math.min(100,u.progress+(1.5+Math.random()*5));
+      u.speed=10+Math.floor(Math.random()*75);
+      if(u.progress>=100){u.progress=100;u.speed=0;u.status='Complete'}
+    }
+    saveState();renderDownloads();renderUploads();renderStatus()
+  },700)
+}
+function completeDownload(d){
+  if(!state.library.some(x=>x.downloadId===d.id)){
+    state.library.unshift({
+      id:id(),downloadId:d.id,name:d.name,type:d.type,size:d.size,added:nowStamp(),
+      shared:state.settings.shareFinished,origin:'Download',virtual:true
+    })
+  }
+  lineMonitor('upload',`Completed download available in Library: ${d.name}`)
+}
+function renderDownloads(){
+  const body=$('#downloadTable tbody');
+  body.innerHTML=state.downloads.length?state.downloads.map((d,i)=>{
+    const remain=d.status==='Downloading'&&d.speed>0?Math.max(0,(d.size*(1-d.progress/100))/(d.speed*1024)):0;
+    const time=d.status==='Complete'?'—':d.status==='Paused'?'—':d.status==='Queued'?'Queued':remain?`${Math.floor(remain/60)}:${String(Math.floor(remain%60)).padStart(2,'0')}`:'—';
+    const cls=d.status==='Complete'?'stateDone':d.status==='Paused'?'statePaused':d.status==='Cancelled'?'stateError':'';
+    return `<tr data-di="${i}" class="${i===selectedDownload?'sel':''}">
+      <td>${esc(d.name)}</td><td>${fmtBytes(d.size)}</td><td class="${cls}">${esc(d.status)}</td>
+      <td>${d.speed?d.speed+' KB/s':'—'}</td>
+      <td><div class="progressOuter"><div class="progressInner" style="width:${d.progress.toFixed(1)}%"></div></div></td>
+      <td>${time}</td>
+    </tr>`
+  }).join(''):`<tr><td colspan="6">No downloads.</td></tr>`;
+  $$('[data-di]').forEach(tr=>tr.onclick=()=>{selectedDownload=Number(tr.dataset.di);renderDownloads()});
+  $('#downloadCount').textContent=state.downloads.length?`(${state.downloads.length})`:''
+}
+$('#pauseDlBtn').onclick=()=>modifySelectedDownload('Paused');
+$('#resumeDlBtn').onclick=()=>modifySelectedDownload('Downloading');
+$('#cancelDlBtn').onclick=()=>modifySelectedDownload('Cancelled');
+$('#clearDlBtn').onclick=()=>{
+  state.downloads=state.downloads.filter(d=>!['Complete','Cancelled'].includes(d.status));selectedDownload=-1;saveState();renderDownloads()
+};
+function modifySelectedDownload(newState){
+  const d=state.downloads[selectedDownload];if(!d){warn('Select a download first.');return}
+  if(d.status==='Complete'||d.status==='Cancelled')return;
+  d.status=newState;saveState();renderDownloads()
+}
+
+/* Upload simulation */
+function simulateUpload(file,host){
+  if(!state.connected||state.uploads.filter(x=>x.status==='Uploading').length>=state.settings.maxUploads)return;
+  state.uploads.unshift({
+    id:id(),name:file.name,host,progress:0,status:'Uploading',speed:0
+  });
+  if(state.uploads.length>25)state.uploads.length=25;
+  renderUploads();saveState()
+}
+function renderUploads(){
+  $('#uploadTable tbody').innerHTML=state.uploads.length?state.uploads.map((u,i)=>`
+    <tr data-ui="${i}" class="${i===selectedUpload?'sel':''}">
+      <td>${esc(u.name)}</td><td>${esc(u.host)}</td><td>${esc(u.status)}</td>
+      <td>${u.speed?u.speed+' KB/s':'—'}</td>
+      <td><div class="progressOuter"><div class="progressInner" style="width:${u.progress}%"></div></div></td>
+    </tr>`).join(''):`<tr><td colspan="5">No uploads.</td></tr>`;
+  $$('[data-ui]').forEach(tr=>tr.onclick=()=>{selectedUpload=Number(tr.dataset.ui);renderUploads()});
+  $('#uploadCount').textContent=state.uploads.length?`(${state.uploads.length})`:''
+}
+$('#clearUploadsBtn').onclick=()=>{state.uploads=state.uploads.filter(u=>u.status==='Uploading');selectedUpload=-1;saveState();renderUploads()};
+
+/* transfer tabs */
+$$('.transferTab').forEach(b=>b.onclick=()=>{
+  $$('.transferTab').forEach(x=>x.classList.toggle('active',x===b));
+  $$('.transferPane').forEach(p=>p.classList.toggle('active',p.id===b.dataset.transfer+'Pane'))
+});
+
+/* Library */
+let libraryFilter=state.libraryFilter||'All';
+$$('[data-lib]').forEach(x=>x.onclick=()=>{
+  $$('[data-lib]').forEach(y=>y.classList.toggle('active',x===y));
+  libraryFilter=x.dataset.lib;state.libraryFilter=libraryFilter;saveState();renderLibrary()
+});
+function filteredLibrary(){
+  if(libraryFilter==='All')return state.library;
+  if(libraryFilter==='Completed')return state.library.filter(x=>x.origin==='Download');
+  return state.library.filter(x=>x.type===libraryFilter)
+}
+function renderLibrary(){
+  const items=filteredLibrary();
+  $('#libraryTitle').textContent=libraryFilter==='All'?'All Files':libraryFilter;
+  $('#libraryTable tbody').innerHTML=items.length?items.map((f,i)=>`
+    <tr data-li="${i}" class="${i===selectedLibrary?'sel':''}">
+      <td>${esc(f.name)}</td><td>${esc(f.type)}</td><td>${fmtBytes(f.size)}</td>
+      <td>${esc(f.added)}</td><td>${f.shared?'Yes':'No'}</td><td>${esc(f.origin)}</td>
+    </tr>`).join(''):`<tr><td colspan="6">No files in this category.</td></tr>`;
+  $$('[data-li]').forEach(tr=>{
+    tr.onclick=()=>{selectedLibrary=Number(tr.dataset.li);renderLibrary()};
+    tr.ondblclick=()=>{selectedLibrary=Number(tr.dataset.li);openSelectedLibrary()}
+  });
+  renderStatus()
+}
+function selectedLibraryEntry(){
+  return filteredLibrary()[selectedLibrary]||null
+}
+$('#fileInput').addEventListener('change',()=>{
+  const files=[...$('#fileInput').files];$('#fileInput').value='';
+  for(const f of files){
+    const entry={
+      id:id(),name:f.name,type:typeFromName(f.name),size:f.size,added:nowStamp(),
+      shared:true,origin:'Local',virtual:false
+    };
+    state.library.unshift(entry);
+    localFiles.set(entry.id,f)
+  }
+  saveState();renderLibrary();status(`${files.length} file(s) added to Library.`)
+});
+$('#removeLibraryBtn').onclick=()=>{
+  const entry=selectedLibraryEntry();if(!entry){warn('Select a library file first.');return}
+  const idx=state.library.findIndex(x=>x.id===entry.id);if(idx>=0)state.library.splice(idx,1);
+  localFiles.delete(entry.id);selectedLibrary=-1;saveState();renderLibrary()
+};
+$('#openLibraryBtn').onclick=openSelectedLibrary;
+function openSelectedLibrary(){
+  const entry=selectedLibraryEntry();if(!entry){warn('Select a library file first.');return}
+  previewEntry(entry,true)
+}
+
+/* Preview */
+let audioCtx=null,previewOsc=null;
+function stopTone(){
+  try{previewOsc?.stop()}catch{}
+  previewOsc=null
+}
+function previewEntry(entry,fromLibrary){
+  stopTone();
+  const local=fromLibrary?localFiles.get(entry.id):null;
+  if(local){
+    const url=URL.createObjectURL(local);
+    if(entry.type==='Audio'){
+      showDialog('Media Preview',`
+        <b>${esc(entry.name)}</b><br><br>
+        <audio controls autoplay style="width:100%" src="${url}"></audio>
+        <div class="hint" style="margin-top:7px">Local file preview. The object URL exists only for this browser session.</div>
+      `,[{label:'Close',action:()=>{URL.revokeObjectURL(url);hideDialog()}}])
+      return
+    }
+    if(entry.type==='Images'){
+      showDialog('Image Preview',`
+        <b>${esc(entry.name)}</b><br><br>
+        <div style="text-align:center;background:#555;padding:8px"><img src="${url}" style="max-width:100%;max-height:330px" onerror="this.onerror=null;this.remove();"></div>
+      `,[{label:'Close',action:()=>{URL.revokeObjectURL(url);hideDialog()}}])
+      return
+    }
+  }
+
+  if(entry.type==='Audio'){
+    showDialog('Audio Preview',`
+      <b>${esc(entry.name)}</b><br><br>
+      <div style="height:70px;border:2px inset #fff;background:#111;display:flex;align-items:center;justify-content:center;color:#94d047;font:14px 'Courier New'">SIMULATED AUDIO PREVIEW</div>
+      <div class="hint" style="margin-top:7px">Search results contain metadata only. A short synthesized preview tone is used instead of copyrighted media.</div>
+    `,[{label:'Play',action:()=>playTone(entry.name)},{label:'Stop',action:stopTone},{label:'Close',action:()=>{stopTone();hideDialog()}}]);
+  }else if(entry.type==='Video'){
+    showDialog('Video Preview',`
+      <b>${esc(entry.name)}</b><br><br>
+      <div style="height:220px;background:#111;color:#ddd;display:flex;align-items:center;justify-content:center;border:2px inset #fff">
+        <div style="text-align:center"><div style="font-size:42px">▶</div><div>No remote media payload in simulator</div></div>
+      </div>
+    `)
+  }else{
+    info(`${entry.name}\n\nMetadata preview only. Downloaded search results are simulated; no remote copyrighted payload is fetched.`,'File Preview')
+  }
+}
+function playTone(seed){
+  stopTone();
+  const C=window.AudioContext||window.webkitAudioContext;if(!C){return}
+  audioCtx=audioCtx||new C();
+  const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  const h=hashString(seed);o.type='sine';o.frequency.value=180+(h%500);
+  g.gain.setValueAtTime(.08,audioCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+1.4);
+  o.connect(g).connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+1.45);previewOsc=o
+}
+
+/* Options & statistics */
+function optionsDialog(){
+  const s=state.settings;
+  showDialog('LimeWire Options',`
+    <fieldset class="group">
+      <legend class="legend">Network</legend>
+      <label class="check"><input id="opUltra" type="checkbox" ${s.ultrapeer?'checked':''}> Operate as an Ultrapeer (simulated)</label>
+      <label class="check"><input id="opStartup" type="checkbox" ${s.startupConnect?'checked':''}> Connect automatically when LimeWire starts</label>
+    </fieldset>
+    <fieldset class="group">
+      <legend class="legend">Transfers</legend>
+      <div class="row"><label>Maximum downloads:</label><input id="opDl" class="textbox" type="number" min="1" max="12" value="${s.maxDownloads}"></div>
+      <div class="row"><label>Maximum uploads:</label><input id="opUl" class="textbox" type="number" min="1" max="12" value="${s.maxUploads}"></div>
+      <div class="row"><label>Download speed cap:</label>
+        <select id="opSpeed" class="selectbox">
+          ${[56,96,128,180,256,512].map(v=>`<option value="${v}" ${s.downloadSpeed===v?'selected':''}>${v} KB/s</option>`).join('')}
+        </select>
+      </div>
+      <label class="check"><input id="opShare" type="checkbox" ${s.shareFinished?'checked':''}> Share completed downloads</label>
+    </fieldset>
+    <fieldset class="group">
+      <legend class="legend">Identity</legend>
+      <div class="row"><label>Nickname:</label><input id="opUser" class="textbox" value="${esc(s.username)}"></div>
+    </fieldset>
+  `,[
+    {label:'OK',action:()=>{
+      s.ultrapeer=$('#opUltra').checked;s.startupConnect=$('#opStartup').checked;
+      s.maxDownloads=Math.max(1,Math.min(12,Number($('#opDl').value)||4));
+      s.maxUploads=Math.max(1,Math.min(12,Number($('#opUl').value)||3));
+      s.downloadSpeed=Number($('#opSpeed').value)||180;
+      s.shareFinished=$('#opShare').checked;s.username=$('#opUser').value.trim()||'limeuser';
+      saveState();renderConnection();hideDialog()
+    }},
+    {label:'Cancel',action:hideDialog}
+  ])
+}
+function statisticsDialog(){
+  const done=state.downloads.filter(d=>d.status==='Complete').length;
+  const total=state.downloads.reduce((a,d)=>a+(d.status==='Complete'?d.size:0),0);
+  showDialog('LimeWire Statistics',`
+    <div class="row"><label>Connection:</label><b>${state.connected?'Connected':'Disconnected'}</b></div>
+    <div class="row"><label>Peers:</label><span>${peers.length}</span></div>
+    <div class="row"><label>Library files:</label><span>${state.library.length}</span></div>
+    <div class="row"><label>Completed downloads:</label><span>${done}</span></div>
+    <div class="row"><label>Downloaded data:</label><span>${fmtBytes(total)}</span></div>
+    <div class="row"><label>Upload records:</label><span>${state.uploads.length}</span></div>
+    <div class="notice">All network statistics are local simulation data. No real Gnutella traffic is generated.</div>
+  `)
+}
+
+/* command dispatcher */
+function run(cmd){
+  if(cmd==='connect')connect();
+  else if(cmd==='disconnect')disconnect();
+  else if(cmd==='importFiles')$('#fileInput').click();
+  else if(cmd==='exit'){try{window.parent.postMessage({type:'XP_APP_CLOSE_REQUEST',app:'limewire'},'*')}catch{}}
+  else if(cmd==='clearSearch'){currentResults=[];selectedResult=-1;renderResults();$('#resultTitle').textContent='Search';$('#resultCount').textContent='Results cleared.'}
+  else if(cmd==='options')optionsDialog();
+  else if(cmd==='statistics')statisticsDialog();
+  else if(cmd==='help')showDialog('Using LimeWire',`
+    <b>Search</b><br>
+    Enter a phrase, choose a file type, then double-click a result or press Download.<br><br>
+    <b>Downloads</b><br>
+    Active transfers appear in the lower pane. Pause, resume or cancel them. Completed items are added to the Library.<br><br>
+    <b>Library</b><br>
+    Add your own local files for this browser session. Audio and images can be previewed locally.<br><br>
+    <b>Connections / Monitor</b><br>
+    These reproduce the classic LimeWire peer/traffic views using a local simulation.<br><br>
+    <b>Important</b><br>
+    This web edition does not connect to the real Gnutella network and never uploads your files to strangers.
+  `);
+  else if(cmd==='about')showDialog('About LimeWire',`
+    <div class="aboutLogo"><i></i></div>
+    <div style="text-align:center">
+      <div style="font:bold 22px 'Trebuchet MS',Tahoma;color:#557f18">LimeWire Web Edition</div>
+      <div>Windows XP Web Simulator</div>
+      <br>
+      <div class="hint">A browser-side recreation inspired by the LimeWire 4.x era.</div>
+    </div>
+    <div class="notice">
+      No original LimeWire executable or Gnutella networking is used. Search results, peers and transfers are simulated locally.
+    </div>
+  `)
+}
+
+/* status */
+function renderStatus(){
+  $('#statusFiles').textContent=`${state.library.length} shared file${state.library.length===1?'':'s'}`;
+  const active=state.downloads.filter(d=>['Downloading','Queued','Paused'].includes(d.status)).length;
+  $('#statusDl').textContent=`${active} download${active===1?'':'s'}`;
+  renderConnection()
+}
+
+/* startup */
+function init(){
+  $('#searchInput').value=state.query||'';
+  $$('.filter').forEach(f=>f.classList.toggle('active',f.dataset.type===activeType));
+  renderResults();renderDownloads();renderUploads();renderLibrary();renderPeers();renderStatus();
+  if(!transferTimer)startTransferLoop();
+  if(state.settings.startupConnect || state.connected){
+    state.connected=false;
+    setTimeout(connect,450)
+  }
+}
+init();
+})();
+</script>
+</body>
+</html>

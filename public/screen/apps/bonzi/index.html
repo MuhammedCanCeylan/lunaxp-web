@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>BonziBUDDY</title>
+<link rel="stylesheet" href="clippy.js/build/clippy.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, sans-serif; }
+
+  /* ====== TAM SAYDAM ARKA PLAN ====== */
+  html, body {
+    width: 100%; height: 100%;
+    background: transparent !important;
+    overflow: hidden;
+    /* Fare tıklamaları body'den geçsin (masaüstüne gitsin) */
+    pointer-events: none !important;
+  }
+
+  /* Bonzi'nin kendisi tıklanabilir olsun */
+  #clippy,
+  .clippy,
+  [id^="clippy"],
+  [class^="clippy"] {
+    pointer-events: auto !important;
+  }
+
+  /* Bonzi'nin konuşma balonu tıklanabilir olsun */
+  .clippy-balloon,
+  .clippy-balloon * {
+    pointer-events: auto !important;
+  }
+
+  /* ====== SAĞ TIK MENÜSÜ ====== */
+  .bonzi-context-menu {
+    position: fixed;
+    background: #ece9d8;
+    border: 2px outset #fff;
+    padding: 2px;
+    min-width: 180px;
+    z-index: 2147483647;
+    display: none;
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.4);
+    pointer-events: auto !important;  /* Menü tıklanabilir olsun */
+  }
+  .bonzi-context-menu.show { display: block; }
+  .bonzi-context-menu .menu-item {
+    padding: 4px 20px 4px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    white-space: nowrap;
+    color: #000;
+  }
+  .bonzi-context-menu .menu-item:hover { background: #000080; color: #fff; }
+  .bonzi-context-menu .menu-separator { height: 1px; background: #999; margin: 2px 0; }
+
+  /* ====== METİN GİRİŞ PENCERESİ ====== */
+  .bonzi-input-window {
+    position: fixed;
+    background: #ece9d8;
+    border: 2px outset #fff;
+    padding: 8px;
+    z-index: 2147483647;
+    display: none;
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.4);
+    min-width: 280px;
+    pointer-events: auto !important;
+  }
+  .bonzi-input-window.show { display: block; }
+  .bonzi-input-window .title-bar {
+    background: #000080;
+    color: #fff;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 3px 6px;
+    margin: -8px -8px 8px -8px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .bonzi-input-window .title-bar .close-btn {
+    cursor: pointer;
+    background: #ece9d8;
+    color: #000;
+    border: 1px outset #fff;
+    padding: 0 4px;
+    font-size: 10px;
+  }
+  .bonzi-input-window textarea {
+    width: 100%;
+    height: 60px;
+    font-size: 11px;
+    font-family: Tahoma, sans-serif;
+    border: 2px inset #fff;
+    padding: 3px;
+    resize: none;
+  }
+  .bonzi-input-window .btn-row {
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+    justify-content: flex-end;
+  }
+  .bonzi-input-window .btn-row button {
+    font-size: 11px;
+    padding: 3px 10px;
+    background: #ece9d8;
+    border: 2px outset #fff;
+    cursor: pointer;
+  }
+  .bonzi-input-window .btn-row button:active { border-style: inset; }
+
+  /* Clippy'nin kendi tooltip/balon CSS'ini saydam tut */
+  .clippy, .clippy-balloon {
+    background: transparent;
+  }
+</style>
+</head>
+<body>
+
+<!-- ====== SAĞ TIK MENÜSÜ ====== -->
+<div class="bonzi-context-menu" id="bonziContextMenu">
+  <div class="menu-item" onclick="tellJoke()">Fıkra Anlat</div>
+  <div class="menu-item" onclick="tellFact()">Gerçek Söyle</div>
+  <div class="menu-item" onclick="singSong()">Şarkı Söyle</div>
+  <div class="menu-item" onclick="poke()">Gıdıkla</div>
+  <div class="menu-separator"></div>
+  <div class="menu-item" onclick="randomAnim()">Rastgele Animasyon</div>
+  <div class="menu-item" onclick="doBackflip()">Takla At</div>
+  <div class="menu-item" onclick="doJuggle()">Jonglör Yap</div>
+  <div class="menu-item" onclick="doSearch()">Ara</div>
+  <div class="menu-item" onclick="doWrite()">Yaz</div>
+  <div class="menu-separator"></div>
+  <div class="menu-item" onclick="doRead()">Seçili Metni Oku</div>
+  <div class="menu-item" onclick="speakCustom()">Konuştur...</div>
+  <div class="menu-separator"></div>
+  <div class="menu-item" onclick="moveRandom()">Rastgele Yürü</div>
+  <div class="menu-item" onclick="gestureRandom()">İşaret Et</div>
+  <div class="menu-item" onclick="stopTalking()">Sustur</div>
+  <div class="menu-separator"></div>
+  <div class="menu-item" onclick="hideBonzi()">Gizle</div>
+  <div class="menu-item" onclick="showBonzi()">Göster</div>
+  <div class="menu-item" onclick="disposeBonzi()">Kapat</div>
+</div>
+
+<!-- ====== METİN GİRİŞ PENCERESİ ====== -->
+<div class="bonzi-input-window" id="bonziInputWindow">
+  <div class="title-bar">
+    <span>Bonzi'ye Ne Söyletmek İstersin?</span>
+    <span class="close-btn" onclick="closeInputWindow()">✕</span>
+  </div>
+  <textarea id="bonziInputText" placeholder="Buraya yaz..."></textarea>
+  <div class="btn-row">
+    <button onclick="closeInputWindow()">İptal</button>
+    <button onclick="submitInputText()">Söyle</button>
+  </div>
+</div>
+
+<!-- Autoplay hatasını sessizce yut -->
+<script>
+  window.addEventListener('unhandledrejection', function(e) {
+    if (e.reason && (e.reason.name === 'NotAllowedError' || e.reason.name === 'AbortError')) {
+      e.preventDefault();
+    }
+  });
+</script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="clippy.js/build/clippy.min.js"></script>
+
+<script>
+  // ============================================
+  // BONZI BUDDY - MASAÜSTÜ ASİSTANI SÜRÜMÜ
+  // Saydam arka plan + sağ tık menüsü
+  // ============================================
+
+  clippy.BASE_PATH = 'clippy.js/agents/';
+
+  let agent = null;
+  let greeted = false;
+  let idleTimer = null;
+  let isHidden = false;
+
+  // ====== Bonzi'yi Yükle ======
+  clippy.load('Bonzi', function (a) {
+    agent = a;
+    agent.show();
+
+    const $el = $(a._el);
+
+    // Bonzi'yi tıklanabilir yap (pointer-events: auto zaten CSS'te var)
+    $el.css('pointer-events', 'auto');
+
+    // Sağ tık menüsü
+    $el.on('contextmenu', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const menu = document.getElementById('bonziContextMenu');
+      menu.style.left = e.clientX + 'px';
+      menu.style.top = e.clientY + 'px';
+      menu.classList.add('show');
+    });
+
+    // Sol tık: gıdıkla
+    $el.on('click', function (e) {
+      if (!greeted) return;
+      if (e.target.closest && e.target.closest('.clippy-balloon')) return;
+      poke();
+    });
+
+    // Çift tık: rastgele animasyon
+    $el.on('dblclick', function () {
+      randomAnim();
+    });
+
+    startIdleBehavior();
+  });
+
+  // Menü dışına tıklanınca menüyü kapat
+  document.addEventListener('click', function (e) {
+    const menu = document.getElementById('bonziContextMenu');
+    if (menu && !menu.contains(e.target)) {
+      menu.classList.remove('show');
+    }
+  });
+
+  // ====== İçerikler ======
+  const jokes = [
+    "What do you call a monkey in a minefield? A BABOOM! Haha!",
+    "Why don't scientists trust atoms? Because they make up everything!",
+    "I told my doctor that I broke my arm in two places. He told me to stop going to those places!",
+    "Computers make very fast, very accurate mistakes.",
+    "Why did the computer go to the doctor? Because it had a virus... a JOKE virus, don't worry!",
+    "I'm not lazy, I'm just in energy-saving mode.",
+    "What do you call a fish with no eyes? A fsh!",
+    "Why did the scarecrow win an award? Because he was outstanding in his field!",
+    "I would tell you a UDP joke, but you might not get it.",
+    "There are 10 types of people in the world: those who understand binary, and those who don't."
+  ];
+
+  const facts = [
+    "A group of flamingos is called a flamboyance!",
+    "Octopuses have three hearts and blue blood!",
+    "Honey never spoils. Archaeologists have found 3000-year-old honey that's still edible!",
+    "Bananas are berries, but strawberries aren't!",
+    "The shortest war in history lasted only 38 minutes!",
+    "A day on Venus is longer than a year on Venus!",
+    "The first computer bug was an actual moth found in a Harvard computer in 1947!",
+    "The average person walks about 100,000 miles in their lifetime!",
+    "Sharks existed before trees. They've been around for over 400 million years!",
+    "There are more possible chess games than atoms in the observable universe!"
+  ];
+
+  const greetings = [
+    "Well hello there! I'm Bonzi, your purple buddy!",
+    "Hey hey! Ready to have some fun today?",
+    "Bonzi's back! Miss me?",
+    "Hello friend! What shall we do today?",
+    "Hiya! I'm here to help... or just goof around!"
+  ];
+
+  const pokeLines = [
+    "Hey! Stop poking me, it tickles! Hehe.",
+    "Hehehe, that tickles!",
+    "Ooh, do that again!",
+    "Hey! Watch the fur!",
+    "That's my tickle spot! Hehehe!"
+  ];
+
+  const idleLines = [
+    "I'm bored... wanna do something?",
+    "Hey, still there?",
+    "I could tell you a joke if you want!",
+    "Did you know I can do a backflip?",
+    "I'm just hanging around, being purple.",
+    "You know, being a purple gorilla is pretty cool."
+  ];
+
+  const song = "Daisy, Daisy, give me your answer do! I'm half crazy all for the love of you!";
+
+  // ====== Yardımcılar ======
+  function ensureGreeted() {
+    if (agent && !greeted) {
+      greeted = true;
+      agent.speak(greetings[Math.floor(Math.random() * greetings.length)]);
+    }
+  }
+
+  function hasAnim(name) {
+    if (!agent || typeof agent.animations !== 'function') return false;
+    try { return agent.animations().indexOf(name) !== -1; } catch (e) { return false; }
+  }
+
+  function playSafe(name, fallback) {
+    if (!agent) return;
+    if (hasAnim(name)) agent.play(name);
+    else if (fallback && hasAnim(fallback)) agent.play(fallback);
+  }
+
+  // ====== Komutlar ======
+  function tellJoke() {
+    if (!agent) return;
+    ensureGreeted();
+    playSafe("Congratulate", "Pleased");
+    setTimeout(() => agent.speak(jokes[Math.floor(Math.random() * jokes.length)]), 500);
+  }
+
+  function tellFact() {
+    if (!agent) return;
+    ensureGreeted();
+    playSafe("Pleased", "Congratulate");
+    setTimeout(() => agent.speak(facts[Math.floor(Math.random() * facts.length)]), 500);
+  }
+
+  function singSong() {
+    if (!agent) return;
+    ensureGreeted();
+    playSafe("Pleased", "Congratulate");
+    setTimeout(() => agent.speak("🎶 " + song + " 🎶"), 500);
+  }
+
+  function poke() {
+    if (!agent) return;
+    playSafe("Alert", "Surprised");
+    setTimeout(() => agent.speak(pokeLines[Math.floor(Math.random() * pokeLines.length)]), 400);
+  }
+
+  function randomAnim() {
+    if (!agent) return;
+    try {
+      const anims = agent.animations();
+      if (anims && anims.length) {
+        agent.play(anims[Math.floor(Math.random() * anims.length)]);
+      }
+    } catch (e) {}
+  }
+
+  function doBackflip() {
+    if (!agent) return;
+    if (hasAnim("Backflip")) {
+      agent.play("Backflip");
+      setTimeout(() => agent.speak("Watch this! Whoa!"), 800);
+    } else {
+      playSafe("Congratulate", "Pleased");
+      setTimeout(() => agent.speak("I'd do a backflip, but I'm feeling dizzy today!"), 500);
+    }
+  }
+
+  function doJuggle() {
+    if (!agent) return;
+    if (hasAnim("Juggle")) {
+      agent.play("Juggle");
+      setTimeout(() => agent.speak("Look at me go!"), 800);
+    } else if (hasAnim("Juggling")) {
+      agent.play("Juggling");
+      setTimeout(() => agent.speak("Look at me go!"), 800);
+    } else {
+      playSafe("Pleased", "Congratulate");
+      setTimeout(() => agent.speak("I would juggle, but I only have two hands and no coconuts!"), 500);
+    }
+  }
+
+  function doSearch() {
+    if (!agent) return;
+    playSafe("Searching", "Think");
+    setTimeout(() => agent.speak("Hmm, let me search for that..."), 500);
+  }
+
+  function doWrite() {
+    if (!agent) return;
+    playSafe("Writing", "Pleased");
+    setTimeout(() => agent.speak("I'm writing something important!"), 500);
+  }
+
+  function doRead() {
+    if (!agent) return;
+    const selection = window.getSelection().toString().trim();
+    if (selection) {
+      agent.speak("You selected: " + selection);
+    } else {
+      agent.speak("Select some text first, then right-click me and choose 'Oku'!");
+    }
+  }
+
+  function speakCustom() {
+    if (!agent) return;
+    const inputWindow = document.getElementById('bonziInputWindow');
+    inputWindow.classList.add('show');
+    inputWindow.style.left = '50%';
+    inputWindow.style.top = '30%';
+    inputWindow.style.transform = 'translate(-50%, -50%)';
+    document.getElementById('bonziInputText').focus();
+  }
+
+  function closeInputWindow() {
+    document.getElementById('bonziInputWindow').classList.remove('show');
+  }
+
+  function submitInputText() {
+    const text = document.getElementById('bonziInputText').value.trim();
+    if (text && agent) agent.speak(text);
+    closeInputWindow();
+  }
+
+  function moveRandom() {
+    if (!agent || typeof agent.moveTo !== 'function') return;
+    agent.moveTo(
+      Math.random() * (window.innerWidth - 200),
+      Math.random() * (window.innerHeight - 300)
+    );
+  }
+
+  function gestureRandom() {
+    if (!agent || typeof agent.gestureAt !== 'function') return;
+    agent.gestureAt(
+      Math.random() * window.innerWidth,
+      Math.random() * window.innerHeight
+    );
+  }
+
+  function stopTalking() {
+    if (!agent) return;
+    agent.stop();
+    setTimeout(() => agent.speak("Okay okay, I'll be quiet now!"), 300);
+  }
+
+  function hideBonzi() {
+    if (!agent) return;
+    agent.hide();
+    isHidden = true;
+  }
+
+  function showBonzi() {
+    if (!agent) return;
+    agent.show();
+    isHidden = false;
+    agent.speak("I'm back!");
+  }
+
+  function disposeBonzi() {
+    if (!agent) return;
+    agent.speak("Goodbye! See you next time!");
+    setTimeout(() => { agent.dispose(); agent = null; }, 1500);
+  }
+
+  // ====== Boşta Davranış ======
+  function startIdleBehavior() {
+    if (idleTimer) clearInterval(idleTimer);
+    idleTimer = setInterval(() => {
+      if (!agent || isHidden) return;
+      if (Math.random() < 0.3) {
+        agent.speak(idleLines[Math.floor(Math.random() * idleLines.length)]);
+      }
+      if (Math.random() < 0.5) randomAnim();
+    }, 45000); // 45 saniyede bir
+  }
+
+  // ====== Klavye Kısayolları ======
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'B') {
+      e.preventDefault();
+      if (isHidden) showBonzi(); else hideBonzi();
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,2257 @@
+<!--
+HYPERTERMINAL XP SIMULATOR - ASSET LISTESI
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama |
+|------------|---------------------|------------|---------------------|
+| icon.png   | 32x32               | Zorunlu    | XP masaustu / registry ikonu |
+|
+| NOT:
+| Uygulama arayuzu, toolbar ikonlari ve dialog grafikleri CSS/HTML ile uretilir.
+| Harici gorsel, CDN, font, ses, backend veya sunucu gerekmez.
+-->
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HyperTerminal</title>
+
+<style>
+:root {
+    --xp-bg: #ece9d8;
+    --xp-border: #aca899;
+    --xp-blue-border: #7f9db9;
+    --xp-select: #316ac5;
+    --xp-select-text: #fff;
+    --xp-face: #ece9d8;
+    --xp-disabled: #aca899;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+body {
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    background: var(--xp-bg);
+    color: #000;
+    user-select: none;
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+}
+
+button {
+    min-width: 72px;
+    height: 23px;
+    padding: 1px 12px;
+    background: #ece9d8;
+    color: #000;
+    border-top: 2px solid #fff;
+    border-left: 2px solid #fff;
+    border-right: 2px solid #777;
+    border-bottom: 2px solid #777;
+}
+
+button:active {
+    border-top: 2px solid #777;
+    border-left: 2px solid #777;
+    border-right: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    padding: 2px 11px 0 13px;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 1px dotted #000;
+    outline-offset: -3px;
+}
+
+/* ---------------------------------------------------------
+   ROOT APPLICATION
+--------------------------------------------------------- */
+
+#hyperterminal {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-rows: 21px 31px minmax(0,1fr) 20px;
+    background: #fff;
+    position: relative;
+}
+
+/* ---------------------------------------------------------
+   MENU BAR
+--------------------------------------------------------- */
+
+.menu-bar {
+    height: 21px;
+    background: var(--xp-bg);
+    display: flex;
+    align-items: center;
+    padding: 1px 3px;
+    border-bottom: 1px solid #d5d2c6;
+    position: relative;
+    z-index: 30;
+}
+
+.menu-button {
+    padding: 2px 7px 3px;
+    height: 19px;
+    line-height: 14px;
+    cursor: default;
+    border: 1px solid transparent;
+}
+
+.menu-button:hover,
+.menu-button.active {
+    background: #316ac5;
+    color: #fff;
+}
+
+.menu-button u {
+    text-decoration: underline;
+}
+
+.popup-menu {
+    display: none;
+    position: absolute;
+    top: 20px;
+    min-width: 205px;
+    background: var(--xp-bg);
+    color: #000;
+    border: 1px solid #808080;
+    box-shadow:
+        inset 1px 1px #fff,
+        inset -1px -1px #404040,
+        2px 2px 3px rgba(0,0,0,.18);
+    padding: 2px;
+    z-index: 100;
+}
+
+.popup-menu.visible {
+    display: block;
+}
+
+.menu-item {
+    min-height: 21px;
+    display: grid;
+    grid-template-columns: 25px 1fr auto;
+    align-items: center;
+    gap: 3px;
+    padding: 1px 9px 1px 2px;
+    white-space: nowrap;
+}
+
+.menu-item:hover:not(.disabled) {
+    background: #316ac5;
+    color: #fff;
+}
+
+.menu-item.disabled {
+    color: #808080;
+}
+
+.menu-icon {
+    text-align: center;
+    font-size: 12px;
+}
+
+.menu-shortcut {
+    padding-left: 22px;
+}
+
+.menu-separator {
+    height: 1px;
+    background: #aca899;
+    border-bottom: 1px solid #fff;
+    margin: 3px 2px;
+}
+
+/* ---------------------------------------------------------
+   TOOLBAR
+--------------------------------------------------------- */
+
+.toolbar {
+    height: 31px;
+    background: var(--xp-bg);
+    display: flex;
+    align-items: center;
+    padding: 2px 4px;
+    border-top: 1px solid #fff;
+    border-bottom: 1px solid #aca899;
+    box-shadow: inset 0 -1px #fff;
+}
+
+.tool {
+    width: 26px;
+    height: 25px;
+    min-width: 0;
+    border: 1px solid transparent;
+    background: transparent;
+    padding: 1px;
+    position: relative;
+}
+
+.tool:hover:not(:disabled) {
+    border: 1px solid #0a246a;
+    background: #fff;
+}
+
+.tool:active:not(:disabled) {
+    border: 1px solid #0a246a;
+    background: #dad7c8;
+    padding: 2px 0 0 2px;
+}
+
+.tool:disabled {
+    opacity: .34;
+}
+
+.toolbar-separator {
+    width: 2px;
+    height: 22px;
+    border-left: 1px solid #aca899;
+    border-right: 1px solid #fff;
+    margin: 0 4px;
+}
+
+/* tiny CSS icons */
+
+.ico-page {
+    width: 13px;
+    height: 16px;
+    margin: auto;
+    background: #fff;
+    border: 1px solid #555;
+    position: relative;
+}
+
+.ico-page:before {
+    content: "";
+    position: absolute;
+    right: -1px;
+    top: -1px;
+    border-left: 5px solid transparent;
+    border-bottom: 5px solid #b7d4f3;
+}
+
+.ico-folder {
+    width: 17px;
+    height: 12px;
+    margin: 4px auto 0;
+    background: #f4d447;
+    border: 1px solid #866b16;
+    position: relative;
+}
+
+.ico-folder:before {
+    content: "";
+    width: 8px;
+    height: 4px;
+    left: 1px;
+    top: -5px;
+    position: absolute;
+    background: #f4d447;
+    border: 1px solid #866b16;
+    border-bottom: 0;
+}
+
+.ico-phone {
+    margin: auto;
+    width: 17px;
+    height: 17px;
+    position: relative;
+}
+
+.ico-phone:before {
+    content: "☎";
+    font-size: 19px;
+    line-height: 17px;
+    color: #d8a300;
+    text-shadow: 1px 1px #6a5200;
+    position: absolute;
+    left: -1px;
+    top: -1px;
+}
+
+.ico-hangup:before {
+    content: "☎";
+    font-size: 19px;
+    line-height: 17px;
+    color: #d02020;
+    position: absolute;
+    left: 3px;
+    top: 2px;
+}
+
+.ico-hangup:after {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 2px;
+    background: #b00000;
+    transform: rotate(-42deg);
+    left: 1px;
+    top: 10px;
+}
+
+.ico-send {
+    width: 18px;
+    height: 14px;
+    margin: 3px auto;
+    border: 1px solid #555;
+    background: #fff;
+    position: relative;
+}
+
+.ico-send:before {
+    content: "→";
+    color: #174dbe;
+    font-weight: bold;
+    font-size: 14px;
+    position: absolute;
+    left: 4px;
+    top: -2px;
+}
+
+/* ---------------------------------------------------------
+   TERMINAL AREA
+--------------------------------------------------------- */
+
+.terminal-wrap {
+    min-height: 0;
+    position: relative;
+    overflow: hidden;
+    background: #fff;
+}
+
+#terminal {
+    position: absolute;
+    inset: 0;
+    overflow: auto;
+    padding: 3px 4px;
+    background: #fff;
+    color: #000;
+    font-family: "Courier New", monospace;
+    font-size: 13px;
+    line-height: 16px;
+    white-space: pre-wrap;
+    user-select: text;
+    cursor: text;
+    outline: none;
+}
+
+#terminal.black-screen {
+    background: #000;
+    color: #c0c0c0;
+}
+
+#terminal.blue-screen {
+    background: #000080;
+    color: #fff;
+}
+
+.cursor {
+    display: inline-block;
+    width: 7px;
+    height: 14px;
+    vertical-align: -2px;
+    background: #000;
+    animation: blink .9s steps(1) infinite;
+}
+
+.black-screen .cursor,
+.blue-screen .cursor {
+    background: #fff;
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
+}
+
+/* ---------------------------------------------------------
+   STATUS BAR
+--------------------------------------------------------- */
+
+.statusbar {
+    display: grid;
+    grid-template-columns:
+        minmax(150px,1fr)
+        92px
+        95px
+        47px
+        42px
+        37px
+        55px;
+    height: 20px;
+    padding: 2px 2px 2px;
+    gap: 2px;
+    background: var(--xp-bg);
+    border-top: 1px solid #fff;
+}
+
+.status-cell {
+    height: 16px;
+    line-height: 14px;
+    padding: 0 4px;
+    overflow: hidden;
+    white-space: nowrap;
+    color: #333;
+    border-top: 1px solid #808080;
+    border-left: 1px solid #808080;
+    border-right: 1px solid #fff;
+    border-bottom: 1px solid #fff;
+}
+
+.status-cell.indicator {
+    text-align: center;
+    color: #999;
+    padding: 0;
+}
+
+.status-cell.indicator.on {
+    color: #111;
+}
+
+/* ---------------------------------------------------------
+   MODAL OVERLAY + XP DIALOG
+--------------------------------------------------------- */
+
+.modal-shade {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 500;
+    background: rgba(0,0,0,.05);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-shade.visible {
+    display: flex;
+}
+
+.xp-dialog {
+    background: var(--xp-bg);
+    border: 1px solid #003c74;
+    box-shadow:
+        0 0 0 1px #0055e5,
+        3px 4px 9px rgba(0,0,0,.28);
+    min-width: 310px;
+    max-width: calc(100% - 20px);
+    color: #000;
+}
+
+.dialog-caption {
+    height: 27px;
+    display: flex;
+    align-items: center;
+    padding: 0 4px 0 7px;
+    background: linear-gradient(
+        180deg,
+        #0058ee 0%,
+        #3593ff 9%,
+        #288eff 18%,
+        #1270e8 55%,
+        #0360d5 86%,
+        #034db7 100%
+    );
+    color: white;
+    font-weight: bold;
+    text-shadow: 1px 1px #0b2f7b;
+}
+
+.dialog-caption-text {
+    flex: 1;
+}
+
+.dialog-help,
+.dialog-close {
+    width: 21px;
+    min-width: 21px;
+    height: 21px;
+    padding: 0;
+    margin-left: 2px;
+    border: 1px solid #fff;
+    border-radius: 3px;
+    background: linear-gradient(#6ba8ff,#1564d8);
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 18px;
+    text-align: center;
+}
+
+.dialog-close {
+    background: linear-gradient(#f59a82,#d64b30);
+}
+
+.dialog-body {
+    padding: 12px 13px 11px;
+}
+
+.dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 7px;
+    padding: 0 12px 11px;
+}
+
+.field-row {
+    display: grid;
+    grid-template-columns: 103px minmax(130px, 1fr);
+    align-items: center;
+    gap: 8px;
+    min-height: 28px;
+}
+
+.field-row label {
+    text-align: right;
+}
+
+input[type="text"],
+select {
+    height: 21px;
+    border: 1px solid var(--xp-blue-border);
+    background: white;
+    color: #000;
+    padding: 1px 3px;
+}
+
+input[type="text"]:focus,
+select:focus {
+    outline: 1px solid #000;
+    outline-offset: -2px;
+}
+
+/* ---------------------------------------------------------
+   CONNECTION DESCRIPTION
+--------------------------------------------------------- */
+
+.connection-description {
+    width: 373px;
+}
+
+.description-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 10px;
+}
+
+.big-connection-icon {
+    width: 46px;
+    height: 45px;
+    flex: 0 0 46px;
+    position: relative;
+}
+
+.big-connection-icon .monitor {
+    position: absolute;
+    width: 29px;
+    height: 23px;
+    right: 0;
+    bottom: 3px;
+    background: #606060;
+    border: 1px solid #111;
+}
+
+.big-connection-icon .screen {
+    position: absolute;
+    width: 23px;
+    height: 16px;
+    right: 3px;
+    bottom: 8px;
+    background: linear-gradient(135deg,#6bc4ed,#18548d);
+    border: 1px inset #ddd;
+}
+
+.big-connection-icon .phone {
+    position: absolute;
+    z-index: 2;
+    left: 0;
+    top: -2px;
+    font-size: 27px;
+    color: #dca900;
+    transform: rotate(-20deg);
+}
+
+.icon-picker {
+    margin-top: 10px;
+    border: 1px solid #7f9db9;
+    background: #fff;
+    width: 100%;
+    height: 59px;
+    padding: 4px;
+    display: flex;
+    gap: 4px;
+    overflow: hidden;
+}
+
+.choice-icon {
+    width: 40px;
+    height: 47px;
+    border: 1px solid transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+
+.choice-icon.selected {
+    background: #316ac5;
+    border: 1px dotted #fff;
+    color: #fff;
+}
+
+/* ---------------------------------------------------------
+   GROUPS / TABS
+--------------------------------------------------------- */
+
+.tab-bar {
+    height: 23px;
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: -1px;
+    position: relative;
+    z-index: 2;
+}
+
+.tab {
+    padding: 4px 10px 3px;
+    height: 22px;
+    background: #e3e0d1;
+    border: 1px solid #919b9c;
+    border-bottom: 0;
+}
+
+.tab.active {
+    height: 24px;
+    background: var(--xp-bg);
+    padding-top: 4px;
+    position: relative;
+    top: 1px;
+}
+
+.tab-panel {
+    border: 1px solid #919b9c;
+    padding: 12px 10px;
+    background: var(--xp-bg);
+}
+
+.checkbox-row {
+    margin: 8px 0 0 111px;
+}
+
+.checkbox-row label {
+    vertical-align: 2px;
+}
+
+/* ---------------------------------------------------------
+   PROPERTIES DIALOG
+--------------------------------------------------------- */
+
+.port-properties {
+    width: 365px;
+}
+
+.groupbox {
+    border: 1px solid #d0cdbf;
+    border-top-color: #9a978a;
+    padding: 15px 10px 8px;
+    margin-top: 4px;
+    position: relative;
+}
+
+.groupbox-title {
+    position: absolute;
+    left: 8px;
+    top: -7px;
+    padding: 0 4px;
+    background: var(--xp-bg);
+}
+
+/* ---------------------------------------------------------
+   GENERIC MESSAGE DIALOG
+--------------------------------------------------------- */
+
+.message-dialog {
+    width: 365px;
+}
+
+.message-layout {
+    display: grid;
+    grid-template-columns: 42px 1fr;
+    gap: 12px;
+    min-height: 58px;
+    align-items: start;
+}
+
+.message-symbol {
+    width: 33px;
+    height: 33px;
+    border-radius: 50%;
+    color: #fff;
+    background: #1b65d8;
+    font: bold 25px/33px Arial;
+    text-align: center;
+    box-shadow: inset -2px -2px rgba(0,0,0,.25);
+}
+
+/* ---------------------------------------------------------
+   ABOUT
+--------------------------------------------------------- */
+
+.about-box {
+    width: 405px;
+}
+
+.about-logo {
+    height: 72px;
+    background: #fff;
+    border: 1px inset #fff;
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    gap: 14px;
+    margin-bottom: 12px;
+}
+
+.about-globe {
+    font-size: 43px;
+}
+
+.about-title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.about-subtitle {
+    font-size: 11px;
+}
+
+/* ---------------------------------------------------------
+   CONTEXT / FAKE TRANSFER PROGRESS
+--------------------------------------------------------- */
+
+.progress {
+    height: 15px;
+    border: 1px inset #fff;
+    background: #fff;
+    overflow: hidden;
+    margin-top: 9px;
+}
+
+.progress-fill {
+    width: 0%;
+    height: 100%;
+    background:
+        repeating-linear-gradient(
+            90deg,
+            #0a62d0 0 8px,
+            #fff 8px 10px
+        );
+    transition: width .15s linear;
+}
+
+/* ---------------------------------------------------------
+   RESPONSIVE
+--------------------------------------------------------- */
+
+@media(max-width: 690px) {
+    .statusbar {
+        grid-template-columns: minmax(110px,1fr) 70px 85px 42px;
+    }
+
+    .status-cell:nth-child(n+5) {
+        display: none;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="hyperterminal">
+
+    <!-- Menu Bar -->
+    <div class="menu-bar" id="menuBar">
+        <div class="menu-button" data-menu="fileMenu"><u>F</u>ile</div>
+        <div class="menu-button" data-menu="editMenu"><u>E</u>dit</div>
+        <div class="menu-button" data-menu="viewMenu"><u>V</u>iew</div>
+        <div class="menu-button" data-menu="callMenu"><u>C</u>all</div>
+        <div class="menu-button" data-menu="transferMenu"><u>T</u>ransfer</div>
+        <div class="menu-button" data-menu="helpMenu"><u>H</u>elp</div>
+
+        <div class="popup-menu" id="fileMenu">
+            <div class="menu-item" data-action="new">
+                <span class="menu-icon">📄</span>
+                <span><u>N</u>ew Connection...</span>
+                <span class="menu-shortcut">Ctrl+N</span>
+            </div>
+
+            <div class="menu-item" data-action="open">
+                <span class="menu-icon">📂</span>
+                <span><u>O</u>pen...</span>
+                <span class="menu-shortcut">Ctrl+O</span>
+            </div>
+
+            <div class="menu-separator"></div>
+
+            <div class="menu-item" data-action="save">
+                <span></span>
+                <span><u>S</u>ave</span>
+                <span>Ctrl+S</span>
+            </div>
+
+            <div class="menu-item" data-action="saveAs">
+                <span></span>
+                <span>Save <u>A</u>s...</span>
+                <span></span>
+            </div>
+
+            <div class="menu-separator"></div>
+
+            <div class="menu-item" data-action="properties">
+                <span></span>
+                <span><u>P</u>roperties</span>
+                <span></span>
+            </div>
+
+            <div class="menu-separator"></div>
+
+            <div class="menu-item" data-action="exit">
+                <span></span>
+                <span>E<u>x</u>it</span>
+                <span>Alt+F4</span>
+            </div>
+        </div>
+
+        <div class="popup-menu" id="editMenu">
+            <div class="menu-item" data-action="copy">
+                <span></span>
+                <span><u>C</u>opy</span>
+                <span>Ctrl+C</span>
+            </div>
+            <div class="menu-item" data-action="paste">
+                <span></span>
+                <span><u>P</u>aste to Host</span>
+                <span>Shift+Ins</span>
+            </div>
+            <div class="menu-item" data-action="selectAll">
+                <span></span>
+                <span>Select <u>A</u>ll</span>
+                <span></span>
+            </div>
+        </div>
+
+        <div class="popup-menu" id="viewMenu">
+            <div class="menu-item" data-action="toolbarToggle">
+                <span class="menu-icon">✓</span>
+                <span><u>T</u>oolbar</span>
+                <span></span>
+            </div>
+            <div class="menu-item" data-action="statusToggle">
+                <span class="menu-icon">✓</span>
+                <span><u>S</u>tatus Bar</span>
+                <span></span>
+            </div>
+            <div class="menu-separator"></div>
+            <div class="menu-item" data-action="font">
+                <span></span>
+                <span><u>F</u>ont...</span>
+                <span></span>
+            </div>
+        </div>
+
+        <div class="popup-menu" id="callMenu">
+            <div class="menu-item" data-action="connect">
+                <span class="menu-icon">☎</span>
+                <span><u>C</u>all</span>
+                <span></span>
+            </div>
+            <div class="menu-item" data-action="disconnect">
+                <span class="menu-icon">☏</span>
+                <span><u>D</u>isconnect</span>
+                <span></span>
+            </div>
+        </div>
+
+        <div class="popup-menu" id="transferMenu">
+            <div class="menu-item" data-action="sendFile">
+                <span class="menu-icon">⇧</span>
+                <span><u>S</u>end File...</span>
+                <span></span>
+            </div>
+            <div class="menu-item" data-action="receiveFile">
+                <span class="menu-icon">⇩</span>
+                <span><u>R</u>eceive File...</span>
+                <span></span>
+            </div>
+            <div class="menu-separator"></div>
+            <div class="menu-item" data-action="capture">
+                <span></span>
+                <span>Capture <u>T</u>ext...</span>
+                <span></span>
+            </div>
+        </div>
+
+        <div class="popup-menu" id="helpMenu">
+            <div class="menu-item" data-action="helpTopics">
+                <span></span>
+                <span><u>H</u>elp Topics</span>
+                <span>F1</span>
+            </div>
+            <div class="menu-separator"></div>
+            <div class="menu-item" data-action="about">
+                <span></span>
+                <span><u>A</u>bout HyperTerminal...</span>
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar" id="toolbar">
+        <button class="tool" title="New" data-action="new">
+            <div class="ico-page"></div>
+        </button>
+
+        <button class="tool" title="Open" data-action="open">
+            <div class="ico-folder"></div>
+        </button>
+
+        <div class="toolbar-separator"></div>
+
+        <button class="tool" title="Call" data-action="connect">
+            <div class="ico-phone"></div>
+        </button>
+
+        <button class="tool" title="Disconnect" data-action="disconnect">
+            <div class="ico-phone ico-hangup"></div>
+        </button>
+
+        <div class="toolbar-separator"></div>
+
+        <button class="tool" title="Send File" data-action="sendFile">
+            <div class="ico-send"></div>
+        </button>
+    </div>
+
+    <!-- Main terminal -->
+    <div class="terminal-wrap">
+        <div id="terminal" tabindex="0"><span id="terminalText"></span><span class="cursor"></span></div>
+    </div>
+
+    <!-- Status -->
+    <div class="statusbar" id="statusbar">
+        <div class="status-cell" id="statusConnection">Disconnected</div>
+        <div class="status-cell" id="statusTimer"></div>
+        <div class="status-cell" id="statusConfig">Auto detect</div>
+        <div class="status-cell indicator" id="statusScroll">SCROLL</div>
+        <div class="status-cell indicator" id="statusCaps">CAPS</div>
+        <div class="status-cell indicator on" id="statusNum">NUM</div>
+        <div class="status-cell indicator" id="statusCapture">Capture</div>
+    </div>
+
+    <!-- =====================================================
+         CONNECTION DESCRIPTION
+    ====================================================== -->
+    <div class="modal-shade visible" id="descriptionModal">
+        <div class="xp-dialog connection-description">
+            <div class="dialog-caption">
+                <div class="dialog-caption-text">Connection Description</div>
+                <button class="dialog-help" type="button">?</button>
+                <button class="dialog-close" type="button" data-close="descriptionModal">×</button>
+            </div>
+
+            <div class="dialog-body">
+                <div class="description-head">
+                    <div class="big-connection-icon">
+                        <div class="phone">☎</div>
+                        <div class="monitor"></div>
+                        <div class="screen"></div>
+                    </div>
+
+                    <div style="flex:1">
+                        <div style="margin-bottom:9px">
+                            Enter a name and choose an icon for the connection:
+                        </div>
+
+                        <label for="connectionName">Name:</label><br>
+                        <input
+                            id="connectionName"
+                            type="text"
+                            value="New Connection"
+                            style="width:100%; margin-top:3px"
+                        >
+                    </div>
+                </div>
+
+                <div>Icon:</div>
+
+                <div class="icon-picker">
+                    <div class="choice-icon selected">☎</div>
+                    <div class="choice-icon">🖥</div>
+                    <div class="choice-icon">📡</div>
+                    <div class="choice-icon">🔌</div>
+                    <div class="choice-icon">🌐</div>
+                    <div class="choice-icon">📞</div>
+                    <div class="choice-icon">💻</div>
+                </div>
+            </div>
+
+            <div class="dialog-buttons">
+                <button id="descriptionOK">OK</button>
+                <button data-close="descriptionModal">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================
+         CONNECT TO
+    ====================================================== -->
+    <div class="modal-shade" id="connectModal">
+        <div class="xp-dialog" style="width:405px">
+            <div class="dialog-caption">
+                <div class="dialog-caption-text">Connect To</div>
+                <button class="dialog-help" type="button">?</button>
+                <button class="dialog-close" type="button" data-close="connectModal">×</button>
+            </div>
+
+            <div class="dialog-body">
+                <div class="tab-bar">
+                    <div class="tab active">Connect To</div>
+                    <div class="tab">Settings</div>
+                </div>
+
+                <div class="tab-panel">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                        <div class="big-connection-icon" style="transform:scale(.75);transform-origin:left center;width:40px">
+                            <div class="phone">☎</div>
+                            <div class="monitor"></div>
+                            <div class="screen"></div>
+                        </div>
+                        <strong id="connectConnectionName">New Connection</strong>
+                    </div>
+
+                    <div class="field-row">
+                        <label>Country/region:</label>
+                        <select>
+                            <option>Turkey (90)</option>
+                            <option>United States of America (1)</option>
+                            <option>United Kingdom (44)</option>
+                        </select>
+                    </div>
+
+                    <div class="field-row">
+                        <label>Area code:</label>
+                        <input type="text" value="212">
+                    </div>
+
+                    <div class="field-row">
+                        <label>Phone number:</label>
+                        <input type="text" value="">
+                    </div>
+
+                    <div class="field-row">
+                        <label>Connect using:</label>
+                        <select id="connectUsing">
+                            <option value="COM1">COM1</option>
+                            <option value="COM2">COM2</option>
+                            <option value="COM3">COM3</option>
+                            <option value="MODEM">Standard 56000 bps Modem</option>
+                            <option value="TCP">TCP/IP (Winsock)</option>
+                        </select>
+                    </div>
+
+                    <div class="checkbox-row">
+                        <input type="checkbox" id="useArea" checked>
+                        <label for="useArea">Use country/region code and area code</label>
+                    </div>
+
+                    <div class="checkbox-row" style="margin-top:2px">
+                        <input type="checkbox" id="redial">
+                        <label for="redial">Redial on busy</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dialog-buttons">
+                <button id="connectOK">OK</button>
+                <button data-close="connectModal">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================
+         COM PROPERTIES
+    ====================================================== -->
+    <div class="modal-shade" id="portModal">
+        <div class="xp-dialog port-properties">
+            <div class="dialog-caption">
+                <div class="dialog-caption-text" id="portCaption">COM1 Properties</div>
+                <button class="dialog-help">?</button>
+                <button class="dialog-close" data-close="portModal">×</button>
+            </div>
+
+            <div class="dialog-body">
+                <div class="tab-bar">
+                    <div class="tab active">Port Settings</div>
+                </div>
+
+                <div class="tab-panel">
+                    <div class="field-row">
+                        <label>Bits per second:</label>
+                        <select id="baud">
+                            <option>300</option>
+                            <option>1200</option>
+                            <option>2400</option>
+                            <option>4800</option>
+                            <option selected>9600</option>
+                            <option>19200</option>
+                            <option>38400</option>
+                            <option>57600</option>
+                            <option>115200</option>
+                        </select>
+                    </div>
+
+                    <div class="field-row">
+                        <label>Data bits:</label>
+                        <select id="dataBits">
+                            <option>5</option>
+                            <option>6</option>
+                            <option>7</option>
+                            <option selected>8</option>
+                        </select>
+                    </div>
+
+                    <div class="field-row">
+                        <label>Parity:</label>
+                        <select id="parity">
+                            <option selected>None</option>
+                            <option>Odd</option>
+                            <option>Even</option>
+                            <option>Mark</option>
+                            <option>Space</option>
+                        </select>
+                    </div>
+
+                    <div class="field-row">
+                        <label>Stop bits:</label>
+                        <select id="stopBits">
+                            <option selected>1</option>
+                            <option>1.5</option>
+                            <option>2</option>
+                        </select>
+                    </div>
+
+                    <div class="field-row">
+                        <label>Flow control:</label>
+                        <select id="flowControl">
+                            <option>Hardware</option>
+                            <option>Xon / Xoff</option>
+                            <option selected>None</option>
+                        </select>
+                    </div>
+
+                    <div style="text-align:right;margin-top:8px">
+                        <button id="restoreDefaults">Restore Defaults</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dialog-buttons">
+                <button id="portOK">OK</button>
+                <button data-close="portModal">Cancel</button>
+                <button id="portApply">Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================
+         GENERIC MESSAGE
+    ====================================================== -->
+    <div class="modal-shade" id="messageModal">
+        <div class="xp-dialog message-dialog">
+            <div class="dialog-caption">
+                <div class="dialog-caption-text" id="messageTitle">HyperTerminal</div>
+                <button class="dialog-close" data-close="messageModal">×</button>
+            </div>
+
+            <div class="dialog-body">
+                <div class="message-layout">
+                    <div class="message-symbol">i</div>
+                    <div id="messageText"></div>
+                </div>
+            </div>
+
+            <div class="dialog-buttons">
+                <button data-close="messageModal">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================
+         TRANSFER
+    ====================================================== -->
+    <div class="modal-shade" id="transferModal">
+        <div class="xp-dialog" style="width:410px">
+            <div class="dialog-caption">
+                <div class="dialog-caption-text">Send File</div>
+                <button class="dialog-close" data-close="transferModal">×</button>
+            </div>
+
+            <div class="dialog-body">
+                <div class="field-row">
+                    <label>Filename:</label>
+                    <input type="text" value="C:\Documents and Settings\User\Desktop\sample.txt">
+                </div>
+
+                <div class="field-row">
+                    <label>Protocol:</label>
+                    <select id="transferProtocol">
+                        <option>Zmodem</option>
+                        <option>Xmodem</option>
+                        <option>Ymodem</option>
+                        <option>Kermit</option>
+                    </select>
+                </div>
+
+                <div class="progress">
+                    <div class="progress-fill" id="transferProgress"></div>
+                </div>
+
+                <div id="transferStatus" style="margin-top:6px">
+                    Ready to send.
+                </div>
+            </div>
+
+            <div class="dialog-buttons">
+                <button id="transferSend">Send</button>
+                <button data-close="transferModal">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================
+         FONT SETTINGS
+    ====================================================== -->
+    <div class="modal-shade" id="fontModal">
+        <div class="xp-dialog" style="width:340px">
+            <div class="dialog-caption">
+                <div class="dialog-caption-text">Font</div>
+                <button class="dialog-close" data-close="fontModal">×</button>
+            </div>
+
+            <div class="dialog-body">
+                <div class="field-row">
+                    <label>Font:</label>
+                    <select id="fontName">
+                        <option value="'Courier New', monospace">Courier New</option>
+                        <option value="'Lucida Console', monospace">Lucida Console</option>
+                        <option value="monospace">Terminal</option>
+                    </select>
+                </div>
+
+                <div class="field-row">
+                    <label>Size:</label>
+                    <select id="fontSize">
+                        <option>10</option>
+                        <option>11</option>
+                        <option selected>13</option>
+                        <option>14</option>
+                        <option>16</option>
+                        <option>18</option>
+                    </select>
+                </div>
+
+                <div class="field-row">
+                    <label>Screen colors:</label>
+                    <select id="screenTheme">
+                        <option value="white">White</option>
+                        <option value="black">Black</option>
+                        <option value="blue">Blue</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="dialog-buttons">
+                <button id="fontOK">OK</button>
+                <button data-close="fontModal">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================
+         ABOUT
+    ====================================================== -->
+    <div class="modal-shade" id="aboutModal">
+        <div class="xp-dialog about-box">
+            <div class="dialog-caption">
+                <div class="dialog-caption-text">About HyperTerminal</div>
+                <button class="dialog-close" data-close="aboutModal">×</button>
+            </div>
+
+            <div class="dialog-body">
+                <div class="about-logo">
+                    <div class="about-globe">🌐</div>
+                    <div>
+                        <div class="about-title">HyperTerminal</div>
+                        <div class="about-subtitle">
+                            Windows XP style terminal emulation
+                        </div>
+                    </div>
+                </div>
+
+                <div style="line-height:18px">
+                    HyperTerminal simulation for the Windows XP Luna web desktop.
+                    <br><br>
+                    This browser recreation does not contain the original
+                    Hilgraeve executable or proprietary program code.
+                    <br><br>
+                    Simulation build 1.0
+                </div>
+            </div>
+
+            <div class="dialog-buttons">
+                <button data-close="aboutModal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(() => {
+    "use strict";
+
+    const $ = (id) => document.getElementById(id);
+
+    const state = {
+        connected: false,
+        connecting: false,
+        connectionName: "New Connection",
+        port: "COM1",
+        baud: "9600",
+        dataBits: "8",
+        parity: "None",
+        stopBits: "1",
+        flowControl: "None",
+        localEcho: true,
+        currentLine: "",
+        output: "",
+        connectedAt: null,
+        timer: null,
+        capture: false,
+        toolbarVisible: true,
+        statusVisible: true
+    };
+
+    const terminal = $("terminal");
+    const terminalText = $("terminalText");
+
+    /* -----------------------------------------------------
+       Modal helpers
+    ----------------------------------------------------- */
+
+    function showModal(id) {
+        closeMenus();
+        $(id).classList.add("visible");
+    }
+
+    function hideModal(id) {
+        $(id).classList.remove("visible");
+        terminal.focus();
+    }
+
+    document.addEventListener("click", (event) => {
+        const close = event.target.closest("[data-close]");
+        if (close) {
+            hideModal(close.dataset.close);
+        }
+    });
+
+    function message(title, text) {
+        $("messageTitle").textContent = title;
+        $("messageText").textContent = text;
+        showModal("messageModal");
+    }
+
+    /* -----------------------------------------------------
+       Menu system
+    ----------------------------------------------------- */
+
+    const menuButtons = [...document.querySelectorAll(".menu-button")];
+    const popupMenus = [...document.querySelectorAll(".popup-menu")];
+
+    function closeMenus() {
+        menuButtons.forEach(x => x.classList.remove("active"));
+        popupMenus.forEach(x => x.classList.remove("visible"));
+    }
+
+    menuButtons.forEach(button => {
+        button.addEventListener("mousedown", (e) => {
+            e.stopPropagation();
+
+            const menu = $(button.dataset.menu);
+            const wasOpen = menu.classList.contains("visible");
+
+            closeMenus();
+
+            if (!wasOpen) {
+                button.classList.add("active");
+                menu.classList.add("visible");
+                menu.style.left = button.offsetLeft + "px";
+            }
+        });
+    });
+
+    document.addEventListener("mousedown", event => {
+        if (!event.target.closest(".menu-bar")) {
+            closeMenus();
+        }
+    });
+
+    /* -----------------------------------------------------
+       Icon picker
+    ----------------------------------------------------- */
+
+    document.querySelectorAll(".choice-icon").forEach(icon => {
+        icon.addEventListener("click", () => {
+            document.querySelectorAll(".choice-icon")
+                .forEach(i => i.classList.remove("selected"));
+
+            icon.classList.add("selected");
+        });
+    });
+
+    /* -----------------------------------------------------
+       Terminal printing
+    ----------------------------------------------------- */
+
+    function refreshTerminal() {
+        terminalText.textContent = state.output + state.currentLine;
+        terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    function print(text = "") {
+        state.output += text;
+        refreshTerminal();
+    }
+
+    function println(text = "") {
+        state.output += text + "\r\n";
+        refreshTerminal();
+    }
+
+    function clearTerminal() {
+        state.output = "";
+        state.currentLine = "";
+        refreshTerminal();
+    }
+
+    /* -----------------------------------------------------
+       Connection sequence
+    ----------------------------------------------------- */
+
+    function beginNewConnection() {
+        state.connected = false;
+        stopTimer();
+        updateStatus();
+        $("connectionName").value = state.connectionName;
+        showModal("descriptionModal");
+
+        setTimeout(() => {
+            $("connectionName").focus();
+            $("connectionName").select();
+        }, 10);
+    }
+
+    $("descriptionOK").addEventListener("click", () => {
+        state.connectionName =
+            $("connectionName").value.trim() || "New Connection";
+
+        $("connectConnectionName").textContent = state.connectionName;
+
+        hideModal("descriptionModal");
+        showModal("connectModal");
+    });
+
+    $("connectOK").addEventListener("click", () => {
+        state.port = $("connectUsing").value;
+
+        hideModal("connectModal");
+
+        if (state.port.startsWith("COM")) {
+            $("portCaption").textContent = state.port + " Properties";
+            showModal("portModal");
+        } else if (state.port === "TCP") {
+            simulateConnection("TCP/IP");
+        } else {
+            simulateDial();
+        }
+    });
+
+    function applyPortSettings() {
+        state.baud = $("baud").value;
+        state.dataBits = $("dataBits").value;
+        state.parity = $("parity").value;
+        state.stopBits = $("stopBits").value;
+        state.flowControl = $("flowControl").value;
+
+        updateStatus();
+    }
+
+    $("portApply").addEventListener("click", applyPortSettings);
+
+    $("portOK").addEventListener("click", () => {
+        applyPortSettings();
+        hideModal("portModal");
+        connect();
+    });
+
+    $("restoreDefaults").addEventListener("click", () => {
+        $("baud").value = "9600";
+        $("dataBits").value = "8";
+        $("parity").value = "None";
+        $("stopBits").value = "1";
+        $("flowControl").value = "None";
+    });
+
+    function connect() {
+        if (state.connected || state.connecting) return;
+
+        state.connecting = true;
+        $("statusConnection").textContent = "Connecting...";
+
+        setTimeout(() => {
+            state.connecting = false;
+            state.connected = true;
+            state.connectedAt = Date.now();
+
+            clearTerminal();
+
+            println("Connected to " + state.port + ".");
+            println(
+                state.baud + " bps, " +
+                state.dataBits + " data bits, " +
+                state.parity + " parity, " +
+                state.stopBits + " stop bit(s)"
+            );
+            println("");
+            println("HyperTerminal session ready.");
+            println("Type HELP for simulated modem commands.");
+            println("");
+
+            startTimer();
+            updateStatus();
+            terminal.focus();
+        }, 500);
+    }
+
+    function simulateConnection(type) {
+        state.connected = true;
+        state.connectedAt = Date.now();
+
+        clearTerminal();
+        println(type + " connection established.");
+        println("");
+        println("HyperTerminal session ready.");
+        println("");
+
+        startTimer();
+        updateStatus();
+        terminal.focus();
+    }
+
+    function simulateDial() {
+        hideModal("connectModal");
+
+        clearTerminal();
+        println("Dialing...");
+        println("");
+
+        $("statusConnection").textContent = "Dialing";
+
+        setTimeout(() => {
+            println("CONNECT 33600");
+            println("");
+
+            state.connected = true;
+            state.connectedAt = Date.now();
+            startTimer();
+            updateStatus();
+            terminal.focus();
+        }, 1200);
+    }
+
+    function disconnect() {
+        if (!state.connected && !state.connecting) {
+            message("HyperTerminal", "There is no active connection.");
+            return;
+        }
+
+        if (state.connected) {
+            println("");
+            println("NO CARRIER");
+        }
+
+        state.connected = false;
+        state.connecting = false;
+        stopTimer();
+        updateStatus();
+    }
+
+    /* -----------------------------------------------------
+       Timer / status
+    ----------------------------------------------------- */
+
+    function startTimer() {
+        stopTimer();
+
+        updateTimer();
+
+        state.timer = setInterval(updateTimer, 1000);
+    }
+
+    function stopTimer() {
+        if (state.timer) {
+            clearInterval(state.timer);
+            state.timer = null;
+        }
+
+        $("statusTimer").textContent = "";
+    }
+
+    function updateTimer() {
+        if (!state.connected || !state.connectedAt) return;
+
+        let total = Math.floor((Date.now() - state.connectedAt) / 1000);
+
+        const h = Math.floor(total / 3600);
+        total %= 3600;
+
+        const m = Math.floor(total / 60);
+        const s = total % 60;
+
+        $("statusTimer").textContent =
+            String(h).padStart(2, "0") + ":" +
+            String(m).padStart(2, "0") + ":" +
+            String(s).padStart(2, "0");
+    }
+
+    function parityLetter() {
+        const map = {
+            None: "N",
+            Odd: "O",
+            Even: "E",
+            Mark: "M",
+            Space: "S"
+        };
+
+        return map[state.parity] || "N";
+    }
+
+    function updateStatus() {
+        $("statusConnection").textContent =
+            state.connected ? "Connected" : "Disconnected";
+
+        $("statusConfig").textContent =
+            state.connected
+                ? `${state.baud} ${state.dataBits}-${parityLetter()}-${state.stopBits}`
+                : "Auto detect";
+
+        $("statusCapture").classList.toggle("on", state.capture);
+    }
+
+    /* -----------------------------------------------------
+       Fake modem interpreter
+    ----------------------------------------------------- */
+
+    function executeLine(rawLine) {
+        const line = rawLine.trim();
+        const cmd = line.toUpperCase();
+
+        println("");
+
+        if (!line) {
+            return;
+        }
+
+        if (cmd === "HELP" || cmd === "?") {
+            println("HyperTerminal demonstration commands");
+            println("------------------------------------");
+            println("AT             Modem attention command");
+            println("ATI            Modem identification");
+            println("ATZ            Reset modem");
+            println("ATDT<number>   Dial a simulated number");
+            println("STATUS         Connection information");
+            println("CLS            Clear terminal");
+            println("DIR            Simulated remote directory");
+            println("VER            Remote system version");
+            println("TIME           Display remote time");
+            println("EXIT           Disconnect session");
+            return;
+        }
+
+        if (cmd === "AT") {
+            println("OK");
+            return;
+        }
+
+        if (cmd === "ATI" || cmd === "ATI0") {
+            println("56000 bps Data/Fax Modem");
+            println("Controller Version 1.0");
+            println("OK");
+            return;
+        }
+
+        if (cmd === "ATZ") {
+            println("OK");
+            return;
+        }
+
+        if (cmd.startsWith("ATDT") || cmd.startsWith("ATDP")) {
+            const number = line.substring(4) || "555-0100";
+
+            println("DIALING " + number + "...");
+
+            setTimeout(() => {
+                println("CONNECT 33600");
+                refreshTerminal();
+            }, 700);
+
+            return;
+        }
+
+        if (cmd === "STATUS") {
+            println("Connection: " + state.connectionName);
+            println("Port:       " + state.port);
+            println("Speed:      " + state.baud + " bps");
+            println(
+                "Format:     " +
+                state.dataBits + "-" +
+                parityLetter() + "-" +
+                state.stopBits
+            );
+            println("Flow:       " + state.flowControl);
+            return;
+        }
+
+        if (cmd === "DIR") {
+            println("Remote BBS file directory");
+            println("");
+            println("README   TXT       2840  09-21-2001");
+            println("WELCOME  TXT       1024  08-18-2001");
+            println("FILES    LST       7631  09-02-2001");
+            println("MODEM    DOC      12480  07-11-2001");
+            println("GAMES    ZIP     388412  08-29-2001");
+            println("");
+            println("5 File(s)");
+            return;
+        }
+
+        if (cmd === "VER") {
+            println("Remote Access System 5.1");
+            println("Copyright (C) 1985-2001");
+            return;
+        }
+
+        if (cmd === "TIME") {
+            println(new Date().toLocaleString());
+            return;
+        }
+
+        if (cmd === "CLS" || cmd === "CLEAR") {
+            clearTerminal();
+            return;
+        }
+
+        if (cmd === "EXIT" || cmd === "BYE" || cmd === "ATH") {
+            println("NO CARRIER");
+            state.connected = false;
+            stopTimer();
+            updateStatus();
+            return;
+        }
+
+        println("Remote host received: " + line);
+    }
+
+    /* -----------------------------------------------------
+       Keyboard
+    ----------------------------------------------------- */
+
+    terminal.addEventListener("keydown", (event) => {
+        if (!state.connected) {
+            if (event.key.length === 1 || event.key === "Enter") {
+                event.preventDefault();
+                message(
+                    "HyperTerminal",
+                    "You must establish a connection before entering terminal data."
+                );
+            }
+            return;
+        }
+
+        if (event.ctrlKey && event.key.toLowerCase() === "c") {
+            return;
+        }
+
+        if (event.key === "Enter") {
+            event.preventDefault();
+
+            const submitted = state.currentLine;
+            state.output += state.currentLine;
+            state.currentLine = "";
+            executeLine(submitted);
+            refreshTerminal();
+            return;
+        }
+
+        if (event.key === "Backspace") {
+            event.preventDefault();
+
+            if (state.currentLine.length > 0) {
+                state.currentLine =
+                    state.currentLine.slice(0, -1);
+
+                refreshTerminal();
+            }
+
+            return;
+        }
+
+        if (event.key === "Tab") {
+            event.preventDefault();
+            state.currentLine += "    ";
+            refreshTerminal();
+            return;
+        }
+
+        if (
+            event.key.length === 1 &&
+            !event.ctrlKey &&
+            !event.metaKey &&
+            !event.altKey
+        ) {
+            event.preventDefault();
+
+            if (state.localEcho) {
+                state.currentLine += event.key;
+                refreshTerminal();
+            }
+        }
+    });
+
+    terminal.addEventListener("mousedown", () => {
+        setTimeout(() => terminal.focus(), 0);
+    });
+
+    document.addEventListener("keydown", event => {
+        $("statusCaps").classList.toggle(
+            "on",
+            event.getModifierState &&
+            event.getModifierState("CapsLock")
+        );
+
+        $("statusNum").classList.toggle(
+            "on",
+            !event.getModifierState ||
+            event.getModifierState("NumLock")
+        );
+
+        if (event.key === "Escape") {
+            closeMenus();
+        }
+
+        if (event.key === "F1") {
+            event.preventDefault();
+            showHelp();
+        }
+
+        if (event.ctrlKey && event.key.toLowerCase() === "n") {
+            event.preventDefault();
+            beginNewConnection();
+        }
+
+        if (event.ctrlKey && event.key.toLowerCase() === "a") {
+            if (document.activeElement === terminal) {
+                event.preventDefault();
+
+                const range = document.createRange();
+                range.selectNodeContents(terminal);
+
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+        }
+    });
+
+    /* -----------------------------------------------------
+       Transfer simulation
+    ----------------------------------------------------- */
+
+    let transferInterval = null;
+
+    function startTransfer() {
+        if (!state.connected) {
+            hideModal("transferModal");
+            message(
+                "HyperTerminal",
+                "A connection must be active before transferring a file."
+            );
+            return;
+        }
+
+        if (transferInterval) {
+            clearInterval(transferInterval);
+        }
+
+        let progress = 0;
+
+        $("transferProgress").style.width = "0%";
+        $("transferStatus").textContent = "Sending file...";
+
+        transferInterval = setInterval(() => {
+            progress += 4 + Math.random() * 8;
+
+            if (progress >= 100) {
+                progress = 100;
+                clearInterval(transferInterval);
+                transferInterval = null;
+
+                $("transferStatus").textContent =
+                    "File transfer completed successfully.";
+
+                println("");
+                println(
+                    "[" +
+                    $("transferProtocol").value +
+                    " transfer completed]"
+                );
+            }
+
+            $("transferProgress").style.width =
+                Math.floor(progress) + "%";
+        }, 120);
+    }
+
+    $("transferSend").addEventListener("click", startTransfer);
+
+    /* -----------------------------------------------------
+       Font
+    ----------------------------------------------------- */
+
+    $("fontOK").addEventListener("click", () => {
+        terminal.style.fontFamily = $("fontName").value;
+        terminal.style.fontSize = $("fontSize").value + "px";
+
+        terminal.classList.remove(
+            "black-screen",
+            "blue-screen"
+        );
+
+        if ($("screenTheme").value === "black") {
+            terminal.classList.add("black-screen");
+        }
+
+        if ($("screenTheme").value === "blue") {
+            terminal.classList.add("blue-screen");
+        }
+
+        hideModal("fontModal");
+    });
+
+    /* -----------------------------------------------------
+       Helpers
+    ----------------------------------------------------- */
+
+    function showHelp() {
+        message(
+            "HyperTerminal Help",
+            "This recreation simulates the Windows XP HyperTerminal interface. " +
+            "Create a connection, select a COM port and enter terminal commands. " +
+            "After connecting, type HELP in the terminal for demonstration commands."
+        );
+    }
+
+    function action(name) {
+        closeMenus();
+
+        switch (name) {
+            case "new":
+                beginNewConnection();
+                break;
+
+            case "open":
+                message(
+                    "Open Connection",
+                    "Saved .ht connection profiles are simulated in this web edition. Create a new connection instead."
+                );
+                break;
+
+            case "save":
+            case "saveAs":
+                try {
+                    localStorage.setItem(
+                        "xp-hyperterminal-profile",
+                        JSON.stringify({
+                            name: state.connectionName,
+                            port: state.port,
+                            baud: state.baud,
+                            dataBits: state.dataBits,
+                            parity: state.parity,
+                            stopBits: state.stopBits,
+                            flowControl: state.flowControl
+                        })
+                    );
+
+                    message(
+                        "HyperTerminal",
+                        "The connection profile has been saved in the simulated Windows profile."
+                    );
+                } catch {
+                    message(
+                        "HyperTerminal",
+                        "The connection profile could not be saved."
+                    );
+                }
+                break;
+
+            case "properties":
+                $("portCaption").textContent =
+                    state.port + " Properties";
+
+                $("baud").value = state.baud;
+                $("dataBits").value = state.dataBits;
+                $("parity").value = state.parity;
+                $("stopBits").value = state.stopBits;
+                $("flowControl").value = state.flowControl;
+
+                showModal("portModal");
+                break;
+
+            case "exit":
+                message(
+                    "HyperTerminal",
+                    "Use the Windows XP window Close button to exit HyperTerminal."
+                );
+                break;
+
+            case "copy":
+                copySelection();
+                break;
+
+            case "paste":
+                pasteToHost();
+                break;
+
+            case "selectAll": {
+                const range = document.createRange();
+                range.selectNodeContents(terminal);
+
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+                break;
+            }
+
+            case "toolbarToggle":
+                state.toolbarVisible = !state.toolbarVisible;
+                $("toolbar").style.display =
+                    state.toolbarVisible ? "flex" : "none";
+
+                $("hyperterminal").style.gridTemplateRows =
+                    state.toolbarVisible
+                    ? "21px 31px minmax(0,1fr) " +
+                      (state.statusVisible ? "20px" : "0")
+                    : "21px 0 minmax(0,1fr) " +
+                      (state.statusVisible ? "20px" : "0");
+                break;
+
+            case "statusToggle":
+                state.statusVisible = !state.statusVisible;
+                $("statusbar").style.display =
+                    state.statusVisible ? "grid" : "none";
+
+                $("hyperterminal").style.gridTemplateRows =
+                    "21px " +
+                    (state.toolbarVisible ? "31px" : "0") +
+                    " minmax(0,1fr) " +
+                    (state.statusVisible ? "20px" : "0");
+                break;
+
+            case "font":
+                showModal("fontModal");
+                break;
+
+            case "connect":
+                if (state.connected) {
+                    message(
+                        "HyperTerminal",
+                        "The connection is already active."
+                    );
+                } else {
+                    $("connectConnectionName").textContent =
+                        state.connectionName;
+                    showModal("connectModal");
+                }
+                break;
+
+            case "disconnect":
+                disconnect();
+                break;
+
+            case "sendFile":
+                $("transferProgress").style.width = "0";
+                $("transferStatus").textContent = "Ready to send.";
+                showModal("transferModal");
+                break;
+
+            case "receiveFile":
+                message(
+                    "Receive File",
+                    "Waiting for the remote computer to begin a simulated file transfer."
+                );
+                break;
+
+            case "capture":
+                state.capture = !state.capture;
+                updateStatus();
+
+                message(
+                    "Capture Text",
+                    state.capture
+                        ? "Terminal text capture is now enabled."
+                        : "Terminal text capture has been stopped."
+                );
+                break;
+
+            case "helpTopics":
+                showHelp();
+                break;
+
+            case "about":
+                showModal("aboutModal");
+                break;
+        }
+    }
+
+    async function copySelection() {
+        const selected = window.getSelection().toString();
+
+        if (!selected) {
+            message(
+                "HyperTerminal",
+                "Select text in the terminal before using Copy."
+            );
+            return;
+        }
+
+        try {
+            await navigator.clipboard.writeText(selected);
+        } catch {
+            message(
+                "HyperTerminal",
+                "Clipboard access is unavailable in this browser context."
+            );
+        }
+    }
+
+    async function pasteToHost() {
+        if (!state.connected) {
+            message(
+                "HyperTerminal",
+                "You must establish a connection before sending text."
+            );
+            return;
+        }
+
+        try {
+            const text = await navigator.clipboard.readText();
+
+            state.currentLine += text
+                .replace(/\r?\n/g, " ");
+
+            refreshTerminal();
+            terminal.focus();
+        } catch {
+            message(
+                "HyperTerminal",
+                "Clipboard access is unavailable. You can type directly into the terminal."
+            );
+        }
+    }
+
+    document.querySelectorAll("[data-action]").forEach(element => {
+        element.addEventListener("click", () => {
+            action(element.dataset.action);
+        });
+    });
+
+    /* -----------------------------------------------------
+       Saved profile
+    ----------------------------------------------------- */
+
+    try {
+        const profile = JSON.parse(
+            localStorage.getItem("xp-hyperterminal-profile")
+        );
+
+        if (profile) {
+            Object.assign(state, profile);
+
+            $("connectionName").value =
+                state.connectionName || "New Connection";
+
+            $("connectConnectionName").textContent =
+                state.connectionName || "New Connection";
+
+            if (
+                [...$("connectUsing").options]
+                    .some(o => o.value === state.port)
+            ) {
+                $("connectUsing").value = state.port;
+            }
+
+            $("baud").value = state.baud || "9600";
+            $("dataBits").value = state.dataBits || "8";
+            $("parity").value = state.parity || "None";
+            $("stopBits").value = state.stopBits || "1";
+            $("flowControl").value =
+                state.flowControl || "None";
+        }
+    } catch {
+        // Corrupt local profile: ignore silently.
+    }
+
+    updateStatus();
+
+    /* Initial XP-style first-run behaviour */
+    setTimeout(() => {
+        $("connectionName").focus();
+        $("connectionName").select();
+    }, 50);
+})();
+</script>
+
+</body>
+</html>

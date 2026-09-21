@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Mayın Tarlası</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+body {
+    font-family: Tahoma, "Segoe UI", Verdana, sans-serif;
+    font-size: 11px; background: #ECE9D8; color: #000;
+    display: flex; flex-direction: column; user-select: none;
+    -webkit-user-select: none; cursor: default;
+}
+
+.menubar {
+    flex: 0 0 auto; display: flex; height: 21px; padding-left: 2px;
+    background: #ECE9D8; border-bottom: 1px solid #ACA899;
+    position: relative; z-index: 500;
+}
+.menu { position: relative; }
+.menu-title { padding: 3px 9px; height: 20px; line-height: 15px; white-space: nowrap; }
+.menu.open > .menu-title, .menu-title:hover { background: #316AC5; color: #fff; }
+
+.dropdown {
+    display: none; position: absolute; top: 100%; left: 0; min-width: 180px; padding: 2px;
+    background: #FFFFFF; border: 1px solid #ACA899; box-shadow: 2px 2px 4px rgba(0,0,0,0.35); z-index: 1000;
+}
+.menu.open > .dropdown { display: block; }
+.mi { display: flex; align-items: center; padding: 3px 10px 3px 4px; white-space: nowrap; cursor: default; }
+.mi:hover { background: #316AC5; color: #fff; }
+.mi .check { width: 16px; text-align: center; visibility: hidden; }
+.mi.checked .check { visibility: visible; }
+.mi .accel { margin-left: auto; padding-left: 28px; color: #666; }
+.mi:hover .accel { color: #fff; }
+.sep { height: 1px; margin: 3px 2px; background: #ACA899; }
+
+.game-wrap {
+    flex: 1 1 auto; display: flex; align-items: center; justify-content: center;
+    overflow: auto; padding: 6px; background: #ECE9D8;
+}
+.game-panel {
+    margin: auto; padding: 6px; display: flex; flex-direction: column; gap: 6px;
+    background: #C0C0C0; border: 3px solid; border-color: #FFFFFF #808080 #808080 #FFFFFF;
+}
+
+.panel-header {
+    display: flex; align-items: center; justify-content: space-between; padding: 3px 4px;
+    background: #C0C0C0; border: 3px solid; border-color: #808080 #FFFFFF #FFFFFF #808080;
+}
+.lcd {
+    width: 46px; height: 24px; line-height: 20px; text-align: center; background: #000;
+    color: #FF0000; font-family: "Lucida Console", "Courier New", monospace;
+    font-size: 16px; font-weight: bold; letter-spacing: 1px;
+    border: 2px solid; border-color: #808080 #FFFFFF #FFFFFF #808080; overflow: hidden;
+}
+.face {
+    width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; line-height: 1; background: #C0C0C0; border: 2px solid;
+    border-color: #FFFFFF #808080 #808080 #FFFFFF; cursor: pointer;
+}
+.face:active { border-color: #808080 #FFFFFF #FFFFFF #808080; }
+
+.board {
+    display: grid; background: #C0C0C0; border: 3px solid;
+    border-color: #808080 #FFFFFF #FFFFFF #808080;
+}
+.cell {
+    width: 16px; height: 16px; display: flex; align-items: center; justify-content: center;
+    font-family: Tahoma, sans-serif; font-size: 11px; font-weight: bold; line-height: 1;
+    overflow: hidden; background: #C0C0C0; border: 2px solid;
+    border-color: #FFFFFF #7B7B7B #7B7B7B #FFFFFF; cursor: pointer;
+}
+.cell.rev { border: 1px solid #7B7B7B; background: #C0C0C0; cursor: default; }
+.cell.flag, .cell.mine { font-size: 10px; }
+.cell.cursor { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.55); }
+
+.statusbar {
+    flex: 0 0 auto; display: flex; height: 21px; padding: 2px; gap: 2px;
+    background: #ECE9D8; border-top: 1px solid #FFFFFF;
+}
+.status-panel {
+    flex: 1 1 auto; padding: 1px 6px; line-height: 15px; border: 1px solid;
+    border-color: #ACA899 #FFFFFF #FFFFFF #ACA899; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+
+.overlay {
+    position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.18); z-index: 2000;
+}
+.dialog { min-width: 280px; max-width: 92%; background: #ECE9D8; border: 1px solid #003C74; box-shadow: 3px 3px 10px rgba(0,0,0,0.45); }
+.dialog-title { display: flex; align-items: center; justify-content: space-between; padding: 3px 4px 3px 7px; color: #fff; font-weight: bold; background: linear-gradient(180deg, #0058EE 0%, #3A93FF 8%, #0054E3 90%, #0054E3 100%); }
+.dialog-close { width: 18px; height: 16px; line-height: 14px; text-align: center; font-size: 10px; font-weight: bold; color: #fff; background: linear-gradient(180deg, #4A9BFF, #0A55D8); border: 1px solid #fff; border-radius: 2px; cursor: pointer; }
+.dialog-body { padding: 12px 14px; line-height: 16px; }
+.dialog-body table { border-collapse: collapse; width: 100%; }
+.dialog-body td { padding: 2px 4px; }
+.dialog-buttons { display: flex; justify-content: center; gap: 8px; padding: 0 14px 12px; }
+.xp-btn { min-width: 74px; padding: 3px 12px; font-family: Tahoma, sans-serif; font-size: 11px; background: linear-gradient(180deg, #FFFFFF 0%, #F2F0E8 45%, #DCD7C8 100%); border: 1px solid #003C74; border-radius: 3px; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<div class="menubar" id="menubar">
+    <div class="menu">
+        <div class="menu-title">Oyun</div>
+        <div class="dropdown">
+            <div class="mi" data-action="new"><span class="check">✔</span><span class="label">Yeni Oyun</span><span class="accel">F2</span></div>
+            <div class="sep"></div>
+            <div class="mi" data-action="level" data-level="beginner"><span class="check">✔</span><span class="label">Başlangıç</span></div>
+            <div class="mi" data-action="level" data-level="intermediate"><span class="check">✔</span><span class="label">Orta</span></div>
+            <div class="mi" data-action="level" data-level="expert"><span class="check">✔</span><span class="label">İleri</span></div>
+            <div class="sep"></div>
+            <div class="mi" data-action="marks"><span class="check">✔</span><span class="label">Soru İşareti</span></div>
+            <div class="sep"></div>
+            <div class="mi" data-action="best"><span class="check">✔</span><span class="label">En İyi Süreler...</span></div>
+            <div class="sep"></div>
+            <div class="mi" data-action="exit"><span class="check">✔</span><span class="label">Çıkış</span></div>
+        </div>
+    </div>
+    <div class="menu">
+        <div class="menu-title">Yardım</div>
+        <div class="dropdown">
+            <div class="mi" data-action="help"><span class="check">✔</span><span class="label">İçindekiler</span><span class="accel">F1</span></div>
+            <div class="sep"></div>
+            <div class="mi" data-action="about"><span class="check">✔</span><span class="label">Mayın Tarlası Hakkında</span></div>
+        </div>
+    </div>
+</div>
+
+<div class="game-wrap" id="gameWrap">
+    <div class="game-panel">
+        <div class="panel-header">
+            <div class="lcd" id="mineCount">010</div>
+            <div class="face" id="face">🙂</div>
+            <div class="lcd" id="timer">000</div>
+        </div>
+        <div class="board" id="board"></div>
+    </div>
+</div>
+
+<div class="statusbar">
+    <div class="status-panel" id="statusText">Hazır</div>
+</div>
+
+<div class="overlay" id="overlay" style="display:none;">
+    <div class="dialog">
+        <div class="dialog-title"><span id="dlgTitle">Başlık</span><span class="dialog-close" id="dlgClose">✕</span></div>
+        <div class="dialog-body" id="dlgBody"></div>
+        <div class="dialog-buttons"><button class="xp-btn" id="dlgOk">Tamam</button></div>
+    </div>
+</div>
+
+<script>
+(function () {
+    "use strict";
+
+    var LEVELS = {
+        beginner:     { rows: 9,  cols: 9,  mines: 10, label: "Başlangıç", w: 220, h: 330 },
+        intermediate: { rows: 16, cols: 16, mines: 40, label: "Orta",      w: 340, h: 460 },
+        expert:       { rows: 16, cols: 30, mines: 99, label: "İleri",     w: 580, h: 460 }
+    };
+    var NUM_COLORS = ["", "#0000FF", "#008000", "#FF0000", "#000080", "#800000", "#008080", "#000000", "#808080"];
+
+    var level = "beginner";
+    var ROWS = 9, COLS = 9, MINES = 10;
+    var grid = [], gameOver = false, firstClick = true;
+    var timerId = null, time = 0, flagsUsed = 0, revealedCount = 0;
+    var questionMarks = true, cursor = { r: 0, c: 0 };
+
+    var boardEl   = document.getElementById("board");
+    var faceEl    = document.getElementById("face");
+    var mineEl    = document.getElementById("mineCount");
+    var timerEl   = document.getElementById("timer");
+    var statusEl  = document.getElementById("statusText");
+    var overlay   = document.getElementById("overlay");
+    var dlgTitle  = document.getElementById("dlgTitle");
+    var dlgBody   = document.getElementById("dlgBody");
+
+    function forEachNeighbor(r, c, fn) {
+        for (var dr = -1; dr <= 1; dr++) {
+            for (var dc = -1; dc <= 1; dc++) {
+                if (dr === 0 && dc === 0) continue;
+                var nr = r + dr, nc = c + dc;
+                if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS) fn(nr, nc);
+            }
+        }
+    }
+
+    function setFace(txt) { faceEl.textContent = txt; }
+    function setStatus(txt) { statusEl.textContent = txt; }
+    function pad3(n) {
+        var neg = n < 0, s = String(Math.abs(n));
+        while (s.length < (neg ? 2 : 3)) s = "0" + s;
+        return (neg ? "-" : "") + s;
+    }
+
+    function updateMineDisplay() { mineEl.textContent = pad3(MINES - flagsUsed); }
+    function updateTimerDisplay() { timerEl.textContent = pad3(Math.min(time, 999)); }
+
+    function getBest(lv) {
+        try { var v = localStorage.getItem("ms_best_" + lv); return v === null ? null : parseInt(v, 10); } catch (e) { return null; }
+    }
+    function setBest(lv, t) {
+        try { localStorage.setItem("ms_best_" + lv, String(t)); } catch (e) {}
+    }
+
+    function notifyParentResize() {
+        var L = LEVELS[level];
+        if (L && window.parent) {
+            window.parent.postMessage({
+                type: 'xp-resize-window',
+                appId: 'minesweeper',
+                width: L.w,
+                height: L.h
+            }, '*');
+        }
+    }
+
+    function newGame() {
+        stopTimer();
+        var L = LEVELS[level];
+        ROWS = L.rows; COLS = L.cols; MINES = L.mines;
+
+        gameOver = false; firstClick = true; time = 0; flagsUsed = 0; revealedCount = 0;
+        cursor = { r: 0, c: 0 };
+
+        grid = [];
+        for (var r = 0; r < ROWS; r++) {
+            var row = [];
+            for (var c = 0; c < COLS; c++) {
+                row.push({ mine: false, rev: false, state: 0, count: 0, el: null });
+            }
+            grid.push(row);
+        }
+
+        notifyParentResize();
+        buildBoard();
+        setFace("🙂");
+        updateMineDisplay();
+        updateTimerDisplay();
+        setStatus("Hazır — Yeni oyun için F2");
+        updateMenuChecks();
+        setCursor(0, 0);
+    }
+
+    function buildBoard() {
+        boardEl.innerHTML = "";
+        boardEl.style.gridTemplateColumns = "repeat(" + COLS + ", 16px)";
+        boardEl.style.gridTemplateRows = "repeat(" + ROWS + ", 16px)";
+        var frag = document.createDocumentFragment();
+        for (var r = 0; r < ROWS; r++) {
+            for (var c = 0; c < COLS; c++) {
+                var el = document.createElement("div");
+                el.className = "cell";
+                el.dataset.r = r;
+                el.dataset.c = c;
+                grid[r][c].el = el;
+                frag.appendChild(el);
+            }
+        }
+        boardEl.appendChild(frag);
+    }
+
+    function placeMines(sr, sc) {
+        var forbidden = {};
+        forbidden[sr + ":" + sc] = true;
+        forEachNeighbor(sr, sc, function (nr, nc) { forbidden[nr + ":" + nc] = true; });
+
+        var pool = [];
+        for (var r = 0; r < ROWS; r++) {
+            for (var c = 0; c < COLS; c++) {
+                if (!forbidden[r + ":" + c]) pool.push([r, c]);
+            }
+        }
+        for (var i = pool.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
+        }
+        var n = Math.min(MINES, pool.length);
+        for (var k = 0; k < n; k++) grid[pool[k][0]][pool[k][1]].mine = true;
+
+        for (var rr = 0; rr < ROWS; rr++) {
+            for (var cc = 0; cc < COLS; cc++) {
+                if (grid[rr][cc].mine) continue;
+                var cnt = 0;
+                forEachNeighbor(rr, cc, function (nr, nc) { if (grid[nr][nc].mine) cnt++; });
+                grid[rr][cc].count = cnt;
+            }
+        }
+    }
+
+    function renderCell(r, c) {
+        var cell = grid[r][c], el = cell.el;
+        el.className = "cell" + (cell.rev ? " rev" : "");
+        el.style.color = ""; el.style.background = ""; el.textContent = "";
+
+        if (cell.rev) {
+            if (cell.mine) {
+                el.textContent = "💣"; el.classList.add("mine");
+            } else if (cell.count > 0) {
+                el.textContent = cell.count;
+                el.style.color = NUM_COLORS[cell.count] || "#000";
+            }
+        } else {
+            if (cell.state === 1) {
+                el.textContent = "🚩"; el.classList.add("flag");
+            } else if (cell.state === 2) {
+                el.textContent = "?"; el.style.color = "#000080";
+            }
+        }
+        if (cursor.r === r && cursor.c === c) el.classList.add("cursor");
+    }
+
+    function setCursor(r, c) {
+        var old = grid[cursor.r] && grid[cursor.r][cursor.c];
+        if (old && old.el) old.el.classList.remove("cursor");
+        cursor.r = r; cursor.c = c;
+        var el = grid[r][c].el;
+        if (el) {
+            el.classList.add("cursor");
+            if (el.scrollIntoView) {
+                try { el.scrollIntoView({ block: "nearest", inline: "nearest" }); } catch (e) {}
+            }
+        }
+    }
+
+    function startTimer() {
+        if (timerId) return;
+        timerId = setInterval(function () {
+            time++;
+            if (time > 999) time = 999;
+            updateTimerDisplay();
+        }, 1000);
+    }
+    function stopTimer() { if (timerId) { clearInterval(timerId); timerId = null; } }
+
+    function revealFlood(sr, sc) {
+        var stack = [[sr, sc]];
+        while (stack.length) {
+            var p = stack.pop(), r = p[0], c = p[1], cell = grid[r][c];
+            if (cell.rev || cell.state === 1) continue;
+            cell.state = 0; cell.rev = true; revealedCount++;
+            renderCell(r, c);
+            if (cell.count === 0 && !cell.mine) {
+                forEachNeighbor(r, c, function (nr, nc) {
+                    var n = grid[nr][nc];
+                    if (!n.rev && n.state !== 1) stack.push([nr, nc]);
+                });
+            }
+        }
+    }
+
+    function handleLeft(r, c) {
+        if (gameOver) return;
+        var cell = grid[r][c];
+        if (cell.rev) { chord(r, c); return; }
+        if (cell.state === 1) return;
+
+        if (firstClick) {
+            placeMines(r, c); firstClick = false; startTimer();
+            setStatus("Oyun sürüyor...");
+        }
+        if (cell.mine) { lose(r, c); return; }
+        revealFlood(r, c);
+        checkWin();
+    }
+
+    function chord(r, c) {
+        var cell = grid[r][c];
+        if (!cell.rev || cell.count === 0) return;
+        var flags = 0, targets = [];
+        forEachNeighbor(r, c, function (nr, nc) {
+            var n = grid[nr][nc];
+            if (n.state === 1) flags++;
+            else if (!n.rev) targets.push([nr, nc]);
+        });
+        if (flags !== cell.count) return;
+        for (var i = 0; i < targets.length; i++) {
+            var t = targets[i], n = grid[t[0]][t[1]];
+            if (n.mine) { lose(t[0], t[1]); return; }
+            revealFlood(t[0], t[1]);
+        }
+        checkWin();
+    }
+
+    function toggleFlag(r, c) {
+        if (gameOver) return;
+        var cell = grid[r][c];
+        if (cell.rev) return;
+        if (cell.state === 0) { cell.state = 1; flagsUsed++; }
+        else if (cell.state === 1) { cell.state = questionMarks ? 2 : 0; flagsUsed--; }
+        else { cell.state = 0; }
+        renderCell(r, c);
+        updateMineDisplay();
+    }
+
+    function lose(r, c) {
+        gameOver = true; stopTimer(); setFace("😵");
+        for (var i = 0; i < ROWS; i++) {
+            for (var j = 0; j < COLS; j++) {
+                var cell = grid[i][j];
+                if (cell.mine && cell.state !== 1) {
+                    cell.rev = true; cell.state = 0;
+                    var el = cell.el;
+                    el.className = "cell rev mine";
+                    el.textContent = "💣";
+                    if (i === r && j === c) el.style.background = "#FF0000";
+                } else if (!cell.mine && cell.state === 1) {
+                    cell.el.textContent = "❌";
+                }
+            }
+        }
+        setStatus("Kaybettiniz! Yeni oyun için F2 tuşuna basın.");
+    }
+
+    function checkWin() {
+        if (revealedCount !== ROWS * COLS - MINES) return;
+        gameOver = true; stopTimer(); setFace("😎");
+        for (var i = 0; i < ROWS; i++) {
+            for (var j = 0; j < COLS; j++) {
+                var cell = grid[i][j];
+                if (cell.mine && cell.state !== 1) {
+                    cell.state = 1; renderCell(i, j);
+                }
+            }
+        }
+        flagsUsed = MINES; updateMineDisplay();
+        var best = getBest(level), msg = "Tebrikler! Süre: " + time + " saniye";
+        if (best === null || time < best) { setBest(level, time); msg += "  —  Yeni rekor!"; }
+        setStatus(msg);
+    }
+
+    function closeMenus() {
+        var open = document.querySelectorAll(".menu.open");
+        for (var i = 0; i < open.length; i++) open[i].classList.remove("open");
+    }
+
+    function updateMenuChecks() {
+        var items = document.querySelectorAll('.mi[data-action="level"]');
+        for (var i = 0; i < items.length; i++) items[i].classList.toggle("checked", items[i].dataset.level === level);
+        var mark = document.querySelector('.mi[data-action="marks"]');
+        if (mark) mark.classList.toggle("checked", questionMarks);
+    }
+
+    var menuEls = document.querySelectorAll(".menu");
+    for (var mi = 0; mi < menuEls.length; mi++) {
+        (function (menu) {
+            var title = menu.querySelector(".menu-title");
+            title.addEventListener("mousedown", function (e) {
+                e.stopPropagation();
+                var wasOpen = menu.classList.contains("open");
+                closeMenus();
+                if (!wasOpen) menu.classList.add("open");
+            });
+            title.addEventListener("mouseenter", function () {
+                if (document.querySelector(".menu.open")) { closeMenus(); menu.classList.add("open"); }
+            });
+        })(menuEls[mi]);
+    }
+
+    document.addEventListener("mousedown", function (e) {
+        if (!e.target.closest || !e.target.closest(".menu")) closeMenus();
+    });
+
+    var miEls = document.querySelectorAll(".mi");
+    for (var k = 0; k < miEls.length; k++) {
+        (function (item) {
+            item.addEventListener("click", function (e) {
+                e.stopPropagation();
+                closeMenus();
+                var action = item.dataset.action;
+                if (action === "new") { newGame(); }
+                else if (action === "level") {
+                    level = item.dataset.level;
+                    newGame();
+                } else if (action === "marks") {
+                    questionMarks = !questionMarks; updateMenuChecks();
+                } else if (action === "best") { showBestTimes(); }
+                else if (action === "help") { showHelp(); }
+                else if (action === "about") { showAbout(); }
+                else if (action === "exit") {
+                    try { window.parent.postMessage({ type: "closeApp", id: "minesweeper" }, "*"); } catch (err) {}
+                }
+            });
+        })(miEls[k]);
+    }
+
+    function openDialog(title, html) {
+        dlgTitle.textContent = title; dlgBody.innerHTML = html; overlay.style.display = "flex";
+    }
+    function closeDialog() { overlay.style.display = "none"; }
+    document.getElementById("dlgOk").addEventListener("click", closeDialog);
+    document.getElementById("dlgClose").addEventListener("click", closeDialog);
+
+    function showHelp() {
+        openDialog("Mayın Tarlası — İçindekiler", '<b>Sol tık</b>: Aç<br><b>Sağ tık</b>: Bayrak / Soru işareti<br><b>F2</b>: Yeni oyun');
+    }
+    function showAbout() {
+        openDialog("Mayın Tarlası Hakkında", '<b>Mayın Tarlası</b><br>Windows XP Luna Sürümü');
+    }
+    function showBestTimes() {
+        var rows = "";
+        for (var key in LEVELS) {
+            var b = getBest(key);
+            rows += "<tr><td>" + LEVELS[key].label + "</td><td style='text-align:right'>" + (b === null ? "—" : b + " sn") + "</td></tr>";
+        }
+        openDialog("En İyi Süreler", '<table>' + rows + '</table>');
+    }
+
+    boardEl.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+    boardEl.addEventListener("mousedown", function (e) {
+        var t = e.target;
+        if (!t.classList || !t.classList.contains("cell")) return;
+        var r = parseInt(t.dataset.r, 10), c = parseInt(t.dataset.c, 10);
+        setCursor(r, c);
+        if (e.button === 2) { e.preventDefault(); toggleFlag(r, c); }
+        else if (e.button === 1) { e.preventDefault(); chord(r, c); }
+        else if (e.button === 0) { if (!gameOver) setFace("😮"); handleLeft(r, c); }
+    });
+
+    window.addEventListener("mouseup", function (e) {
+        if (e.button === 0 && !gameOver) setFace("🙂");
+    });
+
+    document.addEventListener("keydown", function (e) {
+        var key = e.key;
+        if (key === "F2") { e.preventDefault(); newGame(); return; }
+        if (key === "F1") { e.preventDefault(); showHelp(); return; }
+        if (e.ctrlKey && (key === "1" || key === "2" || key === "3")) {
+            e.preventDefault();
+            level = key === "1" ? "beginner" : (key === "2" ? "intermediate" : "expert");
+            newGame();
+            return;
+        }
+    });
+
+    newGame();
+})();
+</script>
+</body>
+</html>

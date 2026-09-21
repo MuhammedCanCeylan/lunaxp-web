@@ -1,0 +1,811 @@
+<!--
+MICROSOFT OFFICE FRONTPAGE 2003 STYLE - WINDOWS XP WEB SIMULATOR
+
+ENGINE:
+- VvvebJs (Apache 2.0) -> visual WYSIWYG page builder / component editor
+
+IMPORTANT:
+- This is not Microsoft's original frontpg.exe.
+- It wraps a local VvvebJs editor inside a FrontPage 2003 / Windows XP style shell.
+- Real Design / Split / Code / Preview modes are implemented.
+- HTML can be opened, edited, saved, exported, and persisted to localStorage.
+- No second XP title bar/taskbar is drawn; parent WindowManager owns outer window chrome.
+- Native alert/confirm/prompt are not used.
+-->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Microsoft Office FrontPage 2003</title>
+<style>
+:root{
+  --xp:#ECE9D8;
+  --line:#ACA899;
+  --blue:#316AC5;
+  --fp:#2d6595;
+  --fp2:#4f8bc2;
+}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden}
+body{font:11px Tahoma,Arial,sans-serif;background:var(--xp);color:#000}
+button,input,select,textarea{font:11px Tahoma,Arial,sans-serif}
+button{cursor:default}
+#app{
+  width:100%;height:100%;min-width:760px;min-height:500px;
+  display:grid;
+  grid-template-rows:25px 32px 31px minmax(0,1fr) 26px 21px;
+  background:var(--xp)
+}
+
+/* menus */
+.menubar{
+  display:flex;align-items:center;padding:0 4px;
+  border-bottom:1px solid var(--line);background:var(--xp);user-select:none
+}
+.menu{position:relative;height:24px;padding:0 7px;display:flex;align-items:center}
+.menu:hover,.menu.open{background:var(--blue);color:#fff}
+.dropdown{
+  display:none;position:absolute;left:0;top:23px;z-index:7000;
+  min-width:235px;padding:2px;background:#fff;color:#000;
+  border:1px solid #716F64;box-shadow:2px 2px 4px rgba(0,0,0,.35)
+}
+.menu.open .dropdown{display:block}
+.mi{min-height:22px;display:flex;align-items:center;padding:3px 8px 3px 26px;white-space:nowrap}
+.mi:hover{background:var(--blue);color:#fff}
+.mi.disabled{color:#999;pointer-events:none}
+.mi .shortcut{margin-left:auto;padding-left:20px;color:#777}
+.mi:hover .shortcut{color:#fff}
+.sep{height:1px;background:var(--line);border-bottom:1px solid #fff;margin:3px 2px}
+
+/* classic toolbars */
+.toolbar,.formatbar{
+  display:flex;align-items:center;gap:2px;padding:2px 5px;
+  border-bottom:1px solid var(--line);background:var(--xp);overflow:visible
+}
+.tool{
+  width:27px;height:26px;padding:0;display:flex;align-items:center;justify-content:center;
+  background:transparent;border:1px solid transparent;border-radius:2px
+}
+.tool:hover:not(:disabled){background:#fff;border-color:#999}
+.tool:active:not(:disabled),.tool.on{background:#d7d7d7;border:1px inset #fff}
+.tool:disabled{opacity:.38}
+.toolsep{width:1px;height:22px;background:#aaa;border-right:1px solid #fff;margin:0 3px}
+.ico{font:bold 15px Arial;line-height:1}
+.fp{color:#286595}
+.green{color:#26734c}
+.red{color:#a00000}
+.select{height:24px;border:2px inset #fff;background:#fff;padding:1px 3px}
+#styleSelect{width:115px}
+#fontSelect{width:125px}
+#sizeSelect{width:50px}
+.addressbox{
+  display:flex;align-items:center;gap:5px;min-width:180px;max-width:420px;flex:1;
+  height:24px;margin-left:4px;border:2px inset #fff;background:#fff;padding:0 4px
+}
+.addressbox input{border:0;outline:0;min-width:0;flex:1;background:transparent}
+
+/* workspace */
+.workspace{
+  min-height:0;display:grid;grid-template-columns:150px minmax(0,1fr);
+  border-bottom:1px solid #9f9f9f
+}
+.viewbar{
+  background:#e7e6de;border-right:1px solid #9b9b9b;display:flex;flex-direction:column;
+  min-height:0
+}
+.viewTitle{
+  padding:7px 8px;font-weight:bold;color:#333;border-bottom:1px solid #bbb;background:#d7d5cb
+}
+.viewItem{
+  min-height:42px;padding:6px 8px;display:grid;grid-template-columns:25px 1fr;gap:5px;align-items:center;
+  border-bottom:1px solid #d0cec5;color:#1f4e7a
+}
+.viewItem:hover,.viewItem.active{background:#fff}
+.viewItem.active{font-weight:bold;border-left:3px solid var(--fp)}
+.vicon{
+  width:22px;height:22px;border:1px solid #70869b;background:linear-gradient(#e5f2fa,#6e9bc6);
+  display:flex;align-items:center;justify-content:center;color:#164b7b;font:bold 12px Arial
+}
+.siteTree{
+  flex:1;min-height:0;padding:7px 7px 12px;overflow:auto;background:#fff;border-top:1px solid #aaa
+}
+.treeTitle{font-weight:bold;margin-bottom:6px}
+.treeNode{padding:2px 0 2px 12px;white-space:nowrap}
+.treeNode.folder{font-weight:bold;color:#5e520d}
+.treeNode.page{color:#174f88}
+
+.editorarea{min-width:0;min-height:0;position:relative;background:#fff}
+#designFrame,#previewFrame{
+  position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff
+}
+#previewFrame{display:none}
+#codeView{
+  position:absolute;inset:0;display:none;width:100%;height:100%;
+  resize:none;border:0;outline:0;padding:10px 12px;
+  background:#fff;color:#000;font:12px "Courier New",monospace;line-height:1.4;white-space:pre
+}
+#splitView{
+  position:absolute;inset:0;display:none;grid-template-rows:42% 4px 1fr;background:#aaa
+}
+#splitCode{
+  width:100%;height:100%;resize:none;border:0;outline:0;padding:9px 11px;
+  font:12px "Courier New",monospace;line-height:1.4;background:#fff;color:#000
+}
+.splitbar{background:#aaa;border-top:1px solid #777;border-bottom:1px solid #777}
+#splitDesign{
+  width:100%;height:100%;border:0;background:#fff
+}
+.loading{
+  position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;
+  background:#fff;color:#315a80
+}
+.loading.hide{display:none}
+
+/* bottom FrontPage page-mode buttons */
+.modebar{
+  display:flex;align-items:center;padding:2px 5px;gap:2px;background:var(--xp);border-bottom:1px solid var(--line)
+}
+.modebtn{
+  min-width:69px;height:21px;padding:1px 9px;background:var(--xp);border:1px solid transparent
+}
+.modebtn:hover{border-color:#999;background:#fff}
+.modebtn.active{border:1px inset #fff;background:#d7d7d7;font-weight:bold}
+.modeInfo{margin-left:auto;padding-right:7px;color:#666}
+.statusbar{
+  display:grid;grid-template-columns:minmax(0,1fr) 165px 90px;gap:2px;padding:2px;background:var(--xp)
+}
+.status{height:16px;border:1px inset #fff;padding:0 5px;line-height:14px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+
+/* task pane */
+.taskpane{
+  display:none;position:absolute;right:0;top:0;bottom:0;width:245px;z-index:90;background:var(--xp);
+  border-left:1px solid #8a8a8a;box-shadow:-2px 0 4px rgba(0,0,0,.12)
+}
+.taskpane.show{display:flex;flex-direction:column}
+.taskHead{
+  height:28px;background:#d7e5f4;color:#174f88;font-weight:bold;padding:6px 7px;
+  display:flex;justify-content:space-between;border-bottom:1px solid #9eafc0
+}
+.taskClose{border:0;background:transparent;color:#174f88;font-weight:bold}
+.taskBody{padding:10px;overflow:auto;line-height:1.5}
+.taskLink{color:#03c;text-decoration:underline;cursor:pointer;margin:4px 0}
+
+/* dialog */
+.shade{
+  display:none;position:absolute;inset:0;z-index:10000;background:rgba(0,0,0,.18);
+  align-items:center;justify-content:center;padding:18px
+}
+.shade.show{display:flex}
+.dialog{
+  width:min(480px,94vw);max-height:88%;background:var(--xp);border:2px outset #fff;
+  box-shadow:4px 5px 15px rgba(0,0,0,.48);display:flex;flex-direction:column
+}
+.dtitle{
+  min-height:25px;display:flex;align-items:center;justify-content:space-between;
+  padding:2px 3px 2px 7px;color:#fff;font-weight:bold;
+  background:linear-gradient(90deg,#0A246A,#3A6EA5)
+}
+.dx{width:21px;height:20px;padding:0;color:#fff;background:#D8503C;border:2px outset #fff;font-weight:bold}
+.dbody{padding:13px;line-height:1.45;overflow:auto}
+.dactions{display:flex;justify-content:flex-end;gap:7px;padding:0 12px 11px}
+.xpbtn{min-width:80px;height:25px;background:var(--xp);border:2px outset #fff}
+.xpbtn:active{border-style:inset}
+.row{display:grid;grid-template-columns:120px minmax(0,1fr);gap:8px;align-items:center;margin:7px 0}
+.textbox,.dselect{width:100%;height:24px;border:2px inset #fff;background:#fff;padding:2px 4px}
+.msg{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start}
+.infoicon{
+  width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  color:#fff;background:#316AC5;border:1px solid #174B9E;font:bold 23px Georgia,serif
+}
+.warnicon{
+  width:32px;height:32px;clip-path:polygon(50% 0,100% 100%,0 100%);
+  background:#F2CD3A;position:relative
+}
+.warnicon:after{content:"!";position:absolute;left:12px;top:8px;font:bold 19px Arial;color:#333}
+.aboutLogo{
+  width:70px;height:56px;margin:2px auto 12px;position:relative;
+  border:2px solid #66829b;background:linear-gradient(#eaf6ff,#69a1cf)
+}
+.aboutLogo:before{
+  content:"F";position:absolute;left:9px;top:2px;color:#285f90;font:bold 43px Georgia,serif
+}
+.aboutLogo:after{
+  content:"◎";position:absolute;right:3px;bottom:-5px;color:#32805a;font:bold 25px Arial
+}
+.note{margin-top:8px;padding:7px;border:1px solid #d6c36a;background:#fff7d8;color:#5b5226}
+
+@media(max-width:900px){
+  .workspace{grid-template-columns:115px minmax(0,1fr)}
+  .viewItem{grid-template-columns:20px 1fr;padding-left:5px;font-size:10px}
+  #fontSelect{width:95px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="menubar">
+    <div class="menu" data-menu>Dosya
+      <div class="dropdown">
+        <div class="mi" data-cmd="newpage">Yeni Sayfa <span class="shortcut">Ctrl+N</span></div>
+        <div class="mi" data-cmd="open">Aç... <span class="shortcut">Ctrl+O</span></div>
+        <div class="mi" data-cmd="save">Kaydet <span class="shortcut">Ctrl+S</span></div>
+        <div class="mi" data-cmd="saveas">Farklı Kaydet...</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="preview">Tarayıcıda Önizle <span class="shortcut">F12</span></div>
+        <div class="mi" data-cmd="publish">Web Sitesini Yayımla...</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="exit">Çıkış</div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu>Düzen
+      <div class="dropdown">
+        <div class="mi" data-cmd="undo">Geri Al <span class="shortcut">Ctrl+Z</span></div>
+        <div class="mi" data-cmd="redo">Yinele <span class="shortcut">Ctrl+Y</span></div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="cut">Kes <span class="shortcut">Ctrl+X</span></div>
+        <div class="mi" data-cmd="copy">Kopyala <span class="shortcut">Ctrl+C</span></div>
+        <div class="mi" data-cmd="paste">Yapıştır <span class="shortcut">Ctrl+V</span></div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="find">Bul... <span class="shortcut">Ctrl+F</span></div>
+        <div class="mi" data-cmd="selectall">Tümünü Seç <span class="shortcut">Ctrl+A</span></div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu>Görünüm
+      <div class="dropdown">
+        <div class="mi" data-cmd="design">Tasarım</div>
+        <div class="mi" data-cmd="split">Böl</div>
+        <div class="mi" data-cmd="code">Kod</div>
+        <div class="mi" data-cmd="preview">Önizleme</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="taskpane">Görev Bölmesi</div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu>Ekle
+      <div class="dropdown">
+        <div class="mi" data-cmd="hyperlink">Köprü... <span class="shortcut">Ctrl+K</span></div>
+        <div class="mi" data-cmd="picture">Resim...</div>
+        <div class="mi" data-cmd="table">Tablo...</div>
+        <div class="mi" data-cmd="hr">Yatay Çizgi</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="webcomponent">Web Bileşeni...</div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu>Biçim
+      <div class="dropdown">
+        <div class="mi" data-cmd="font">Yazı Tipi...</div>
+        <div class="mi" data-cmd="paragraph">Paragraf...</div>
+        <div class="mi" data-cmd="borders">Kenarlıklar ve Gölgelendirme...</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="style">Stil...</div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu>Araçlar
+      <div class="dropdown">
+        <div class="mi" data-cmd="spell">Yazım Denetimi...</div>
+        <div class="mi" data-cmd="siteSettings">Site Ayarları...</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="pageOptions">Sayfa Seçenekleri...</div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu>Tablo
+      <div class="dropdown">
+        <div class="mi" data-cmd="table">Tablo Ekle...</div>
+        <div class="mi" data-cmd="row">Satır Ekle</div>
+        <div class="mi" data-cmd="column">Sütun Ekle</div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu>Veri
+      <div class="dropdown">
+        <div class="mi" data-cmd="xml">XML Veri Kaynağı...</div>
+        <div class="mi" data-cmd="datasource">Veri Kaynağı Kataloğu...</div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu>Pencere
+      <div class="dropdown">
+        <div class="mi" data-cmd="design">index.html</div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu>Yardım
+      <div class="dropdown">
+        <div class="mi" data-cmd="help">Microsoft FrontPage Yardımı</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="about">Microsoft Office FrontPage Hakkında</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button class="tool" data-cmd="newpage" title="Yeni"><span class="ico fp">▤</span></button>
+    <button class="tool" data-cmd="open" title="Aç"><span class="ico">▰</span></button>
+    <button class="tool" data-cmd="save" title="Kaydet"><span class="ico fp">▣</span></button>
+    <span class="toolsep"></span>
+    <button class="tool" data-cmd="cut" title="Kes"><span class="ico">✂</span></button>
+    <button class="tool" data-cmd="copy" title="Kopyala"><span class="ico">▦</span></button>
+    <button class="tool" data-cmd="paste" title="Yapıştır"><span class="ico">▣</span></button>
+    <span class="toolsep"></span>
+    <button class="tool" data-cmd="undo" title="Geri Al"><span class="ico">↶</span></button>
+    <button class="tool" data-cmd="redo" title="Yinele"><span class="ico">↷</span></button>
+    <span class="toolsep"></span>
+    <button class="tool" data-cmd="hyperlink" title="Köprü Ekle"><span class="ico fp">🔗</span></button>
+    <button class="tool" data-cmd="picture" title="Resim Ekle"><span class="ico green">▧</span></button>
+    <button class="tool" data-cmd="table" title="Tablo Ekle"><span class="ico">▦</span></button>
+    <span class="toolsep"></span>
+    <div class="addressbox">
+      <span class="ico fp">⌂</span>
+      <input id="siteAddress" value="http://localhost/My Webs/My Web Site/index.html" readonly>
+    </div>
+    <button class="tool" data-cmd="preview" title="Tarayıcıda Önizle"><span class="ico green">▶</span></button>
+  </div>
+
+  <div class="formatbar">
+    <select class="select" id="styleSelect"><option>Normal</option><option>Heading 1</option><option>Heading 2</option><option>Heading 3</option></select>
+    <select class="select" id="fontSelect"><option>Arial</option><option>Courier New</option><option>Tahoma</option><option>Times New Roman</option><option>Verdana</option></select>
+    <select class="select" id="sizeSelect"><option>8</option><option>10</option><option selected>12</option><option>14</option><option>18</option><option>24</option><option>36</option></select>
+    <span class="toolsep"></span>
+    <button class="tool" data-cmd="bold" title="Kalın"><b>B</b></button>
+    <button class="tool" data-cmd="italic" title="İtalik"><i>I</i></button>
+    <button class="tool" data-cmd="underline" title="Altı çizili"><u>U</u></button>
+    <span class="toolsep"></span>
+    <button class="tool" data-cmd="alignleft" title="Sola hizala">≡</button>
+    <button class="tool" data-cmd="aligncenter" title="Ortala">≣</button>
+    <button class="tool" data-cmd="alignright" title="Sağa hizala">≡</button>
+    <button class="tool" data-cmd="bullets" title="Madde İşaretleri">•≡</button>
+  </div>
+
+  <section class="workspace">
+    <aside class="viewbar">
+      <div class="viewTitle">Web Sitesi Görünümleri</div>
+      <div class="viewItem active"><span class="vicon">P</span><span>Sayfa</span></div>
+      <div class="viewItem"><span class="vicon">F</span><span>Klasörler</span></div>
+      <div class="viewItem"><span class="vicon">R</span><span>Uzak Web Sitesi</span></div>
+      <div class="viewItem"><span class="vicon">!</span><span>Raporlar</span></div>
+      <div class="viewItem"><span class="vicon">N</span><span>Gezinti</span></div>
+      <div class="viewItem"><span class="vicon">↗</span><span>Köprüler</span></div>
+      <div class="viewItem"><span class="vicon">✓</span><span>Görevler</span></div>
+      <div class="siteTree">
+        <div class="treeTitle">Klasör Listesi</div>
+        <div class="treeNode folder">📁 My Web Site</div>
+        <div class="treeNode page">└─ index.html</div>
+        <div class="treeNode folder">📁 images</div>
+      </div>
+    </aside>
+
+    <main class="editorarea">
+      <div class="loading" id="loading">FrontPage tasarım motoru yükleniyor...</div>
+      <iframe id="designFrame" src="./vendor/vvveb/editor.html#no-right-panel" title="Design View"></iframe>
+      <textarea id="codeView" spellcheck="false"></textarea>
+      <div id="splitView">
+        <textarea id="splitCode" spellcheck="false"></textarea>
+        <div class="splitbar"></div>
+        <iframe id="splitDesign" title="Split Design Preview"></iframe>
+      </div>
+      <iframe id="previewFrame" title="Preview"></iframe>
+
+      <aside class="taskpane" id="taskpane">
+        <div class="taskHead"><span>Başlarken</span><button class="taskClose" id="taskClose" type="button">×</button></div>
+        <div class="taskBody">
+          <b>Yeni</b>
+          <div class="taskLink" data-task="newpage">Boş sayfa</div>
+          <div class="taskLink" data-task="template">Sayfa şablonu</div>
+          <br>
+          <b>Aç</b>
+          <div class="taskLink" data-task="open">Bilgisayarımdan HTML aç...</div>
+          <br>
+          <b>Site görevleri</b>
+          <div class="taskLink" data-task="preview">Sayfayı önizle</div>
+          <div class="taskLink" data-task="publish">Web sitesini yayımla</div>
+        </div>
+      </aside>
+    </main>
+  </section>
+
+  <div class="modebar">
+    <button class="modebtn active" data-mode="design" type="button">Tasarım</button>
+    <button class="modebtn" data-mode="split" type="button">Böl</button>
+    <button class="modebtn" data-mode="code" type="button">Kod</button>
+    <button class="modebtn" data-mode="preview" type="button">Önizleme</button>
+    <span class="modeInfo" id="modeInfo">index.html</span>
+  </div>
+
+  <div class="statusbar">
+    <div class="status" id="status">Hazır</div>
+    <div class="status" id="estimate">Tahmini yükleme: &lt; 1 sn.</div>
+    <div class="status" id="sizeStatus">— KB</div>
+  </div>
+
+  <input id="openInput" type="file" accept=".html,.htm,text/html" hidden>
+  <input id="imageInput" type="file" accept="image/*" hidden>
+
+  <div class="shade" id="shade">
+    <div class="dialog">
+      <div class="dtitle"><span id="dtitle">Microsoft FrontPage</span><button class="dx" id="dx" type="button">×</button></div>
+      <div class="dbody" id="dbody"></div>
+      <div class="dactions" id="dactions"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(()=>{
+'use strict';
+
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+const designFrame=$('#designFrame');
+const codeView=$('#codeView');
+const splitCode=$('#splitCode');
+const splitDesign=$('#splitDesign');
+const previewFrame=$('#previewFrame');
+const loading=$('#loading');
+
+const STORE='xp_frontpage2003_site_v2';
+const starter=`<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>My Web Site</title>
+<style>
+body{font-family:Arial,sans-serif;margin:40px;color:#222}
+h1{color:#2d6595}
+</style>
+</head>
+<body>
+<h1>Welcome to My Web Site</h1>
+<p>This page was created with FrontPage.</p>
+</body>
+</html>`;
+
+let filename='index.html';
+let mode='design';
+let ready=false;
+let lastHtml=localStorage.getItem(STORE)||starter;
+let draftTimer=null;
+
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function setStatus(s){$('#status').textContent=s}
+function updateSize(html){
+  const kb=Math.max(.1,new Blob([html]).size/1024);
+  $('#sizeStatus').textContent=kb.toFixed(1).replace('.',',')+' KB';
+  $('#estimate').textContent='Tahmini yükleme: '+(kb<50?'< 1 sn.':kb<200?'1 - 3 sn.':'3+ sn.');
+}
+function saveLocal(html){
+  lastHtml=html;
+  try{localStorage.setItem(STORE,html)}catch{}
+  updateSize(html);setStatus('Yerel site taslağı kaydedildi.');
+}
+function scheduleLocal(){
+  clearTimeout(draftTimer);
+  draftTimer=setTimeout(()=>saveLocal(getHtml()),1200);
+}
+
+/* XP dialog */
+const shade=$('#shade');
+function showDialog(title,html,buttons){
+  $('#dtitle').textContent=title;$('#dbody').innerHTML=html;$('#dactions').innerHTML='';
+  (buttons||[{label:'Tamam',action:hideDialog}]).forEach(b=>{
+    const x=document.createElement('button');x.className='xpbtn';x.type='button';x.textContent=b.label;
+    x.onclick=b.action||hideDialog;$('#dactions').appendChild(x);
+  });
+  shade.classList.add('show');
+}
+function hideDialog(){shade.classList.remove('show')}
+$('#dx').onclick=hideDialog;
+shade.addEventListener('mousedown',e=>{if(e.target===shade)hideDialog()});
+function info(msg,title='Microsoft FrontPage'){
+  showDialog(title,`<div class="msg"><div class="infoicon">i</div><div>${esc(msg).replace(/\n/g,'<br>')}</div></div>`)
+}
+function warn(msg,title='Microsoft FrontPage'){
+  showDialog(title,`<div class="msg"><div class="warnicon"></div><div>${esc(msg).replace(/\n/g,'<br>')}</div></div>`)
+}
+
+/* menu */
+function closeMenus(){$$('[data-menu]').forEach(m=>m.classList.remove('open'))}
+$$('[data-menu]').forEach(m=>m.addEventListener('mousedown',e=>{
+  if(e.target.closest('.mi'))return;
+  const was=m.classList.contains('open');closeMenus();if(!was)m.classList.add('open')
+}));
+document.addEventListener('mousedown',e=>{if(!e.target.closest('[data-menu]'))closeMenus()});
+document.addEventListener('click',e=>{
+  const x=e.target.closest('[data-cmd]');if(!x)return;
+  closeMenus();run(x.dataset.cmd);
+});
+
+/* Vvveb access */
+function builder(){
+  try{return designFrame.contentWindow.Vvveb?.Builder||null}catch{return null}
+}
+function getHtml(){
+  if(mode==='code')return codeView.value;
+  if(mode==='split')return splitCode.value;
+  try{
+    const b=builder();
+    if(b&&typeof b.getHtml==='function')return b.getHtml();
+  }catch{}
+  return lastHtml||starter;
+}
+function setDesignHtml(html){
+  lastHtml=html;
+  try{
+    const b=builder();
+    if(b&&typeof b.setHtml==='function'){
+      b.setHtml(html);
+      return true;
+    }
+  }catch{}
+  return false;
+}
+function waitForBuilder(attempt=0){
+  try{
+    const b=builder();
+    if(b&&typeof b.getHtml==='function'&&typeof b.setHtml==='function'){
+      ready=true;
+      setDesignHtml(lastHtml||starter);
+      loading.classList.add('hide');
+      setStatus('Hazır');
+      updateSize(lastHtml||starter);
+
+      try{
+        const win=designFrame.contentWindow;
+        win.addEventListener('vvveb.getHtml.after',scheduleLocal);
+        const body=b.frameBody;
+        if(body){
+          body.addEventListener('vvveb.undo.add',scheduleLocal);
+          body.addEventListener('vvveb.undo.restore',scheduleLocal);
+        }
+      }catch{}
+      return;
+    }
+  }catch{}
+  if(attempt<80)setTimeout(()=>waitForBuilder(attempt+1),250);
+  else{
+    loading.textContent='VvvebJs tasarım motoru başlatılamadı. Sayfayı localhost üzerinden açtığınızdan emin olun.';
+    setStatus('Tasarım motoru yüklenemedi');
+  }
+}
+designFrame.addEventListener('load',()=>setTimeout(()=>waitForBuilder(0),300));
+
+/* view modes */
+function setMode(next){
+  if(next===mode&&ready)return;
+
+  let html=getHtml();
+  if(mode==='code'||mode==='split'){
+    setDesignHtml(html);
+    saveLocal(html);
+  }
+
+  mode=next;
+  designFrame.style.display='none';
+  codeView.style.display='none';
+  splitView.style.display='none';
+  previewFrame.style.display='none';
+
+  if(mode==='design'){
+    designFrame.style.display='block';
+    setDesignHtml(html);
+  }else if(mode==='code'){
+    codeView.value=html;
+    codeView.style.display='block';
+  }else if(mode==='split'){
+    splitCode.value=html;
+    splitDesign.srcdoc=html;
+    splitView.style.display='grid';
+  }else if(mode==='preview'){
+    previewFrame.srcdoc=html;
+    previewFrame.style.display='block';
+  }
+
+  $$('.modebtn').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
+  $('#modeInfo').textContent=filename+' — '+({design:'Tasarım',split:'Böl',code:'Kod',preview:'Önizleme'}[mode]);
+  updateSize(html);
+}
+$$('.modebtn').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
+codeView.addEventListener('input',scheduleLocal);
+splitCode.addEventListener('input',()=>{
+  splitDesign.srcdoc=splitCode.value;
+  scheduleLocal();
+});
+
+/* Open/save */
+$('#openInput').addEventListener('change',async()=>{
+  const file=$('#openInput').files[0];if(!file)return;
+  try{
+    const html=await file.text();
+    filename=file.name;
+    lastHtml=html;
+    saveLocal(html);
+    setDesignHtml(html);
+    if(mode==='code')codeView.value=html;
+    if(mode==='split'){splitCode.value=html;splitDesign.srcdoc=html}
+    if(mode==='preview')previewFrame.srcdoc=html;
+    $('#modeInfo').textContent=filename;
+    setStatus('Sayfa açıldı.');
+  }catch(e){warn('HTML dosyası açılamadı.')}
+  $('#openInput').value='';
+});
+function downloadHtml(name=filename){
+  const html=getHtml();
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  filename=name;saveLocal(html);setStatus('Sayfa kaydedildi.');
+}
+function saveAs(){
+  showDialog('Farklı Kaydet',`
+    <div class="row"><label>Dosya adı:</label><input class="textbox" id="saveName" value="${esc(filename)}"></div>
+    <div class="row"><label>Kayıt türü:</label><select class="dselect"><option>Web Sayfası (*.html; *.htm)</option></select></div>
+  `,[
+    {label:'Kaydet',action:()=>{
+      let n=$('#saveName').value.trim()||'index.html';
+      if(!/\.html?$/i.test(n))n+='.html';
+      hideDialog();downloadHtml(n);
+    }},
+    {label:'İptal',action:hideDialog}
+  ]);
+}
+function newPage(){
+  showDialog('Yeni Sayfa','Geçerli sayfa yerine yeni boş bir web sayfası oluşturulsun mu?',[
+    {label:'Evet',action:()=>{
+      hideDialog();filename='index.html';lastHtml=starter;saveLocal(starter);
+      setDesignHtml(starter);setMode('design');setStatus('Yeni sayfa oluşturuldu.');
+    }},
+    {label:'Hayır',action:hideDialog}
+  ]);
+}
+
+/* Commands inside design editor */
+function designDoc(){
+  try{return builder()?.frameDoc||null}catch{return null}
+}
+function designExec(cmd,val=null){
+  const doc=designDoc();
+  if(!doc)return false;
+  try{
+    doc.body.focus();
+    doc.execCommand(cmd,false,val);
+    scheduleLocal();return true;
+  }catch{return false}
+}
+function insertHtml(html){
+  const doc=designDoc();
+  if(!doc)return info('Bu komut Tasarım görünümünde kullanılabilir.');
+  try{
+    doc.body.focus();
+    doc.execCommand('insertHTML',false,html);
+    scheduleLocal();
+  }catch{info('İçerik eklenemedi.')}
+}
+
+/* simple insert dialogs */
+function hyperlink(){
+  showDialog('Köprü Ekle',`
+    <div class="row"><label>Görüntülenecek metin:</label><input class="textbox" id="linkText" value="Link"></div>
+    <div class="row"><label>Adres:</label><input class="textbox" id="linkUrl" value="https://"></div>
+  `,[
+    {label:'Tamam',action:()=>{
+      const t=$('#linkText').value||'Link',u=$('#linkUrl').value||'#';hideDialog();setMode('design');
+      insertHtml(`<a href="${esc(u)}">${esc(t)}</a>`);
+    }},
+    {label:'İptal',action:hideDialog}
+  ]);
+}
+function tableDialog(){
+  showDialog('Tablo Ekle',`
+    <div class="row"><label>Satır sayısı:</label><input class="textbox" id="rows" type="number" min="1" max="20" value="2"></div>
+    <div class="row"><label>Sütun sayısı:</label><input class="textbox" id="cols" type="number" min="1" max="10" value="2"></div>
+  `,[
+    {label:'Tamam',action:()=>{
+      const r=Math.max(1,Math.min(20,Number($('#rows').value)||2)),c=Math.max(1,Math.min(10,Number($('#cols').value)||2));
+      let h='<table border="1" cellpadding="4" cellspacing="0">';
+      for(let y=0;y<r;y++){h+='<tr>';for(let x=0;x<c;x++)h+='<td>&nbsp;</td>';h+='</tr>'}h+='</table>';
+      hideDialog();setMode('design');insertHtml(h);
+    }},
+    {label:'İptal',action:hideDialog}
+  ]);
+}
+$('#imageInput').addEventListener('change',()=>{
+  const f=$('#imageInput').files[0];if(!f)return;
+  const reader=new FileReader();
+  reader.onload=()=>{setMode('design');insertHtml(`<img src="${reader.result}" alt="${esc(f.name)}">`)};
+  reader.readAsDataURL(f);$('#imageInput').value='';
+});
+
+/* task pane */
+$('#taskClose').onclick=()=>$('#taskpane').classList.remove('show');
+document.querySelectorAll('[data-task]').forEach(x=>x.onclick=()=>run(x.dataset.task));
+
+/* command dispatcher */
+function run(cmd){
+  if(cmd==='newpage')newPage();
+  else if(cmd==='open')$('#openInput').click();
+  else if(cmd==='save')downloadHtml(filename);
+  else if(cmd==='saveas')saveAs();
+  else if(cmd==='preview')setMode('preview');
+  else if(cmd==='design'||cmd==='split'||cmd==='code')setMode(cmd);
+  else if(cmd==='exit'){try{window.parent.postMessage({type:'XP_APP_CLOSE_REQUEST',app:'frontpage'},'*')}catch{}}
+  else if(cmd==='undo'){try{designFrame.contentWindow.Vvveb?.Undo?.undo?.()}catch{}}
+  else if(cmd==='redo'){try{designFrame.contentWindow.Vvveb?.Undo?.redo?.()}catch{}}
+  else if(cmd==='cut')designExec('cut');
+  else if(cmd==='copy')designExec('copy');
+  else if(cmd==='paste')designExec('paste');
+  else if(cmd==='selectall')designExec('selectAll');
+  else if(cmd==='bold')designExec('bold');
+  else if(cmd==='italic')designExec('italic');
+  else if(cmd==='underline')designExec('underline');
+  else if(cmd==='alignleft')designExec('justifyLeft');
+  else if(cmd==='aligncenter')designExec('justifyCenter');
+  else if(cmd==='alignright')designExec('justifyRight');
+  else if(cmd==='bullets')designExec('insertUnorderedList');
+  else if(cmd==='hr'){setMode('design');insertHtml('<hr>')}
+  else if(cmd==='hyperlink')hyperlink();
+  else if(cmd==='picture')$('#imageInput').click();
+  else if(cmd==='table')tableDialog();
+  else if(cmd==='taskpane')$('#taskpane').classList.toggle('show');
+  else if(cmd==='publish')info('Bu yerel XP simülatörü FTP/FrontPage Server Extensions sunucusuna bağlı değil.\n\nSayfayı Dosya → Kaydet ile HTML olarak dışa aktarabilir ve kendi web sunucunuza yükleyebilirsiniz.');
+  else if(cmd==='find')info('Kod görünümünde tarayıcının Ctrl+F aramasını, Tasarım görünümünde ise VvvebJs düzenleyicinin arama/öğe araçlarını kullanabilirsiniz.');
+  else if(cmd==='template')info('Şablon sistemi VvvebJs bölüm/blocks paneli üzerinden kullanılabilir.');
+  else if(['font','paragraph','borders','style','spell','siteSettings','pageOptions','webcomponent','row','column','xml','datasource'].includes(cmd)){
+    info('Bu komutun gelişmiş karşılığı VvvebJs tasarım panelinde veya HTML Kod görünümünde kullanılabilir.');
+  }
+  else if(cmd==='help')showDialog('Microsoft FrontPage Yardımı',`
+    <b>Tasarım görünümü</b><br>Sayfayı sürükle-bırak ve WYSIWYG araçlarıyla düzenler.<br><br>
+    <b>Böl görünümü</b><br>HTML kodunu üstte, canlı sayfa önizlemesini altta gösterir.<br><br>
+    <b>Kod görünümü</b><br>Sayfanın ham HTML kodunu düzenler.<br><br>
+    <b>Önizleme</b><br>Geçerli sayfayı tarayıcı görünümünde gösterir.<br><br>
+    <b>Dosyalar</b><br>HTML/HTM açabilir ve geçerli sayfayı HTML olarak kaydedebilirsiniz.
+  `);
+  else if(cmd==='about')showDialog('Microsoft Office FrontPage Hakkında',`
+    <div class="aboutLogo"></div>
+    <div style="text-align:center"><b>Microsoft Office FrontPage 2003 tarzı web düzenleyici</b><br><br>
+    Windows XP Web Simulator için hazırlanmıştır.</div>
+    <div class="note">Görsel sayfa düzenleme motoru VvvebJs'dir. Bu, Microsoft'un orijinal FrontPage executable'ı değildir.</div>
+  `);
+}
+
+/* formatting selectors */
+$('#styleSelect').onchange=()=>{
+  const m={'Normal':'p','Heading 1':'h1','Heading 2':'h2','Heading 3':'h3'};
+  designExec('formatBlock',m[$('#styleSelect').value]||'p');
+};
+$('#fontSelect').onchange=()=>designExec('fontName',$('#fontSelect').value);
+$('#sizeSelect').onchange=()=>{
+  const pt=Number($('#sizeSelect').value);
+  const sz=pt<=8?1:pt<=10?2:pt<=12?3:pt<=14?4:pt<=18?5:pt<=24?6:7;
+  designExec('fontSize',String(sz));
+};
+
+/* shortcuts */
+document.addEventListener('keydown',e=>{
+  if(shade.classList.contains('show')){
+    if(e.key==='Escape'){e.preventDefault();hideDialog()}
+    return;
+  }
+  const k=e.key.toLowerCase();
+  if(e.ctrlKey&&k==='n'){e.preventDefault();newPage()}
+  else if(e.ctrlKey&&k==='o'){e.preventDefault();$('#openInput').click()}
+  else if(e.ctrlKey&&k==='s'){e.preventDefault();downloadHtml(filename)}
+  else if(e.ctrlKey&&k==='k'){e.preventDefault();hyperlink()}
+  else if(e.key==='F12'){e.preventDefault();setMode('preview')}
+});
+
+/* native popup ban */
+window.alert=m=>info(String(m));
+window.confirm=m=>{info(String(m));return false};
+window.prompt=m=>{info(String(m));return null};
+
+updateSize(lastHtml);
+})();
+</script>
+</body>
+</html>

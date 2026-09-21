@@ -1,0 +1,1771 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Internet Explorer</title>
+<style>
+/* ============================================================
+   TEMEL
+   ============================================================ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    font-family: Tahoma, "MS Sans Serif", sans-serif;
+    font-size: 11px;
+    background: #ECE9D8;
+    color: #000;
+    user-select: none;
+    -webkit-user-select: none;
+}
+img { -webkit-user-drag: none; }
+
+.ie-app {
+    display: flex;
+    flex-direction: column;
+    width: 100%; height: 100%;
+    background: #ECE9D8;
+}
+
+/* ============================================================
+   MENÜ ÇUBUĞU
+   ============================================================ */
+.menubar {
+    display: flex;
+    align-items: stretch;
+    flex: 0 0 auto;
+    padding: 1px 1px 0 1px;
+    background: #ECE9D8;
+    border-bottom: 1px solid #D4D0C8;
+    position: relative;
+    z-index: 60;
+}
+.menu-item {
+    position: relative;
+    padding: 3px 8px 4px;
+    white-space: nowrap;
+    cursor: default;
+    color: #000;
+}
+.menu-item:hover,
+.menu-item.open { background: #316AC5; color: #fff; }
+
+.dropdown {
+    display: none;
+    position: absolute;
+    top: 100%; left: 0;
+    min-width: 200px;
+    padding: 2px;
+    background: #fff;
+    border: 1px solid #ACA899;
+    box-shadow: 3px 3px 5px rgba(0,0,0,.35);
+    color: #000;
+    z-index: 100;
+}
+.menu-item.open .dropdown { display: block; }
+
+.dd-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+    padding: 4px 8px 4px 22px;
+    white-space: nowrap;
+    cursor: default;
+}
+.dd-item:hover { background: #316AC5; color: #fff; }
+.dd-item.disabled { color: #ACA899; pointer-events: none; }
+.dd-key { color: #666; }
+.dd-item:hover .dd-key { color: #DDE8F7; }
+.dd-sep { height: 1px; margin: 3px 2px; background: #D4D0C8; }
+.dd-check { position: absolute; left: 7px; font-weight: bold; }
+
+/* ============================================================
+   ARAÇ ÇUBUĞU
+   ============================================================ */
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+    flex: 0 0 auto;
+    padding: 2px 3px;
+    background: #ECE9D8;
+    border-bottom: 1px solid #ACA899;
+}
+.tb-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 6px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    white-space: nowrap;
+    cursor: default;
+    color: #000;
+}
+.tb-btn img { width: 20px; height: 20px; object-fit: contain; }
+.tb-btn:hover {
+    border-color: #7EA3CF;
+    background: linear-gradient(to bottom, #EAF3FE, #CFE2F8);
+}
+.tb-btn:active {
+    border-color: #7EA3CF;
+    background: linear-gradient(to bottom, #CFE2F8, #EAF3FE);
+}
+.tb-btn.disabled { opacity: .4; pointer-events: none; }
+.tb-sep {
+    width: 1px; height: 20px;
+    margin: 0 3px;
+    background: #ACA899;
+    border-right: 1px solid #fff;
+}
+
+/* ============================================================
+   ADRES ÇUBUĞU
+   ============================================================ */
+.addressbar {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex: 0 0 auto;
+    padding: 2px 4px;
+    background: #ECE9D8;
+    border-bottom: 1px solid #ACA899;
+}
+.addressbar > label { padding: 0 2px; }
+
+.addr-field {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    min-width: 0;
+    height: 21px;
+    padding: 0 3px;
+    background: #fff;
+    border: 1px solid #7F9DB9;
+}
+.addr-field img { width: 16px; height: 16px; }
+.addr-field input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    color: #000;
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+.go-btn {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    height: 21px;
+    padding: 1px 6px 1px 4px;
+    background: linear-gradient(to bottom, #FDFDFD, #E3E1D2);
+    border: 1px solid #003C74;
+    border-radius: 3px;
+    cursor: default;
+}
+.go-btn img { width: 14px; height: 14px; }
+.go-btn:active {
+    background: linear-gradient(to bottom, #E3E1D2, #FDFDFD);
+    box-shadow: inset 1px 1px 2px rgba(0,0,0,.25);
+}
+
+/* ============================================================
+   BAĞLANTILAR ÇUBUĞU
+   ============================================================ */
+.linksbar {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex: 0 0 auto;
+    padding: 2px 4px;
+    background: #ECE9D8;
+    border-bottom: 1px solid #ACA899;
+    overflow: hidden;
+}
+.links-label { padding-right: 4px; color: #666; }
+.link-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 6px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    white-space: nowrap;
+    cursor: default;
+    color: #000;
+}
+.link-item img { width: 16px; height: 16px; }
+.link-item:hover {
+    border-color: #7EA3CF;
+    background: linear-gradient(to bottom, #EAF3FE, #CFE2F8);
+    color: #0055EA;
+    text-decoration: underline;
+}
+
+/* ============================================================
+   GÖRÜNTÜ ALANI
+   ============================================================ */
+.viewport-wrap {
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    overflow: hidden;
+    background: #fff;
+}
+.viewport {
+    flex: 1;
+    overflow: auto;
+    background: #fff;
+    user-select: text;
+    -webkit-user-select: text;
+}
+#page { min-height: 100%; }
+
+/* XP kaydırma çubuğu */
+.viewport::-webkit-scrollbar { width: 16px; height: 16px; }
+.viewport::-webkit-scrollbar-track {
+    background: #F1EFE2;
+    border-left: 1px solid #D4D0C8;
+}
+.viewport::-webkit-scrollbar-thumb {
+    background: linear-gradient(to right, #FDFDFD, #C9D8F5 45%, #A8C4EF);
+    border: 1px solid #7F9DB9;
+    border-radius: 2px;
+}
+.viewport::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to right, #FFF8E0, #FFD98A);
+}
+.viewport::-webkit-scrollbar-button:single-button {
+    background: #ECE9D8;
+    border: 1px solid #ACA899;
+    height: 16px;
+    width: 16px;
+}
+
+/* ============================================================
+   DURUM ÇUBUĞU
+   ============================================================ */
+.statusbar {
+    display: flex;
+    align-items: stretch;
+    gap: 2px;
+    flex: 0 0 auto;
+    height: 22px;
+    padding: 2px;
+    background: #ECE9D8;
+    border-top: 1px solid #fff;
+}
+.status-cell {
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    border: 1px solid;
+    border-color: #ACA899 #fff #fff #ACA899;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.status-cell.grow { flex: 1; min-width: 0; }
+.status-cell img { width: 14px; height: 14px; margin-right: 4px; }
+.progress-wrap { width: 118px; padding: 2px 3px; }
+.progress {
+    display: none;
+    height: 9px;
+    width: 0;
+    background: repeating-linear-gradient(90deg, #56A93C 0 7px, #ECE9D8 7px 9px);
+}
+@keyframes prog { from { width: 0; } to { width: 100%; } }
+
+/* ============================================================
+   BUL ÇUBUĞU
+   ============================================================ */
+.findbar {
+    display: none;
+    position: absolute;
+    right: 8px; bottom: 8px;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px;
+    background: #ECE9D8;
+    border: 1px solid #003C74;
+    border-radius: 3px;
+    box-shadow: 2px 2px 7px rgba(0,0,0,.35);
+    z-index: 40;
+}
+.findbar.open { display: flex; }
+.findbar input {
+    width: 140px; height: 20px;
+    padding: 0 4px;
+    border: 1px solid #7F9DB9;
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    outline: none;
+    user-select: text;
+}
+
+/* ============================================================
+   SAĞ TIK MENÜSÜ
+   ============================================================ */
+.ctx-menu {
+    display: none;
+    position: fixed;
+    min-width: 180px;
+    padding: 2px;
+    background: #fff;
+    border: 1px solid #ACA899;
+    box-shadow: 3px 3px 5px rgba(0,0,0,.35);
+    z-index: 999;
+}
+.ctx-menu.open { display: block; }
+
+/* ============================================================
+   İLETİŞİM PENCERESİ (DİYALOG)
+   ============================================================ */
+.dlg-layer {
+    display: none;
+    position: fixed;
+    inset: 0;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,.10);
+    z-index: 1000;
+}
+.dlg-layer.open { display: flex; }
+.dlg {
+    width: 390px;
+    max-width: 92%;
+    background: #ECE9D8;
+    border: 1px solid #003C74;
+    border-radius: 4px 4px 2px 2px;
+    box-shadow: 3px 3px 12px rgba(0,0,0,.45);
+    overflow: hidden;
+}
+.dlg-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 26px;
+    padding: 0 4px 0 8px;
+    background: linear-gradient(to bottom, #0058EE 0%, #3A93FF 8%, #0054E3 40%, #0054E3 90%, #0A4FCC 100%);
+    color: #fff;
+    font-weight: bold;
+    text-shadow: 1px 1px 1px rgba(0,0,0,.4);
+}
+.dlg-x {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px; height: 20px;
+    background: linear-gradient(to bottom, #F08A6E, #D54F26);
+    border: 1px solid #fff;
+    border-radius: 3px;
+    font-weight: bold;
+    cursor: default;
+}
+.dlg-x:hover { background: linear-gradient(to bottom, #FFA98E, #E05C2C); }
+.dlg-body {
+    padding: 14px;
+    background: #ECE9D8;
+    font-size: 11px;
+    line-height: 1.55;
+    color: #000;
+    user-select: text;
+}
+.dlg-btns {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 0 14px 14px;
+    background: #ECE9D8;
+}
+
+/* ============================================================
+   XP DÜĞMELERİ
+   ============================================================ */
+.xp-btn {
+    min-width: 74px;
+    padding: 3px 12px;
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    color: #000;
+    background: linear-gradient(to bottom, #FDFDFD 0%, #F0EFE4 45%, #E3E1D2 100%);
+    border: 1px solid #003C74;
+    border-radius: 3px;
+    box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 rgba(0,0,0,.06);
+    cursor: default;
+}
+.xp-btn:hover {
+    background: linear-gradient(to bottom, #FFFDF3, #FFE9A8 55%, #FFD97A 100%);
+}
+.xp-btn:active {
+    background: linear-gradient(to bottom, #E3E1D2, #F0EFE4);
+    box-shadow: inset 1px 1px 3px rgba(0,0,0,.25);
+    padding: 4px 11px 2px 13px;
+}
+
+/* Web tarzı düğme (sayfa içi) */
+.web-btn {
+    padding: 3px 10px;
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    background: #ECE9D8;
+    border: 2px outset #fff;
+    cursor: default;
+}
+.web-btn:active { border-style: inset; }
+
+/* ============================================================
+   SAYFA: GOOGLE
+   ============================================================ */
+.g-home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 46px 20px 40px;
+}
+.g-logo {
+    font-family: "Times New Roman", Times, serif;
+    font-size: 58px;
+    font-weight: bold;
+    letter-spacing: -3px;
+    line-height: 1;
+}
+.g-logo-sm {
+    font-family: "Times New Roman", Times, serif;
+    font-size: 30px;
+    font-weight: bold;
+    letter-spacing: -2px;
+    white-space: nowrap;
+}
+.g-tagline { margin-top: 10px; color: #666; }
+.g-input {
+    width: 420px;
+    max-width: 90%;
+    height: 26px;
+    margin-top: 20px;
+    padding: 0 6px;
+    border: 1px solid #7F9DB9;
+    font-family: Tahoma, sans-serif;
+    font-size: 13px;
+    outline: none;
+    user-select: text;
+    -webkit-user-select: text;
+}
+.g-btns { display: flex; gap: 8px; margin-top: 14px; }
+.g-cats {
+    display: flex;
+    gap: 14px;
+    margin-top: 26px;
+    color: #0000CC;
+}
+.g-cats span { text-decoration: underline; cursor: default; }
+.g-cats span:hover { color: #CC0000; }
+
+/* Arama sonuçları */
+.g-res { padding: 12px 16px 30px; }
+.g-res-head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #DDD;
+}
+.g-res-form { display: flex; align-items: center; gap: 6px; flex: 1; }
+.g-res-form input {
+    flex: 1;
+    max-width: 380px;
+    height: 22px;
+    padding: 0 6px;
+    border: 1px solid #7F9DB9;
+    font-family: Tahoma, sans-serif;
+    font-size: 12px;
+    outline: none;
+    user-select: text;
+}
+.g-stats { margin: 10px 0 14px; color: #666; }
+.g-list { max-width: 640px; }
+.res-item { margin-bottom: 16px; }
+.res-title {
+    font-size: 13px;
+    color: #0000CC;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.res-title:hover { color: #CC0000; }
+.res-url {
+    margin-top: 2px;
+    font-size: 11px;
+    color: #008000;
+    word-break: break-all;
+}
+.res-desc {
+    margin-top: 3px;
+    font-size: 11px;
+    color: #333;
+    line-height: 1.45;
+}
+
+/* ============================================================
+   SAYFA: VİKİPEDİ
+   ============================================================ */
+.wiki-art { padding: 18px 22px 40px; max-width: 700px; }
+.wiki-art h1 {
+    margin-bottom: 12px;
+    padding-bottom: 4px;
+    font-family: "Times New Roman", Times, serif;
+    font-size: 22px;
+    font-weight: normal;
+    border-bottom: 1px solid #A2A9B1;
+}
+.wiki-art p {
+    margin-bottom: 10px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #202122;
+}
+.wiki-src { font-size: 11px; color: #666; }
+
+/* ============================================================
+   SAYFA: GITHUB
+   ============================================================ */
+.gh-page { padding: 18px 20px 40px; }
+.gh-head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #D0D7DE;
+}
+.gh-avatar {
+    width: 72px; height: 72px;
+    border: 1px solid #D0D7DE;
+    border-radius: 50%;
+    background: #fff;
+}
+.gh-meta h2 { font-size: 18px; color: #1F2328; }
+.gh-meta p { margin-top: 3px; font-size: 12px; color: #656D76; }
+.gh-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+.gh-card {
+    padding: 12px;
+    background: #F6F8FA;
+    border: 1px solid #D0D7DE;
+    border-radius: 6px;
+    cursor: default;
+}
+.gh-card:hover { background: #EEF3F8; border-color: #AFB8C1; }
+.gh-card h4 { margin-bottom: 6px; font-size: 13px; color: #0969DA; }
+.gh-card p {
+    min-height: 30px;
+    font-size: 11px;
+    line-height: 1.4;
+    color: #59636E;
+}
+.gh-card .foot {
+    display: flex;
+    gap: 14px;
+    margin-top: 8px;
+    font-size: 10px;
+    color: #656D76;
+}
+
+/* ============================================================
+   SAYFA: HATA
+   ============================================================ */
+.err-page {
+    max-width: 640px;
+    padding: 26px 30px;
+    font-size: 12px;
+    line-height: 1.6;
+}
+.err-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+.err-head img { width: 40px; height: 40px; }
+.err-head h1 { font-size: 20px; font-weight: normal; }
+.err-page hr { margin: 14px 0; border: none; border-top: 1px solid #ACA899; }
+.err-page ul { margin: 8px 0 8px 22px; }
+.err-page li { margin-bottom: 5px; }
+
+/* ============================================================
+   SAYFA: KAYNAK
+   ============================================================ */
+.src {
+    padding: 12px 14px;
+    font-family: "Courier New", monospace;
+    font-size: 11px;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    word-break: break-all;
+    color: #000;
+    user-select: text;
+    -webkit-user-select: text;
+}
+</style>
+</head>
+<body>
+
+<div class="ie-app">
+
+    <!-- ==================== MENÜ ÇUBUĞU ==================== -->
+    <div class="menubar" id="menubar">
+
+        <div class="menu-item">Dosya
+            <div class="dropdown">
+                <div class="dd-item" data-action="new"><span>Yeni Pencere</span><span class="dd-key">Ctrl+N</span></div>
+                <div class="dd-item" data-action="open"><span>Aç...</span><span class="dd-key">Ctrl+O</span></div>
+                <div class="dd-sep"></div>
+                <div class="dd-item" data-action="save"><span>Kaydet</span><span class="dd-key">Ctrl+S</span></div>
+                <div class="dd-item" data-action="saveAs"><span>Farklı Kaydet...</span></div>
+                <div class="dd-item" data-action="print"><span>Yazdır...</span><span class="dd-key">Ctrl+P</span></div>
+                <div class="dd-sep"></div>
+                <div class="dd-item" data-action="offline"><span>Çalışma Çevrimdışı</span></div>
+                <div class="dd-sep"></div>
+                <div class="dd-item" data-action="close"><span>Kapat</span><span class="dd-key">Alt+F4</span></div>
+            </div>
+        </div>
+
+        <div class="menu-item">Düzen
+            <div class="dropdown">
+                <div class="dd-item" data-action="undo"><span>Geri Al</span><span class="dd-key">Ctrl+Z</span></div>
+                <div class="dd-sep"></div>
+                <div class="dd-item" data-action="cut"><span>Kes</span><span class="dd-key">Ctrl+X</span></div>
+                <div class="dd-item" data-action="copy"><span>Kopyala</span><span class="dd-key">Ctrl+C</span></div>
+                <div class="dd-item" data-action="paste"><span>Yapıştır</span><span class="dd-key">Ctrl+V</span></div>
+                <div class="dd-sep"></div>
+                <div class="dd-item" data-action="selectAll"><span>Tümünü Seç</span><span class="dd-key">Ctrl+A</span></div>
+                <div class="dd-item" data-action="find"><span>Sayfada Bul...</span><span class="dd-key">Ctrl+F</span></div>
+            </div>
+        </div>
+
+        <div class="menu-item">Görünüm
+            <div class="dropdown">
+                <div class="dd-item" data-action="toolbar"><span class="dd-check">✓</span><span>Araç Çubuğu</span></div>
+                <div class="dd-item" data-action="addressbar"><span class="dd-check">✓</span><span>Adres Çubuğu</span></div>
+                <div class="dd-item" data-action="linksbar"><span class="dd-check">✓</span><span>Bağlantılar</span></div>
+                <div class="dd-item" data-action="statusbar"><span class="dd-check">✓</span><span>Durum Çubuğu</span></div>
+                <div class="dd-sep"></div>
+                <div class="dd-item" data-action="refresh"><span>Yenile</span><span class="dd-key">F5</span></div>
+                <div class="dd-item" data-action="stop"><span>Durdur</span><span class="dd-key">Esc</span></div>
+                <div class="dd-sep"></div>
+                <div class="dd-item" data-action="source"><span>Kaynak</span><span class="dd-key">Ctrl+U</span></div>
+                <div class="dd-item" data-action="fullscreen"><span>Tam Ekran</span><span class="dd-key">F11</span></div>
+            </div>
+        </div>
+
+        <div class="menu-item">Sık Kullanılanlar
+            <div class="dropdown">
+                <div class="dd-item" data-action="favAdd"><span>Sık Kullanılanlara Ekle...</span><span class="dd-key">Ctrl+D</span></div>
+                <div class="dd-item" data-action="favOrg"><span>Sık Kullanılanları Düzenle...</span></div>
+                <div class="dd-sep"></div>
+                <div class="dd-item" data-action="favGoogle"><span>Google (2002)</span></div>
+                <div class="dd-item" data-action="favGithub"><span>GitHub Profili</span></div>
+                <div class="dd-item" data-action="favWiki"><span>Türkçe Vikipedi</span></div>
+            </div>
+        </div>
+
+        <div class="menu-item">Araçlar
+            <div class="dropdown">
+                <div class="dd-item" data-action="winUpdate"><span>Windows Update</span></div>
+                <div class="dd-sep"></div>
+                <div class="dd-item" data-action="options"><span>İnternet Seçenekleri...</span></div>
+                <div class="dd-sep"></div>
+                <div class="dd-item" data-action="about"><span>Internet Explorer Hakkında</span></div>
+            </div>
+        </div>
+
+        <div class="menu-item">Yardım
+            <div class="dropdown">
+                <div class="dd-item" data-action="help"><span>İçindekiler ve Dizin</span></div>
+                <div class="dd-sep"></div>
+                <div class="dd-item" data-action="about"><span>Bu Program Hakkında</span></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ==================== ARAÇ ÇUBUĞU ==================== -->
+    <div class="toolbar" id="toolbar">
+        <div class="tb-btn disabled" id="btnBack" onclick="goBack()">
+            <img src="https://win98icons.alexmeub.com/icons/png/arrow_left-4.png" alt="" onerror="this.style.visibility='hidden'">
+            <span>Geri</span>
+        </div>
+        <div class="tb-btn disabled" id="btnFwd" onclick="goForward()">
+            <img src="https://win98icons.alexmeub.com/icons/png/arrow_right-4.png" alt="" onerror="this.style.visibility='hidden'">
+            <span>İleri</span>
+        </div>
+        <div class="tb-btn" onclick="actionStop()">
+            <img src="https://win98icons.alexmeub.com/icons/png/close-4.png" alt="" onerror="this.style.visibility='hidden'">
+            <span>Durdur</span>
+        </div>
+        <div class="tb-btn" onclick="actionRefresh()">
+            <img src="https://win98icons.alexmeub.com/icons/png/refresh-4.png" alt="" onerror="this.style.visibility='hidden'">
+            <span>Yenile</span>
+        </div>
+        <div class="tb-sep"></div>
+        <div class="tb-btn" onclick="goHome()">
+            <img src="https://win98icons.alexmeub.com/icons/png/home-4.png" alt="" onerror="this.style.visibility='hidden'">
+            <span>Giriş</span>
+        </div>
+        <div class="tb-btn" onclick="focusSearch()">
+            <img src="https://win98icons.alexmeub.com/icons/png/search_file-4.png" alt="" onerror="this.style.visibility='hidden'">
+            <span>Ara</span>
+        </div>
+        <div class="tb-sep"></div>
+        <div class="tb-btn" onclick="actionFavAdd()">
+            <img src="https://win98icons.alexmeub.com/icons/png/directory_favorites-4.png" alt="" onerror="this.style.visibility='hidden'">
+            <span>Sık Kullanılanlar</span>
+        </div>
+        <div class="tb-btn" onclick="actionHistory()">
+            <img src="https://win98icons.alexmeub.com/icons/png/time-4.png" alt="" onerror="this.style.visibility='hidden'">
+            <span>Geçmiş</span>
+        </div>
+    </div>
+
+    <!-- ==================== ADRES ÇUBUĞU ==================== -->
+    <div class="addressbar" id="addressbar">
+        <label for="urlInput">Adres</label>
+        <div class="addr-field">
+            <img src="https://win98icons.alexmeub.com/icons/png/msie1-2.png" alt="" onerror="this.style.visibility='hidden'">
+            <input type="text" id="urlInput" spellcheck="false" value="http://www.google.com/"
+                   onkeydown="if(event.key==='Enter'){ handleUrlSubmit(); }">
+        </div>
+        <div class="go-btn" onclick="handleUrlSubmit()">
+            <img src="https://win98icons.alexmeub.com/icons/png/arrow_right-4.png" alt="" onerror="this.style.visibility='hidden'">
+            <span>Git</span>
+        </div>
+    </div>
+
+    <!-- ==================== BAĞLANTILAR ==================== -->
+    <div class="linksbar" id="linksbar">
+        <span class="links-label">Bağlantılar:</span>
+        <div class="link-item" onclick="navGitHub()">
+            <img src="https://win98icons.alexmeub.com/icons/png/network_cool_two_pcs-4.png" alt="" onerror="this.style.visibility='hidden'">
+            <b>GitHub (@MuhammedCanCeylan)</b>
+        </div>
+        <div class="link-item" onclick="goHome()">
+            <img src="https://win98icons.alexmeub.com/icons/png/search_file-4.png" alt="" onerror="this.style.visibility='hidden'">
+            <span>Google (2002)</span>
+        </div>
+        <div class="link-item" onclick="openCV()">
+            <img src="https://win98icons.alexmeub.com/icons/png/notepad-4.png" alt="" onerror="this.style.visibility='hidden'">
+            <span>Özgeçmiş</span>
+        </div>
+    </div>
+
+    <!-- ==================== GÖRÜNTÜ ALANI ==================== -->
+    <div class="viewport-wrap">
+        <div class="viewport" id="viewport">
+            <div id="page"></div>
+        </div>
+
+        <div class="findbar" id="findBar">
+            <span>Bul:</span>
+            <input type="text" id="findInput" onkeydown="if(event.key==='Enter'){ findNext(); }">
+            <button class="xp-btn" style="min-width:0;padding:2px 10px;" onclick="findNext()">Sonrakini Bul</button>
+            <button class="xp-btn" style="min-width:0;padding:2px 10px;" onclick="closeFind()">Kapat</button>
+        </div>
+    </div>
+
+    <!-- ==================== DURUM ÇUBUĞU ==================== -->
+    <div class="statusbar" id="statusbar">
+        <div class="status-cell grow"><span id="statusText">Bitti</span></div>
+        <div class="status-cell progress-wrap"><div class="progress" id="progress"></div></div>
+        <div class="status-cell" style="width:96px; justify-content:center;">
+            <img src="https://win98icons.alexmeub.com/icons/png/msie1-2.png" alt="" onerror="this.style.visibility='hidden'">
+            <span>Internet</span>
+        </div>
+    </div>
+
+</div>
+
+<!-- Sağ tık menüsü ve diyalog katmanı -->
+<div class="ctx-menu" id="ctxMenu"></div>
+<div class="dlg-layer" id="dialogLayer"></div>
+
+<script>
+/* ================================================================
+   YARDIMCI FONKSİYONLAR
+   ================================================================ */
+const pageEl     = document.getElementById('page');
+const viewportEl = document.getElementById('viewport');
+const urlInput   = document.getElementById('urlInput');
+const statusText = document.getElementById('statusText');
+const progressEl = document.getElementById('progress');
+
+function $(id) { return document.getElementById(id); }
+
+function esc(s) {
+    return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+function stripTags(s) {
+    return String(s || '').replace(/<[^>]*>/g, '');
+}
+
+/* ================================================================
+   DURUM ÇUBUĞU / YÜKLENİYOR GÖSTERGESİ
+   ================================================================ */
+let loadTimer = null;
+
+function setStatus(t) { statusText.textContent = t; }
+
+function beginLoad(msg) {
+    setStatus(msg || 'Açılıyor...');
+    progressEl.style.display = 'block';
+    progressEl.style.animation = 'none';
+    void progressEl.offsetWidth;
+    progressEl.style.animation = 'prog 0.9s linear forwards';
+    clearTimeout(loadTimer);
+    loadTimer = setTimeout(function () { progressEl.style.display = 'none'; }, 1100);
+}
+
+function endLoad(msg) {
+    clearTimeout(loadTimer);
+    progressEl.style.display = 'none';
+    setStatus(msg || 'Bitti');
+}
+
+/* ================================================================
+   GEÇMİŞ & YÖNLENDİRME
+   ================================================================ */
+let history   = [];
+let hIndex    = -1;
+let currentPage = null;
+let ghRepos   = null;
+
+const FALLBACK_REPOS = [
+    { name: 'portfolio-website',     description: 'WebGL, Three.js ve retro Windows XP işletim sistemi simülasyonu.', stars: 1, language: 'TypeScript' },
+    { name: 'Amazon-Plus',           description: 'Firefox ve Floorp için akıllı ürün arama ve filtreleme eklentisi.', stars: 2, language: 'JavaScript' },
+    { name: 'MotoWeather',           description: 'Motosiklet sürücüleri için meteorolojik risk analiz motoru.',       stars: 1, language: 'Java' },
+    { name: 'autonomous-systems-ai', description: 'Otonom araç simülasyon ve yapay zekâ algoritmaları.',              stars: 0, language: 'Python' }
+];
+
+function navigate(page, push) {
+    if (push === undefined) push = true;
+    if (push) {
+        history = history.slice(0, hIndex + 1);
+        history.push(page);
+        hIndex = history.length - 1;
+    }
+    renderPage(page);
+    updateNav();
+}
+
+function renderPage(page) {
+    currentPage = page;
+    urlInput.value = page.url || '';
+    document.title = (page.title ? page.title + ' - ' : '') + 'Internet Explorer';
+    closeFind();
+    closeCtx();
+    viewportEl.scrollTop = 0;
+
+    switch (page.type) {
+        case 'google': renderHome();        break;
+        case 'search': renderSearch(page);  break;
+        case 'wiki':   renderWiki(page);    break;
+        case 'github': renderGitHub(page);  break;
+        case 'error':  renderError(page);   break;
+        case 'source': renderSource(page);  break;
+        case 'blank':  pageEl.innerHTML = '&nbsp;'; endLoad('Bitti'); break;
+        default:       renderHome();
+    }
+}
+
+function goBack() {
+    if (hIndex > 0) { hIndex--; renderPage(history[hIndex]); updateNav(); }
+}
+function goForward() {
+    if (hIndex < history.length - 1) { hIndex++; renderPage(history[hIndex]); updateNav(); }
+}
+function updateNav() {
+    $('btnBack').classList.toggle('disabled', hIndex <= 0);
+    $('btnFwd').classList.toggle('disabled', hIndex >= history.length - 1);
+}
+
+/* ================================================================
+   SAYFA: GOOGLE ANA SAYFA
+   ================================================================ */
+function goHome() {
+    navigate({
+        type: 'google',
+        url: 'http://www.google.com/',
+        title: 'Google'
+    });
+}
+
+function renderHome() {
+    setStatus('Bitti');
+    pageEl.innerHTML =
+        '<div class="g-home">' +
+            '<div class="g-logo">' +
+                '<span style="color:#1738E6">G</span>' +
+                '<span style="color:#EA3323">o</span>' +
+                '<span style="color:#FABB05">o</span>' +
+                '<span style="color:#1738E6">g</span>' +
+                '<span style="color:#34A853">l</span>' +
+                '<span style="color:#EA3323">e</span>' +
+            '</div>' +
+            '<div class="g-tagline">Türkçe &middot; 2002 Arşiv Görünümü</div>' +
+            '<input id="qInput" class="g-input" type="text" spellcheck="false" ' +
+                   'onkeydown="if(event.key===\'Enter\'){ submitSearch(); }">' +
+            '<div class="g-btns">' +
+                '<button class="web-btn" onclick="submitSearch()">Google\'da Ara</button>' +
+                '<button class="web-btn" onclick="feelingLucky()">Kendimi Şanslı Hissediyorum</button>' +
+            '</div>' +
+            '<div class="g-cats">' +
+                '<span onclick="showInfo(\'Gelişmiş Arama\',\'Bu arşiv görünümünde gelişmiş arama desteği bulunmuyor.\')">Gelişmiş Arama</span>' +
+                '<span onclick="showInfo(\'Tercihler\',\'Bu arşiv görünümünde tercih ayarları bulunmuyor.\')">Tercihler</span>' +
+                '<span onclick="showInfo(\'Dil Araçları\',\'Dil araçları bu sürümde kullanılamıyor.\')">Dil Araçları</span>' +
+            '</div>' +
+        '</div>';
+
+    setTimeout(function () {
+        const i = $('qInput');
+        if (i) i.focus();
+    }, 60);
+}
+
+function focusSearch() {
+    if (currentPage && (currentPage.type === 'search' || currentPage.type === 'google')) {
+        const i = $('qInput');
+        if (i) { i.focus(); i.select(); return; }
+    }
+    goHome();
+    setTimeout(function () { const i = $('qInput'); if (i) i.focus(); }, 80);
+}
+
+/* ================================================================
+   SAYFA: ARAMA SONUÇLARI
+   ================================================================ */
+function submitSearch() {
+    const i = $('qInput');
+    if (!i) return;
+    const q = i.value.trim();
+    if (!q) { showInfo('Google', 'Lütfen bir arama terimi girin.'); return; }
+    navigate({
+        type: 'search',
+        arg: q,
+        url: 'http://www.google.com/search?q=' + encodeURIComponent(q),
+        title: q + ' - Google Arama'
+    });
+}
+
+function renderSearch(page) {
+    const q = page.arg || '';
+    beginLoad('http://www.google.com/search?q=' + encodeURIComponent(q));
+
+    pageEl.innerHTML =
+        '<div class="g-res">' +
+            '<div class="g-res-head">' +
+                '<div class="g-logo-sm">' +
+                    '<span style="color:#1738E6">G</span>' +
+                    '<span style="color:#EA3323">o</span>' +
+                    '<span style="color:#FABB05">o</span>' +
+                    '<span style="color:#1738E6">g</span>' +
+                    '<span style="color:#34A853">l</span>' +
+                    '<span style="color:#EA3323">e</span>' +
+                '</div>' +
+                '<div class="g-res-form">' +
+                    '<input id="qInput" type="text" spellcheck="false" value="' + esc(q) + '" ' +
+                           'onkeydown="if(event.key===\'Enter\'){ submitSearch(); }">' +
+                    '<button class="web-btn" onclick="submitSearch()">Ara</button>' +
+                '</div>' +
+            '</div>' +
+            '<div class="g-stats" id="gStats">Aranıyor...</div>' +
+            '<div class="g-list" id="gList"></div>' +
+        '</div>';
+
+    const list  = $('gList');
+    const stats = $('gStats');
+
+    fetch('https://tr.wikipedia.org/w/api.php?action=query&list=search&srsearch=' +
+          encodeURIComponent(q) + '&srlimit=8&format=json&origin=*')
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            const items = (data.query && data.query.search) || [];
+            if (!items.length) {
+                stats.textContent = '';
+                list.innerHTML = '<p style="font-size:11px;color:#666;">Sonuç bulunamadı.</p>';
+                endLoad('Bitti');
+                return;
+            }
+            stats.textContent = 'Yaklaşık ' + items.length + ' sonuç bulundu. (0,28 saniye)';
+            list.innerHTML = items.map(function (it) {
+                return '<div class="res-item">' +
+                           '<div class="res-title" data-title="' + esc(it.title) + '">' + esc(it.title) + '</div>' +
+                           '<div class="res-url">https://tr.wikipedia.org/wiki/' + encodeURIComponent(it.title) + '</div>' +
+                           '<div class="res-desc">' + esc(stripTags(it.snippet)) + '...</div>' +
+                       '</div>';
+            }).join('');
+            endLoad('Bitti');
+        })
+        .catch(function () {
+            stats.textContent = '';
+            list.innerHTML = '<p style="font-size:11px;color:#CC0000;">' +
+                             'Arama servisine bağlanılamadı. İnternet bağlantınızı kontrol edin.</p>';
+            endLoad('Bitti');
+        });
+}
+
+function feelingLucky() {
+    const i = $('qInput');
+    const q = i ? i.value.trim() : '';
+    if (!q) { showInfo('Google', 'Lütfen bir arama terimi girin.'); return; }
+
+    beginLoad('Şans deneniyor...');
+    fetch('https://tr.wikipedia.org/w/api.php?action=query&list=search&srsearch=' +
+          encodeURIComponent(q) + '&srlimit=1&format=json&origin=*')
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+            const first = d.query && d.query.search && d.query.search[0];
+            if (first) { openWiki(first.title); }
+            else { endLoad('Bitti'); showInfo('Google', 'Sonuç bulunamadı.'); }
+        })
+        .catch(function () {
+            endLoad('Bitti');
+            showInfo('Google', 'Arama servisine bağlanılamadı.');
+        });
+}
+
+/* ================================================================
+   SAYFA: VİKİPEDİ MAKALESİ
+   ================================================================ */
+function openWiki(title) {
+    if (!title) return;
+    navigate({
+        type: 'wiki',
+        arg: title,
+        url: 'https://tr.wikipedia.org/wiki/' + encodeURIComponent(title),
+        title: title + ' - Vikipedi'
+    });
+}
+
+function renderWiki(page) {
+    const title = page.arg || '';
+    beginLoad('https://tr.wikipedia.org/wiki/' + encodeURIComponent(title));
+
+    pageEl.innerHTML =
+        '<div class="wiki-art">' +
+            '<h1>' + esc(title) + '</h1>' +
+            '<p style="color:#666;">Makale yükleniyor...</p>' +
+        '</div>';
+
+    fetch('https://tr.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=1&explaintext=1' +
+          '&redirects=1&titles=' + encodeURIComponent(title) + '&format=json&origin=*')
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            const pages = (data.query && data.query.pages) ? data.query.pages : {};
+            const id = Object.keys(pages)[0];
+            const extract = pages[id] && pages[id].extract;
+
+            const body = extract
+                ? esc(extract).split('\n').filter(function (p) { return p.trim(); })
+                      .map(function (p) { return '<p>' + p + '</p>'; }).join('')
+                : '<p>Bu madde için özet bulunamadı.</p>';
+
+            pageEl.querySelector('.wiki-art').innerHTML =
+                '<h1>' + esc(title) + '</h1>' +
+                '<p style="color:#36C;font-size:11px;">Vikipedi, özgür ansiklopedi</p>' +
+                body +
+                '<hr style="border:none;border-top:1px solid #A2A9B1;margin:14px 0;">' +
+                '<p class="wiki-src">Kaynak: tr.wikipedia.org</p>';
+
+            endLoad('Bitti');
+        })
+        .catch(function () {
+            pageEl.querySelector('.wiki-art').innerHTML =
+                '<h1>' + esc(title) + '</h1>' +
+                '<p style="color:#CC0000;">Makale yüklenemedi. İnternet bağlantınızı kontrol edin.</p>';
+            endLoad('Bitti');
+        });
+}
+
+/* ================================================================
+   SAYFA: GITHUB PROFİLİ
+   ================================================================ */
+function navGitHub() {
+    navigate({
+        type: 'github',
+        url: 'https://github.com/MuhammedCanCeylan',
+        title: 'GitHub - MuhammedCanCeylan'
+    });
+}
+
+function renderGitHub(page) {
+    beginLoad('https://github.com/MuhammedCanCeylan');
+
+    pageEl.innerHTML =
+        '<div class="gh-page">' +
+            '<div class="gh-head">' +
+                '<img class="gh-avatar" alt="" src="https://github.com/MuhammedCanCeylan.png" ' +
+                     'onerror="this.onerror=null;this.src=\'https://win98icons.alexmeub.com/icons/png/user_computer-0.png\'">' +
+                '<div class="gh-meta">' +
+                    '<h2>Muhammed Can Ceylan</h2>' +
+                    '<p>@MuhammedCanCeylan</p>' +
+                    '<p>Yazılım Mühendisi &amp; Bilgisayar Bilimleri Geliştiricisi</p>' +
+                '</div>' +
+            '</div>' +
+            '<h3 style="font-size:13px;color:#1F2328;margin-bottom:10px;">Popüler Depolar</h3>' +
+            '<div class="gh-grid" id="ghGrid">' +
+                '<p style="font-size:11px;color:#666;">Depolar yükleniyor...</p>' +
+            '</div>' +
+        '</div>';
+
+    const grid = $('ghGrid');
+
+    function paint(list) {
+        grid.innerHTML = list.map(function (r) {
+            return '<div class="gh-card" data-repo="' + esc(r.name) + '">' +
+                       '<h4>' + esc(r.name) + '</h4>' +
+                       '<p>' + esc(r.description || 'Açıklama bulunmuyor.') + '</p>' +
+                       '<div class="foot">' +
+                           '<span>★ ' + r.stars + '</span>' +
+                           '<span>⚡ ' + esc(r.language || 'Diğer') + '</span>' +
+                       '</div>' +
+                   '</div>';
+        }).join('');
+        endLoad('Bitti');
+    }
+
+    if (ghRepos) { paint(ghRepos); return; }
+
+    fetch('https://api.github.com/users/MuhammedCanCeylan/repos?sort=updated&per_page=6')
+        .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+        .then(function (list) {
+            if (!Array.isArray(list) || !list.length) throw new Error('boş');
+            ghRepos = list.map(function (r) {
+                return {
+                    name: r.name,
+                    description: r.description,
+                    stars: r.stargazers_count,
+                    language: r.language
+                };
+            });
+            paint(ghRepos);
+        })
+        .catch(function () {
+            ghRepos = FALLBACK_REPOS.slice();
+            paint(ghRepos);
+        });
+}
+
+/* ================================================================
+   SAYFA: HATA
+   ================================================================ */
+function renderError(page) {
+    const url = page.arg || '';
+    beginLoad(url);
+
+    pageEl.innerHTML =
+        '<div class="err-page">' +
+            '<div class="err-head">' +
+                '<img src="https://win98icons.alexmeub.com/icons/png/msie1-2.png" alt="" ' +
+                     'onerror="this.style.display=\'none\'">' +
+                '<h1>Sayfa görüntülenemiyor</h1>' +
+            '</div>' +
+            '<p>Aradığınız sayfa şu anda kullanılamıyor. Web sitesi teknik sorunlar yaşıyor olabilir ' +
+               'veya tarayıcınızın ayarlarını değiştirmeniz gerekebilir.</p>' +
+            '<hr>' +
+            '<p><b>Şunları deneyebilirsiniz:</b></p>' +
+            '<ul>' +
+                '<li>Yenile düğmesine tıklayın veya daha sonra tekrar deneyin.</li>' +
+                '<li>Adres çubuğuna yazdığınız adresin doğru yazıldığından emin olun.</li>' +
+                '<li>Geri düğmesine tıklayarak farklı bir sayfaya gidin.</li>' +
+            '</ul>' +
+            '<hr>' +
+            '<p style="font-size:11px;color:#666;">' +
+                'HTTP 404 - Dosya bulunamadı<br>' +
+                'Adres: ' + esc(url) + '<br>' +
+                'Internet Explorer' +
+            '</p>' +
+        '</div>';
+
+    setTimeout(function () { endLoad('Bitti'); }, 400);
+}
+
+/* ================================================================
+   SAYFA: KAYNAK GÖRÜNTÜLE
+   ================================================================ */
+function renderSource(page) {
+    setStatus('Kaynak görüntüleniyor...');
+    pageEl.innerHTML = '<pre class="src">' + esc(page.arg) + '</pre>';
+    endLoad('Bitti');
+}
+
+/* ================================================================
+   ADRES ÇUBUĞU
+   ================================================================ */
+function handleUrlSubmit() {
+    const raw = urlInput.value.trim();
+    if (!raw) return;
+    const low = raw.toLowerCase();
+
+    if (low.indexOf('github.com') !== -1) { navGitHub(); return; }
+
+    if (low.indexOf('wikipedia.org') !== -1 || low.indexOf('vikipedi') !== -1) {
+        const parts = raw.split('/wiki/');
+        if (parts[1]) { openWiki(decodeURIComponent(parts[1].split('#')[0])); return; }
+        goHome();
+        return;
+    }
+
+    if (low.indexOf('google') !== -1) {
+        const qi = low.indexOf('q=');
+        if (qi !== -1) {
+            const q = decodeURIComponent(raw.slice(qi + 2).split('&')[0].replace(/\+/g, ' '));
+            navigate({
+                type: 'search', arg: q,
+                url: 'http://www.google.com/search?q=' + encodeURIComponent(q),
+                title: q + ' - Google Arama'
+            });
+            return;
+        }
+        goHome();
+        return;
+    }
+
+    if (low === 'about:blank') {
+        navigate({ type: 'blank', url: 'about:blank', title: 'Boş Sayfa' });
+        return;
+    }
+
+    const looksLikeUrl = /^[a-z][a-z0-9+.-]*:\/\//i.test(raw) ||
+                         /^[\w-]+(\.[\w-]+)+(\/.*)?$/i.test(raw);
+
+    if (looksLikeUrl) {
+        navigate({ type: 'error', arg: raw, url: raw, title: 'Sayfa görüntülenemiyor' });
+        return;
+    }
+
+    navigate({
+        type: 'search', arg: raw,
+        url: 'http://www.google.com/search?q=' + encodeURIComponent(raw),
+        title: raw + ' - Google Arama'
+    });
+}
+
+/* ================================================================
+   MENÜ MANTIĞI
+   ================================================================ */
+function closeMenus() {
+    document.querySelectorAll('.menu-item.open').forEach(function (m) {
+        m.classList.remove('open');
+    });
+}
+
+document.querySelectorAll('.menubar .menu-item').forEach(function (item) {
+    item.addEventListener('mousedown', function (e) {
+        e.stopPropagation();
+        const isOpen = item.classList.contains('open');
+        closeMenus();
+        if (!isOpen) item.classList.add('open');
+    });
+    item.addEventListener('mouseenter', function () {
+        if (document.querySelector('.menu-item.open')) {
+            closeMenus();
+            item.classList.add('open');
+        }
+    });
+});
+
+document.querySelectorAll('.menubar .dd-item').forEach(function (d) {
+    d.addEventListener('mousedown', function (e) { e.stopPropagation(); });
+    d.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (d.classList.contains('disabled')) return;
+        closeMenus();
+        runAction(d.dataset.action);
+    });
+});
+
+/* ================================================================
+   EYLEMLER
+   ================================================================ */
+function runAction(a) {
+    switch (a) {
+        case 'new':        actionNewWindow();   break;
+        case 'open':       actionOpen();        break;
+        case 'save':       actionSave();        break;
+        case 'saveAs':     actionSaveAs();      break;
+        case 'print':      actionPrint();       break;
+        case 'offline':    actionOffline();     break;
+        case 'close':      actionClose();       break;
+        case 'undo':       setStatus('Geri alınacak işlem yok.'); break;
+        case 'cut':        setStatus('Kesilecek seçim yok.');     break;
+        case 'copy':       actionCopy();        break;
+        case 'paste':      setStatus('Yapıştırılacak içerik yok.'); break;
+        case 'selectAll':  actionSelectAll();   break;
+        case 'find':       openFind();          break;
+        case 'toolbar':    toggleBar('toolbar');    break;
+        case 'addressbar': toggleBar('addressbar'); break;
+        case 'linksbar':   toggleBar('linksbar');   break;
+        case 'statusbar':  toggleBar('statusbar');  break;
+        case 'refresh':    actionRefresh();     break;
+        case 'stop':       actionStop();        break;
+        case 'source':     actionSource();      break;
+        case 'fullscreen': actionFullscreen();  break;
+        case 'favAdd':     actionFavAdd();      break;
+        case 'favOrg':     showInfo('Sık Kullanılanları Düzenle',
+                                    'Sık kullanılanlarını düzenleme bu sürümde kullanılamıyor.'); break;
+        case 'favGoogle':  goHome();            break;
+        case 'favGithub':  navGitHub();         break;
+        case 'favWiki':    openWiki('Windows XP'); break;
+        case 'winUpdate':  showInfo('Windows Update',
+                                    'Windows Update şu anda kullanılamıyor.<br>Lütfen daha sonra tekrar deneyin.'); break;
+        case 'options':    actionOptions();     break;
+        case 'help':       actionHelp();        break;
+        case 'about':      showAbout();         break;
+        default: break;
+    }
+}
+
+function toggleBar(name) {
+    const el = document.querySelector('.' + name);
+    if (!el) return;
+    const hidden = el.style.display === 'none';
+    el.style.display = hidden ? '' : 'none';
+
+    const check = document.querySelector('.dd-item[data-action="' + name + '"] .dd-check');
+    if (check) check.textContent = hidden ? '✓' : '';
+    setStatus(hidden ? 'Çubuk gösterildi.' : 'Çubuk gizlendi.');
+}
+
+function actionNewWindow() {
+    try {
+        if (window.parent && window.parent.windowManager && window.parent.appRegistry) {
+            window.parent.windowManager.open(window.parent.appRegistry.get('ie'));
+            setStatus('Yeni pencere açıldı.');
+            return;
+        }
+    } catch (e) { /* yoksay */ }
+    showInfo('Yeni Pencere', 'Yeni bir Internet Explorer penceresi bu ortamda açılamıyor.');
+}
+
+function actionClose() {
+    xpDialog({
+        title: 'Internet Explorer',
+        body: 'Bu pencereyi kapatmak için başlık çubuğundaki <b>✕</b> düğmesini kullanın.<br><br>' +
+              'Kapatmak istediğinizden emin misiniz?',
+        buttons: [{ label: 'Tamam' }, { label: 'İptal' }]
+    });
+}
+
+function actionOpen() {
+    xpDialog({
+        title: 'Aç',
+        body: '<div style="margin-bottom:8px;">Açmak istediğiniz Internet adresini yazın:</div>' +
+              '<input id="openUrl" type="text" value="http://" ' +
+              'style="width:100%;height:22px;border:1px solid #7F9DB9;padding:0 5px;' +
+              'font-family:Tahoma;font-size:11px;outline:none;user-select:text;">',
+        buttons: [
+            {
+                label: 'Tamam',
+                action: function (dlg) {
+                    const v = dlg.querySelector('#openUrl').value.trim();
+                    if (v) { urlInput.value = v; handleUrlSubmit(); }
+                }
+            },
+            { label: 'İptal' }
+        ]
+    });
+    setTimeout(function () {
+        const i = $('openUrl');
+        if (i) { i.focus(); i.select(); }
+    }, 30);
+}
+
+function actionSave() {
+    const name = (currentPage && currentPage.title ? currentPage.title : 'sayfa')
+        .replace(/[\\/:*?"<>|]/g, '_');
+    showInfo('Kaydet',
+        'Sayfa kaydedildi:<br><br>' +
+        '<b>C:\\Belgelerim\\' + esc(name) + '.htm</b><br><br>' +
+        'Bu simülasyonda gerçek bir dosya oluşturulmaz.');
+}
+
+function actionSaveAs() {
+    showInfo('Farklı Kaydet',
+        'Farklı kaydetme bu simülasyonda kullanılamıyor.<br>' +
+        'Dosya <b>C:\\Belgelerim</b> klasörüne kaydedildi.');
+}
+
+function actionPrint() {
+    showInfo('Yazdır',
+        'Yazıcı bulunamadı.<br><br>' +
+        'Lütfen bir yazıcı kurun ve tekrar deneyin.');
+}
+
+function actionOffline() {
+    showInfo('Çalışma Çevrimdışı',
+        'Çevrimdışı çalışma bu simülasyonda desteklenmiyor.<br>' +
+        'Bağlantı durumu: <b>Çevrimiçi</b>');
+}
+
+function actionCopy() {
+    const t = window.getSelection ? String(window.getSelection()) : '';
+    if (!t) { setStatus('Kopyalanacak seçim yok.'); return; }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(t)
+            .then(function () { setStatus('Seçim panoya kopyalandı.'); })
+            .catch(function () { setStatus('Kopyalama başarısız.'); });
+    } else {
+        setStatus('Kopyalama bu ortamda desteklenmiyor.');
+    }
+}
+
+function actionSelectAll() {
+    try {
+        const range = document.createRange();
+        range.selectNodeContents(pageEl);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        setStatus('Tüm içerik seçildi.');
+    } catch (e) {
+        setStatus('Seçim yapılamadı.');
+    }
+}
+
+function actionRefresh() {
+    if (!currentPage) { goHome(); return; }
+    if (currentPage.type === 'github') ghRepos = null;
+    renderPage(currentPage);
+}
+
+function actionStop() {
+    endLoad('Durduruldu');
+}
+
+function actionSource() {
+    const html = '<!DOCTYPE html>\n' + pageEl.innerHTML;
+    navigate({
+        type: 'source',
+        arg: html,
+        url: 'view-source:' + (currentPage ? currentPage.url : ''),
+        title: 'Kaynak'
+    });
+}
+
+function actionFullscreen() {
+    setStatus('Tam ekran kullanılabilir değil.');
+    showInfo('Tam Ekran',
+        'Tam ekran modu bu simülasyonda kullanılamıyor.');
+}
+
+function actionFavAdd() {
+    const url = currentPage ? (currentPage.url || '') : '';
+    xpDialog({
+        title: 'Sık Kullanılanlara Ekle',
+        body: '<div style="margin-bottom:8px;">Bu sayfayı sık kullanılanlara eklemek istiyor musunuz?</div>' +
+              '<div style="margin-bottom:8px;">Ad:</div>' +
+              '<input id="favName" type="text" value="' + esc(currentPage && currentPage.title ? currentPage.title : 'Yeni Sayfa') + '" ' +
+              'style="width:100%;height:22px;border:1px solid #7F9DB9;padding:0 5px;' +
+              'font-family:Tahoma;font-size:11px;outline:none;user-select:text;">' +
+              '<div style="margin-top:8px;font-size:11px;color:#666;">' + esc(url) + '</div>',
+        buttons: [
+            {
+                label: 'Tamam',
+                action: function () { setStatus('Sayfa sık kullanılanlara eklendi.'); }
+            },
+            { label: 'İptal' }
+        ]
+    });
+}
+
+function actionHistory() {
+    let html = '';
+    if (!history.length) {
+        html = '<div style="color:#666;">Geçmiş boş.</div>';
+    } else {
+        html = '<div style="max-height:220px;overflow:auto;border:1px solid #ACA899;background:#fff;padding:4px;">';
+        for (let i = history.length - 1; i >= 0; i--) {
+            const p = history[i];
+            const aktif = (i === hIndex) ? ' style="background:#316AC5;color:#fff;"' : '';
+            html += '<div' + aktif + ' style="padding:3px 6px;border-bottom:1px solid #EEE;">' +
+                        esc(p.title || p.url || 'Sayfa') +
+                    '</div>';
+        }
+        html += '</div>';
+    }
+    xpDialog({ title: 'Geçmiş', body: html, buttons: [{ label: 'Tamam' }] });
+}
+
+function actionOptions() {
+    xpDialog({
+        title: 'İnternet Seçenekleri',
+        body: '<div style="margin-bottom:10px;"><b>Giriş sayfası:</b></div>' +
+              '<div style="padding:6px;background:#fff;border:1px solid #7F9DB9;">http://www.google.com/</div>' +
+              '<div style="margin-top:12px;"><b>Geçici Internet dosyaları:</b> 0 MB</div>' +
+              '<div style="margin-top:4px;"><b>Geçmiş:</b> ' + history.length + ' gün</div>' +
+              '<div style="margin-top:12px;color:#666;font-size:11px;">' +
+              'Bu simülasyonda ayarlar değiştirilemez.</div>',
+        buttons: [{ label: 'Tamam' }]
+    });
+}
+
+function actionHelp() {
+    showInfo('Yardım',
+        '<b>Internet Explorer 6</b><br><br>' +
+        'Adres çubuğuna bir terim yazıp <b>Enter</b> tuşuna basarak arama yapabilirsiniz.<br><br>' +
+        '<b>Klavye Kısayolları:</b><br>' +
+        'Ctrl+L &rarr; Adres çubuğuna git<br>' +
+        'Ctrl+F &rarr; Sayfada bul<br>' +
+        'Ctrl+H &rarr; Geçmiş<br>' +
+        'Ctrl+D &rarr; Sık kullanılanlara ekle<br>' +
+        'Ctrl+U &rarr; Kaynağı görüntüle<br>' +
+        'F5 &rarr; Yenile<br>' +
+        'Alt+Sol / Alt+Sağ &rarr; Geri / İleri<br>' +
+        'Esc &rarr; Durdur');
+}
+
+function showAbout() {
+    xpDialog({
+        title: 'Internet Explorer Hakkında',
+        body: '<div style="display:flex;gap:14px;align-items:flex-start;">' +
+                  '<img src="https://win98icons.alexmeub.com/icons/png/msie1-2.png" width="48" height="48" ' +
+                       'onerror="this.style.display=\'none\'">' +
+                  '<div>' +
+                      '<b>Microsoft Internet Explorer</b><br>' +
+                      'Sürüm: 6.0.2900.2180<br>' +
+                      'Şifreleme: 128 bit<br><br>' +
+                      'Windows XP Professional Simülasyonu<br>' +
+                      '<span style="color:#666;">Bu yazılım bir nostalji projesidir; ' +
+                      'gerçek bir tarayıcı değildir.</span>' +
+                  '</div>' +
+              '</div>',
+        buttons: [{ label: 'Tamam' }]
+    });
+}
+
+/* ================================================================
+   DİYALOG
+   ================================================================ */
+function xpDialog(opts) {
+    const layer = $('dialogLayer');
+    layer.innerHTML = '';
+
+    const dlg = document.createElement('div');
+    dlg.className = 'dlg';
+    dlg.innerHTML =
+        '<div class="dlg-title">' +
+            '<span>' + esc(opts.title || 'Internet Explorer') + '</span>' +
+            '<span class="dlg-x">✕</span>' +
+        '</div>' +
+        '<div class="dlg-body">' + (opts.body || '') + '</div>' +
+        '<div class="dlg-btns"></div>';
+
+    const btnRow = dlg.querySelector('.dlg-btns');
+    const buttons = opts.buttons || [{ label: 'Tamam' }];
+
+    buttons.forEach(function (b) {
+        const btn = document.createElement('button');
+        btn.className = 'xp-btn';
+        btn.textContent = b.label;
+        btn.onclick = function () {
+            if (b.action) b.action(dlg);
+            if (dlg.parentNode === layer) closeDialog();
+        };
+        btnRow.appendChild(btn);
+    });
+
+    dlg.querySelector('.dlg-x').onclick = closeDialog;
+    layer.appendChild(dlg);
+    layer.classList.add('open');
+    return dlg;
+}
+
+function closeDialog() {
+    const layer = $('dialogLayer');
+    layer.classList.remove('open');
+    layer.innerHTML = '';
+}
+
+function showInfo(title, html) {
+    xpDialog({ title: title, body: html, buttons: [{ label: 'Tamam' }] });
+}
+
+/* ================================================================
+   BUL ÇUBUĞU
+   ================================================================ */
+function openFind() {
+    const fb = $('findBar');
+    fb.classList.add('open');
+    const i = $('findInput');
+    if (i) { i.focus(); i.select(); }
+}
+function closeFind() {
+    $('findBar').classList.remove('open');
+}
+function findNext() {
+    const q = $('findInput').value;
+    if (!q) return;
+    let found = false;
+    try {
+        if (typeof window.find === 'function') {
+            found = window.find(q, false, false, true);
+        }
+    } catch (e) { found = false; }
+    setStatus(found ? 'Eşleşme bulundu: "' + q + '"' : '"' + q + '" bulunamadı');
+}
+
+/* ================================================================
+   SAĞ TIK MENÜSÜ
+   ================================================================ */
+const ctxMenu = $('ctxMenu');
+
+function closeCtx() { ctxMenu.classList.remove('open'); }
+
+document.querySelector('.viewport-wrap').addEventListener('contextmenu', function (e) {
+    e.preventDefault();
+    ctxMenu.innerHTML =
+        '<div class="dd-item" data-ctx="back"><span>Geri</span></div>' +
+        '<div class="dd-item" data-ctx="forward"><span>İleri</span></div>' +
+        '<div class="dd-item" data-ctx="refresh"><span>Yenile</span></div>' +
+        '<div class="dd-sep"></div>' +
+        '<div class="dd-item" data-ctx="selectAll"><span>Tümünü Seç</span></div>' +
+        '<div class="dd-item" data-ctx="copy"><span>Kopyala</span></div>' +
+        '<div class="dd-sep"></div>' +
+        '<div class="dd-item" data-ctx="source"><span>Kaynağı Görüntüle</span></div>' +
+        '<div class="dd-item" data-ctx="props"><span>Özellikler</span></div>';
+
+    ctxMenu.style.left = Math.min(e.clientX, window.innerWidth - 190) + 'px';
+    ctxMenu.style.top  = Math.min(e.clientY, window.innerHeight - 210) + 'px';
+    ctxMenu.classList.add('open');
+});
+
+ctxMenu.addEventListener('mousedown', function (e) { e.stopPropagation(); });
+ctxMenu.addEventListener('click', function (e) {
+    const it = e.target.closest('.dd-item');
+    if (!it) return;
+    closeCtx();
+    const a = it.dataset.ctx;
+    if (a === 'back')           goBack();
+    else if (a === 'forward')   goForward();
+    else if (a === 'refresh')   actionRefresh();
+    else if (a === 'selectAll') actionSelectAll();
+    else if (a === 'copy')      actionCopy();
+    else if (a === 'source')    actionSource();
+    else if (a === 'props') {
+        xpDialog({
+            title: 'Özellikler',
+            body: '<b>Adres:</b><br>' + esc(currentPage ? currentPage.url : '') + '<br><br>' +
+                  '<b>Başlık:</b><br>' + esc(currentPage && currentPage.title ? currentPage.title : '(yok)') + '<br><br>' +
+                  '<b>Görünüm:</b><br>Internet Explorer 6.0 (Simülasyon)',
+            buttons: [{ label: 'Tamam' }]
+        });
+    }
+});
+
+document.addEventListener('mousedown', function () {
+    closeMenus();
+    closeCtx();
+});
+
+/* ================================================================
+   SAYFA İÇİ OLAY DELEGASYONU
+   ================================================================ */
+pageEl.addEventListener('click', function (e) {
+    const titleEl = e.target.closest('.res-title');
+    if (titleEl) { openWiki(titleEl.dataset.title); return; }
+
+    const card = e.target.closest('.gh-card');
+    if (card && card.dataset.repo) {
+        const r = (ghRepos || []).filter(function (x) { return x.name === card.dataset.repo; })[0];
+        if (r) {
+            xpDialog({
+                title: r.name,
+                body: '<b>' + esc(r.name) + '</b><br><br>' +
+                      esc(r.description || 'Açıklama bulunmuyor.') + '<br><br>' +
+                      '★ Yıldız: ' + r.stars + '<br>' +
+                      '⚡ Dil: ' + esc(r.language || 'Diğer'),
+                buttons: [{ label: 'Tamam' }]
+            });
+        }
+    }
+});
+
+/* ================================================================
+   KLAVYE KISAYOLLARI
+   ================================================================ */
+document.addEventListener('keydown', function (e) {
+    const ctrl = e.ctrlKey || e.metaKey;
+    const key  = e.key;
+
+    if (key === 'Escape') {
+        if ($('dialogLayer').classList.contains('open')) { closeDialog(); return; }
+        closeMenus();
+        closeFind();
+        closeCtx();
+        actionStop();
+        return;
+    }
+
+    if (ctrl && (key === 'l' || key === 'L')) {
+        e.preventDefault();
+        urlInput.focus();
+        urlInput.select();
+        return;
+    }
+    if (ctrl && (key === 'n' || key === 'N')) { e.preventDefault(); actionNewWindow(); return; }
+    if (ctrl && (key === 'o' || key === 'O')) { e.preventDefault(); actionOpen();      return; }
+    if (ctrl && (key === 's' || key === 'S')) { e.preventDefault(); actionSave();      return; }
+    if (ctrl && (key === 'p' || key === 'P')) { e.preventDefault(); actionPrint();     return; }
+    if (ctrl && (key === 'f' || key === 'F')) { e.preventDefault(); openFind();        return; }
+    if (ctrl && (key === 'h' || key === 'H')) { e.preventDefault(); actionHistory();   return; }
+    if (ctrl && (key === 'd' || key === 'D')) { e.preventDefault(); actionFavAdd();    return; }
+    if (ctrl && (key === 'u' || key === 'U')) { e.preventDefault(); actionSource();    return; }
+    if (ctrl && (key === 'a' || key === 'A')) {
+        const aktif = document.activeElement;
+        if (aktif && (aktif.tagName === 'INPUT' || aktif.tagName === 'TEXTAREA')) return;
+        e.preventDefault();
+        actionSelectAll();
+        return;
+    }
+
+    if (key === 'F5')  { e.preventDefault(); actionRefresh();    return; }
+    if (key === 'F11') { e.preventDefault(); actionFullscreen(); return; }
+
+    if (e.altKey && key === 'Home')       { e.preventDefault(); goHome();      return; }
+    if (e.altKey && key === 'ArrowLeft')  { e.preventDefault(); goBack();      return; }
+    if (e.altKey && key === 'ArrowRight') { e.preventDefault(); goForward();   return; }
+});
+
+/* ================================================================
+   BAŞLANGIÇ
+   ================================================================ */
+function openCV() {
+    try {
+        if (window.parent && window.parent.windowManager && window.parent.appRegistry) {
+            window.parent.windowManager.open(window.parent.appRegistry.get('cv'));
+            return;
+        }
+    } catch (e) { /* yoksay */ }
+    showInfo('Özgeçmiş', 'Özgeçmiş uygulaması bu ortamda açılamıyor.');
+}
+
+updateNav();
+goHome();
+</script>
+</body>
+</html>

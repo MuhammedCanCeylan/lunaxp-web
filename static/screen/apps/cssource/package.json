@@ -1,0 +1,40 @@
+{
+  "name": "tiny-strike",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs",
+    "build:pages": "node tools/build-pages.mjs",
+    "build:worker": "wrangler deploy --dry-run --outdir dist/worker --config wrangler.jsonc",
+    "dev:worker": "wrangler dev --config wrangler.jsonc",
+    "deploy:worker": "wrangler deploy --strict --config wrangler.jsonc",
+    "import:leaderboard": "node tools/import-cloudflare-leaderboard.mjs",
+    "test": "node --test"
+  },
+  "keywords": [
+    "browser-game",
+    "fps",
+    "multiplayer",
+    "three.js"
+  ],
+  "author": "Guy Zyskind",
+  "license": "ISC",
+  "description": "Open-source tactical browser FPS with solo, bot, and online multiplayer modes",
+  "homepage": "https://guyzyskind.com/tinystrike/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guyz/tinystrike.git"
+  },
+  "bugs": {
+    "url": "https://github.com/guyz/tinystrike/issues"
+  },
+  "dependencies": {
+    "three": "^0.166.1",
+    "ws": "^8.21.1"
+  },
+  "devDependencies": {
+    "wrangler": "4.112.0"
+  },
+  "type": "module"
+}

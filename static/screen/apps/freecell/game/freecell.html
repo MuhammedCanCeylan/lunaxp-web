@@ -1,0 +1,242 @@
+﻿<html>
+  <head>
+    <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+    <title>FreeCell</title>
+    <link rel="icon" href="dragon.png">
+    <link rel='stylesheet' href='freecell.css'></link>
+    <script src='freecell.js'/></script>
+    <script src='deck.js'/></script>
+    <script src='solver.js'/></script>
+    <script src="https://mohayonao.github.io/timbre.js/timbre.js"></script>
+  <style id="xp-freecell-compat">
+html,body{
+    width:100% !important;
+    height:100% !important;
+    margin:0 !important;
+    min-width:0 !important;
+    min-height:0 !important;
+}
+/*
+  The outer XP title bar/taskbar are intentionally NOT recreated here.
+  The parent WindowManager owns all window chrome.
+*/
+.xp-dialog-shade{
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:2147483646;
+    background:rgba(0,0,0,.20);
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+}
+.xp-dialog-shade.show{display:flex}
+.xp-dialog{
+    width:min(390px,92vw);
+    background:#ECE9D8;
+    color:#000;
+    border:2px outset #fff;
+    box-shadow:4px 4px 12px rgba(0,0,0,.45);
+    font:11px Tahoma,sans-serif;
+}
+.xp-dialog-title{
+    min-height:25px;
+    display:flex;
+    align-items:center;
+    padding:3px 7px;
+    color:#fff;
+    font-weight:bold;
+    background:linear-gradient(90deg,#0a246a,#3a6ea5);
+}
+.xp-dialog-body{
+    padding:12px;
+    white-space:pre-wrap;
+}
+.xp-dialog-actions{
+    text-align:right;
+    padding:0 12px 11px;
+}
+.xp-dialog-actions button{
+    min-width:75px;
+    height:25px;
+    background:#ECE9D8;
+    border:2px outset #fff;
+    font:11px Tahoma,sans-serif;
+}
+.xp-dialog-actions button:active{
+    border-style:inset;
+}
+</style>
+
+<script id="xp-freecell-dialog-shim">
+(function(){
+    function ensureDialog(){
+        var shade=document.getElementById('xpFreeCellDialogShade');
+        if(shade) return shade;
+
+        shade=document.createElement('div');
+        shade.id='xpFreeCellDialogShade';
+        shade.className='xp-dialog-shade';
+        shade.innerHTML=
+            '<div class="xp-dialog" role="dialog" aria-modal="true">'+
+              '<div class="xp-dialog-title">FreeCell</div>'+
+              '<div class="xp-dialog-body" id="xpFreeCellDialogMessage"></div>'+
+              '<div class="xp-dialog-actions">'+
+                '<button type="button" id="xpFreeCellDialogOK">Tamam</button>'+
+              '</div>'+
+            '</div>';
+
+        document.body.appendChild(shade);
+
+        shade.querySelector('#xpFreeCellDialogOK').onclick=function(){
+            shade.classList.remove('show');
+        };
+
+        return shade;
+    }
+
+    function showMessage(message){
+        var shade=ensureDialog();
+        var msg=shade.querySelector('#xpFreeCellDialogMessage');
+        if(msg) msg.textContent=String(message == null ? '' : message);
+        shade.classList.add('show');
+    }
+
+    window.alert=function(message){
+        showMessage(message);
+    };
+
+    window.confirm=function(message){
+        showMessage(message);
+        return false;
+    };
+
+    window.prompt=function(message){
+        showMessage(message);
+        return null;
+    };
+})();
+</script>
+</head>
+  <body onload='initialize()' onresize='redraw()'>
+    <audio id='shuffle'<source src='shuffle.mp3'/></audio>
+    <audio id='move'<source src='move.mp3'/></audio>
+    <audio id='home'<source src='home.mp3'/></audio>
+    <audio id='success'<source src='success.mp3'/></audio>
+
+    <div class='options' id='options'>
+      <label id='solve' onclick='get_solution()'>❕</label>
+      <label class='separator'>|</label>
+      <label id='difficulty'>&nbsp;</label>
+      <label class='separator'>|</label>
+      <label class='control' id='prev_deal' onclick='previous_deal()'>◀️</label>
+      <label class='control' id='next_deal' onclick='next_deal()'>▶️</label>
+      <input type='number' min=1 max=1000000000 size=9 id='deal_num' onchange='set_deal()'></input>
+
+      <label class='separator'>|</label>
+      <select id='select_deck' onchange='select_deck()'>
+        <option value=0>clean</option>
+      </select>
+
+      <label class='separator'>|</label>
+      <select id='select_auto_play' onchange='select_auto_play()'>
+        <option value='max' selected>max</option>
+        <option value='safe'>safe</option>
+        <option value='none'>none</option>
+      </select>
+
+      <label class='separator'>|</label>
+      <label class='control' id='undo_all' onclick='undo_all()'>⏮️</label>
+      <label class='control' id='redo_all' onclick='redo_all()'>⏭️</label>
+      <label id='moves'></label>
+      <label class='control' id='undo' onclick='undo()'>◀️</label>
+      <label class='control' id='redo' onclick='redo()'>▶️</label>
+      <label class='control' id='replay' onclick='toggle_replay()'>⏯️</label>
+
+      <label class='separator'>|</label>
+      <label class='control' id='elapse' onclick='toggle_elapse()'>⏱</label>
+      <label class='separator'>|</label>
+      <label id='sound' onclick='toggle_sound()'>🔊</label>
+      <label class='separator'>|</label>
+      <label id='help_sign' onclick='toggle_help()'>❔</div>
+    </div>
+
+    <table class='reserve'>
+      <tr>
+        <td class='nocard' id='r0' ondragover='accept_drop(event)'>&nbsp;</td>
+        <td class='nocard' id='r1' ondragover='accept_drop(event)'>&nbsp;</td>
+        <td class='nocard' id='r2' ondragover='accept_drop(event)'>&nbsp;</td>
+        <td class='nocard' id='r3' ondragover='accept_drop(event)'>&nbsp;</td>
+        <td>
+          <div class='logo' id='logo' onclick='toggle_options()'>Free<br>Cell</div>
+          <div class='wins'><b id='wins'></b></div>
+        </td>
+        <td class='nocard' id='f0' ondragover='accept_drop(event)'><font color='black'>&spades;</font></td>
+        <td class='nocard' id='f1' ondragover='accept_drop(event)'><font color='darkred'>&hearts;</font></td>
+        <td class='nocard' id='f2' ondragover='accept_drop(event)'><font color='darkred'>&diams;</font></td>
+        <td class='nocard' id='f3' ondragover='accept_drop(event)'><font color='black'>&clubs;</font></td>
+      </tr>
+    </table>
+
+    <table class='tableau'>
+      <tr>
+        <td class='nocard' id='t0' ondragover='accept_drop(event)'></td>
+        <td class='nocard' id='t1' ondragover='accept_drop(event)'></td>
+        <td class='nocard' id='t2' ondragover='accept_drop(event)'></td>
+        <td class='nocard' id='t3' ondragover='accept_drop(event)'></td>
+        <td class='nocard' id='t4' ondragover='accept_drop(event)'></td>
+        <td class='nocard' id='t5' ondragover='accept_drop(event)'></td>
+        <td class='nocard' id='t6' ondragover='accept_drop(event)'></td>
+        <td class='nocard' id='t7' ondragover='accept_drop(event)'></td>
+      </tr>
+    </table>
+
+    <div class='message' id='done' onclick='hide_element("done")'>Well done!</div>
+    <div class='message' id='alert' onclick='hide_element("alert")'></div>
+
+    <div class='tip' id='help_solve'>
+      Download solution for game #1~1000000 or solve in browser for game #>1000000
+    </div>
+    <div class='tip' id='help_deal_num'>Game number</div>
+    <div class='tip' id='help_difficulty'>Difficulty level</div>
+    <div class='tip' id='help_prev_deal'>Previous game</div>
+    <div class='tip' id='help_next_deal'>Next game</div>
+    <div class='tip' id='help_select_deck'>Card style</div>
+    <div class='tip' id='help_select_auto_play'>Auto play mode</div>
+    <div class='tip' id='help_undo_all'>Undo all</div>
+    <div class='tip' id='help_redo_all'>Redo all</div>
+    <div class='tip' id='help_moves'>Move count</div>
+    <div class='tip' id='help_undo'>Undo</div>
+    <div class='tip' id='help_redo'>Redo</div>
+    <div class='tip' id='help_elapse'>Time on/off</div>
+    <div class='tip' id='help_sound'>Sound on/off</div>
+    <div class='tip' id='help_help_sign'>Help</div>
+    <div class='line' id='line_solve'></div>
+    <div class='line' id='line_deal_num'></div>
+    <div class='line' id='line_difficulty'></div>
+    <div class='line' id='line_prev_deal'></div>
+    <div class='line' id='line_next_deal'></div>
+    <div class='line' id='line_select_deck'></div>
+    <div class='line' id='line_select_auto_play'></div>
+    <div class='line' id='line_undo_all'></div>
+    <div class='line' id='line_redo_all'></div>
+    <div class='line' id='line_moves'></div>
+    <div class='line' id='line_undo'></div>
+    <div class='line' id='line_redo'></div>
+    <div class='line' id='line_elapse'></div>
+    <div class='line' id='line_sound'></div>
+    <div class='line' id='line_help_sign'></div>
+    <div class='tip' id='instructions'>
+      <ul>
+        <li>Click on a card or a column to let the game figure out the move.&nbsp;&nbsp;&nbsp;&nbsp;</li>
+        <li>Drag & drop to specify the exact move.</li>
+        <li>Click on the "Free Cell" logo to show/hide the menu bar.</li>
+        <li> Read more at
+          <a href='https://github.com/macroxue/freecell' target='_blank'>
+            https://github.com/macroxue/freecell</a>.
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>
+

@@ -1,0 +1,1663 @@
+<!--
+GEREKLİ ASSETLER (index.html ile aynı klasöre atılacak):
+
+| Dosya Adı | Tavsiye Edilen Boyut | Format | Açıklama |
+| :--- | :--- | :--- | :--- |
+| icon.png | 32x32 | PNG (Şeffaf) | Masaüstü / kayıt defteri Character Map simgesi (ZORUNLU) |
+
+NOTLAR:
+- Uygulama başka hiçbir harici asset gerektirmez.
+- icon.png yüklenemezse sayfa içinde kullanılan gizli asset kontrolü
+  yerleşik SVG Data URI yedeğine düşer.
+- Fontlar işletim sisteminde / tarayıcıda mevcut olan fontlardan kullanılır.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+<title>Character Map</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    html,
+    body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+    }
+
+    body {
+        background: #ECE9D8;
+        color: #000;
+        font-family: Tahoma, sans-serif;
+        font-size: 11px;
+        user-select: none;
+    }
+
+    button,
+    input,
+    select {
+        font-family: Tahoma, sans-serif;
+        font-size: 11px;
+    }
+
+    button {
+        min-height: 23px;
+        padding: 2px 12px;
+        color: #000;
+        background: #ECE9D8;
+        border-top: 2px solid #FFFFFF;
+        border-left: 2px solid #FFFFFF;
+        border-right: 2px solid #404040;
+        border-bottom: 2px solid #404040;
+        border-radius: 2px;
+    }
+
+    button:not(:disabled):active {
+        border-top: 2px solid #404040;
+        border-left: 2px solid #404040;
+        border-right: 2px solid #FFFFFF;
+        border-bottom: 2px solid #FFFFFF;
+        padding: 3px 11px 1px 13px;
+    }
+
+    button:focus-visible,
+    select:focus-visible,
+    input:focus-visible {
+        outline: 1px dotted #000;
+        outline-offset: -3px;
+    }
+
+    button:disabled {
+        color: #808080;
+        text-shadow: 1px 1px #FFF;
+    }
+
+    .asset-probe {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+        pointer-events: none;
+        left: -10000px;
+    }
+
+    #app {
+        width: 100%;
+        height: 100%;
+        padding: 11px 12px 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        overflow: hidden;
+        min-width: 460px;
+        min-height: 330px;
+    }
+
+    .row {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .font-row label {
+        width: 29px;
+        flex: 0 0 auto;
+    }
+
+    .xp-select,
+    .xp-input {
+        background: #FFF;
+        color: #000;
+        border: 1px solid #7F9DB9;
+        height: 22px;
+    }
+
+    .xp-select {
+        flex: 1;
+        min-width: 0;
+        padding-left: 2px;
+    }
+
+    .xp-input {
+        padding: 2px 4px;
+        user-select: text;
+    }
+
+    /* =========================================
+       CHARACTER GRID
+       ========================================= */
+
+    .grid-frame {
+        flex: 1;
+        min-height: 145px;
+        position: relative;
+        border-top: 1px solid #404040;
+        border-left: 1px solid #404040;
+        border-right: 1px solid #FFF;
+        border-bottom: 1px solid #FFF;
+        background: #FFF;
+        overflow: hidden;
+    }
+
+    #gridScroller {
+        width: 100%;
+        height: 100%;
+        overflow-y: scroll;
+        overflow-x: auto;
+        background: #FFF;
+        scrollbar-color: #D4D0C8 #F1F0E8;
+        scrollbar-width: auto;
+    }
+
+    #characterGrid {
+        min-width: 560px;
+        display: grid;
+        grid-template-columns: repeat(20, minmax(27px, 1fr));
+        align-content: start;
+        background: #808080;
+        gap: 1px;
+        padding: 1px;
+    }
+
+    .char-cell {
+        position: relative;
+        appearance: none;
+        width: 100%;
+        height: 31px;
+        min-width: 27px;
+        padding: 0;
+        margin: 0;
+        background: #FFF;
+        border: 0;
+        border-radius: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 18px;
+        cursor: default;
+        overflow: visible;
+    }
+
+    .char-cell:hover {
+        background: #E8EFFA;
+    }
+
+    .char-cell.selected {
+        color: #FFF;
+        background: #316AC5;
+    }
+
+    .char-cell:focus {
+        outline: 1px dotted #000;
+        outline-offset: -3px;
+    }
+
+    .char-cell.selected:focus {
+        outline-color: #FFF;
+    }
+
+    .char-cell:active {
+        padding: 0 !important;
+        border: 0 !important;
+    }
+
+    /*
+        XP Character Map seçili karakteri hücrenin üzerinde
+        büyütülmüş bir kutuda gösterirdi.
+    */
+    #magnifier {
+        position: absolute;
+        z-index: 100;
+        width: 70px;
+        height: 72px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: #FFFFF4;
+        color: #000;
+        border-top: 1px solid #FFF;
+        border-left: 1px solid #FFF;
+        border-right: 2px solid #404040;
+        border-bottom: 2px solid #404040;
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .28);
+        font-size: 46px;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    .grid-empty {
+        grid-column: 1 / -1;
+        padding: 20px;
+        font-family: Tahoma, sans-serif;
+        font-size: 11px;
+        background: #FFF;
+    }
+
+    /* =========================================
+       STATUS UNDER GRID
+       ========================================= */
+
+    .character-info {
+        display: flex;
+        min-height: 18px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 0 2px;
+        white-space: nowrap;
+    }
+
+    #unicodeInfo {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    #keystrokeInfo {
+        margin-left: auto;
+    }
+
+    /* =========================================
+       COPY AREA
+       ========================================= */
+
+    .copy-row {
+        display: grid;
+        grid-template-columns: auto minmax(80px, 1fr) auto auto;
+        align-items: center;
+        gap: 7px;
+    }
+
+    #copyField {
+        width: 100%;
+        height: 23px;
+    }
+
+    /* =========================================
+       ADVANCED VIEW
+       ========================================= */
+
+    .advanced-toggle {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        min-height: 18px;
+    }
+
+    .advanced-toggle input {
+        margin: 0;
+        width: 13px;
+        height: 13px;
+    }
+
+    #advancedPanel {
+        display: none;
+        border-top: 1px solid #ACA899;
+        padding-top: 8px;
+    }
+
+    #advancedPanel.visible {
+        display: block;
+    }
+
+    .advanced-grid {
+        display: grid;
+        grid-template-columns: 105px minmax(120px, 1fr) 78px minmax(120px, 1fr);
+        gap: 6px 7px;
+        align-items: center;
+    }
+
+    .advanced-grid label {
+        white-space: nowrap;
+    }
+
+    #searchInput {
+        min-width: 0;
+        width: 100%;
+    }
+
+    #searchButton {
+        min-width: 65px;
+    }
+
+    .search-line {
+        display: grid;
+        grid-template-columns: 105px 1fr auto;
+        align-items: center;
+        gap: 7px;
+        margin-top: 7px;
+    }
+
+    /* =========================================
+       BOTTOM STATUS BAR
+       ========================================= */
+
+    .status-bar {
+        min-height: 20px;
+        border-top: 1px solid #ACA899;
+        margin-top: 1px;
+        padding-top: 4px;
+        color: #333;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    #statusMessage {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* =========================================
+       XP INLINE DIALOG
+       ========================================= */
+
+    #dialogOverlay {
+        position: absolute;
+        inset: 0;
+        z-index: 1000;
+        background: rgba(0, 0, 0, .12);
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #dialogOverlay.visible {
+        display: flex;
+    }
+
+    .xp-dialog {
+        width: min(370px, calc(100% - 40px));
+        background: #ECE9D8;
+        border: 2px outset #FFF;
+        box-shadow: 2px 3px 9px rgba(0,0,0,.38);
+    }
+
+    /*
+       Bu uygulamanın ana pencere başlığı değildir.
+       Yalnızca gerektiğinde çıkan uygulama içi mesaj
+       diyaloğunun başlığıdır.
+    */
+    .dialog-caption {
+        height: 23px;
+        padding: 3px 6px;
+        display: flex;
+        align-items: center;
+        background: linear-gradient(
+            to right,
+            #0A246A,
+            #3A6EA5
+        );
+        color: #FFF;
+        font-weight: bold;
+    }
+
+    .dialog-content {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        padding: 18px 17px 12px;
+    }
+
+    .dialog-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #316AC5;
+        color: #FFF;
+        border: 1px solid #123A75;
+        font-family: Georgia, serif;
+        font-weight: bold;
+        font-size: 23px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex: 0 0 auto;
+    }
+
+    #dialogText {
+        line-height: 1.45;
+        user-select: text;
+    }
+
+    .dialog-buttons {
+        display: flex;
+        justify-content: center;
+        padding: 2px 12px 12px;
+    }
+
+    .dialog-buttons button {
+        min-width: 76px;
+    }
+
+    /* =========================================
+       XP / WEBKIT SCROLLBARS
+       ========================================= */
+
+    ::-webkit-scrollbar {
+        width: 17px;
+        height: 17px;
+        background: #F1F0E8;
+    }
+
+    ::-webkit-scrollbar-track {
+        background:
+            repeating-conic-gradient(
+                #E6E4D8 0% 25%,
+                #F6F5EF 0% 50%
+            ) 0 / 2px 2px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #D4D0C8;
+        border-top: 2px solid #FFF;
+        border-left: 2px solid #FFF;
+        border-right: 2px solid #808080;
+        border-bottom: 2px solid #808080;
+    }
+
+    ::-webkit-scrollbar-button {
+        width: 17px;
+        height: 17px;
+        background: #D4D0C8;
+        border: 1px solid #808080;
+    }
+
+    @media (max-height: 420px) {
+        #app {
+            padding-top: 7px;
+            gap: 4px;
+        }
+
+        .char-cell {
+            height: 27px;
+        }
+
+        #advancedPanel {
+            padding-top: 4px;
+        }
+
+        .search-line {
+            margin-top: 4px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<!--
+    icon.png harici masaüstü sistemi tarafından kullanılır.
+    Bu gizli kontrol yalnızca asset kaybolduğunda güvenli bir SVG
+    fallback bulunduğundan emin olmak içindir.
+-->
+<img
+    class="asset-probe"
+    src="icon.png"
+    alt=""
+    onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%223%22 fill=%22%23fff%22 stroke=%22%237f9db9%22/%3E%3Ctext x=%225%22 y=%2222%22 font-size=%2220%22 font-family=%22serif%22 fill=%22%230a246a%22%3E%C3%86%3C/text%3E%3C/svg%3E';"
+>
+
+<main id="app">
+
+    <div class="row font-row">
+        <label for="fontSelect">Font:</label>
+
+        <select id="fontSelect" class="xp-select">
+            <option value="Arial">Arial</option>
+            <option value="Arial Black">Arial Black</option>
+            <option value="Comic Sans MS">Comic Sans MS</option>
+            <option value="Courier New">Courier New</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Impact">Impact</option>
+            <option value="Tahoma" selected>Tahoma</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Trebuchet MS">Trebuchet MS</option>
+            <option value="Verdana">Verdana</option>
+            <option value="Symbol">Symbol</option>
+            <option value="Webdings">Webdings</option>
+            <option value="Wingdings">Wingdings</option>
+        </select>
+    </div>
+
+    <section class="grid-frame" id="gridFrame">
+        <div id="gridScroller">
+            <div
+                id="characterGrid"
+                role="grid"
+                aria-label="Characters"
+            ></div>
+        </div>
+
+        <div id="magnifier"></div>
+    </section>
+
+    <div class="character-info">
+        <span id="unicodeInfo">
+            Select a character to view information.
+        </span>
+
+        <span id="keystrokeInfo"></span>
+    </div>
+
+    <div class="copy-row">
+        <label for="copyField">Characters to copy:</label>
+
+        <input
+            id="copyField"
+            class="xp-input"
+            type="text"
+            autocomplete="off"
+            spellcheck="false"
+        >
+
+        <button id="selectButton" disabled>
+            Select
+        </button>
+
+        <button id="copyButton" disabled>
+            Copy
+        </button>
+    </div>
+
+    <label class="advanced-toggle">
+        <input id="advancedCheck" type="checkbox">
+        <span>Advanced view</span>
+    </label>
+
+    <section id="advancedPanel">
+        <div class="advanced-grid">
+
+            <label for="characterSet">
+                Character set:
+            </label>
+
+            <select id="characterSet" class="xp-select">
+                <option selected>Unicode</option>
+            </select>
+
+            <label for="groupSelect">
+                Group by:
+            </label>
+
+            <select id="groupSelect" class="xp-select">
+                <option value="default">
+                    All
+                </option>
+                <option value="basic">
+                    Basic Latin
+                </option>
+                <option value="latin1">
+                    Latin-1 Supplement
+                </option>
+                <option value="latinA">
+                    Latin Extended-A
+                </option>
+                <option value="latinB">
+                    Latin Extended-B
+                </option>
+                <option value="greek">
+                    Greek and Coptic
+                </option>
+                <option value="cyrillic">
+                    Cyrillic
+                </option>
+                <option value="punctuation">
+                    General Punctuation
+                </option>
+                <option value="currency">
+                    Currency Symbols
+                </option>
+                <option value="letterlike">
+                    Letterlike Symbols
+                </option>
+                <option value="arrows">
+                    Arrows
+                </option>
+                <option value="math">
+                    Mathematical Operators
+                </option>
+                <option value="box">
+                    Box Drawing
+                </option>
+                <option value="blocks">
+                    Block Elements
+                </option>
+                <option value="geometric">
+                    Geometric Shapes
+                </option>
+                <option value="symbols">
+                    Miscellaneous Symbols
+                </option>
+                <option value="dingbats">
+                    Dingbats
+                </option>
+            </select>
+
+        </div>
+
+        <div class="search-line">
+            <label for="searchInput">
+                Search for:
+            </label>
+
+            <input
+                id="searchInput"
+                class="xp-input"
+                type="text"
+                autocomplete="off"
+                spellcheck="false"
+            >
+
+            <button id="searchButton">
+                Search
+            </button>
+        </div>
+    </section>
+
+    <div class="status-bar">
+        <span id="statusMessage">
+            Ready
+        </span>
+
+        <span id="countMessage"></span>
+    </div>
+
+</main>
+
+<!-- =========================================
+     INLINE XP DIALOG
+     ========================================= -->
+
+<div id="dialogOverlay">
+    <div
+        class="xp-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="dialogCaption"
+    >
+        <div
+            class="dialog-caption"
+            id="dialogCaption"
+        >
+            Character Map
+        </div>
+
+        <div class="dialog-content">
+            <div class="dialog-icon">i</div>
+            <div id="dialogText"></div>
+        </div>
+
+        <div class="dialog-buttons">
+            <button id="dialogOK">
+                OK
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+(() => {
+    "use strict";
+
+    /* =========================================================
+       DOM
+       ========================================================= */
+
+    const fontSelect = document.getElementById("fontSelect");
+    const gridFrame = document.getElementById("gridFrame");
+    const gridScroller = document.getElementById("gridScroller");
+    const characterGrid = document.getElementById("characterGrid");
+    const magnifier = document.getElementById("magnifier");
+
+    const unicodeInfo = document.getElementById("unicodeInfo");
+    const keystrokeInfo = document.getElementById("keystrokeInfo");
+
+    const copyField = document.getElementById("copyField");
+    const selectButton = document.getElementById("selectButton");
+    const copyButton = document.getElementById("copyButton");
+
+    const advancedCheck = document.getElementById("advancedCheck");
+    const advancedPanel = document.getElementById("advancedPanel");
+    const groupSelect = document.getElementById("groupSelect");
+
+    const searchInput = document.getElementById("searchInput");
+    const searchButton = document.getElementById("searchButton");
+
+    const statusMessage = document.getElementById("statusMessage");
+    const countMessage = document.getElementById("countMessage");
+
+    const dialogOverlay = document.getElementById("dialogOverlay");
+    const dialogText = document.getElementById("dialogText");
+    const dialogOK = document.getElementById("dialogOK");
+
+    /* =========================================================
+       CHARACTER RANGES
+       ========================================================= */
+
+    const ranges = {
+        default: [
+            [0x0020, 0x007E],
+            [0x00A0, 0x00FF]
+        ],
+
+        basic: [
+            [0x0020, 0x007E]
+        ],
+
+        latin1: [
+            [0x00A0, 0x00FF]
+        ],
+
+        latinA: [
+            [0x0100, 0x017F]
+        ],
+
+        latinB: [
+            [0x0180, 0x024F]
+        ],
+
+        greek: [
+            [0x0370, 0x03FF]
+        ],
+
+        cyrillic: [
+            [0x0400, 0x04FF]
+        ],
+
+        punctuation: [
+            [0x2000, 0x206F]
+        ],
+
+        currency: [
+            [0x20A0, 0x20CF]
+        ],
+
+        letterlike: [
+            [0x2100, 0x214F]
+        ],
+
+        arrows: [
+            [0x2190, 0x21FF]
+        ],
+
+        math: [
+            [0x2200, 0x22FF]
+        ],
+
+        box: [
+            [0x2500, 0x257F]
+        ],
+
+        blocks: [
+            [0x2580, 0x259F]
+        ],
+
+        geometric: [
+            [0x25A0, 0x25FF]
+        ],
+
+        symbols: [
+            [0x2600, 0x26FF]
+        ],
+
+        dingbats: [
+            [0x2700, 0x27BF]
+        ]
+    };
+
+    /*
+        Yaygın semboller için isimler.
+        Geri kalanlarda U+XXXX gösterilir.
+
+        Amaç devasa Unicode isim veritabanını uygulamaya
+        gömmek yerine XP hissini hafif tutmak.
+    */
+    const knownNames = {
+        0x0020: "SPACE",
+        0x0021: "EXCLAMATION MARK",
+        0x0022: "QUOTATION MARK",
+        0x0023: "NUMBER SIGN",
+        0x0024: "DOLLAR SIGN",
+        0x0025: "PERCENT SIGN",
+        0x0026: "AMPERSAND",
+        0x0027: "APOSTROPHE",
+        0x0028: "LEFT PARENTHESIS",
+        0x0029: "RIGHT PARENTHESIS",
+        0x002A: "ASTERISK",
+        0x002B: "PLUS SIGN",
+        0x002C: "COMMA",
+        0x002D: "HYPHEN-MINUS",
+        0x002E: "FULL STOP",
+        0x002F: "SOLIDUS",
+
+        0x003A: "COLON",
+        0x003B: "SEMICOLON",
+        0x003C: "LESS-THAN SIGN",
+        0x003D: "EQUALS SIGN",
+        0x003E: "GREATER-THAN SIGN",
+        0x003F: "QUESTION MARK",
+        0x0040: "COMMERCIAL AT",
+
+        0x005B: "LEFT SQUARE BRACKET",
+        0x005C: "REVERSE SOLIDUS",
+        0x005D: "RIGHT SQUARE BRACKET",
+        0x005E: "CIRCUMFLEX ACCENT",
+        0x005F: "LOW LINE",
+        0x0060: "GRAVE ACCENT",
+
+        0x007B: "LEFT CURLY BRACKET",
+        0x007C: "VERTICAL LINE",
+        0x007D: "RIGHT CURLY BRACKET",
+        0x007E: "TILDE",
+
+        0x00A0: "NO-BREAK SPACE",
+        0x00A1: "INVERTED EXCLAMATION MARK",
+        0x00A2: "CENT SIGN",
+        0x00A3: "POUND SIGN",
+        0x00A4: "CURRENCY SIGN",
+        0x00A5: "YEN SIGN",
+        0x00A7: "SECTION SIGN",
+        0x00A9: "COPYRIGHT SIGN",
+        0x00AB: "LEFT-POINTING DOUBLE ANGLE QUOTATION MARK",
+        0x00AC: "NOT SIGN",
+        0x00AE: "REGISTERED SIGN",
+        0x00B0: "DEGREE SIGN",
+        0x00B1: "PLUS-MINUS SIGN",
+        0x00B2: "SUPERSCRIPT TWO",
+        0x00B3: "SUPERSCRIPT THREE",
+        0x00B5: "MICRO SIGN",
+        0x00B6: "PILCROW SIGN",
+        0x00B7: "MIDDLE DOT",
+        0x00BB: "RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK",
+        0x00BC: "VULGAR FRACTION ONE QUARTER",
+        0x00BD: "VULGAR FRACTION ONE HALF",
+        0x00BE: "VULGAR FRACTION THREE QUARTERS",
+        0x00BF: "INVERTED QUESTION MARK",
+
+        0x20AC: "EURO SIGN",
+        0x2122: "TRADE MARK SIGN",
+        0x2190: "LEFTWARDS ARROW",
+        0x2191: "UPWARDS ARROW",
+        0x2192: "RIGHTWARDS ARROW",
+        0x2193: "DOWNWARDS ARROW",
+        0x2194: "LEFT RIGHT ARROW",
+
+        0x2200: "FOR ALL",
+        0x2202: "PARTIAL DIFFERENTIAL",
+        0x2203: "THERE EXISTS",
+        0x2205: "EMPTY SET",
+        0x2206: "INCREMENT",
+        0x2207: "NABLA",
+        0x2208: "ELEMENT OF",
+        0x220F: "N-ARY PRODUCT",
+        0x2211: "N-ARY SUMMATION",
+        0x221A: "SQUARE ROOT",
+        0x221E: "INFINITY",
+        0x222B: "INTEGRAL",
+        0x2248: "ALMOST EQUAL TO",
+        0x2260: "NOT EQUAL TO",
+        0x2264: "LESS-THAN OR EQUAL TO",
+        0x2265: "GREATER-THAN OR EQUAL TO",
+
+        0x2500: "BOX DRAWINGS LIGHT HORIZONTAL",
+        0x2502: "BOX DRAWINGS LIGHT VERTICAL",
+        0x250C: "BOX DRAWINGS LIGHT DOWN AND RIGHT",
+        0x2510: "BOX DRAWINGS LIGHT DOWN AND LEFT",
+        0x2514: "BOX DRAWINGS LIGHT UP AND RIGHT",
+        0x2518: "BOX DRAWINGS LIGHT UP AND LEFT",
+        0x251C: "BOX DRAWINGS LIGHT VERTICAL AND RIGHT",
+        0x2524: "BOX DRAWINGS LIGHT VERTICAL AND LEFT",
+        0x252C: "BOX DRAWINGS LIGHT DOWN AND HORIZONTAL",
+        0x2534: "BOX DRAWINGS LIGHT UP AND HORIZONTAL",
+        0x253C: "BOX DRAWINGS LIGHT VERTICAL AND HORIZONTAL",
+
+        0x25A0: "BLACK SQUARE",
+        0x25A1: "WHITE SQUARE",
+        0x25B2: "BLACK UP-POINTING TRIANGLE",
+        0x25BC: "BLACK DOWN-POINTING TRIANGLE",
+        0x25C6: "BLACK DIAMOND",
+        0x25CB: "WHITE CIRCLE",
+        0x25CF: "BLACK CIRCLE",
+
+        0x2600: "BLACK SUN WITH RAYS",
+        0x2601: "CLOUD",
+        0x2602: "UMBRELLA",
+        0x2603: "SNOWMAN",
+        0x2605: "BLACK STAR",
+        0x2606: "WHITE STAR",
+        0x260E: "BLACK TELEPHONE",
+        0x2611: "BALLOT BOX WITH CHECK",
+        0x2612: "BALLOT BOX WITH X",
+        0x2615: "HOT BEVERAGE",
+        0x2620: "SKULL AND CROSSBONES",
+        0x2622: "RADIOACTIVE SIGN",
+        0x2623: "BIOHAZARD SIGN",
+        0x262F: "YIN YANG",
+        0x263A: "WHITE SMILING FACE",
+        0x2660: "BLACK SPADE SUIT",
+        0x2663: "BLACK CLUB SUIT",
+        0x2665: "BLACK HEART SUIT",
+        0x2666: "BLACK DIAMOND SUIT",
+        0x266A: "EIGHTH NOTE",
+        0x267B: "BLACK UNIVERSAL RECYCLING SYMBOL",
+
+        0x2713: "CHECK MARK",
+        0x2714: "HEAVY CHECK MARK",
+        0x2717: "BALLOT X",
+        0x2718: "HEAVY BALLOT X"
+    };
+
+    const digitNames = [
+        "ZERO",
+        "ONE",
+        "TWO",
+        "THREE",
+        "FOUR",
+        "FIVE",
+        "SIX",
+        "SEVEN",
+        "EIGHT",
+        "NINE"
+    ];
+
+    /* =========================================================
+       STATE
+       ========================================================= */
+
+    let characters = [];
+    let filteredCharacters = [];
+
+    let selectedCodePoint = null;
+    let selectedIndex = -1;
+    let selectedButton = null;
+
+    /* =========================================================
+       UTILITIES
+       ========================================================= */
+
+    function hex(codePoint) {
+        return codePoint
+            .toString(16)
+            .toUpperCase()
+            .padStart(4, "0");
+    }
+
+    function characterName(cp) {
+        if (knownNames[cp]) {
+            return knownNames[cp];
+        }
+
+        if (cp >= 0x41 && cp <= 0x5A) {
+            return (
+                "LATIN CAPITAL LETTER " +
+                String.fromCodePoint(cp)
+            );
+        }
+
+        if (cp >= 0x61 && cp <= 0x7A) {
+            return (
+                "LATIN SMALL LETTER " +
+                String.fromCodePoint(cp).toUpperCase()
+            );
+        }
+
+        if (cp >= 0x30 && cp <= 0x39) {
+            return (
+                "DIGIT " +
+                digitNames[cp - 0x30]
+            );
+        }
+
+        return "Unicode Character";
+    }
+
+    function isControlOrInvalid(cp) {
+        return (
+            cp < 0x20 ||
+            (cp >= 0x7F && cp <= 0x9F) ||
+            cp === 0xAD
+        );
+    }
+
+    function buildCharacters(groupName) {
+        const result = [];
+        const selectedRanges =
+            ranges[groupName] || ranges.default;
+
+        for (const [start, end] of selectedRanges) {
+            for (let cp = start; cp <= end; cp++) {
+                if (isControlOrInvalid(cp)) {
+                    continue;
+                }
+
+                result.push(cp);
+            }
+        }
+
+        return result;
+    }
+
+    function applyFont() {
+        const font = fontSelect.value;
+
+        document.documentElement.style.setProperty(
+            "--selected-font",
+            `"${font}", sans-serif`
+        );
+
+        characterGrid
+            .querySelectorAll(".char-cell")
+            .forEach(cell => {
+                cell.style.fontFamily =
+                    `"${font}", sans-serif`;
+            });
+
+        magnifier.style.fontFamily =
+            `"${font}", sans-serif`;
+    }
+
+    function updateButtons() {
+        selectButton.disabled =
+            selectedCodePoint === null;
+
+        copyButton.disabled =
+            copyField.value.length === 0;
+    }
+
+    function updateCharacterInfo(cp) {
+        if (cp === null) {
+            unicodeInfo.textContent =
+                "Select a character to view information.";
+
+            keystrokeInfo.textContent = "";
+            return;
+        }
+
+        unicodeInfo.textContent =
+            "U+" +
+            hex(cp) +
+            ": " +
+            characterName(cp);
+
+        /*
+            Windows Character Map yalnızca bazı karakterler
+            için keystroke gösterir.
+
+            Burada Latin / ANSI alanı için XP tarzı Alt kodu
+            sunuyoruz.
+        */
+        if (cp >= 32 && cp <= 255) {
+            keystrokeInfo.textContent =
+                "Keystroke: Alt+0" + cp;
+        } else {
+            keystrokeInfo.textContent = "";
+        }
+    }
+
+    /* =========================================================
+       DIALOG
+       ========================================================= */
+
+    function showDialog(message) {
+        dialogText.textContent = message;
+        dialogOverlay.classList.add("visible");
+
+        requestAnimationFrame(() => {
+            dialogOK.focus();
+        });
+    }
+
+    function closeDialog() {
+        dialogOverlay.classList.remove("visible");
+    }
+
+    dialogOK.addEventListener("click", closeDialog);
+
+    dialogOverlay.addEventListener("mousedown", event => {
+        if (event.target === dialogOverlay) {
+            /*
+                Windows tarzı davranış:
+                dışarı tıklamak diyaloğu kapatmaz.
+            */
+            dialogOK.focus();
+        }
+    });
+
+    /* =========================================================
+       CHARACTER GRID
+       ========================================================= */
+
+    function clearSelection() {
+        if (selectedButton) {
+            selectedButton.classList.remove("selected");
+        }
+
+        selectedButton = null;
+        selectedCodePoint = null;
+        selectedIndex = -1;
+
+        magnifier.style.display = "none";
+
+        updateCharacterInfo(null);
+        updateButtons();
+    }
+
+    function renderGrid(list = characters) {
+        filteredCharacters = [...list];
+
+        characterGrid.innerHTML = "";
+        magnifier.style.display = "none";
+
+        selectedButton = null;
+        selectedCodePoint = null;
+        selectedIndex = -1;
+
+        if (!filteredCharacters.length) {
+            const empty = document.createElement("div");
+            empty.className = "grid-empty";
+            empty.textContent =
+                "No characters match your search.";
+            characterGrid.appendChild(empty);
+
+            updateCharacterInfo(null);
+            countMessage.textContent = "0 characters";
+            selectButton.disabled = true;
+            return;
+        }
+
+        const fragment = document.createDocumentFragment();
+        const font = fontSelect.value;
+
+        filteredCharacters.forEach((cp, index) => {
+            const button = document.createElement("button");
+
+            button.type = "button";
+            button.className = "char-cell";
+            button.dataset.cp = String(cp);
+            button.dataset.index = String(index);
+            button.setAttribute("role", "gridcell");
+            button.setAttribute(
+                "aria-label",
+                "U+" + hex(cp) + " " + characterName(cp)
+            );
+
+            button.style.fontFamily =
+                `"${font}", sans-serif`;
+
+            button.textContent =
+                String.fromCodePoint(cp);
+
+            button.addEventListener("click", () => {
+                selectCharacter(button, index);
+            });
+
+            button.addEventListener("dblclick", () => {
+                selectCharacter(button, index);
+                addSelectedCharacter();
+            });
+
+            button.addEventListener(
+                "keydown",
+                handleGridKeyboard
+            );
+
+            fragment.appendChild(button);
+        });
+
+        characterGrid.appendChild(fragment);
+
+        countMessage.textContent =
+            filteredCharacters.length +
+            " characters";
+
+        updateCharacterInfo(null);
+        updateButtons();
+    }
+
+    function selectCharacter(button, index) {
+        if (!button) {
+            return;
+        }
+
+        if (selectedButton) {
+            selectedButton.classList.remove("selected");
+        }
+
+        selectedButton = button;
+        selectedIndex = index;
+        selectedCodePoint =
+            Number(button.dataset.cp);
+
+        button.classList.add("selected");
+
+        updateCharacterInfo(selectedCodePoint);
+        updateButtons();
+
+        showMagnifier(button);
+
+        statusMessage.textContent =
+            "Character selected";
+    }
+
+    function showMagnifier(button) {
+        const char =
+            String.fromCodePoint(selectedCodePoint);
+
+        magnifier.textContent = char;
+        magnifier.style.display = "flex";
+
+        const frameRect =
+            gridFrame.getBoundingClientRect();
+
+        const cellRect =
+            button.getBoundingClientRect();
+
+        let left =
+            cellRect.left -
+            frameRect.left -
+            20;
+
+        let top =
+            cellRect.top -
+            frameRect.top -
+            45;
+
+        const maxLeft =
+            gridFrame.clientWidth -
+            magnifier.offsetWidth -
+            4;
+
+        const maxTop =
+            gridFrame.clientHeight -
+            magnifier.offsetHeight -
+            4;
+
+        left = Math.max(
+            2,
+            Math.min(left, maxLeft)
+        );
+
+        /*
+            Üst tarafta yer yoksa karakterin altına aç.
+        */
+        if (top < 2) {
+            top =
+                cellRect.bottom -
+                frameRect.top -
+                3;
+        }
+
+        top = Math.max(
+            2,
+            Math.min(top, maxTop)
+        );
+
+        magnifier.style.left = left + "px";
+        magnifier.style.top = top + "px";
+    }
+
+    function handleGridKeyboard(event) {
+        const columns = 20;
+        let target = selectedIndex;
+
+        switch (event.key) {
+            case "ArrowLeft":
+                target--;
+                break;
+
+            case "ArrowRight":
+                target++;
+                break;
+
+            case "ArrowUp":
+                target -= columns;
+                break;
+
+            case "ArrowDown":
+                target += columns;
+                break;
+
+            case "Home":
+                target = 0;
+                break;
+
+            case "End":
+                target =
+                    filteredCharacters.length - 1;
+                break;
+
+            case "Enter":
+                addSelectedCharacter();
+                event.preventDefault();
+                return;
+
+            default:
+                return;
+        }
+
+        event.preventDefault();
+
+        target = Math.max(
+            0,
+            Math.min(
+                target,
+                filteredCharacters.length - 1
+            )
+        );
+
+        const targetButton =
+            characterGrid.querySelector(
+                `.char-cell[data-index="${target}"]`
+            );
+
+        if (targetButton) {
+            selectCharacter(
+                targetButton,
+                target
+            );
+
+            targetButton.focus({
+                preventScroll: false
+            });
+        }
+    }
+
+    gridScroller.addEventListener("scroll", () => {
+        /*
+            Grid kayarken büyütülmüş XP önizlemesini
+            kapatmak daha doğal görünüyor.
+        */
+        magnifier.style.display = "none";
+    });
+
+    /* =========================================================
+       SELECT / COPY
+       ========================================================= */
+
+    function addSelectedCharacter() {
+        if (selectedCodePoint === null) {
+            return;
+        }
+
+        copyField.value +=
+            String.fromCodePoint(
+                selectedCodePoint
+            );
+
+        copyField.dispatchEvent(
+            new Event("input")
+        );
+
+        statusMessage.textContent =
+            "Character added to selection";
+    }
+
+    selectButton.addEventListener(
+        "click",
+        addSelectedCharacter
+    );
+
+    copyField.addEventListener("input", () => {
+        updateButtons();
+    });
+
+    async function copyCharacters() {
+        const text = copyField.value;
+
+        if (!text) {
+            return;
+        }
+
+        /*
+            1. Modern Clipboard API
+            2. XP/legacy dostu execCommand fallback
+        */
+
+        try {
+            if (
+                navigator.clipboard &&
+                window.isSecureContext
+            ) {
+                await navigator.clipboard.writeText(text);
+
+                statusMessage.textContent =
+                    "Characters copied to clipboard";
+
+                return;
+            }
+        } catch (error) {
+            console.warn(
+                "Clipboard API failed:",
+                error
+            );
+        }
+
+        try {
+            copyField.focus();
+            copyField.select();
+
+            const successful =
+                document.execCommand("copy");
+
+            window.getSelection()?.removeAllRanges();
+
+            if (!successful) {
+                throw new Error(
+                    "Copy command returned false."
+                );
+            }
+
+            statusMessage.textContent =
+                "Characters copied to clipboard";
+        } catch (error) {
+            console.error(error);
+
+            showDialog(
+                "Character Map could not copy the selected characters. " +
+                "Select the text in the “Characters to copy” box and press Ctrl+C."
+            );
+        }
+    }
+
+    copyButton.addEventListener(
+        "click",
+        copyCharacters
+    );
+
+    /* =========================================================
+       FONT
+       ========================================================= */
+
+    fontSelect.addEventListener("change", () => {
+        applyFont();
+
+        statusMessage.textContent =
+            "Font: " + fontSelect.value;
+
+        /*
+            Seçilen karakteri font değişiminden sonra
+            yeniden büyüt.
+        */
+        if (selectedButton) {
+            showMagnifier(selectedButton);
+        }
+    });
+
+    /* =========================================================
+       ADVANCED VIEW
+       ========================================================= */
+
+    advancedCheck.addEventListener("change", () => {
+        advancedPanel.classList.toggle(
+            "visible",
+            advancedCheck.checked
+        );
+
+        statusMessage.textContent =
+            advancedCheck.checked
+                ? "Advanced view enabled"
+                : "Advanced view disabled";
+    });
+
+    groupSelect.addEventListener("change", () => {
+        searchInput.value = "";
+
+        characters =
+            buildCharacters(
+                groupSelect.value
+            );
+
+        renderGrid(characters);
+
+        gridScroller.scrollTop = 0;
+
+        statusMessage.textContent =
+            "Character group changed";
+    });
+
+    /* =========================================================
+       SEARCH
+       ========================================================= */
+
+    function performSearch() {
+        const query =
+            searchInput.value
+                .trim()
+                .toUpperCase();
+
+        if (!query) {
+            renderGrid(characters);
+
+            statusMessage.textContent =
+                "Showing all characters";
+
+            return;
+        }
+
+        let codeSearch = null;
+
+        /*
+            Şunları kabul eder:
+              U+00A9
+              00A9
+              ©
+              COPYRIGHT
+        */
+        const normalized =
+            query.replace(/^U\+/, "");
+
+        if (/^[0-9A-F]{2,6}$/.test(normalized)) {
+            codeSearch =
+                parseInt(normalized, 16);
+        }
+
+        const result =
+            characters.filter(cp => {
+                const char =
+                    String.fromCodePoint(cp);
+
+                const name =
+                    characterName(cp)
+                        .toUpperCase();
+
+                const cpString =
+                    "U+" + hex(cp);
+
+                if (
+                    codeSearch !== null &&
+                    cp === codeSearch
+                ) {
+                    return true;
+                }
+
+                return (
+                    name.includes(query) ||
+                    cpString.includes(query) ||
+                    char === searchInput.value
+                );
+            });
+
+        renderGrid(result);
+
+        gridScroller.scrollTop = 0;
+
+        statusMessage.textContent =
+            result.length
+                ? "Search completed"
+                : "No characters found";
+    }
+
+    searchButton.addEventListener(
+        "click",
+        performSearch
+    );
+
+    searchInput.addEventListener(
+        "keydown",
+        event => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                performSearch();
+            }
+        }
+    );
+
+    /* =========================================================
+       GLOBAL KEYBOARD
+       ========================================================= */
+
+    document.addEventListener("keydown", event => {
+        if (
+            dialogOverlay.classList.contains("visible")
+        ) {
+            if (
+                event.key === "Escape" ||
+                event.key === "Enter"
+            ) {
+                event.preventDefault();
+                closeDialog();
+            }
+
+            return;
+        }
+
+        /*
+            XP Character Map'te çift tıklamanın yaptığı işi
+            Enter ile de erişilebilir kılıyoruz.
+        */
+        if (
+            event.key === "Escape" &&
+            magnifier.style.display !== "none"
+        ) {
+            magnifier.style.display = "none";
+        }
+    });
+
+    /* =========================================================
+       INITIALIZE
+       ========================================================= */
+
+    characters =
+        buildCharacters("default");
+
+    renderGrid(characters);
+    applyFont();
+
+    statusMessage.textContent = "Ready";
+
+})();
+</script>
+
+</body>
+</html>

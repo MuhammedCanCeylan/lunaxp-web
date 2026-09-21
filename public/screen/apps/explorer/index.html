@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Bilgisayarım</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+body {
+    font-family: Tahoma, "MS Sans Serif", sans-serif;
+    font-size: 11px;
+    background: #ECE9D8;
+    color: #000;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: default;
+}
+#app { display: flex; flex-direction: column; width: 100%; height: 100%; background: #ECE9D8; }
+
+/* ---------------- MENÜ ÇUBUĞU ---------------- */
+.menubar {
+    flex: 0 0 auto; display: flex; background: #ECE9D8;
+    border-bottom: 1px solid #D4D0C8; padding: 1px 2px; position: relative; z-index: 500;
+}
+.menu { padding: 3px 8px; position: relative; white-space: nowrap; }
+.menu:hover, .menu.open { background: #316AC5; color: #fff; }
+.dropdown {
+    display: none; position: absolute; top: 100%; left: 0; min-width: 190px;
+    background: #fff; border: 1px solid #ACA899; padding: 2px;
+    box-shadow: 2px 2px 4px rgba(0,0,0,.35); z-index: 1000;
+}
+.menu.open .dropdown { display: block; }
+.ditem { padding: 4px 24px 4px 26px; white-space: nowrap; position: relative; color: #000; }
+.ditem:hover { background: #316AC5; color: #fff; }
+.ditem.dis { color: #9A9A9A; }
+.ditem.dis:hover { background: transparent; color: #9A9A9A; }
+.dsep { height: 1px; background: #D4D0C8; margin: 3px 2px; }
+.dcheck { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); font-size: 10px; }
+
+/* ---------------- ARAÇ ÇUBUĞU ---------------- */
+.toolbar {
+    flex: 0 0 auto; display: flex; align-items: stretch; gap: 1px;
+    padding: 2px 4px; background: #ECE9D8; border-bottom: 1px solid #D4D0C8;
+}
+.tbtn {
+    display: flex; align-items: center; gap: 4px; padding: 3px 6px;
+    border: 1px solid transparent; border-radius: 3px; white-space: nowrap;
+}
+.tbtn:hover { border-color: #A5C0E8; background: #DCE6F5; }
+.tbtn:active { border-color: #7F9DB9; background: #C6D7EF; }
+.tbtn.dis { color: #A0A0A0; pointer-events: none; opacity: .6; }
+.tbtn svg { display: block; }
+.sepv { width: 1px; background: #C5C2B8; margin: 3px 4px; }
+
+/* ---------------- ADRES ÇUBUĞU ---------------- */
+.addressbar {
+    flex: 0 0 auto; display: flex; align-items: center; gap: 5px;
+    padding: 2px 6px; background: #ECE9D8; border-bottom: 1px solid #D4D0C8;
+}
+.addr-wrap {
+    flex: 1; display: flex; align-items: center; height: 20px; min-width: 0;
+    background: #fff; border: 1px solid #7F9DB9; padding: 0 2px;
+}
+.addr-wrap img { width: 16px; height: 16px; margin-right: 3px; }
+.addr-wrap input {
+    flex: 1; min-width: 0; height: 100%; border: 0; outline: 0;
+    font-family: Tahoma; font-size: 11px; background: transparent;
+}
+.addr-arrow {
+    width: 15px; height: 16px; background: #ECE9D8; border-left: 1px solid #D4D0C8;
+    display: flex; align-items: center; justify-content: center;
+}
+.addr-arrow i {
+    display: block; width: 0; height: 0;
+    border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid #000;
+}
+.btn-go { display: flex; align-items: center; gap: 3px; padding: 2px 6px; border: 1px solid transparent; border-radius: 3px; }
+.btn-go:hover { border-color: #A5C0E8; background: #DCE6F5; }
+.btn-go:active { border-color: #7F9DB9; background: #C6D7EF; }
+
+/* ---------------- ANA ALAN ---------------- */
+.main { flex: 1; display: flex; min-height: 0; background: #fff; }
+
+/* Görev bölmesi */
+.taskpane {
+    width: 186px; flex: 0 0 186px; overflow-y: auto; overflow-x: hidden;
+    padding: 8px 8px 14px 8px;
+    background: linear-gradient(180deg, #6E9EE0 0%, #A8C6EE 22%, #DCE9FA 55%, #FFFFFF 100%);
+    border-right: 1px solid #C8D6EA;
+}
+.tp-section { margin-bottom: 10px; }
+.tp-head {
+    background: linear-gradient(180deg, #4A8CF7 0%, #1C5FD0 100%);
+    color: #fff; font-weight: bold; padding: 3px 7px;
+    border-radius: 3px 3px 0 0; border: 1px solid #1C5FD0; border-bottom: 0;
+}
+.tp-body {
+    background: rgba(255,255,255,.72);
+    border: 1px solid #C5D5EE; border-radius: 0 0 3px 3px; padding: 5px 4px;
+}
+.tp-link { display: flex; gap: 6px; padding: 3px 3px; border-radius: 2px; color: #0A246A; }
+.tp-link:hover { background: #DCE9FA; }
+.tp-link:hover b { text-decoration: underline; }
+.tp-link img { width: 16px; height: 16px; flex: 0 0 16px; margin-top: 1px; }
+.tp-link .txt { display: block; line-height: 1.35; }
+.tp-link b { display: block; font-weight: bold; color: #0A246A; }
+.tp-link i { display: block; font-style: normal; color: #4A4A4A; font-size: 10px; }
+.tp-detail b { display: block; color: #0A246A; }
+.tp-detail span { color: #4A4A4A; font-size: 10px; }
+
+/* İçerik */
+.content { flex: 1; overflow: auto; background: #fff; padding: 12px 14px; position: relative; }
+.group { margin-bottom: 18px; }
+.group-title {
+    font-weight: bold; color: #0A246A; padding-bottom: 3px; margin-bottom: 10px;
+    border-bottom: 1px solid #D6DFEC;
+}
+.items { display: flex; flex-wrap: wrap; gap: 2px; }
+.item {
+    width: 112px; padding: 6px 4px; text-align: center;
+    border: 1px solid transparent; border-radius: 2px;
+}
+.item .ic { height: 36px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
+.item .ic img { width: 32px; height: 32px; }
+.item .nm { font-size: 11px; color: #000; line-height: 1.3; word-break: break-word; }
+.item:hover { border-color: #B6BDD2; background: #E8F0FC; }
+.item.sel { background: #316AC5; border-color: #316AC5; }
+.item.sel .nm { color: #fff; }
+.empty { padding: 24px 6px; color: #666; }
+
+/* Durum çubuğu */
+.statusbar {
+    flex: 0 0 auto; display: flex; align-items: center; gap: 2px;
+    height: 21px; padding: 0 3px; background: #ECE9D8; border-top: 1px solid #D4D0C8;
+}
+.cell {
+    height: 16px; display: flex; align-items: center; padding: 0 6px; overflow: hidden;
+    white-space: nowrap; border-top: 1px solid #9A9A9A; border-left: 1px solid #9A9A9A;
+    border-right: 1px solid #fff; border-bottom: 1px solid #fff;
+}
+.cell.grow { flex: 1; min-width: 0; }
+.cell img { width: 14px; height: 14px; margin-right: 4px; }
+
+/* Kaydırma çubuğu (XP tarzı) */
+.content::-webkit-scrollbar, .taskpane::-webkit-scrollbar { width: 16px; height: 16px; }
+.content::-webkit-scrollbar-track, .taskpane::-webkit-scrollbar-track { background: #F1F1F1; border-left: 1px solid #D4D0C8; }
+.content::-webkit-scrollbar-thumb, .taskpane::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #FFFFFF 0%, #D6E0F0 35%, #9BB4DC 100%);
+    border: 1px solid #6E8FC7; border-radius: 2px;
+}
+.content::-webkit-scrollbar-button:single-button, .taskpane::-webkit-scrollbar-button:single-button {
+    background: #ECE9D8; border: 1px solid #B5B2A8; height: 16px; width: 16px;
+}
+
+/* Sağ tık menüsü */
+.ctxmenu {
+    display: none; position: fixed; min-width: 170px; background: #fff;
+    border: 1px solid #ACA899; padding: 2px; z-index: 3000;
+    box-shadow: 2px 2px 4px rgba(0,0,0,.35);
+}
+
+/* Diyalog */
+.overlay {
+    display: none; position: fixed; inset: 0; z-index: 4000;
+    background: rgba(0,0,0,.12); align-items: center; justify-content: center;
+}
+.dialog {
+    background: #ECE9D8; border: 1px solid #003C74; border-radius: 6px 6px 3px 3px;
+    box-shadow: 2px 2px 10px rgba(0,0,0,.45); min-width: 300px; max-width: 400px; padding-bottom: 10px;
+}
+.dlg-title {
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(180deg, #0058EE 0%, #3A93FF 45%, #0054E3 100%);
+    color: #fff; font-weight: bold; padding: 4px 6px; border-radius: 5px 5px 0 0;
+}
+.dlg-x {
+    width: 17px; height: 15px; line-height: 13px; text-align: center; font-size: 9px; color: #fff;
+    background: linear-gradient(180deg, #F08A7A, #D3422B); border: 1px solid #fff; border-radius: 3px;
+}
+.dlg-body { display: flex; gap: 12px; padding: 16px 16px 10px; }
+.dlg-body img { width: 32px; height: 32px; flex: 0 0 32px; }
+.dlg-text { line-height: 1.5; }
+.dlg-foot { display: flex; justify-content: center; padding: 4px; }
+.xp-btn {
+    min-width: 78px; height: 23px; font-family: Tahoma; font-size: 11px; color: #000;
+    background: linear-gradient(180deg, #FFFFFF 0%, #F2F1EA 45%, #E3E1D2 46%, #F7F6F1 100%);
+    border: 1px solid #003C74; border-radius: 3px; outline: 0;
+}
+.xp-btn:hover { border-color: #0A5ED8; }
+.xp-btn:active { background: linear-gradient(180deg, #D8D6C8, #EFEEE7); border-style: inset; }
+</style>
+</head>
+<body>
+<div id="app">
+    <div class="menubar" id="menubar"></div>
+
+    <div class="toolbar">
+        <div class="tbtn" id="btnBack" title="Geri (Alt+Sol Ok)">
+            <svg width="20" height="20" viewBox="0 0 20 20">
+                <path d="M12 3 L4 10 L12 17 L12 13.5 L16.5 13.5 L16.5 6.5 L12 6.5 Z"
+                      fill="#3FA13F" stroke="#1E6B1E" stroke-width="1" stroke-linejoin="round"/>
+            </svg><span>Geri</span>
+        </div>
+        <div class="tbtn" id="btnFwd" title="İleri (Alt+Sağ Ok)">
+            <svg width="20" height="20" viewBox="0 0 20 20">
+                <path d="M8 3 L16 10 L8 17 L8 13.5 L3.5 13.5 L3.5 6.5 L8 6.5 Z"
+                      fill="#3FA13F" stroke="#1E6B1E" stroke-width="1" stroke-linejoin="round"/>
+            </svg><span>İleri</span>
+        </div>
+        <div class="sepv"></div>
+        <div class="tbtn" id="btnUp" title="Yukarı (Alt+Yukarı Ok)">
+            <svg width="20" height="20" viewBox="0 0 20 20">
+                <path d="M10 3 L4 10 L7.5 10 L7.5 16 L12.5 16 L12.5 10 L16 10 Z"
+                      fill="#5B8FD6" stroke="#1E4C7F" stroke-width="1" stroke-linejoin="round"/>
+            </svg><span>Yukarı</span>
+        </div>
+        <div class="sepv"></div>
+        <div class="tbtn" id="btnSearch" title="Ara">
+            <svg width="18" height="18" viewBox="0 0 18 18">
+                <circle cx="7" cy="7" r="4.5" fill="#CFE3F7" stroke="#3B6EA5" stroke-width="1.6"/>
+                <line x1="10.6" y1="10.6" x2="15" y2="15" stroke="#3B6EA5" stroke-width="2.6" stroke-linecap="round"/>
+            </svg><span>Ara</span>
+        </div>
+        <div class="tbtn" id="btnFolders" title="Klasörler">
+            <svg width="18" height="18" viewBox="0 0 18 18">
+                <path d="M1 4 h5.5 l1.8 2 H17 v9 H1 Z" fill="#F5C24B" stroke="#B8860B" stroke-width="1" stroke-linejoin="round"/>
+            </svg><span>Klasörler</span>
+        </div>
+        <div class="sepv"></div>
+        <div class="tbtn" id="btnView" title="Görünüm">
+            <svg width="18" height="18" viewBox="0 0 18 18">
+                <rect x="2" y="2" width="6" height="6" fill="#8FB3E0" stroke="#3B6EA5"/>
+                <rect x="10" y="2" width="6" height="6" fill="#8FB3E0" stroke="#3B6EA5"/>
+                <rect x="2" y="10" width="6" height="6" fill="#8FB3E0" stroke="#3B6EA5"/>
+                <rect x="10" y="10" width="6" height="6" fill="#8FB3E0" stroke="#3B6EA5"/>
+            </svg><span>Görünüm</span>
+        </div>
+    </div>
+
+    <div class="addressbar">
+        <span>Adres</span>
+        <div class="addr-wrap">
+            <img id="addrIcon" src="" alt="">
+            <input id="addrInput" type="text" spellcheck="false">
+            <div class="addr-arrow"><i></i></div>
+        </div>
+        <div class="btn-go" id="btnGo" title="Git">
+            <svg width="18" height="18" viewBox="0 0 18 18">
+                <path d="M3 7 L11 7 L11 4 L16 9 L11 14 L11 11 L3 11 Z"
+                      fill="#3FA13F" stroke="#1E6B1E" stroke-width="1" stroke-linejoin="round"/>
+            </svg><span>Git</span>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="taskpane" id="taskpane"></div>
+        <div class="content" id="content"></div>
+    </div>
+
+    <div class="statusbar">
+        <div class="cell" id="stCount" style="width:110px;">0 nesne</div>
+        <div class="cell grow" id="stDesc"></div>
+        <div class="cell" id="stLoc" style="width:150px;"></div>
+    </div>
+</div>
+
+<div class="ctxmenu" id="ctxmenu"></div>
+<div class="overlay" id="overlay"></div>
+
+<script>
+/* =========================================================
+   İKONLAR  (win98icons.alexmeub.com)
+   ========================================================= */
+const BASE = 'https://win98icons.alexmeub.com/icons/png/';
+const FALLBACK = BASE + 'folder_closed-4.png';
+const I = {
+    computer: BASE + 'computer_explorer-4.png',
+    hdd:      BASE + 'hard_disk_drive-4.png',
+    floppy:   BASE + 'floppy_drive_3_5-4.png',
+    cd:       BASE + 'cd_drive-4.png',
+    folder:   BASE + 'folder_closed-4.png',
+    docs:     BASE + 'directory_open_file_mydocs-4.png',
+    file:     BASE + 'file_lines-4.png',
+    settings: BASE + 'settings_gear-4.png',
+    help:     BASE + 'help_book_cool-4.png',
+    search:   BASE + 'search_file-4.png',
+    network:  BASE + 'network_cable-4.png'
+};
+const img = (src, size) =>
+    '<img src="' + src + '" width="' + size + '" height="' + size +
+    '" onerror="this.onerror=null;this.src=\'' + FALLBACK + '\'">';
+
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+/* =========================================================
+   GÖRÜNÜM VERİLERİ (sanal dosya sistemi)
+   ========================================================= */
+const VIEWS = {
+    'Bilgisayarım': {
+        address: 'Bilgisayarım', desc: 'Bilgisayarım', task: 'system',
+        groups: [
+            { title: 'Sabit Disk Sürücüleri', items: [
+                { name: 'Yerel Disk (C:)', icon: I.hdd, kind: 'folder', target: 'C:\\', tip: 'Yerel Disk' }
+            ]},
+            { title: 'Çıkarılabilir Depolama Ortamı', items: [
+                { name: '3½ Disket Sürücüsü (A:)', icon: I.floppy, kind: 'floppy', target: 'A:\\', tip: '3½ Disket Sürücüsü' },
+                { name: 'CD Sürücüsü (D:)', icon: I.cd, kind: 'cd', target: 'D:\\', tip: 'CD Sürücüsü' }
+            ]},
+            { title: 'Bu bilgisayarda depolanan dosyalar', items: [
+                { name: 'Belgelerim', icon: I.docs, kind: 'folder', target: 'Belgelerim', tip: 'Klasör' },
+                { name: 'Paylaşılan Belgeler', icon: I.folder, kind: 'folder', target: 'Paylaşılan Belgeler', tip: 'Klasör' }
+            ]}
+        ]
+    },
+    'C:\\': {
+        address: 'C:\\', desc: 'Yerel Disk', task: 'folder',
+        groups: [{ title: '', items: [
+            { name: 'Belgeler ve Ayarlar', icon: I.folder, kind: 'folder', target: 'C:\\Belgeler ve Ayarlar', tip: 'Dosya Klasörü' },
+            { name: 'Program Files', icon: I.folder, kind: 'folder', target: 'C:\\Program Files', tip: 'Dosya Klasörü' },
+            { name: 'WINDOWS', icon: I.folder, kind: 'folder', target: 'C:\\WINDOWS', tip: 'Dosya Klasörü' },
+            { name: 'autoexec.bat', icon: I.file, kind: 'file', tip: 'MS-DOS Toplu İş Dosyası' },
+            { name: 'boot.ini', icon: I.file, kind: 'file', tip: 'Yapılandırma Ayarları' },
+            { name: 'config.sys', icon: I.file, kind: 'file', tip: 'Sistem Dosyası' }
+        ]}]
+    },
+    'C:\\WINDOWS': {
+        address: 'C:\\WINDOWS', desc: 'WINDOWS', task: 'folder',
+        groups: [{ title: '', items: [
+            { name: 'system32', icon: I.folder, kind: 'folder', target: 'C:\\WINDOWS\\system32', tip: 'Dosya Klasörü' },
+            { name: 'Web', icon: I.folder, kind: 'folder', target: 'C:\\WINDOWS\\Web', tip: 'Dosya Klasörü' },
+            { name: 'explorer.exe', icon: I.file, kind: 'file', tip: 'Uygulama' },
+            { name: 'notepad.exe', icon: I.file, kind: 'file', tip: 'Uygulama' },
+            { name: 'win.ini', icon: I.file, kind: 'file', tip: 'Yapılandırma Ayarları' }
+        ]}]
+    },
+    'C:\\Program Files': {
+        address: 'C:\\Program Files', desc: 'Program Files', task: 'folder',
+        groups: [{ title: '', items: [
+            { name: 'Internet Explorer', icon: I.folder, kind: 'folder', target: 'C:\\Program Files\\Internet Explorer', tip: 'Dosya Klasörü' },
+            { name: 'Outlook Express', icon: I.folder, kind: 'folder', target: 'C:\\Program Files\\Outlook Express', tip: 'Dosya Klasörü' },
+            { name: 'Winamp', icon: I.folder, kind: 'folder', target: 'C:\\Program Files\\Winamp', tip: 'Dosya Klasörü' }
+        ]}]
+    },
+    'Belgelerim': {
+        address: 'Belgelerim', desc: 'Belgelerim', task: 'folder',
+        groups: [{ title: '', items: [
+            { name: 'Resimlerim', icon: I.folder, kind: 'folder', target: 'Belgelerim\\Resimlerim', tip: 'Dosya Klasörü' },
+            { name: 'Müziğim', icon: I.folder, kind: 'folder', target: 'Belgelerim\\Müziğim', tip: 'Dosya Klasörü' },
+            { name: 'notlar.txt', icon: I.file, kind: 'file', tip: 'Metin Belgesi' },
+            { name: 'profil.jpg', icon: I.file, kind: 'file', tip: 'JPEG Resmi' }
+        ]}]
+    },
+    'Paylaşılan Belgeler': {
+        address: 'Paylaşılan Belgeler', desc: 'Paylaşılan Belgeler', task: 'folder',
+        groups: [{ title: '', items: [
+            { name: 'Paylaşılan Resimler', icon: I.folder, kind: 'folder', target: 'Paylaşılan Belgeler\\Paylaşılan Resimler', tip: 'Dosya Klasörü' }
+        ]}]
+    },
+    'Denetim Masası': {
+        address: 'Denetim Masası', desc: 'Denetim Masası', task: 'folder',
+        groups: [{ title: '', items: [
+            { name: 'Ekle veya Kaldır', icon: I.settings, kind: 'file', tip: 'Program Ekle veya Kaldır' },
+            { name: 'Görüntü', icon: I.settings, kind: 'file', tip: 'Görüntü Özellikleri' },
+            { name: 'Ses', icon: I.settings, kind: 'file', tip: 'Ses ve Ses Aygıtları' },
+            { name: 'Sistem', icon: I.computer, kind: 'file', tip: 'Sistem Özellikleri' }
+        ]}]
+    },
+    'Ağ Komşularım': {
+        address: 'Ağ Komşularım', desc: 'Ağ Komşularım', task: 'folder',
+        groups: [{ title: '', items: [
+            { name: 'Tüm Ağ', icon: I.network, kind: 'file', tip: 'Ağ Bağlantısı' }
+        ]}]
+    }
+};
+
+/* =========================================================
+   DURUM
+   ========================================================= */
+const state = { path: 'Bilgisayarım', history: ['Bilgisayarım'], hIdx: 0, sel: null, items: [] };
+
+const $ = id => document.getElementById(id);
+const contentEl = $('content');
+const taskpaneEl = $('taskpane');
+
+function getView(p) {
+    if (!VIEWS[p]) {
+        VIEWS[p] = { address: p, desc: p.split('\\').pop() || p, task: 'folder', groups: [{ title: '', items: [] }] };
+    }
+    return VIEWS[p];
+}
+
+/* =========================================================
+   MENÜLER
+   ========================================================= */
+const MENUS = [
+    { label: 'Dosya', items: [
+        { label: 'Aç', act: 'open' },
+        { label: 'Araştır', act: 'open' },
+        '-',
+        { label: 'Ağ Sürücüsüne Bağlan...', act: 'msg:map' },
+        { label: 'Bağlantıyı Kes...', act: 'msg:disconnect', dis: true },
+        '-',
+        { label: 'Kısayol Oluştur', act: 'msg:shortcut' },
+        { label: 'Sil', act: 'msg:delete' },
+        { label: 'Yeniden Adlandır', act: 'msg:rename' },
+        '-',
+        { label: 'Özellikler', act: 'props' }
+    ]},
+    { label: 'Düzen', items: [
+        { label: 'Geri Al', act: 'msg:undo', dis: true },
+        '-',
+        { label: 'Kes', act: 'msg:cut', dis: true },
+        { label: 'Kopyala', act: 'msg:copy' },
+        { label: 'Yapıştır', act: 'msg:paste', dis: true },
+        '-',
+        { label: 'Tümünü Seç', act: 'selectall' }
+    ]},
+    { label: 'Görünüm', items: [
+        { label: 'Araç Çubukları', act: 'msg:toolbars' },
+        { label: 'Durum Çubuğu', act: 'msg:statusbar', checked: true },
+        '-',
+        { label: 'Büyük Simgeler', act: 'refresh', checked: true },
+        { label: 'Küçük Simgeler', act: 'msg:small' },
+        { label: 'Liste', act: 'msg:list' },
+        { label: 'Ayrıntılar', act: 'msg:details' },
+        '-',
+        { label: 'Yenile', act: 'refresh' }
+    ]},
+    { label: 'Sık Kullanılanlar', items: [
+        { label: 'Sık Kullanılanlara Ekle...', act: 'msg:fav' },
+        '-',
+        { label: 'Bağlantılar', act: 'msg:links' },
+        { label: 'Medya', act: 'msg:media' }
+    ]},
+    { label: 'Araçlar', items: [
+        { label: 'Ağ Sürücüsü Eşleştir...', act: 'msg:map' },
+        { label: 'Bağlantıyı Kes...', act: 'msg:disconnect' },
+        '-',
+        { label: 'Klasör Seçenekleri...', act: 'msg:folderopt' }
+    ]},
+    { label: 'Yardım', items: [
+        { label: 'Yardım Konuları', act: 'msg:help' },
+        '-',
+        { label: 'Bilgisayarım Hakkında', act: 'msg:about' }
+    ]}
+];
+
+function renderMenus() {
+    $('menubar').innerHTML = MENUS.map((m, i) =>
+        '<div class="menu" data-mi="' + i + '">' + m.label +
+        '<div class="dropdown">' +
+        m.items.map(it => it === '-' ? '<div class="dsep"></div>' :
+            '<div class="ditem' + (it.dis ? ' dis' : '') + '" data-act="' + (it.act || '') + '">' +
+            (it.checked ? '<span class="dcheck">✓</span>' : '') + it.label + '</div>').join('') +
+        '</div></div>'
+    ).join('');
+}
+
+function closeMenus() {
+    document.querySelectorAll('.menu.open').forEach(m => m.classList.remove('open'));
+}
+
+$('menubar').addEventListener('click', e => {
+    const item = e.target.closest('.ditem');
+    if (item) { runAction(item.dataset.act); closeMenus(); return; }
+    const menu = e.target.closest('.menu');
+    if (menu) {
+        const wasOpen = menu.classList.contains('open');
+        closeMenus();
+        if (!wasOpen) menu.classList.add('open');
+    } else closeMenus();
+});
+$('menubar').addEventListener('mouseover', e => {
+    const menu = e.target.closest('.menu');
+    if (menu && document.querySelector('.menu.open') && !menu.classList.contains('open')) {
+        closeMenus();
+        menu.classList.add('open');
+    }
+});
+document.addEventListener('click', e => {
+    if (!e.target.closest('#menubar')) closeMenus();
+    if (!e.target.closest('#ctxmenu')) hideCtx();
+});
+
+/* =========================================================
+   EYLEMLER
+   ========================================================= */
+function runAction(act) {
+    if (!act) return;
+    if (act.indexOf('msg:') === 0) { msgFor(act.slice(4)); return; }
+    switch (act) {
+        case 'open':     openSelected(); break;
+        case 'props':    openProps(); break;
+        case 'refresh':  render(); break;
+        case 'selectall': state.sel = 0; paintSel(); break;
+    }
+}
+
+function msgFor(k) {
+    const M = {
+        map:        ['Ağ Sürücüsüne Bağlan', 'Ağ sürücüsü eşleştirme sihirbazı bu simülasyonda kullanılamıyor.'],
+        disconnect: ['Bağlantıyı Kes', 'Kesilecek bir ağ bağlantısı bulunamadı.'],
+        shortcut:   ['Kısayol Oluştur', 'Bu konumda kısayol oluşturulamıyor.'],
+        delete:     ['Öğeyi Sil', 'Seçili öğe silinemiyor. Erişim engellendi.'],
+        rename:     ['Yeniden Adlandır', 'Öğe yeniden adlandırılamıyor.'],
+        undo:       ['Geri Al', 'Geri alınacak bir işlem yok.'],
+        cut:        ['Kes', 'Öğe panoya kesilemiyor.'],
+        copy:       ['Kopyala', 'Öğe panoya kopyalandı.'],
+        paste:      ['Yapıştır', 'Pano boş.'],
+        toolbars:   ['Araç Çubukları', 'Araç çubuğu ayarları bu simülasyonda değiştirilemiyor.'],
+        statusbar:  ['Durum Çubuğu', 'Durum çubuğu her zaman görünür.'],
+        small:      ['Görünüm', 'Küçük simge görünümü henüz desteklenmiyor.'],
+        list:       ['Görünüm', 'Liste görünümü henüz desteklenmiyor.'],
+        details:    ['Görünüm', 'Ayrıntılar görünümü henüz desteklenmiyor.'],
+        fav:        ['Sık Kullanılanlar', 'Sık Kullanılanlara eklendi.'],
+        links:      ['Bağlantılar', 'Bağlantı klasörü boş.'],
+        media:      ['Medya', 'Medya klasörü boş.'],
+        folderopt:  ['Klasör Seçenekleri', 'Klasör Seçenekleri iletişim kutusu bu simülasyonda kullanılamıyor.'],
+        help:       ['Yardım ve Destek', 'Yardım ve Destek Merkezi bu simülasyonda kullanılamıyor.'],
+        about:      ['Bilgisayarım Hakkında',
+                     '<b>Microsoft Windows XP</b><br>Sürüm 2002<br>Service Pack 3<br><br>' +
+                     'Bu ürün, lisanslı bir kullanıcıya aittir.<br>Bellek: 512 MB RAM']
+    };
+    const m = M[k] || ['Bilgi', 'Bu komut kullanılamıyor.'];
+    showMsg(m[0], m[1], k === 'about' ? 'info' : 'warn');
+}
+
+/* =========================================================
+   ÇİZİM
+   ========================================================= */
+function render() {
+    const v = getView(state.path);
+
+    /* Adres */
+    $('addrInput').value = v.address;
+    $('addrIcon').src = state.path === 'Bilgisayarım' ? I.computer :
+                        (state.path.indexOf(':') === 1 ? I.hdd : I.folder);
+
+    /* Görev bölmesi */
+    taskpaneEl.innerHTML = v.task === 'system' ? taskSystem() : taskFolder();
+
+    /* İçerik */
+    state.items = [];
+    let html = '';
+    (v.groups || []).forEach(g => {
+        const items = g.items || [];
+        if (!items.length) return;
+        html += '<div class="group">';
+        if (g.title) html += '<div class="group-title">' + esc(g.title) + '</div>';
+        html += '<div class="items">';
+        items.forEach(it => {
+            const idx = state.items.push(it) - 1;
+            html += '<div class="item" data-idx="' + idx + '">' +
+                        '<div class="ic">' + img(it.icon, 32) + '</div>' +
+                        '<div class="nm">' + esc(it.name) + '</div>' +
+                    '</div>';
+        });
+        html += '</div></div>';
+    });
+    if (!html) html = '<div class="empty">Bu klasör boş.</div>';
+    contentEl.innerHTML = html;
+    contentEl.scrollTop = 0;
+
+    contentEl.querySelectorAll('.item').forEach(el => {
+        el.addEventListener('mousedown', e => {
+            if (e.button !== 0) return;
+            state.sel = +el.dataset.idx;
+            paintSel();
+        });
+        el.addEventListener('dblclick', () => openItem(state.items[+el.dataset.idx]));
+    });
+
+    state.sel = null;
+    paintSel();
+    updateNav();
+}
+
+function taskSystem() {
+    const link = (icon, t, d, act) =>
+        '<div class="tp-link" data-act="' + act + '">' + img(icon, 16) +
+        '<span class="txt"><b>' + t + '</b><i>' + d + '</i></span></div>';
+
+    return '' +
+    '<div class="tp-section"><div class="tp-head">Sistem Görevleri</div><div class="tp-body">' +
+        link(I.computer, 'Bilgisayar bilgilerini görüntüle', 'Sürücü harfleri, donanım ve programlar hakkındaki ayrıntıları görün', 'sysinfo') +
+        link(I.settings, 'Program ekle veya kaldır', 'Programları yüklemek veya kaldırmak için bir program seçin', 'addremove') +
+        link(I.settings, 'Bir ayarı değiştir', 'Denetim Masası\'nı açın', 'control') +
+    '</div></div>' +
+
+    '<div class="tp-section"><div class="tp-head">Diğer Yerler</div><div class="tp-body">' +
+        link(I.network, 'Ağ Komşularım', 'Ağ bilgisayarlarını ve aygıtlarını görüntüleyin', 'net') +
+        link(I.docs, 'Belgelerim', 'Sık kullandığınız belgeleri ve klasörleri açın', 'docs') +
+        link(I.settings, 'Denetim Masası', 'Bilgisayar ayarlarını değiştirin', 'control') +
+        link(I.folder, 'Paylaşılan Belgeler', 'Diğer kullanıcılarla paylaşılan dosyaları açın', 'shared') +
+    '</div></div>' +
+
+    '<div class="tp-section"><div class="tp-head">Ayrıntılar</div><div class="tp-body">' +
+        '<div class="tp-detail"><b>Bilgisayarım</b><span>Sistem Klasörü</span></div>' +
+    '</div></div>';
+}
+
+function taskFolder() {
+    const link = (icon, t, d, act) =>
+        '<div class="tp-link" data-act="' + act + '">' + img(icon, 16) +
+        '<span class="txt"><b>' + t + '</b><i>' + d + '</i></span></div>';
+
+    return '' +
+    '<div class="tp-section"><div class="tp-head">Dosya ve Klasör Görevleri</div><div class="tp-body">' +
+        link(I.folder, 'Yeni bir klasör oluştur', 'Geçerli konumda yeni bir klasör oluşturun', 'newfolder') +
+        link(I.network, 'Bu klasörü yayımla', 'Bu klasörü ağdaki diğer kişilerle paylaşın', 'publish') +
+        link(I.folder, 'Bu klasörü paylaş', 'Ağ üzerinden paylaşıma açın', 'publish') +
+    '</div></div>' +
+
+    '<div class="tp-section"><div class="tp-head">Diğer Yerler</div><div class="tp-body">' +
+        link(I.computer, 'Bilgisayarım', 'Sürücüleri ve sistem klasörlerini görüntüleyin', 'root') +
+        link(I.docs, 'Belgelerim', 'Sık kullandığınız belgeleri açın', 'docs') +
+        link(I.settings, 'Denetim Masası', 'Bilgisayar ayarlarını değiştirin', 'control') +
+    '</div></div>' +
+
+    '<div class="tp-section"><div class="tp-head">Ayrıntılar</div><div class="tp-body">' +
+        '<div class="tp-detail"><b>' + esc(getView(state.path).desc || state.path) + '</b>' +
+        '<span>Dosya Klasörü</span></div>' +
+    '</div></div>';
+}
+
+taskpaneEl.addEventListener('click', e => {
+    const l = e.target.closest('.tp-link');
+    if (!l) return;
+    const a = l.dataset.act;
+    if (a === 'root')        navigate('Bilgisayarım');
+    else if (a === 'docs')   navigate('Belgelerim');
+    else if (a === 'control')navigate('Denetim Masası');
+    else if (a === 'shared') navigate('Paylaşılan Belgeler');
+    else if (a === 'net')    navigate('Ağ Komşularım');
+    else if (a === 'sysinfo')showMsg('Sistem Özellikleri',
+        '<b>Microsoft Windows XP Professional</b><br>Sürüm 2002<br>Service Pack 3<br><br>' +
+        'İşlemci: Intel Pentium 4 2.40 GHz<br>Bellek: 512 MB RAM', 'info');
+    else if (a === 'addremove') showMsg('Program Ekle veya Kaldır', 'Şu anda yüklü program listesi alınamıyor.');
+    else showMsg('Bilgi', 'Bu görev bu simülasyonda kullanılamıyor.');
+});
+
+/* =========================================================
+   SEÇİM / DURUM ÇUBUĞU
+   ========================================================= */
+function paintSel() {
+    contentEl.querySelectorAll('.item').forEach(el => {
+        el.classList.toggle('sel', state.sel !== null && +el.dataset.idx === state.sel);
+    });
+    const v = getView(state.path);
+    $('stCount').textContent = state.items.length + ' nesne';
+    const sel = state.sel !== null ? state.items[state.sel] : null;
+    $('stDesc').textContent = sel ? (sel.tip || sel.name) : (v.desc || '');
+    $('stLoc').innerHTML = img(state.path === 'Bilgisayarım' ? I.computer : I.folder, 14) + esc(v.address);
+}
+
+/* =========================================================
+   GEZİNME
+   ========================================================= */
+function navigate(path, push) {
+    if (push === undefined) push = true;
+    getView(path);
+    state.path = path;
+    if (push) {
+        state.history = state.history.slice(0, state.hIdx + 1);
+        state.history.push(path);
+        state.hIdx = state.history.length - 1;
+    }
+    render();
+}
+
+function parentOf(p) {
+    if (p === 'Bilgisayarım') return null;
+    if (/^[A-Za-z]:\\$/.test(p)) return 'Bilgisayarım';
+    const i = p.lastIndexOf('\\');
+    if (i <= 1) return 'Bilgisayarım';
+    let par = p.substring(0, i);
+    if (/^[A-Za-z]:$/.test(par)) par += '\\';
+    return par;
+}
+
+function updateNav() {
+    $('btnBack').classList.toggle('dis', state.hIdx <= 0);
+    $('btnFwd').classList.toggle('dis', state.hIdx >= state.history.length - 1);
+    $('btnUp').classList.toggle('dis', parentOf(state.path) === null);
+}
+
+$('btnBack').onclick = () => { if (state.hIdx > 0) { state.hIdx--; navigate(state.history[state.hIdx], false); } };
+$('btnFwd').onclick  = () => { if (state.hIdx < state.history.length - 1) { state.hIdx++; navigate(state.history[state.hIdx], false); } };
+$('btnUp').onclick   = () => { const p = parentOf(state.path); if (p) navigate(p); };
+$('btnGo').onclick   = () => goAddress();
+$('btnSearch').onclick  = () => showMsg('Ara', 'Arama yardımcısı bu simülasyonda kullanılamıyor.');
+$('btnFolders').onclick = () => showMsg('Klasörler', 'Klasörler bölmesi bu simülasyonda kullanılamıyor.');
+$('btnView').onclick    = () => showMsg('Görünüm', 'Bu pencere simge görünümünde çalışır.');
+
+function goAddress() {
+    const val = $('addrInput').value.trim();
+    if (!val) return;
+    if (VIEWS[val]) { navigate(val); return; }
+    if (/^[A-Za-z]:$/.test(val) && VIEWS[val + '\\']) { navigate(val + '\\'); return; }
+    if (/^[Cc]:\\?$/.test(val)) { navigate('C:\\'); return; }
+    if (/^[Aa]:\\?$/.test(val)) { driveError('A:'); return; }
+    if (/^[Dd]:\\?$/.test(val)) { driveError('D:'); return; }
+    showMsg('Bilgisayarım', "Windows '<b>" + esc(val) + "</b>' öğesini bulamıyor. Öğenin adını doğru yazdığınızdan emin olun.", 'warn');
+    $('addrInput').value = getView(state.path).address;
+}
+$('addrInput').addEventListener('keydown', e => { if (e.key === 'Enter') goAddress(); });
+
+function driveError(letter) {
+    showMsg(letter + ':\\ sürücüsüne erişilemiyor',
+        'Aygıt hazır değil.<br><br>Sürücüye bir disk takıp yeniden deneyin.', 'err');
+}
+
+/* =========================================================
+   ÖĞE AÇMA
+   ========================================================= */
+function openItem(it) {
+    if (!it) return;
+    if (it.kind === 'floppy') { driveError('A'); return; }
+    if (it.kind === 'cd')     { driveError('D'); return; }
+    if (it.kind === 'file') {
+        showMsg('Windows', "Windows bu dosyayı açamıyor:<br><b>" + esc(it.name) + "</b><br><br>" +
+            "Bu dosyayı açmak için hangi programın kullanılacağını seçin.", 'warn');
+        return;
+    }
+    navigate(it.target);
+}
+
+function openSelected() {
+    if (state.sel === null) return;
+    openItem(state.items[state.sel]);
+}
+
+function openProps() {
+    const it = state.sel !== null ? state.items[state.sel] : null;
+    if (!it) {
+        showMsg('Bilgisayarım Özellikleri',
+            '<b>Sistem:</b><br>Microsoft Windows XP Professional<br>Sürüm 2002 Service Pack 3<br><br>' +
+            '<b>Kayıtlı kullanıcı:</b><br>Kullanıcı<br><br>' +
+            '<b>Bilgisayar:</b><br>Intel Pentium 4<br>2.40 GHz, 512 MB RAM', 'info');
+        return;
+    }
+    showMsg(esc(it.name) + ' Özellikleri',
+        '<b>Tür:</b> ' + esc(it.tip || 'Öğe') + '<br>' +
+        '<b>Konum:</b> ' + esc(getView(state.path).address) + '<br>' +
+        '<b>Boyut:</b> — <br><b>Kullanılabilir alan:</b> —', 'info');
+}
+
+/* =========================================================
+   SAĞ TIK MENÜSÜ
+   ========================================================= */
+const ctxEl = $('ctxmenu');
+
+function hideCtx() { ctxEl.style.display = 'none'; }
+
+function showCtx(x, y, items) {
+    ctxEl.innerHTML = items.map(it => it === '-' ? '<div class="dsep"></div>' :
+        '<div class="ditem' + (it.dis ? ' dis' : '') + '" data-act="' + (it.act || '') + '">' +
+        (it.checked ? '<span class="dcheck">✓</span>' : '') + it.label + '</div>').join('');
+    ctxEl.style.display = 'block';
+    const w = ctxEl.offsetWidth, h = ctxEl.offsetHeight;
+    ctxEl.style.left = Math.min(x, window.innerWidth - w - 2) + 'px';
+    ctxEl.style.top = Math.min(y, window.innerHeight - h - 2) + 'px';
+}
+
+ctxEl.addEventListener('click', e => {
+    const it = e.target.closest('.ditem');
+    if (!it || it.classList.contains('dis')) return;
+    hideCtx();
+    runAction(it.dataset.act);
+});
+
+document.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    const itemEl = e.target.closest('.item');
+    if (itemEl) {
+        state.sel = +itemEl.dataset.idx;
+        paintSel();
+        showCtx(e.clientX, e.clientY, [
+            { label: 'Aç', act: 'open' },
+            { label: 'Araştır', act: 'open' },
+            '-',
+            { label: 'Paylaşım ve Güvenlik...', act: 'msg:publish' },
+            '-',
+            { label: 'Kopyala', act: 'msg:copy' },
+            '-',
+            { label: 'Sil', act: 'msg:delete' },
+            { label: 'Yeniden Adlandır', act: 'msg:rename' },
+            '-',
+            { label: 'Özellikler', act: 'props' }
+        ]);
+    } else {
+        showCtx(e.clientX, e.clientY, [
+            { label: 'Görünüm', act: 'msg:view' },
+            { label: 'Sıralama Ölçütü', act: 'msg:sort' },
+            { label: 'Yenile', act: 'refresh' },
+            '-',
+            { label: 'Yapıştır', act: 'msg:paste', dis: true },
+            '-',
+            { label: 'Yeni Klasör', act: 'msg:newfolder' },
+            '-',
+            { label: 'Özellikler', act: 'props' }
+        ]);
+    }
+});
+
+/* =========================================================
+   DİYALOG
+   ========================================================= */
+function showMsg(title, text, kind) {
+    const ic = kind === 'err' ? I.file : (kind === 'info' ? I.computer : I.settings);
+    $('overlay').innerHTML =
+        '<div class="dialog">' +
+            '<div class="dlg-title"><span>' + title + '</span>' +
+                '<span class="dlg-x" onclick="closeMsg()">✕</span></div>' +
+            '<div class="dlg-body">' + img(ic, 32) + '<div class="dlg-text">' + text + '</div></div>' +
+            '<div class="dlg-foot"><button class="xp-btn" onclick="closeMsg()">Tamam</button></div>' +
+        '</div>';
+    $('overlay').style.display = 'flex';
+}
+function closeMsg() { $('overlay').style.display = 'none'; }
+window.closeMsg = closeMsg;
+$('overlay').addEventListener('click', e => { if (e.target === $('overlay')) closeMsg(); });
+
+/* =========================================================
+   KLAVYE KISAYOLLARI
+   ========================================================= */
+document.addEventListener('keydown', e => {
+    /* Diyalog açıksa */
+    if ($('overlay').style.display === 'flex') {
+        if (e.key === 'Escape' || e.key === 'Enter') { closeMsg(); e.preventDefault(); }
+        return;
+    }
+    if (e.key === 'Escape') { closeMenus(); hideCtx(); return; }
+
+    if (e.altKey && e.key === 'ArrowLeft')  { $('btnBack').click(); e.preventDefault(); return; }
+    if (e.altKey && e.key === 'ArrowRight') { $('btnFwd').click();  e.preventDefault(); return; }
+    if (e.altKey && e.key === 'ArrowUp')    { $('btnUp').click();   e.preventDefault(); return; }
+
+    if (document.activeElement === $('addrInput')) return;
+
+    if (e.key === 'Backspace') { $('btnBack').click(); e.preventDefault(); return; }
+    if (e.key === 'F5')        { render(); e.preventDefault(); return; }
+    if (e.key === 'Enter')     { openSelected(); e.preventDefault(); return; }
+    if (e.ctrlKey && e.key.toLowerCase() === 'a') { state.sel = 0; paintSel(); e.preventDefault(); return; }
+    if (e.ctrlKey && e.key.toLowerCase() === 'o') { openSelected(); e.preventDefault(); return; }
+    if (e.ctrlKey && e.key.toLowerCase() === 'r') { render(); e.preventDefault(); return; }
+});
+
+/* =========================================================
+   BAŞLAT
+   ========================================================= */
+renderMenus();
+render();
+</script>
+</body>
+</html>

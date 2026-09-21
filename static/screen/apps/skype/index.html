@@ -1,0 +1,2989 @@
+<!--
+SKYPE CLASSIC XP SIMULATOR - ASSET LISTESI
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama |
+|------------|---------------------|------------|----------------------|
+| icon.png   | 32x32               | Zorunlu    | XP Masaustu ikonu    |
+
+NOT:
+- Bu dosyada Windows XP'nin dis mavi Luna pencere basligi YOKTUR.
+- Baslik/kapat/kucult dugmeleri ana WindowManager tarafindan saglanir.
+- Harici CDN, Node.js, API, WebSocket veya WebRTC sunucusu gerekmez.
+- Skype sesleri birebir kopyalanmaz; Web Audio ile sentetik retro sesler uretilir.
+-->
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Skype</title>
+
+<style>
+:root{
+    --skype:#00aff0;
+    --skype-dark:#008cc7;
+    --skype-deep:#007bb5;
+    --xp:#ece9d8;
+    --xp-border:#aca899;
+    --select:#316ac5;
+}
+
+*{
+    box-sizing:border-box;
+}
+
+html,
+body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+}
+
+body{
+    font-family:Tahoma,sans-serif;
+    font-size:11px;
+    color:#222;
+    background:#fff;
+}
+
+button,
+input,
+textarea,
+select{
+    font-family:Tahoma,sans-serif;
+    font-size:11px;
+}
+
+button{
+    border:2px outset #fff;
+    background:#ece9d8;
+    min-height:23px;
+}
+
+button:active{
+    border-style:inset;
+}
+
+.hidden{
+    display:none!important;
+}
+
+/* ================================================
+   ROOT
+================================================ */
+
+#app{
+    width:100%;
+    height:100%;
+    position:relative;
+    overflow:hidden;
+}
+
+/* ================================================
+   LOGIN
+================================================ */
+
+#loginScreen{
+    width:100%;
+    height:100%;
+    background:
+        linear-gradient(
+            180deg,
+            #21b9ef 0,
+            #00a8e9 45%,
+            #008ecb 100%
+        );
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.login-card{
+    width:360px;
+    max-width:calc(100% - 30px);
+    background:#fff;
+    border-radius:7px;
+    padding:22px 28px 18px;
+    box-shadow:
+        0 3px 12px rgba(0,0,0,.35);
+}
+
+.skype-logo{
+    text-align:center;
+    color:#00aff0;
+    font:bold 37px Arial,sans-serif;
+    margin-bottom:18px;
+}
+
+.login-avatar{
+    width:72px;
+    height:72px;
+    border-radius:50%;
+    margin:0 auto 10px;
+    background:
+        radial-gradient(
+            circle at 50% 32%,
+            #ffe1ba 0 20%,
+            transparent 21%
+        ),
+        radial-gradient(
+            ellipse at 50% 86%,
+            #3f7ebb 0 38%,
+            transparent 39%
+        ),
+        #d4e5f5;
+    border:3px solid #fff;
+    box-shadow:0 0 0 1px #8aa6ba;
+}
+
+.login-card label{
+    display:block;
+    margin:8px 0 3px;
+}
+
+.login-card input[type=text],
+.login-card input[type=password]{
+    width:100%;
+    height:28px;
+    border:1px solid #7f9db9;
+    padding:4px 6px;
+}
+
+.remember{
+    margin-top:10px;
+}
+
+.signin-button{
+    display:block;
+    width:130px;
+    height:32px;
+    margin:15px auto 0;
+    background:linear-gradient(#4cc8f4,#00a7e4);
+    border:1px solid #007eae;
+    border-radius:4px;
+    color:#fff;
+    font-weight:bold;
+}
+
+/* ================================================
+   MAIN
+================================================ */
+
+#mainScreen{
+    display:none;
+    width:100%;
+    height:100%;
+    grid-template-rows:21px minmax(0,1fr) 20px;
+}
+
+#mainScreen.visible{
+    display:grid;
+}
+
+/* ================================================
+   MENU
+================================================ */
+
+.menu-bar{
+    display:flex;
+    align-items:center;
+    height:21px;
+    background:#ece9d8;
+    border-bottom:1px solid #aca899;
+    padding-left:2px;
+    position:relative;
+    z-index:200;
+}
+
+.menu-button{
+    height:19px;
+    padding:2px 7px;
+    border:1px solid transparent;
+}
+
+.menu-button:hover,
+.menu-button.active{
+    background:#316ac5;
+    color:#fff;
+}
+
+.popup-menu{
+    display:none;
+    position:absolute;
+    top:20px;
+    min-width:205px;
+    background:#ece9d8;
+    border:1px solid #808080;
+    padding:2px;
+    box-shadow:
+        inset 1px 1px #fff,
+        inset -1px -1px #404040,
+        2px 2px 4px rgba(0,0,0,.25);
+}
+
+.popup-menu.visible{
+    display:block;
+}
+
+.menu-item{
+    min-height:21px;
+    padding:3px 10px 3px 25px;
+    white-space:nowrap;
+}
+
+.menu-item:hover{
+    background:#316ac5;
+    color:white;
+}
+
+.menu-sep{
+    height:2px;
+    border-top:1px solid #aca899;
+    border-bottom:1px solid #fff;
+    margin:2px;
+}
+
+/* ================================================
+   LAYOUT
+================================================ */
+
+.workspace{
+    min-height:0;
+    display:grid;
+    grid-template-columns:225px minmax(0,1fr);
+}
+
+/* ================================================
+   LEFT SIDEBAR
+================================================ */
+
+.sidebar{
+    min-height:0;
+    display:grid;
+    grid-template-rows:auto auto 27px minmax(0,1fr);
+    background:#e7f4f9;
+    border-right:1px solid #91a9b5;
+}
+
+.my-profile{
+    min-height:72px;
+    padding:8px;
+    background:
+        linear-gradient(
+            180deg,
+            #1bb6ef,
+            #009bd8
+        );
+    color:#fff;
+    display:grid;
+    grid-template-columns:51px minmax(0,1fr);
+    gap:8px;
+}
+
+.avatar{
+    width:48px;
+    height:48px;
+    border-radius:5px;
+    border:2px solid #fff;
+    background:
+        radial-gradient(
+            circle at 50% 30%,
+            #ffe0b5 0 19%,
+            transparent 20%
+        ),
+        radial-gradient(
+            ellipse at 50% 90%,
+            #427ab6 0 39%,
+            transparent 40%
+        ),
+        #c7e1f2;
+    position:relative;
+}
+
+.status-dot{
+    width:13px;
+    height:13px;
+    position:absolute;
+    right:-4px;
+    bottom:-4px;
+    border-radius:50%;
+    border:2px solid #fff;
+    background:#57b957;
+}
+
+.profile-name{
+    font-weight:bold;
+    font-size:13px;
+    margin-top:4px;
+}
+
+.profile-mood{
+    font-size:10px;
+    opacity:.95;
+    margin-top:4px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.credit-bar{
+    padding:4px 8px;
+    background:#d8edf6;
+    border-bottom:1px solid #a4bdc8;
+    line-height:17px;
+}
+
+.credit-bar strong{
+    color:#087eaf;
+}
+
+.search-box{
+    height:27px;
+    padding:3px 5px;
+    background:#edf7fa;
+    border-bottom:1px solid #b3c8d0;
+}
+
+.search-box input{
+    width:100%;
+    height:20px;
+    border:1px solid #8ca6b1;
+    padding:2px 5px;
+}
+
+.contact-area{
+    min-height:0;
+    overflow:auto;
+    background:#fff;
+}
+
+.contact-section-title{
+    height:23px;
+    line-height:22px;
+    padding-left:7px;
+    font-weight:bold;
+    background:#edf4f7;
+    border-bottom:1px solid #c5d2d7;
+    color:#50616a;
+}
+
+.contact{
+    height:46px;
+    display:grid;
+    grid-template-columns:36px minmax(0,1fr);
+    gap:6px;
+    padding:5px;
+    cursor:default;
+    border-bottom:1px solid #eee;
+}
+
+.contact:hover{
+    background:#e9f5fb;
+}
+
+.contact.selected{
+    background:#cbeafb;
+}
+
+.contact-avatar{
+    width:34px;
+    height:34px;
+    border-radius:4px;
+    background:
+        radial-gradient(
+            circle at 50% 29%,
+            #f3ceb0 0 21%,
+            transparent 22%
+        ),
+        radial-gradient(
+            ellipse at 50% 90%,
+            #6a8bb1 0 38%,
+            transparent 39%
+        ),
+        #d6e4eb;
+    position:relative;
+}
+
+.contact-status{
+    width:11px;
+    height:11px;
+    border-radius:50%;
+    border:1px solid #fff;
+    position:absolute;
+    right:-2px;
+    bottom:-2px;
+}
+
+.online{background:#57b957}
+.away{background:#f2b535}
+.busy{background:#d74545}
+.offline{background:#a6a6a6}
+
+.contact-name{
+    font-weight:bold;
+    margin-top:1px;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+}
+
+.contact-mood{
+    color:#777;
+    font-size:10px;
+    margin-top:3px;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+}
+
+/* ================================================
+   CHAT
+================================================ */
+
+.chat{
+    min-height:0;
+    display:grid;
+    grid-template-rows:68px minmax(0,1fr) auto;
+    background:#fff;
+}
+
+.chat-header{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+    padding:7px 10px;
+    background:
+        linear-gradient(
+            180deg,
+            #f8fcfe,
+            #dceff7
+        );
+    border-bottom:1px solid #b7ccd5;
+}
+
+.chat-name{
+    font-size:17px;
+    font-weight:bold;
+    color:#333;
+}
+
+.chat-mood{
+    margin-top:4px;
+    color:#777;
+}
+
+.call-buttons{
+    display:flex;
+    gap:5px;
+}
+
+.skype-button{
+    border:1px solid #0084bc;
+    border-radius:4px;
+    min-height:29px;
+    padding:4px 10px;
+    background:
+        linear-gradient(
+            #40c7f5,
+            #00a9e8
+        );
+    color:#fff;
+    font-weight:bold;
+}
+
+.skype-button:active{
+    background:#008fca;
+}
+
+.history{
+    min-height:0;
+    overflow:auto;
+    padding:10px 13px;
+    user-select:text;
+    background:#fff;
+}
+
+.day-divider{
+    text-align:center;
+    color:#999;
+    font-size:10px;
+    margin:8px 0 12px;
+    border-bottom:1px solid #eee;
+    line-height:1px;
+}
+
+.day-divider span{
+    background:#fff;
+    padding:0 7px;
+}
+
+.message{
+    display:grid;
+    grid-template-columns:74px minmax(0,1fr);
+    margin:7px 0;
+    line-height:1.35;
+}
+
+.message-author{
+    font-weight:bold;
+    color:#267cad;
+}
+
+.message.me .message-author{
+    color:#555;
+}
+
+.message-time{
+    display:block;
+    color:#aaa;
+    font-size:9px;
+    font-weight:normal;
+    margin-top:2px;
+}
+
+.system-message{
+    margin:8px 0;
+    padding:5px 7px;
+    background:#f4f4f4;
+    border:1px solid #ddd;
+    color:#666;
+}
+
+/* ================================================
+   MESSAGE COMPOSER
+================================================ */
+
+.composer{
+    background:#f0f5f7;
+    border-top:1px solid #b7ccd5;
+    padding:5px 7px 6px;
+}
+
+.composer-toolbar{
+    display:flex;
+    align-items:center;
+    height:25px;
+    gap:3px;
+}
+
+.mini-button{
+    min-width:26px;
+    height:22px;
+    padding:1px 5px;
+    border:1px solid #adbcc3;
+    background:#f7fafb;
+}
+
+.composer-main{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 60px;
+    gap:5px;
+}
+
+#messageInput{
+    height:60px;
+    resize:none;
+    border:1px solid #7f9db9;
+    padding:5px;
+    background:#fff;
+}
+
+.send-button{
+    border:1px solid #0085bc;
+    border-radius:4px;
+    background:linear-gradient(#42c9f5,#00a8e4);
+    color:#fff;
+    font-weight:bold;
+}
+
+/* ================================================
+   EMPTY CHAT
+================================================ */
+
+.empty-chat{
+    height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    color:#777;
+}
+
+.big-skype{
+    font:bold 55px Arial;
+    color:#00aff0;
+}
+
+/* ================================================
+   STATUS BAR
+================================================ */
+
+.statusbar{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 150px;
+    height:20px;
+    padding:2px;
+    gap:2px;
+    background:#ece9d8;
+    border-top:1px solid #fff;
+}
+
+.statuscell{
+    height:16px;
+    line-height:14px;
+    border-top:1px solid #808080;
+    border-left:1px solid #808080;
+    border-right:1px solid #fff;
+    border-bottom:1px solid #fff;
+    padding:0 4px;
+    overflow:hidden;
+    white-space:nowrap;
+}
+
+/* ================================================
+   INTERNAL DIALOGS
+================================================ */
+
+.dialog-layer{
+    display:none;
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,.12);
+    align-items:center;
+    justify-content:center;
+    z-index:1000;
+}
+
+.dialog-layer.visible{
+    display:flex;
+}
+
+.xp-dialog{
+    width:385px;
+    max-width:calc(100% - 24px);
+    background:#ece9d8;
+    border:2px outset #fff;
+    box-shadow:3px 4px 12px rgba(0,0,0,.3);
+}
+
+.dialog-title{
+    font-weight:bold;
+    padding:6px 9px;
+    border-bottom:1px solid #aca899;
+    background:linear-gradient(#f8f7ef,#dfddcf);
+}
+
+.dialog-body{
+    padding:12px;
+}
+
+.dialog-buttons{
+    padding:0 12px 11px;
+    display:flex;
+    justify-content:flex-end;
+    gap:6px;
+}
+
+.dialog-buttons button{
+    min-width:74px;
+}
+
+.form-row{
+    min-height:29px;
+    display:grid;
+    grid-template-columns:100px minmax(0,1fr);
+    gap:7px;
+    align-items:center;
+}
+
+.form-row label{
+    text-align:right;
+}
+
+.form-row input,
+.form-row select{
+    width:100%;
+    height:22px;
+    border:1px solid #7f9db9;
+}
+
+.info-layout{
+    display:grid;
+    grid-template-columns:38px minmax(0,1fr);
+    gap:10px;
+}
+
+.info-icon{
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    background:#2782d4;
+    color:#fff;
+    font:bold 23px/32px Arial;
+    text-align:center;
+}
+
+/* ================================================
+   CALL OVERLAY
+================================================ */
+
+#callLayer{
+    display:none;
+    position:absolute;
+    inset:21px 0 20px 225px;
+    z-index:800;
+    background:
+        radial-gradient(
+            circle at center,
+            #3ebce9,
+            #087ba9 75%
+        );
+    color:#fff;
+}
+
+#callLayer.visible{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.call-panel{
+    text-align:center;
+    width:100%;
+}
+
+.call-avatar{
+    width:110px;
+    height:110px;
+    margin:0 auto 14px;
+    border-radius:50%;
+    border:5px solid rgba(255,255,255,.8);
+    background:
+        radial-gradient(
+            circle at 50% 29%,
+            #f5d2b7 0 20%,
+            transparent 21%
+        ),
+        radial-gradient(
+            ellipse at 50% 88%,
+            #6d8cae 0 40%,
+            transparent 41%
+        ),
+        #d5e5ed;
+}
+
+.call-name{
+    font-size:23px;
+    font-weight:bold;
+}
+
+.call-state{
+    font-size:14px;
+    margin:8px;
+}
+
+.call-timer{
+    height:20px;
+}
+
+.call-control{
+    min-width:82px;
+    height:35px;
+    margin:5px;
+    border-radius:5px;
+    border:1px solid rgba(0,0,0,.3);
+    color:#fff;
+    font-weight:bold;
+}
+
+.hangup{
+    background:linear-gradient(#e65e56,#bc211a);
+}
+
+.mute{
+    background:linear-gradient(#686868,#414141);
+}
+
+.video-preview{
+    display:none;
+    width:240px;
+    height:130px;
+    margin:12px auto;
+    background:
+        linear-gradient(135deg,#333,#111);
+    border:2px solid #fff;
+    box-shadow:0 2px 8px rgba(0,0,0,.4);
+    align-items:center;
+    justify-content:center;
+    color:#bbb;
+}
+
+.video-preview.visible{
+    display:flex;
+}
+
+/* ================================================
+   FILE PROGRESS
+================================================ */
+
+.progress{
+    margin-top:5px;
+    width:180px;
+    height:13px;
+    background:#fff;
+    border:1px solid #7f9db9;
+}
+
+.progress-fill{
+    width:0%;
+    height:100%;
+    background:
+        repeating-linear-gradient(
+            90deg,
+            #22a5dd 0 8px,
+            #74cef2 8px 10px
+        );
+}
+
+@media(max-width:650px){
+    .workspace{
+        grid-template-columns:170px minmax(0,1fr);
+    }
+
+    #callLayer{
+        left:170px;
+    }
+
+    .sidebar{
+        font-size:10px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+<!-- =============================================
+     LOGIN
+============================================== -->
+
+<section id="loginScreen">
+
+    <div class="login-card">
+
+        <div class="skype-logo">Skype</div>
+
+        <div class="login-avatar"></div>
+
+        <label>Skype Name</label>
+        <input id="loginName"
+               type="text"
+               value="xp_user">
+
+        <label>Password</label>
+        <input id="loginPassword"
+               type="password"
+               value="windowsxp">
+
+        <label class="remember">
+            <input id="rememberMe"
+                   type="checkbox"
+                   checked>
+            Sign me in when Skype starts
+        </label>
+
+        <button class="signin-button"
+                id="signInButton">
+            Sign in
+        </button>
+
+    </div>
+
+</section>
+
+<!-- =============================================
+     MAIN
+============================================== -->
+
+<section id="mainScreen">
+
+    <!-- MENUS -->
+    <div class="menu-bar">
+
+        <div class="menu-button"
+             data-menu="skypeMenu">
+            <u>S</u>kype
+        </div>
+
+        <div class="menu-button"
+             data-menu="contactsMenu">
+            <u>C</u>ontacts
+        </div>
+
+        <div class="menu-button"
+             data-menu="conversationMenu">
+            C<u>o</u>nversation
+        </div>
+
+        <div class="menu-button"
+             data-menu="callMenu">
+            Ca<u>l</u>l
+        </div>
+
+        <div class="menu-button"
+             data-menu="toolsMenu">
+            <u>T</u>ools
+        </div>
+
+        <div class="menu-button"
+             data-menu="helpMenu">
+            <u>H</u>elp
+        </div>
+
+        <div class="popup-menu" id="skypeMenu">
+            <div class="menu-item"
+                 data-action="profile">
+                Profile...
+            </div>
+
+            <div class="menu-item"
+                 data-action="statusOnline">
+                Online
+            </div>
+
+            <div class="menu-item"
+                 data-action="statusAway">
+                Away
+            </div>
+
+            <div class="menu-item"
+                 data-action="statusBusy">
+                Do Not Disturb
+            </div>
+
+            <div class="menu-sep"></div>
+
+            <div class="menu-item"
+                 data-action="signOut">
+                Sign Out
+            </div>
+
+            <div class="menu-item"
+                 data-action="exit">
+                Exit
+            </div>
+        </div>
+
+        <div class="popup-menu" id="contactsMenu">
+            <div class="menu-item"
+                 data-action="addContact">
+                Add a Contact...
+            </div>
+
+            <div class="menu-item"
+                 data-action="showOnline">
+                Show Online Contacts
+            </div>
+        </div>
+
+        <div class="popup-menu"
+             id="conversationMenu">
+
+            <div class="menu-item"
+                 data-action="sendFile">
+                Send File...
+            </div>
+
+            <div class="menu-item"
+                 data-action="clearHistory">
+                Clear Conversation
+            </div>
+        </div>
+
+        <div class="popup-menu"
+             id="callMenu">
+
+            <div class="menu-item"
+                 data-action="call">
+                Call
+            </div>
+
+            <div class="menu-item"
+                 data-action="video">
+                Video Call
+            </div>
+        </div>
+
+        <div class="popup-menu"
+             id="toolsMenu">
+
+            <div class="menu-item"
+                 data-action="options">
+                Options...
+            </div>
+        </div>
+
+        <div class="popup-menu"
+             id="helpMenu">
+
+            <div class="menu-item"
+                 data-action="help">
+                Help
+            </div>
+
+            <div class="menu-sep"></div>
+
+            <div class="menu-item"
+                 data-action="about">
+                About Skype
+            </div>
+        </div>
+
+    </div>
+
+    <div class="workspace">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+
+            <div class="my-profile"
+                 id="profileHeader">
+
+                <div class="avatar">
+                    <div class="status-dot"
+                         id="myStatusDot"></div>
+                </div>
+
+                <div>
+                    <div class="profile-name"
+                         id="myName">
+                        Windows XP User
+                    </div>
+
+                    <div class="profile-mood"
+                         id="myMood">
+                        Back in the good old days.
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="credit-bar">
+                Skype Credit:
+                <strong>€ 10.00</strong>
+            </div>
+
+            <div class="search-box">
+                <input id="contactSearch"
+                       type="text"
+                       placeholder="Search contacts">
+            </div>
+
+            <div class="contact-area">
+
+                <div class="contact-section-title">
+                    Contacts
+                </div>
+
+                <div id="contactList"></div>
+
+            </div>
+
+        </aside>
+
+        <!-- CHAT -->
+        <main class="chat">
+
+            <div class="chat-header">
+
+                <div>
+                    <div class="chat-name"
+                         id="chatName">
+                        Skype
+                    </div>
+
+                    <div class="chat-mood"
+                         id="chatMood">
+                        Select a contact to start chatting
+                    </div>
+                </div>
+
+                <div class="call-buttons">
+
+                    <button class="skype-button"
+                            id="voiceCall">
+                        ☎ Call
+                    </button>
+
+                    <button class="skype-button"
+                            id="videoCall">
+                        ▣ Video
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div class="history"
+                 id="history">
+
+                <div class="empty-chat">
+                    <div>
+                        <div class="big-skype">Skype</div>
+                        <br>
+                        Select a contact to begin.
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="composer">
+
+                <div class="composer-toolbar">
+
+                    <button class="mini-button"
+                            id="emoticonButton">
+                        :-)
+                    </button>
+
+                    <button class="mini-button"
+                            id="fileButton">
+                        📎
+                    </button>
+
+                    <span style="color:#777">
+                        Type a message below
+                    </span>
+
+                </div>
+
+                <div class="composer-main">
+
+                    <textarea
+                        id="messageInput"
+                        placeholder="Type a message here"></textarea>
+
+                    <button class="send-button"
+                            id="sendButton">
+                        Send
+                    </button>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <div class="statusbar">
+        <div class="statuscell"
+             id="statusText">
+            Online
+        </div>
+
+        <div class="statuscell"
+             id="onlineCount"></div>
+    </div>
+
+</section>
+
+<!-- =============================================
+     CALL
+============================================== -->
+
+<div id="callLayer">
+
+    <div class="call-panel">
+
+        <div class="call-avatar"></div>
+
+        <div class="call-name"
+             id="callName"></div>
+
+        <div class="call-state"
+             id="callState">
+            Calling...
+        </div>
+
+        <div class="call-timer"
+             id="callTimer"></div>
+
+        <div class="video-preview"
+             id="videoPreview">
+            Simulated webcam feed
+        </div>
+
+        <button class="call-control mute"
+                id="muteButton">
+            Mute
+        </button>
+
+        <button class="call-control hangup"
+                id="hangupButton">
+            End Call
+        </button>
+
+    </div>
+
+</div>
+
+<!-- =============================================
+     MESSAGE DIALOG
+============================================== -->
+
+<div class="dialog-layer"
+     id="messageDialog">
+
+    <div class="xp-dialog">
+
+        <div class="dialog-title"
+             id="messageTitle">
+            Skype
+        </div>
+
+        <div class="dialog-body">
+
+            <div class="info-layout">
+
+                <div class="info-icon">i</div>
+
+                <div id="messageText"></div>
+
+            </div>
+
+        </div>
+
+        <div class="dialog-buttons">
+            <button data-close="messageDialog">
+                OK
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- =============================================
+     ADD CONTACT
+============================================== -->
+
+<div class="dialog-layer"
+     id="addContactDialog">
+
+    <div class="xp-dialog">
+
+        <div class="dialog-title">
+            Add a Contact
+        </div>
+
+        <div class="dialog-body">
+
+            <p>
+                Enter a Skype Name or e-mail address.
+            </p>
+
+            <div class="form-row">
+                <label>Skype Name:</label>
+                <input id="newContactSkype"
+                       type="text">
+            </div>
+
+            <div class="form-row">
+                <label>Full name:</label>
+                <input id="newContactName"
+                       type="text">
+            </div>
+
+        </div>
+
+        <div class="dialog-buttons">
+
+            <button id="addContactOK">
+                Add
+            </button>
+
+            <button data-close="addContactDialog">
+                Cancel
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- =============================================
+     PROFILE
+============================================== -->
+
+<div class="dialog-layer"
+     id="profileDialog">
+
+    <div class="xp-dialog">
+
+        <div class="dialog-title">
+            Your Profile
+        </div>
+
+        <div class="dialog-body">
+
+            <div class="form-row">
+                <label>Display name:</label>
+                <input id="profileName"
+                       type="text">
+            </div>
+
+            <div class="form-row">
+                <label>Mood message:</label>
+                <input id="profileMood"
+                       type="text">
+            </div>
+
+        </div>
+
+        <div class="dialog-buttons">
+
+            <button id="profileSave">
+                Save
+            </button>
+
+            <button data-close="profileDialog">
+                Cancel
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- =============================================
+     OPTIONS
+============================================== -->
+
+<div class="dialog-layer"
+     id="optionsDialog">
+
+    <div class="xp-dialog">
+
+        <div class="dialog-title">
+            Skype Options
+        </div>
+
+        <div class="dialog-body">
+
+            <div class="form-row">
+                <label>Status:</label>
+
+                <select id="optionStatus">
+                    <option value="online">Online</option>
+                    <option value="away">Away</option>
+                    <option value="busy">Do Not Disturb</option>
+                </select>
+            </div>
+
+            <p>
+                <label>
+                    <input id="optionSounds"
+                           type="checkbox"
+                           checked>
+                    Enable Skype sounds
+                </label>
+            </p>
+
+            <p>
+                <label>
+                    <input id="optionReplies"
+                           type="checkbox"
+                           checked>
+                    Simulate automatic replies
+                </label>
+            </p>
+
+        </div>
+
+        <div class="dialog-buttons">
+
+            <button id="optionsSave">
+                OK
+            </button>
+
+            <button data-close="optionsDialog">
+                Cancel
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<input id="fileInput"
+       type="file"
+       hidden>
+
+</div>
+
+<script>
+(() => {
+
+"use strict";
+
+const $ = id =>
+    document.getElementById(id);
+
+/* ==============================================
+   DEFAULT DATA
+============================================== */
+
+const defaultState = {
+
+    signedIn:false,
+
+    profile:{
+        name:"Windows XP User",
+        mood:"Back in the good old days.",
+        status:"online"
+    },
+
+    options:{
+        sounds:true,
+        replies:true
+    },
+
+    selected:"echo123",
+
+    contacts:[
+        {
+            id:"echo123",
+            name:"Skype Test Call",
+            skype:"echo123",
+            mood:"Call me to test your sound",
+            status:"online"
+        },
+
+        {
+            id:"alex",
+            name:"Alex Johnson",
+            skype:"alex.johnson",
+            mood:"Gaming tonight!",
+            status:"online"
+        },
+
+        {
+            id:"anna",
+            name:"Anna Smith",
+            skype:"anna_smith",
+            mood:"At work",
+            status:"away"
+        },
+
+        {
+            id:"michael",
+            name:"Michael Brown",
+            skype:"mike_brown",
+            mood:"Do not disturb",
+            status:"busy"
+        },
+
+        {
+            id:"family",
+            name:"Family",
+            skype:"family.home",
+            mood:"See you Sunday",
+            status:"online"
+        },
+
+        {
+            id:"oldfriend",
+            name:"Chris",
+            skype:"chris2005",
+            mood:"",
+            status:"offline"
+        }
+    ],
+
+    chats:{
+
+        echo123:[
+            {
+                author:"Skype Test Call",
+                me:false,
+                text:
+                    "Hello! This is the Skype Test Call service. Start a call to test your simulated audio.",
+                time:"20:01"
+            }
+        ],
+
+        alex:[
+            {
+                author:"Alex Johnson",
+                me:false,
+                text:
+                    "Hey! Are we still playing tonight?",
+                time:"19:45"
+            },
+
+            {
+                author:"Windows XP User",
+                me:true,
+                text:
+                    "Yep. Around 9?",
+                time:"19:46"
+            },
+
+            {
+                author:"Alex Johnson",
+                me:false,
+                text:
+                    "Perfect :)",
+                time:"19:47"
+            }
+        ],
+
+        anna:[
+            {
+                author:"Anna Smith",
+                me:false,
+                text:"I'll send the files later.",
+                time:"18:23"
+            }
+        ],
+
+        michael:[],
+
+        family:[
+            {
+                author:"Family",
+                me:false,
+                text:"Don't forget dinner on Sunday!",
+                time:"17:12"
+            }
+        ],
+
+        oldfriend:[]
+    }
+
+};
+
+/* ==============================================
+   STATE
+============================================== */
+
+function cloneDefault(){
+    return JSON.parse(
+        JSON.stringify(defaultState)
+    );
+}
+
+function loadState(){
+
+    try{
+
+        const stored =
+            localStorage.getItem(
+                "xp-skype-state"
+            );
+
+        if(!stored)
+            return cloneDefault();
+
+        const loaded =
+            JSON.parse(stored);
+
+        return {
+            ...cloneDefault(),
+            ...loaded,
+            profile:{
+                ...cloneDefault().profile,
+                ...(loaded.profile || {})
+            },
+            options:{
+                ...cloneDefault().options,
+                ...(loaded.options || {})
+            }
+        };
+
+    }
+    catch{
+        return cloneDefault();
+    }
+}
+
+let state = loadState();
+
+function saveState(){
+
+    try{
+
+        localStorage.setItem(
+            "xp-skype-state",
+            JSON.stringify(state)
+        );
+
+    }
+    catch{
+    }
+}
+
+/* ==============================================
+   UTIL
+============================================== */
+
+function escapeHTML(text){
+
+    return String(text ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+}
+
+function nowTime(){
+
+    return new Date()
+        .toLocaleTimeString(
+            [],
+            {
+                hour:"2-digit",
+                minute:"2-digit"
+            }
+        );
+}
+
+/* ==============================================
+   DIALOG
+============================================== */
+
+function showDialog(id){
+    closeMenus();
+    $(id).classList.add("visible");
+}
+
+function closeDialog(id){
+    $(id).classList.remove("visible");
+}
+
+document
+    .querySelectorAll("[data-close]")
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () =>
+                closeDialog(
+                    button.dataset.close
+                )
+        );
+
+    });
+
+function message(title,text){
+
+    $("messageTitle").textContent =
+        title;
+
+    $("messageText").textContent =
+        text;
+
+    showDialog("messageDialog");
+}
+
+/* ==============================================
+   LOGIN
+============================================== */
+
+$("signInButton")
+    .addEventListener(
+        "click",
+        signIn
+    );
+
+$("loginPassword")
+    .addEventListener(
+        "keydown",
+        event => {
+
+            if(event.key === "Enter")
+                signIn();
+
+        }
+    );
+
+function signIn(){
+
+    const skypeName =
+        $("loginName").value.trim();
+
+    if(!skypeName){
+
+        message(
+            "Skype",
+            "Enter your Skype Name."
+        );
+
+        return;
+    }
+
+    state.signedIn = true;
+
+    saveState();
+
+    $("loginScreen")
+        .style.display = "none";
+
+    $("mainScreen")
+        .classList.add("visible");
+
+    renderAll();
+
+    playTone(
+        660,
+        0.08
+    );
+
+    setTimeout(
+        () => playTone(880,0.1),
+        90
+    );
+}
+
+function signOut(){
+
+    state.signedIn = false;
+
+    saveState();
+
+    stopCall();
+
+    $("mainScreen")
+        .classList.remove("visible");
+
+    $("loginScreen")
+        .style.display = "flex";
+}
+
+/* ==============================================
+   MENU
+============================================== */
+
+const menuButtons = [
+    ...document.querySelectorAll(
+        ".menu-button"
+    )
+];
+
+const menus = [
+    ...document.querySelectorAll(
+        ".popup-menu"
+    )
+];
+
+function closeMenus(){
+
+    menuButtons.forEach(
+        x => x.classList.remove("active")
+    );
+
+    menus.forEach(
+        x => x.classList.remove("visible")
+    );
+}
+
+menuButtons.forEach(button => {
+
+    button.addEventListener(
+        "mousedown",
+        event => {
+
+            event.stopPropagation();
+
+            const menu =
+                $(button.dataset.menu);
+
+            const open =
+                menu.classList
+                    .contains("visible");
+
+            closeMenus();
+
+            if(!open){
+
+                button.classList
+                    .add("active");
+
+                menu.classList
+                    .add("visible");
+
+                menu.style.left =
+                    button.offsetLeft + "px";
+            }
+        }
+    );
+
+});
+
+document.addEventListener(
+    "mousedown",
+    event => {
+
+        if(
+            !event.target.closest(
+                ".menu-bar"
+            )
+        ){
+            closeMenus();
+        }
+
+    }
+);
+
+/* ==============================================
+   CONTACTS
+============================================== */
+
+function selectedContact(){
+
+    return state.contacts.find(
+        c => c.id === state.selected
+    ) || null;
+}
+
+function renderContacts(){
+
+    const container =
+        $("contactList");
+
+    container.innerHTML = "";
+
+    const query =
+        $("contactSearch")
+            .value
+            .trim()
+            .toLowerCase();
+
+    const filtered =
+        state.contacts.filter(contact => {
+
+            if(!query)
+                return true;
+
+            return (
+                contact.name
+                    .toLowerCase()
+                    .includes(query)
+                ||
+                contact.skype
+                    .toLowerCase()
+                    .includes(query)
+            );
+
+        });
+
+    filtered.forEach(contact => {
+
+        const row =
+            document.createElement("div");
+
+        row.className =
+            "contact" +
+            (
+                contact.id === state.selected
+                    ? " selected"
+                    : ""
+            );
+
+        row.innerHTML = `
+            <div class="contact-avatar">
+                <div class="
+                    contact-status
+                    ${contact.status}
+                "></div>
+            </div>
+
+            <div>
+                <div class="contact-name">
+                    ${escapeHTML(contact.name)}
+                </div>
+
+                <div class="contact-mood">
+                    ${escapeHTML(
+                        contact.mood ||
+                        contact.skype
+                    )}
+                </div>
+            </div>
+        `;
+
+        row.addEventListener(
+            "click",
+            () => {
+
+                state.selected =
+                    contact.id;
+
+                saveState();
+                renderAll();
+            }
+        );
+
+        container.appendChild(row);
+
+    });
+
+    const online =
+        state.contacts.filter(
+            c => c.status === "online"
+        ).length;
+
+    $("onlineCount").textContent =
+        online + " contacts online";
+}
+
+$("contactSearch")
+    .addEventListener(
+        "input",
+        renderContacts
+    );
+
+/* ==============================================
+   PROFILE
+============================================== */
+
+function renderProfile(){
+
+    $("myName").textContent =
+        state.profile.name;
+
+    $("myMood").textContent =
+        state.profile.mood;
+
+    $("myStatusDot").className =
+        "status-dot " +
+        state.profile.status;
+
+    $("statusText").textContent =
+        state.profile.status === "online"
+            ? "Online"
+            :
+        state.profile.status === "away"
+            ? "Away"
+            :
+        "Do Not Disturb";
+}
+
+/* ==============================================
+   CHAT
+============================================== */
+
+function renderChat(){
+
+    const contact =
+        selectedContact();
+
+    const history =
+        $("history");
+
+    if(!contact){
+
+        $("chatName").textContent =
+            "Skype";
+
+        $("chatMood").textContent =
+            "Select a contact";
+
+        history.innerHTML = `
+            <div class="empty-chat">
+                <div>
+                    <div class="big-skype">
+                        Skype
+                    </div>
+                    Select a contact to begin.
+                </div>
+            </div>
+        `;
+
+        return;
+    }
+
+    $("chatName").textContent =
+        contact.name;
+
+    $("chatMood").textContent =
+        contact.mood ||
+        contact.skype;
+
+    const chat =
+        state.chats[contact.id] || [];
+
+    history.innerHTML = `
+        <div class="day-divider">
+            <span>Today</span>
+        </div>
+    `;
+
+    if(chat.length === 0){
+
+        history.innerHTML += `
+            <div class="system-message">
+                No previous conversation with
+                ${escapeHTML(contact.name)}.
+            </div>
+        `;
+    }
+
+    chat.forEach(item => {
+
+        const node =
+            document.createElement("div");
+
+        node.className =
+            "message" +
+            (item.me ? " me" : "");
+
+        node.innerHTML = `
+            <div class="message-author">
+
+                ${escapeHTML(item.author)}
+
+                <span class="message-time">
+                    ${escapeHTML(item.time)}
+                </span>
+
+            </div>
+
+            <div>
+                ${escapeHTML(item.text)
+                    .replaceAll(
+                        "\n",
+                        "<br>"
+                    )}
+            </div>
+        `;
+
+        history.appendChild(node);
+
+    });
+
+    history.scrollTop =
+        history.scrollHeight;
+}
+
+function sendMessage(){
+
+    const contact =
+        selectedContact();
+
+    if(!contact){
+
+        message(
+            "Skype",
+            "Select a contact first."
+        );
+
+        return;
+    }
+
+    const text =
+        $("messageInput")
+            .value
+            .trim();
+
+    if(!text)
+        return;
+
+    if(!state.chats[contact.id])
+        state.chats[contact.id] = [];
+
+    state.chats[contact.id].push({
+
+        author:state.profile.name,
+        me:true,
+        text,
+        time:nowTime()
+
+    });
+
+    $("messageInput").value = "";
+
+    saveState();
+    renderChat();
+
+    playMessageSound();
+
+    if(
+        state.options.replies &&
+        contact.status !== "offline"
+    ){
+
+        setTimeout(
+            () => simulateReply(contact),
+            850 + Math.random() * 1200
+        );
+    }
+}
+
+$("sendButton")
+    .addEventListener(
+        "click",
+        sendMessage
+    );
+
+$("messageInput")
+    .addEventListener(
+        "keydown",
+        event => {
+
+            if(
+                event.key === "Enter" &&
+                !event.shiftKey
+            ){
+
+                event.preventDefault();
+                sendMessage();
+            }
+
+        }
+    );
+
+function simulateReply(contact){
+
+    const responses = {
+
+        echo123:[
+            "This is an automated Skype test response.",
+            "Your simulated chat is working correctly.",
+            "Try making a test call."
+        ],
+
+        alex:[
+            "Sounds good!",
+            "Haha, nice :)",
+            "I'll be online.",
+            "See you later!"
+        ],
+
+        anna:[
+            "Okay, I'll check it.",
+            "I'm a little busy right now.",
+            "Talk to you later."
+        ],
+
+        michael:[
+            "I'll get back to you later.",
+            "Okay."
+        ],
+
+        family:[
+            "Great!",
+            "See you soon :)",
+            "Don't forget!"
+        ]
+
+    };
+
+    const possible =
+        responses[contact.id] ||
+        [
+            "Okay :)",
+            "Talk later."
+        ];
+
+    const text =
+        possible[
+            Math.floor(
+                Math.random() *
+                possible.length
+            )
+        ];
+
+    state.chats[contact.id].push({
+
+        author:contact.name,
+        me:false,
+        text,
+        time:nowTime()
+
+    });
+
+    saveState();
+
+    if(state.selected === contact.id)
+        renderChat();
+
+    playMessageSound();
+}
+
+/* ==============================================
+   EMOTICONS
+============================================== */
+
+$("emoticonButton")
+    .addEventListener(
+        "click",
+        () => {
+
+            const input =
+                $("messageInput");
+
+            input.value += " :)";
+            input.focus();
+
+        }
+    );
+
+/* ==============================================
+   FILE SEND
+============================================== */
+
+$("fileButton")
+    .addEventListener(
+        "click",
+        () => action("sendFile")
+    );
+
+$("fileInput")
+    .addEventListener(
+        "change",
+        event => {
+
+            const file =
+                event.target.files[0];
+
+            event.target.value = "";
+
+            if(!file)
+                return;
+
+            sendFakeFile(file);
+        }
+    );
+
+function sendFakeFile(file){
+
+    const contact =
+        selectedContact();
+
+    if(!contact){
+
+        message(
+            "Skype",
+            "Select a contact first."
+        );
+
+        return;
+    }
+
+    const history =
+        $("history");
+
+    const box =
+        document.createElement("div");
+
+    box.className =
+        "system-message";
+
+    box.innerHTML = `
+        Sending file:
+        <strong>
+            ${escapeHTML(file.name)}
+        </strong>
+
+        <div class="progress">
+            <div class="progress-fill"></div>
+        </div>
+    `;
+
+    history.appendChild(box);
+
+    const fill =
+        box.querySelector(
+            ".progress-fill"
+        );
+
+    let progress = 0;
+
+    const timer =
+        setInterval(
+            () => {
+
+                progress +=
+                    5 +
+                    Math.random() * 11;
+
+                if(progress >= 100){
+
+                    progress = 100;
+
+                    clearInterval(timer);
+
+                    box.innerHTML =
+                        `File sent: <strong>${
+                            escapeHTML(file.name)
+                        }</strong>`;
+                }
+
+                fill &&
+                    (
+                        fill.style.width =
+                            progress + "%"
+                    );
+
+            },
+            120
+        );
+}
+
+/* ==============================================
+   CALLING
+============================================== */
+
+let ringTimer = null;
+let callConnectTimer = null;
+let callClock = null;
+let callSeconds = 0;
+let activeVideo = false;
+
+$("voiceCall")
+    .addEventListener(
+        "click",
+        () => startCall(false)
+    );
+
+$("videoCall")
+    .addEventListener(
+        "click",
+        () => startCall(true)
+    );
+
+$("hangupButton")
+    .addEventListener(
+        "click",
+        stopCall
+    );
+
+$("muteButton")
+    .addEventListener(
+        "click",
+        () => {
+
+            $("muteButton").textContent =
+                $("muteButton").textContent ===
+                "Mute"
+                    ? "Unmute"
+                    : "Mute";
+
+        }
+    );
+
+function startCall(video){
+
+    const contact =
+        selectedContact();
+
+    if(!contact){
+
+        message(
+            "Skype",
+            "Select a contact first."
+        );
+
+        return;
+    }
+
+    if(contact.status === "offline"){
+
+        message(
+            "Skype",
+            contact.name +
+            " is currently offline."
+        );
+
+        return;
+    }
+
+    activeVideo = video;
+
+    $("callName").textContent =
+        contact.name;
+
+    $("callState").textContent =
+        video
+            ? "Starting video call..."
+            : "Calling...";
+
+    $("callTimer").textContent = "";
+
+    $("videoPreview")
+        .classList.toggle(
+            "visible",
+            video
+        );
+
+    $("callLayer")
+        .classList.add("visible");
+
+    callSeconds = 0;
+
+    ring();
+
+    ringTimer =
+        setInterval(
+            ring,
+            1500
+        );
+
+    callConnectTimer =
+        setTimeout(
+            connectCall,
+            2700
+        );
+}
+
+function connectCall(){
+
+    if(ringTimer)
+        clearInterval(ringTimer);
+
+    ringTimer = null;
+
+    $("callState").textContent =
+        activeVideo
+            ? "Video call connected"
+            : "Call connected";
+
+    callClock =
+        setInterval(
+            () => {
+
+                callSeconds++;
+
+                const minutes =
+                    Math.floor(
+                        callSeconds / 60
+                    );
+
+                const seconds =
+                    callSeconds % 60;
+
+                $("callTimer").textContent =
+                    String(minutes)
+                        .padStart(2,"0")
+                    +
+                    ":"
+                    +
+                    String(seconds)
+                        .padStart(2,"0");
+
+            },
+            1000
+        );
+
+    playTone(880,.1);
+}
+
+function stopCall(){
+
+    if(ringTimer)
+        clearInterval(ringTimer);
+
+    if(callConnectTimer)
+        clearTimeout(callConnectTimer);
+
+    if(callClock)
+        clearInterval(callClock);
+
+    ringTimer = null;
+    callConnectTimer = null;
+    callClock = null;
+
+    $("callLayer")
+        .classList.remove("visible");
+
+    $("videoPreview")
+        .classList.remove("visible");
+
+    $("muteButton").textContent =
+        "Mute";
+}
+
+/* ==============================================
+   AUDIO
+============================================== */
+
+function playTone(
+    frequency,
+    duration,
+    volume = .045
+){
+
+    if(!state.options.sounds)
+        return;
+
+    try{
+
+        const AudioContext =
+            window.AudioContext ||
+            window.webkitAudioContext;
+
+        if(!AudioContext)
+            return;
+
+        const context =
+            new AudioContext();
+
+        const oscillator =
+            context.createOscillator();
+
+        const gain =
+            context.createGain();
+
+        oscillator.frequency.value =
+            frequency;
+
+        oscillator.type =
+            "sine";
+
+        gain.gain.value =
+            volume;
+
+        oscillator.connect(gain);
+        gain.connect(context.destination);
+
+        oscillator.start();
+
+        gain.gain.exponentialRampToValueAtTime(
+            .0001,
+            context.currentTime +
+            duration
+        );
+
+        oscillator.stop(
+            context.currentTime +
+            duration
+        );
+
+    }
+    catch{
+    }
+}
+
+function ring(){
+
+    playTone(440,.12,.055);
+
+    setTimeout(
+        () =>
+            playTone(
+                660,
+                .17,
+                .055
+            ),
+        160
+    );
+
+    setTimeout(
+        () =>
+            playTone(
+                880,
+                .19,
+                .055
+            ),
+        350
+    );
+}
+
+function playMessageSound(){
+
+    playTone(720,.06);
+
+    setTimeout(
+        () => playTone(920,.08),
+        70
+    );
+}
+
+/* ==============================================
+   ADD CONTACT
+============================================== */
+
+$("addContactOK")
+    .addEventListener(
+        "click",
+        () => {
+
+            const skype =
+                $("newContactSkype")
+                    .value
+                    .trim();
+
+            const name =
+                $("newContactName")
+                    .value
+                    .trim();
+
+            if(!skype){
+
+                message(
+                    "Add a Contact",
+                    "Enter a Skype Name."
+                );
+
+                return;
+            }
+
+            const id =
+                "contact_" +
+                Date.now();
+
+            state.contacts.push({
+
+                id,
+                name:name || skype,
+                skype,
+                mood:"New Skype contact",
+                status:"online"
+
+            });
+
+            state.chats[id] = [];
+
+            state.selected = id;
+
+            saveState();
+
+            $("newContactSkype").value = "";
+            $("newContactName").value = "";
+
+            closeDialog(
+                "addContactDialog"
+            );
+
+            renderAll();
+
+        }
+    );
+
+/* ==============================================
+   PROFILE
+============================================== */
+
+$("profileSave")
+    .addEventListener(
+        "click",
+        () => {
+
+            state.profile.name =
+                $("profileName")
+                    .value
+                    .trim()
+                ||
+                "Windows XP User";
+
+            state.profile.mood =
+                $("profileMood")
+                    .value
+                    .trim();
+
+            saveState();
+
+            closeDialog(
+                "profileDialog"
+            );
+
+            renderAll();
+
+        }
+    );
+
+/* ==============================================
+   OPTIONS
+============================================== */
+
+$("optionsSave")
+    .addEventListener(
+        "click",
+        () => {
+
+            state.profile.status =
+                $("optionStatus").value;
+
+            state.options.sounds =
+                $("optionSounds").checked;
+
+            state.options.replies =
+                $("optionReplies").checked;
+
+            saveState();
+
+            closeDialog(
+                "optionsDialog"
+            );
+
+            renderAll();
+
+        }
+    );
+
+/* ==============================================
+   ACTIONS
+============================================== */
+
+function action(name){
+
+    closeMenus();
+
+    switch(name){
+
+        case "profile":
+
+            $("profileName").value =
+                state.profile.name;
+
+            $("profileMood").value =
+                state.profile.mood;
+
+            showDialog(
+                "profileDialog"
+            );
+
+            break;
+
+        case "statusOnline":
+
+            state.profile.status =
+                "online";
+
+            saveState();
+            renderProfile();
+
+            break;
+
+        case "statusAway":
+
+            state.profile.status =
+                "away";
+
+            saveState();
+            renderProfile();
+
+            break;
+
+        case "statusBusy":
+
+            state.profile.status =
+                "busy";
+
+            saveState();
+            renderProfile();
+
+            break;
+
+        case "signOut":
+
+            signOut();
+            break;
+
+        case "exit":
+
+            message(
+                "Skype",
+                "Use the Windows XP window Close button to exit Skype."
+            );
+
+            break;
+
+        case "addContact":
+
+            showDialog(
+                "addContactDialog"
+            );
+
+            setTimeout(
+                () =>
+                    $("newContactSkype")
+                        .focus(),
+                10
+            );
+
+            break;
+
+        case "showOnline":
+
+            $("contactSearch").value = "";
+            renderContacts();
+
+            $("statusText").textContent =
+                "Showing all contacts";
+
+            break;
+
+        case "sendFile":
+
+            if(!selectedContact()){
+
+                message(
+                    "Skype",
+                    "Select a contact first."
+                );
+
+                return;
+            }
+
+            $("fileInput").click();
+
+            break;
+
+        case "clearHistory":{
+
+            const contact =
+                selectedContact();
+
+            if(!contact)
+                return;
+
+            state.chats[contact.id] = [];
+
+            saveState();
+            renderChat();
+
+            break;
+        }
+
+        case "call":
+            startCall(false);
+            break;
+
+        case "video":
+            startCall(true);
+            break;
+
+        case "options":
+
+            $("optionStatus").value =
+                state.profile.status;
+
+            $("optionSounds").checked =
+                state.options.sounds;
+
+            $("optionReplies").checked =
+                state.options.replies;
+
+            showDialog(
+                "optionsDialog"
+            );
+
+            break;
+
+        case "help":
+
+            message(
+                "Skype Help",
+                "Select a contact from the left panel. You can send messages, transfer a simulated file, make voice/video calls, change your status and add contacts."
+            );
+
+            break;
+
+        case "about":
+
+            message(
+                "About Skype",
+                "Skype Classic XP Web Simulation\n\nInspired by the classic Skype 4.x/5.x desktop interface.\n\nNo original Skype executable code, network protocol or proprietary audio is included."
+            );
+
+            break;
+    }
+}
+
+document
+    .querySelectorAll(
+        "[data-action]"
+    )
+    .forEach(element => {
+
+        element.addEventListener(
+            "click",
+            () =>
+                action(
+                    element.dataset.action
+                )
+        );
+
+    });
+
+/* ==============================================
+   KEYBOARD
+============================================== */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if(event.key === "Escape"){
+
+            closeMenus();
+
+            document
+                .querySelectorAll(
+                    ".dialog-layer.visible"
+                )
+                .forEach(
+                    dialog =>
+                        dialog.classList
+                            .remove("visible")
+                );
+        }
+
+        if(
+            event.ctrlKey &&
+            event.key.toLowerCase() === "f"
+        ){
+
+            event.preventDefault();
+
+            $("contactSearch").focus();
+
+        }
+
+    }
+);
+
+/* ==============================================
+   RENDER
+============================================== */
+
+function renderAll(){
+
+    renderProfile();
+    renderContacts();
+    renderChat();
+
+}
+
+if(
+    state.signedIn &&
+    $("rememberMe").checked
+){
+
+    $("loginScreen")
+        .style.display =
+            "none";
+
+    $("mainScreen")
+        .classList
+        .add("visible");
+
+    renderAll();
+}
+
+})();
+</script>
+
+</body>
+</html>

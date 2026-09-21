@@ -1,0 +1,1040 @@
+﻿<!--
+COMMAND & CONQUER: GENERALS - XP TACTICAL LAUNCHER & WAR ROOM SIMULATOR
+Bu modül ana sistemdeki iframe içinde izole çalışır. Harici bağımlılık, CDN veya video servisi gerektirmez.
+
+| Dosya Adı | Boyut | Zorunluluk | Açıklama |
+| :--- | :---: | :---: | :--- |
+| icon.png  | 32x32 | Zorunlu    | XP Masaüstü ve başlat menüsü ikonu (Klasörde yer almalıdır) |
+
+ÖZELLİKLER:
+- İkinci OS çerçevesi veya görev çubuğu içermez; doğrudan operasyon arayüzü başlar.
+- Web Audio API ile askeri radar sinyali, taktik beeper, nükleer siren ve telsiz efektleri üretilir.
+- Fraksiyon Brifingleri: USA, China, GLA taktik istihbarat dosyaları.
+- Süper Silah Protokolü: Nükleer Füze, Parçacık Işını (Particle Uplink) ve SCUD Fırtınası simülasyonu.
+- Orijinal Generals konsol hileleri ve taktik harekat radarı.
+- alert(), confirm(), prompt() yasaktır; tüm pencereler .xp-dialog ile açılır.
+-->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Command & Conquer: Generals</title>
+<style>
+  :root {
+    --mil-green: #111a12;
+    --mil-panel: #1b261b;
+    --mil-border: #3d563a;
+    --mil-gold: #d4a017;
+    --mil-text: #c2d4be;
+    --mil-alert: #ff3b30;
+    --xp-bg: #ece9d8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #080d09; font-family: Tahoma, Arial, sans-serif; font-size: 11px; color: var(--mil-text); }
+
+  #app {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 30%, #172418 0%, #0a110a 70%, #040805 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Askeri Radar Tarama Çizgisi */
+  .scanline {
+    position: absolute; inset: 0;
+    background: linear-gradient(rgba(18, 30, 18, 0) 50%, rgba(0, 0, 0, 0.4) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+    background-size: 100% 3px, 6px 100%;
+    pointer-events: none;
+    z-index: 20;
+    opacity: 0.6;
+  }
+
+  /* ÜST KOMUTA BAŞLIĞI */
+  .top-bar {
+    height: 48px;
+    background: linear-gradient(to bottom, #233423 0%, #152215 100%);
+    border-bottom: 2px solid var(--mil-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.7);
+    z-index: 10;
+  }
+
+  .branding {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .branding img {
+    width: 32px;
+    height: 32px;
+    filter: drop-shadow(0 0 4px rgba(212, 160, 23, 0.6));
+  }
+  .branding-title {
+    font-family: Impact, "Arial Black", sans-serif;
+    font-size: 18px;
+    letter-spacing: 1.5px;
+    color: var(--mil-gold);
+    text-transform: uppercase;
+    text-shadow: 0 2px 4px #000;
+  }
+  .branding-sub {
+    font-size: 9px;
+    color: #8da489;
+    letter-spacing: 2px;
+  }
+
+  .status-ticker {
+    font-family: "Lucida Console", Monaco, monospace;
+    font-size: 11px;
+    color: #55ff55;
+    background: #091209;
+    padding: 4px 10px;
+    border: 1px solid #233e21;
+    border-radius: 2px;
+    box-shadow: inset 0 0 5px rgba(0,255,0,0.2);
+  }
+
+  /* MERKEZİ HARP ODASI DÜZENİ */
+  .war-room {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 240px 1fr 280px;
+    gap: 12px;
+    padding: 12px;
+    overflow: hidden;
+    position: relative;
+    z-index: 5;
+  }
+
+  /* SOL PANEL: HAREKAT MENÜSÜ */
+  .tactical-menu {
+    background: rgba(18, 28, 18, 0.85);
+    border: 1px solid var(--mil-border);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    box-shadow: inset 0 0 12px rgba(0,0,0,0.6);
+  }
+
+  .panel-header {
+    font-family: Impact, sans-serif;
+    font-size: 13px;
+    letter-spacing: 1px;
+    color: var(--mil-gold);
+    border-bottom: 1px solid var(--mil-border);
+    padding-bottom: 4px;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .mil-btn {
+    position: relative;
+    background: linear-gradient(to bottom, #2b3d29 0%, #1c291b 100%);
+    border: 1px solid #486544;
+    color: #d2e4cf;
+    padding: 8px 12px;
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    text-align: left;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.1s;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+  }
+  .mil-btn:hover {
+    background: linear-gradient(to bottom, #3d563a 0%, #253823 100%);
+    border-color: var(--mil-gold);
+    color: #ffffff;
+    box-shadow: 0 0 8px rgba(212, 160, 23, 0.4);
+  }
+  .mil-btn:active {
+    transform: translateY(1px);
+    background: #152215;
+  }
+  .mil-btn.danger {
+    border-color: #8b2520;
+    color: #ff9d99;
+  }
+  .mil-btn.danger:hover {
+    background: linear-gradient(to bottom, #6d1b17 0%, #46110e 100%);
+    border-color: var(--mil-alert);
+    color: #fff;
+    box-shadow: 0 0 8px rgba(255, 59, 48, 0.5);
+  }
+
+  /* ORTA RADAR ALANI */
+  .radar-container {
+    background: #060c07;
+    border: 1px solid var(--mil-border);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  #radarCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .radar-hud {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+  }
+  .hud-box {
+    background: rgba(10, 18, 10, 0.85);
+    border: 1px solid #30462e;
+    padding: 4px 8px;
+    font-size: 10px;
+    color: #8da489;
+  }
+
+  /* SAĞ PANEL: FRAKSİYON VE SİLAH İSTİHBARATI */
+  .intel-panel {
+    background: rgba(18, 28, 18, 0.85);
+    border: 1px solid var(--mil-border);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: inset 0 0 12px rgba(0,0,0,0.6);
+  }
+
+  .faction-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .faction-card {
+    border: 1px solid #324730;
+    padding: 6px 8px;
+    background: rgba(25, 38, 25, 0.6);
+    cursor: pointer;
+    transition: 0.15s;
+  }
+  .faction-card:hover, .faction-card.active {
+    border-color: var(--mil-gold);
+    background: rgba(43, 64, 41, 0.9);
+  }
+  .faction-card h4 {
+    color: var(--mil-gold);
+    font-size: 11px;
+    margin-bottom: 2px;
+  }
+  .faction-card p {
+    font-size: 9.5px;
+    color: #9cb497;
+    line-height: 1.25;
+  }
+
+  .unit-preview {
+    margin-top: auto;
+    border: 1px solid #324730;
+    background: #0a120a;
+    padding: 8px;
+    font-family: "Lucida Console", Monaco, monospace;
+    font-size: 10px;
+    min-height: 90px;
+    color: #84dd84;
+    white-space: pre-wrap;
+    line-height: 1.4;
+  }
+
+  /* ALT DURUM BARI */
+  .bottom-bar {
+    height: 24px;
+    background: #101810;
+    border-top: 1px solid #283a26;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    font-size: 10px;
+    color: #799275;
+    z-index: 10;
+  }
+
+  /* WINDOWS XP DİYALOG KUTULARI (POPUP ALTERNATİFİ) */
+  .dialog-overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .xp-dialog {
+    width: 440px;
+    background: var(--xp-bg);
+    border: 3px solid #0055ea;
+    border-radius: 4px 4px 0 0;
+    box-shadow: 2px 4px 16px rgba(0,0,0,0.8);
+    color: #000;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .xp-dialog-header {
+    background: linear-gradient(to bottom, #0058ee 0%, #3593ff 6%, #0058ee 14%, #0053ee 100%);
+    padding: 4px 8px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 11px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .xp-dialog-body {
+    padding: 12px;
+    background: #fff;
+    font-size: 11px;
+    line-height: 1.4;
+    max-height: 280px;
+    overflow-y: auto;
+  }
+  .xp-dialog-footer {
+    background: var(--xp-bg);
+    border-top: 1px solid #ccc;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+  .xp-btn {
+    padding: 3px 14px;
+    background: #ece9d8;
+    border: 2px outset #ffffff;
+    font-size: 11px;
+    cursor: pointer;
+  }
+  .xp-btn:active { border-style: inset; }
+
+  /* Süper Silah Alarm Efekti */
+  .alert-flash {
+    animation: nukeAlert 0.8s infinite alternate;
+  }
+  @keyframes nukeAlert {
+    0% { box-shadow: inset 0 0 10px rgba(255, 0, 0, 0.2); }
+    100% { box-shadow: inset 0 0 45px rgba(255, 0, 0, 0.85); }
+  }
+
+  /* ÜST BAR SAĞ GRUP: TİCKER + KREDİ + SES */
+  .top-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .credit-box {
+    font-family: "Lucida Console", Monaco, monospace;
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--mil-gold);
+    background: #130f06;
+    border: 1px solid #4a3a10;
+    padding: 4px 10px;
+    border-radius: 2px;
+    white-space: nowrap;
+    box-shadow: inset 0 0 5px rgba(212,160,23,0.15);
+  }
+  .sound-toggle {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--mil-border);
+    background: linear-gradient(to bottom, #2b3d29 0%, #1c291b 100%);
+    color: #d2e4cf;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 2px;
+  }
+  .sound-toggle:hover {
+    border-color: var(--mil-gold);
+    color: #fff;
+    box-shadow: 0 0 6px rgba(212, 160, 23, 0.4);
+  }
+
+  /* ÜRETİM / HATA GERİ BİLDİRİMİ İÇİN DEVRE DIŞI GÖRÜNÜM */
+  .mil-btn.disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  /* AÇILIŞ (BOOT) EKRANI */
+  #bootScreen {
+    position: fixed;
+    inset: 0;
+    background: #020402;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: "Lucida Console", Monaco, monospace;
+    transition: opacity 0.6s ease;
+  }
+  #bootScreen.hidden { opacity: 0; pointer-events: none; }
+  #bootScreen .boot-logo {
+    font-family: Impact, sans-serif;
+    font-size: 26px;
+    letter-spacing: 3px;
+    color: var(--mil-gold);
+    text-shadow: 0 0 12px rgba(212, 160, 23, 0.6);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  #bootScreen .boot-sub {
+    font-size: 10px;
+    color: #55ff55;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+  }
+  #bootScreen .boot-bar-track {
+    width: 280px;
+    height: 10px;
+    border: 1px solid #2f4a2c;
+    background: #081208;
+  }
+  #bootScreen .boot-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #2e7d32, #7fff7f);
+    animation: bootLoad 2.1s ease forwards;
+  }
+  @keyframes bootLoad { to { width: 100%; } }
+  #bootScreen .boot-line {
+    font-size: 11px;
+    color: #8da489;
+    margin-top: 10px;
+    letter-spacing: 1px;
+  }
+
+  /* DUYARLI TASARIM: DAR EKRANLAR */
+  @media (max-width: 900px) {
+    html, body { overflow-y: auto; overflow-x: hidden; }
+    #app { height: auto; min-height: 100%; }
+    .top-bar { flex-wrap: wrap; height: auto; padding: 8px 10px; gap: 6px; }
+    .top-actions { flex-wrap: wrap; width: 100%; order: 3; }
+    .status-ticker { flex: 1; min-width: 160px; }
+    .war-room {
+      grid-template-columns: 1fr;
+      grid-auto-rows: auto;
+      height: auto;
+      overflow: visible;
+    }
+    .radar-container { height: 320px; order: 1; }
+    .tactical-menu { order: 2; }
+    .intel-panel { order: 3; }
+    .unit-preview { min-height: 70px; }
+    .xp-dialog { width: 92vw; }
+  }
+</style>
+</head>
+<body>
+<div id="bootScreen">
+  <div class="boot-logo">S.A.G.E. Engine</div>
+  <div class="boot-sub">TACTICAL COMMAND INTERFACE</div>
+  <div class="boot-bar-track"><div class="boot-bar-fill"></div></div>
+  <div class="boot-line" id="bootStatus">Uydu bağlantısı kuruluyor...</div>
+</div>
+<div id="app">
+  <div class="scanline"></div>
+
+  <!-- ÜST PANEL -->
+  <header class="top-bar">
+    <div class="branding">
+      <img src="icon.png" alt="Generals" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%2214%22 fill=%22%232b3d29%22 stroke=%22%23d4a017%22 stroke-width=%222%22/%3E%3Cpolygon points=%2216,6 19,13 26,14 21,19 23,26 16,22 9,26 11,19 6,14 13,13%22 fill=%22%23ffd700%22/%3E%3C/svg%3E';">
+      <div>
+        <div class="branding-title">Command &amp; Conquer: Generals</div>
+        <div class="branding-sub">TACTICAL COMMAND CENTER &bull; SP3 COMPATIBLE</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <div class="credit-box" id="creditBox">$10.000</div>
+      <div class="status-ticker" id="tickerText">DEFCON 2 // RADAR ONLINE // SATELLITE LOCKED</div>
+      <button class="sound-toggle" id="soundToggle" onclick="toggleSound()" title="Ses Aç/Kapat">🔊</button>
+    </div>
+  </header>
+
+  <!-- HARP ODASI İÇERİK -->
+  <main class="war-room">
+    <!-- SOL: HAREKAT SEÇENEKLERİ -->
+    <section class="tactical-menu">
+      <div class="panel-header"><span>HAREKAT PROTOKOLLERİ</span><span>SYS.01</span></div>
+      <button class="mil-btn" onclick="startBriefing('campaign')">★ Tek Kişilik Sefer</button>
+      <button class="mil-btn" onclick="startBriefing('skirmish')">⚔ Çarpışma (Skirmish)</button>
+      <button class="mil-btn" onclick="openModal('cheatsModal')">⚡ General Güçleri (Cheats)</button>
+      <button class="mil-btn" onclick="openModal('unitsModal')">📋 Birim &amp; Bina Veritabanı</button>
+      <div class="panel-header" style="margin-top:12px;"><span>SÜPER SİLAHLAR</span><span>WEAPONS</span></div>
+      <button class="mil-btn danger" onclick="triggerSuperweapon('nuke')">☢ Nükleer Füze Ateşle</button>
+      <button class="mil-btn danger" onclick="triggerSuperweapon('particle')">⚡ Parçacık Işını (USA)</button>
+      <button class="mil-btn danger" onclick="triggerSuperweapon('scud')">☣ SCUD Fırtınası (GLA)</button>
+      <div style="margin-top:auto; font-size:9.5px; color:#688264; line-height:1.4;">
+        Not: Tedarik fonu her 3 saniyede otomatik artar. Sağ panelden birim üretebilir, <code>Ctrl+Shift+~</code> ile konsolu açabilirsiniz.
+      </div>
+    </section>
+
+    <!-- ORTA: TAKTİK SAVAŞ RADARI -->
+    <section class="radar-container" id="radarBox">
+      <canvas id="radarCanvas"></canvas>
+      <div class="radar-hud">
+        <div class="hud-box" id="gridCoord">KOOR: 33°19'N 44°22'E (Bağdat Sektörü)</div>
+        <div class="hud-box" id="unitCount">BİRİMLER: 0 Dost / 0 Düşman</div>
+        <div class="hud-box" id="alertLevel" style="color:#55ff55;">TEHDİT SEVİYESİ: DÜŞÜK</div>
+      </div>
+    </section>
+
+    <!-- SAĞ: İSTİHBARAT & FRAKSİYONLAR -->
+    <section class="intel-panel">
+      <div class="panel-header"><span>KUTUP BİLGİSİ (FACTIONS)</span><span>INTEL</span></div>
+      <div class="faction-cards">
+        <div class="faction-card active" data-faction="usa" onclick="selectFaction('usa', event)">
+          <h4>UNITED STATES (USA)</h4>
+          <p>Yüksek teknoloji, lazer savunması, Crusader tankları ve hava üstünlüğü.</p>
+        </div>
+        <div class="faction-card" data-faction="china" onclick="selectFaction('china', event)">
+          <h4>PEOPLE'S REPUBLIC (CHINA)</h4>
+          <p>Ağır zırh, Overlord süper tankları, napalm ve sayısal üstünlük.</p>
+        </div>
+        <div class="faction-card" data-faction="gla" onclick="selectFaction('gla', event)">
+          <h4>GLOBAL LIBERATION ARMY (GLA)</h4>
+          <p>Gerilla taktikleri, yeraltı tünelleri, toksin saldırıları ve hurda yükseltmeleri.</p>
+        </div>
+      </div>
+      <div class="panel-header" style="margin-top:6px;"><span>SEÇİLİ BİRİM RAPORU</span><span>SPEC</span></div>
+      <div class="unit-preview" id="unitSpecText">Crusader Main Battle Tank
+Zırh: Ağır Kompozit
+Silah: 120mm Yivsiz Top
+Özellik: Taktik Lazer Desteği (Point Defense)
+Durum: Üretim Hattında Hazır</div>
+      <button class="mil-btn" style="margin-top:6px;" onclick="produceUnit()">⚙ Birim Üret ($500)</button>
+    </section>
+  </main>
+
+  <!-- ALT DURUM -->
+  <footer class="bottom-bar">
+    <span>Windows XP Emulation Core &bull; Generals SAGE Engine Interface</span>
+    <span id="systemClock">ZAMAN: 12:00:00 UTC</span>
+  </footer>
+
+  <!-- XP DİYALOG: HAREKAT BRİFİNGİ -->
+  <div class="dialog-overlay" id="briefingModal">
+    <div class="xp-dialog">
+      <div class="xp-dialog-header">
+        <span id="briefingTitle">Görev Brifingi: Operasyon Son Kale</span>
+        <span style="cursor:pointer;" onclick="closeModal('briefingModal')">✕</span>
+      </div>
+      <div class="xp-dialog-body" id="briefingContent">
+        <b>İstihbarat Raporu:</b><br>
+        Bölgedeki GLA tünel ağları tespit edildi. Komutan, derhal bir Command Center kurup elektrik santrallerini devreye almalı ve Overlord birlikleri gelmeden önce köprüyü tutmalısınız.
+      </div>
+      <div class="xp-dialog-footer">
+        <button class="xp-btn" onclick="playRadioVoice(); closeModal('briefingModal');">Emri Uygula</button>
+        <button class="xp-btn" onclick="closeModal('briefingModal')">İptal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- XP DİYALOG: KONSOL & HİLELER -->
+  <div class="dialog-overlay" id="cheatsModal">
+    <div class="xp-dialog">
+      <div class="xp-dialog-header">
+        <span>Taktik Komuta Konsolu &amp; Hileler</span>
+        <span style="cursor:pointer;" onclick="closeModal('cheatsModal')">✕</span>
+      </div>
+      <div class="xp-dialog-body">
+        <b>Orijinal Generals Konsol Kodları:</b><br><br>
+        <code>Ctrl + Shift + ~</code> - Bu paneli her yerden anında açar.<br>
+        <code>Esc</code> - Açık pencereyi kapatır.<br><br>
+        <b>Aktif Simülasyon Mekanikleri:</b><br>
+        &bull; <b>Tedarik Fonu:</b> Her 3 saniyede otomatik gelir üretilir; üst bardan takip edin.<br>
+        &bull; <b>Birim Üretimi:</b> Sağ paneldeki "Birim Üret" düğmesi $500 karşılığında radara yeni dost birim ekler.<br>
+        &bull; <b>Süper Silahlar:</b> Nükleer Füze $5,000 &bull; Parçacık Işını $4,000 &bull; SCUD Fırtınası $3,000; ateşlendiğinde radar üzerinde gerçek patlama efekti oluşturup yakındaki düşman birimlerini imha eder.<br><br>
+        <button class="mil-btn" style="width:100%; text-align:center;" onclick="grantSupplyCash()">+50,000$ Destek Fonu Ekle</button>
+      </div>
+      <div class="xp-dialog-footer">
+        <button class="xp-btn" onclick="closeModal('cheatsModal')">Kapat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- XP DİYALOG: BİRİM KATALOĞU -->
+  <div class="dialog-overlay" id="unitsModal">
+    <div class="xp-dialog">
+      <div class="xp-dialog-header">
+        <span>Birim ve Süper Silah Rehberi</span>
+        <span style="cursor:pointer;" onclick="closeModal('unitsModal')">✕</span>
+      </div>
+      <div class="xp-dialog-body">
+        <b>USA:</b> Paladin Tank, Aurora Bomber, Raptor, Tomahawk Launcher.<br>
+        <b>China:</b> Overlord Tank, Battlemaster, MiG-29, Helix Helicopter.<br>
+        <b>GLA:</b> Technical, Scorpion Tank, Marauder, Rocket Buggy, Angry Mob.<br><br>
+        <i>"Building the Chinese Empire!" &bull; "Preserving Freedom!" &bull; "AK-47s for everybody!"</i>
+      </div>
+      <div class="xp-dialog-footer">
+        <button class="xp-btn" onclick="closeModal('unitsModal')">Tamam</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   WEB AUDIO API: SENTETİK ASKERİ RADAR VE ALARM SESLERİ
+   ========================================================= */
+/* =========================================================
+   GENEL SİMÜLASYON DURUMU
+   ========================================================= */
+let soundEnabled = true;
+let credits = 10000;
+let currentFaction = 'usa';
+let tickerLock = false;
+let superweaponActive = false;
+
+function updateCreditsDisplay() {
+  document.getElementById('creditBox').innerText = '$' + credits.toLocaleString('tr-TR');
+}
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  const btn = document.getElementById('soundToggle');
+  btn.innerText = soundEnabled ? '🔊' : '🔇';
+  if (soundEnabled) playBeep(700, 0.05);
+}
+
+function setTickerTemp(msg, duration = 2500) {
+  tickerLock = true;
+  document.getElementById('tickerText').innerText = msg;
+  setTimeout(() => {
+    if (!superweaponActive) {
+      document.getElementById('tickerText').innerText = 'DEFCON 2 // RADAR ONLINE // SATELLITE LOCKED';
+    }
+    tickerLock = false;
+  }, duration);
+}
+
+let audioCtx = null;
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function playBeep(freq = 880, dur = 0.08, type = 'sine') {
+  if (!soundEnabled) return;
+  try {
+    const ctx = getAudio();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + dur);
+  } catch(e) {}
+}
+
+function playSiren() {
+  if (!soundEnabled) return;
+  try {
+    const ctx = getAudio();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(400, ctx.currentTime);
+    osc.frequency.linearRampToValueAtTime(800, ctx.currentTime + 0.35);
+    osc.frequency.linearRampToValueAtTime(400, ctx.currentTime + 0.7);
+    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 1.2);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 1.2);
+  } catch(e) {}
+}
+
+function playRadioVoice() {
+  playBeep(440, 0.04, 'square');
+  setTimeout(() => playBeep(587, 0.05, 'square'), 50);
+}
+
+/* =========================================================
+   CANVAS TAKTİK RADAR MOTORU
+   ========================================================= */
+const canvas = document.getElementById('radarCanvas');
+const ctx = canvas.getContext('2d');
+let radarAngle = 0;
+const targets = [];
+let explosion = null; // {nx, ny, r, alpha}
+
+function resizeRadar() {
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+}
+window.addEventListener('resize', resizeRadar);
+resizeRadar();
+
+// Rastgele düşman/müttefik birimleri oluştur
+for (let i = 0; i < 18; i++) {
+  targets.push({
+    x: 0.15 + Math.random() * 0.7,
+    y: 0.15 + Math.random() * 0.7,
+    faction: Math.random() > 0.4 ? 'enemy' : 'friendly',
+    size: 2 + Math.random() * 3,
+    alpha: 0.8
+  });
+}
+
+function updateUnitHud() {
+  const friendly = targets.filter(t => t.faction === 'friendly').length;
+  const enemy = targets.filter(t => t.faction === 'enemy').length;
+  const el = document.getElementById('unitCount');
+  if (el) el.innerText = `BİRİMLER: ${friendly} Dost / ${enemy} Düşman`;
+}
+
+function spawnExplosion() {
+  const nx = 0.2 + Math.random() * 0.6;
+  const ny = 0.2 + Math.random() * 0.6;
+  explosion = { nx, ny, r: 0, alpha: 1 };
+
+  const w = canvas.width, h = canvas.height;
+  const cx = w / 2, cy = h / 2;
+  const maxR = Math.min(cx, cy) - 20;
+  const ex = cx + (nx - 0.5) * maxR * 1.8;
+  const ey = cy + (ny - 0.5) * maxR * 1.8;
+
+  for (let i = targets.length - 1; i >= 0; i--) {
+    const t = targets[i];
+    const tx = cx + (t.x - 0.5) * maxR * 1.8;
+    const ty = cy + (t.y - 0.5) * maxR * 1.8;
+    if (t.faction === 'enemy' && Math.hypot(tx - ex, ty - ey) < 120) {
+      targets.splice(i, 1);
+    }
+  }
+  updateUnitHud();
+}
+
+function drawRadar() {
+  const w = canvas.width;
+  const h = canvas.height;
+  const cx = w / 2;
+  const cy = h / 2;
+  const maxR = Math.min(cx, cy) - 20;
+
+  ctx.fillStyle = '#060d07';
+  ctx.fillRect(0, 0, w, h);
+
+  // Grid Çizgileri
+  ctx.strokeStyle = '#182d16';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < w; x += 35) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+  for (let y = 0; y < h; y += 35) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+
+  // Konsantrik Radar Halkaları
+  ctx.strokeStyle = '#274b24';
+  for (let r = 40; r <= maxR; r += 45) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  // Dönen Tarama Kirişi
+  radarAngle += 0.035;
+  const beamX = cx + Math.cos(radarAngle) * maxR;
+  const beamY = cy + Math.sin(radarAngle) * maxR;
+
+  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR);
+  grad.addColorStop(0, 'rgba(64, 255, 64, 0.3)');
+  grad.addColorStop(1, 'rgba(10, 35, 10, 0.0)');
+
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.arc(cx, cy, maxR, radarAngle - 0.35, radarAngle);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(74, 255, 74, 0.18)';
+  ctx.fill();
+
+  ctx.strokeStyle = '#62ff62';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(beamX, beamY);
+  ctx.stroke();
+
+  // Birimler (Blip)
+  targets.forEach(t => {
+    const tx = cx + (t.x - 0.5) * maxR * 1.8;
+    const ty = cy + (t.y - 0.5) * maxR * 1.8;
+    ctx.fillStyle = t.faction === 'enemy' ? '#ff4040' : '#40ff40';
+    ctx.beginPath();
+    ctx.arc(tx, ty, t.size, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  // Süper Silah Patlama Efekti
+  if (explosion) {
+    const ex = cx + (explosion.nx - 0.5) * maxR * 1.8;
+    const ey = cy + (explosion.ny - 0.5) * maxR * 1.8;
+    explosion.r += 6;
+    explosion.alpha -= 0.02;
+    if (explosion.alpha > 0) {
+      ctx.beginPath();
+      ctx.arc(ex, ey, explosion.r, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(255,140,40,${explosion.alpha})`;
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(ex, ey, Math.max(explosion.r - 25, 0), 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(255,220,120,${explosion.alpha * 0.6})`;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(ex, ey, 4, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,230,180,${explosion.alpha})`;
+      ctx.fill();
+    } else {
+      explosion = null;
+    }
+  }
+
+  requestAnimationFrame(drawRadar);
+}
+drawRadar();
+updateUnitHud();
+
+/* =========================================================
+   KULLANICI ETKİLEŞİMİ & SÜPER SİLAH PROTOKOLLERİ
+   ========================================================= */
+const factionData = {
+  usa: {
+    title: 'Crusader Main Battle Tank',
+    spec: 'USA Yüksek Komuta Birimi\nZırh: Kompozit Tabakalı\nSilah: 120mm Yivsiz Top\nÖzellik: Lazer Savunma İHA desteği.\n"Preserving freedom worldwide."',
+    quotes: ['"Preserving freedom worldwide."', '"This is General Ironside speaking."', '"Justice will be served."']
+  },
+  china: {
+    title: 'Overlord Heavy Battle Tank',
+    spec: 'Çin Halk Kurtuluş Ordusu\nZırh: Ağır Çelik Döküm (Ultra)\nSilah: Çift Namlulu 190mm Top\nEklenti: Propaganda Kulesi & Gatling Topu.\n"China will grow larger!"',
+    quotes: ['"China will grow larger!"', '"Building the Chinese Empire!"', '"For the Motherland!"']
+  },
+  gla: {
+    title: 'Technical Gun Truck',
+    spec: 'GLA Mobil Gerilla Hücresi\nZırh: Hurda Zırh Güçlendirmesi\nSilah: DShK 12.7mm Ağır Makineli\nÖzellik: Hızlı yağmalama ve hurda toplama.\n"We have big plans!"',
+    quotes: ['"We have big plans!"', '"AK-47s for everybody!"', '"Scrap is power!"']
+  }
+};
+
+function selectFaction(f, evt) {
+  playBeep(620, 0.06);
+  currentFaction = f;
+  document.querySelectorAll('.faction-card').forEach(c => c.classList.remove('active'));
+  const card = (evt && evt.currentTarget) || document.querySelector(`.faction-card[data-faction="${f}"]`);
+  if (card) card.classList.add('active');
+  document.getElementById('unitSpecText').innerText = factionData[f].spec;
+}
+
+function produceUnit() {
+  if (credits < 500) {
+    playBeep(180, 0.15, 'square');
+    setTickerTemp('YETERSİZ FON: Birim üretimi için $500 gerekli!', 2200);
+    return;
+  }
+  credits -= 500;
+  updateCreditsDisplay();
+  targets.push({
+    x: 0.5 + (Math.random() - 0.5) * 0.12,
+    y: 0.5 + (Math.random() - 0.5) * 0.12,
+    faction: 'friendly',
+    size: 2 + Math.random() * 3,
+    alpha: 1
+  });
+  updateUnitHud();
+  playBeep(760, 0.08);
+  setTickerTemp('ÜRETİM TAMAMLANDI: Yeni birim sahaya sürüldü.', 2200);
+}
+
+const superweaponCosts = { nuke: 5000, particle: 4000, scud: 3000 };
+
+function triggerSuperweapon(type) {
+  const cost = superweaponCosts[type];
+  if (credits < cost) {
+    playBeep(180, 0.15, 'square');
+    setTickerTemp(`YETERSİZ FON: Bu protokol için $${cost.toLocaleString('tr-TR')} gerekli!`, 2500);
+    return;
+  }
+  credits -= cost;
+  updateCreditsDisplay();
+
+  const radarBox = document.getElementById('radarBox');
+  const ticker = document.getElementById('tickerText');
+  const alertLvl = document.getElementById('alertLevel');
+
+  superweaponActive = true;
+  tickerLock = true;
+  playSiren();
+  radarBox.classList.add('alert-flash');
+  alertLvl.innerText = 'TEHDİT SEVİYESİ: KRİTİK ALARM';
+  alertLvl.style.color = '#ff3b30';
+
+  let countdown = 5;
+  const name = type === 'nuke' ? 'NÜKLEER FÜZE' : (type === 'particle' ? 'PARÇACIK IŞINI' : 'SCUD FIRTINASI');
+  ticker.innerText = `UYARI: ${name} GERİ SAYIMI: ${countdown} SANİYE`;
+
+  const sector = 10 + Math.floor(Math.random() * 89);
+
+  const timer = setInterval(() => {
+    countdown--;
+    playBeep(320, 0.09, 'sawtooth');
+    if (countdown > 0) {
+      ticker.innerText = `UYARI: ${name} HEDEFE KİLİTLENDİ: ${countdown} SANİYE!`;
+    } else {
+      clearInterval(timer);
+      spawnExplosion();
+      ticker.innerText = `PATLAMA TESPİT EDİLDİ: Sektör ${sector} imha edildi!`;
+      playBeep(120, 0.6, 'square');
+      setTimeout(() => {
+        radarBox.classList.remove('alert-flash');
+        alertLvl.innerText = 'TEHDİT SEVİYESİ: DÜŞÜK';
+        alertLvl.style.color = '#55ff55';
+        ticker.innerText = 'DEFCON 2 // RADAR ONLINE // SATELLITE LOCKED';
+        superweaponActive = false;
+        tickerLock = false;
+      }, 4000);
+    }
+  }, 1000);
+}
+
+function startBriefing(mode) {
+  playRadioVoice();
+  const title = mode === 'campaign' ? 'Tek Kişilik Sefer: Al-Hillah Taarruzu' : 'Çarpışma (Skirmish): Tournament Desert';
+  const desc = mode === 'campaign'
+    ? 'İstihbarat Raporu:\nGLA kuvvetleri petrol rafinelerine sızdı. Derhal bir Command Center kurun, Chinook helikopterleriyle tedarik kasalarını toplayın ve hava saldırısıyla düşman tünellerini çökertin.'
+    : '4 Oyunculu Taktik Harita (Tournament Desert):\nOrta bölgedeki petrol kuyularını ele geçiren general üstünlüğü sağlar. Overlord tankları gelmeden önce üssünüzü Patriot füzeleriyle donatın.';
+
+  document.getElementById('briefingTitle').innerText = title;
+  document.getElementById('briefingContent').innerText = desc;
+  openModal('briefingModal');
+}
+
+function grantSupplyCash() {
+  playBeep(980, 0.12);
+  credits += 50000;
+  updateCreditsDisplay();
+  const alertLvl = document.getElementById('alertLevel');
+  alertLvl.innerText = 'TEDARİK FONU: +50,000$ HESABA EKLENDİ';
+  alertLvl.style.color = '#ffd700';
+  setTimeout(() => {
+    alertLvl.innerText = 'TEHDİT SEVİYESİ: DÜŞÜK';
+    alertLvl.style.color = '#55ff55';
+  }, 2500);
+  closeModal('cheatsModal');
+}
+
+function openModal(id) {
+  playBeep(520, 0.05);
+  document.getElementById(id).style.display = 'flex';
+}
+function closeModal(id) {
+  playBeep(420, 0.04);
+  document.getElementById(id).style.display = 'none';
+}
+
+// Saat Güncellemesi
+setInterval(() => {
+  const d = new Date();
+  document.getElementById('systemClock').innerText = 'ZAMAN: ' + d.toTimeString().split(' ')[0] + ' UTC';
+}, 1000);
+
+/* =========================================================
+   KLAVYE KISAYOLLARI
+   ========================================================= */
+window.addEventListener('keydown', (e) => {
+  if (e.ctrlKey && e.shiftKey && (e.key === '`' || e.key === '~' || e.code === 'Backquote')) {
+    e.preventDefault();
+    openModal('cheatsModal');
+  }
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.dialog-overlay').forEach(o => {
+      if (o.style.display === 'flex') o.style.display = 'none';
+    });
+  }
+});
+
+/* =========================================================
+   PASİF TEDARİK GELİRİ (HARVESTER SİMÜLASYONU)
+   ========================================================= */
+setInterval(() => {
+  credits += 50 + Math.floor(Math.random() * 100);
+  updateCreditsDisplay();
+}, 3000);
+
+/* =========================================================
+   BOŞTA FRAKSİYON TELSİZ REPLİKLERİ
+   ========================================================= */
+setInterval(() => {
+  if (tickerLock || superweaponActive) return;
+  const quotes = factionData[currentFaction].quotes;
+  const q = quotes[Math.floor(Math.random() * quotes.length)];
+  const ticker = document.getElementById('tickerText');
+  ticker.innerText = q;
+  setTimeout(() => {
+    if (!tickerLock && !superweaponActive) {
+      ticker.innerText = 'DEFCON 2 // RADAR ONLINE // SATELLITE LOCKED';
+    }
+  }, 3500);
+}, 11000);
+
+/* =========================================================
+   BAŞLANGIÇ DURUMU
+   ========================================================= */
+updateCreditsDisplay();
+
+/* =========================================================
+   AÇILIŞ (BOOT) SEKANSI
+   ========================================================= */
+const bootMessages = [
+  'Uydu bağlantısı kuruluyor...',
+  'Radar sistemleri kalibre ediliyor...',
+  'Fraksiyon istihbaratı yükleniyor...',
+  'Harp Odası hazır.'
+];
+let bootIdx = 0;
+const bootStatusEl = document.getElementById('bootStatus');
+const bootInterval = setInterval(() => {
+  bootIdx++;
+  if (bootIdx < bootMessages.length && bootStatusEl) bootStatusEl.innerText = bootMessages[bootIdx];
+}, 500);
+setTimeout(() => {
+  clearInterval(bootInterval);
+  const boot = document.getElementById('bootScreen');
+  if (boot) {
+    boot.classList.add('hidden');
+    setTimeout(() => boot.remove(), 700);
+  }
+  playBeep(660, 0.06);
+}, 2200);
+</script>
+</body>
+</html>

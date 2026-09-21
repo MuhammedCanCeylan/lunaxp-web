@@ -1,0 +1,33 @@
+﻿WINDOWS XP TOUR
+
+Selected stage:
+Stage 3 - use an already extracted copy of the original Windows XP Tour.
+
+Original-tour preservation repository:
+https://github.com/DatsuneSan/WinTour
+
+Repository description:
+- SWF: animated Windows XP Tour with music and voice-over
+- HTML: non-animated tour with text and images
+
+Flash runtime:
+Ruffle self-hosted
+https://github.com/ruffle-rs/ruffle
+
+Installed structure:
+apps/tour/
+  index.html
+  icon.png
+  source/
+    SWF/
+    docs/
+  ruffle/
+
+Detected HTML entry:
+source/docs/index.htm
+
+Detected animated SWF:
+source/SWF/segment5.swf
+
+The source repository contains extracted Microsoft Windows XP Tour content.
+This installer does not claim ownership of Microsoft's assets.

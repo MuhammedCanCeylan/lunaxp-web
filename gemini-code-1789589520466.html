@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Muhammed Can Ceylan — Oda 2004 (Three.js CRT)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Special+Elite&display=swap" rel="stylesheet">
+
+<!-- Three.js ve CSS3DRenderer -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS3DRenderer.js"></script>
+
+<style>
+:root{
+  --room-dark:#050506;
+  --sick:#8ea07a;
+  --sick-dk:#2a3226;
+  --rust:#7d2b1c;
+  --bone:#d8d2c0;
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;padding:0;overflow:hidden;background:#050506;font-family:Tahoma,"Segoe UI",sans-serif;user-select:none}
+
+/* Three.js Katmanları */
+#webgl-container, #css3d-container {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+}
+#webgl-container { z-index: 1; pointer-events: none; }
+#css3d-container { z-index: 2; }
+
+/* ══════════════ CRT EKRAN (CSS3D DOM) ══════════════ */
+#screen-wrapper {
+  width: 880px;
+  height: 660px;
+  background: #000;
+  position: relative;
+  overflow: hidden;
+  border-radius: 42px;
+  box-shadow: inset 0 0 90px rgba(0,0,0,0.95);
+}
+
+.desktop{position:absolute;inset:0;overflow:hidden;background:#0b0f0c}
+.wp-sky{position:absolute;inset:0;background:linear-gradient(180deg,#1b2a24 0%,#2e3a2b 38%,#4a4f34 55%,#20240f 70%,#0b0d07 100%);}
+.wp-hill{
+  position:absolute;left:-14%;bottom:-46%;width:128%;height:92%;
+  border-radius:50% 50% 0 0/62% 62% 0 0;
+  background:linear-gradient(180deg,#1d2413 0%,#0c1008 60%,#050603 100%);
+  box-shadow:0 -22px 60px rgba(0,0,0,.7);
+}
+.wp-figure{
+  position:absolute;left:69%;bottom:40%;width:7px;height:20px;border-radius:3px 3px 0 0;
+  background:#05060400;box-shadow:0 0 6px rgba(0,0,0,.9);
+  opacity:.5;transition:opacity 1.4s;
+}
+.wp-figure.seen{opacity:1;background:#050604}
+.wp-grain{
+  position:absolute;inset:-50%;opacity:.16;pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.55) .5px, transparent .6px), radial-gradient(rgba(0,0,0,.6) .5px, transparent .6px);
+  background-size:3px 3px,4px 4px;animation:grainShift .28s steps(3) infinite;
+}
+@keyframes grainShift{0%{transform:translate(0,0)}33%{transform:translate(-2px,1px)}66%{transform:translate(1px,-2px)}100%{transform:translate(0,0)}}
+
+/* Simgeler */
+#icon-layer{position:absolute;inset:0;z-index:20}
+.dicon{
+  position:absolute;width:86px;padding:6px 3px 4px;border-radius:2px;
+  display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;
+  cursor:pointer;touch-action:none;
+}
+.dicon .gl{font-size:34px;line-height:1;filter:drop-shadow(1px 3px 4px rgba(0,0,0,.9)) saturate(.65)}
+.dicon .lb{
+  font-size:11px;color:#dfe6d6;line-height:1.15;word-break:break-word;padding:1px 3px;
+  text-shadow:1px 1px 2px #000,0 0 5px #000;
+}
+.dicon.sel .lb{background:#5a1f12;color:#fff;text-shadow:none;outline:1px dotted #d8c9a6}
+.dicon.sel .gl{filter:drop-shadow(1px 3px 4px rgba(0,0,0,.9)) sepia(.5) hue-rotate(-30deg) saturate(1.4)}
+.dicon.dragging{opacity:.65}
+
+/* Pencereler */
+.xp-window{
+  position:absolute;display:none;flex-direction:column;z-index:50;min-width:240px;
+  background:#d9d3c1;border:3px solid #4a1a10;border-radius:8px 8px 0 0;
+  box-shadow:4px 8px 26px rgba(0,0,0,.8), inset 0 0 0 1px rgba(255,255,255,.35);
+}
+.xp-title{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  padding:5px 6px 5px 9px;border-radius:4px 4px 0 0;color:#f3e7dc;font-size:12px;font-weight:bold;
+  background:linear-gradient(180deg,#8f3521 0%,#6d2314 45%,#4d1a0f 100%);
+  box-shadow:inset 0 1px 0 rgba(255,190,160,.45);
+  cursor:grab;user-select:none;text-shadow:1px 1px 2px rgba(0,0,0,.7);
+}
+.xp-title:active{cursor:grabbing}
+.wctl{display:flex;gap:3px}
+.wbtn{
+  width:20px;height:19px;border-radius:3px;border:1px solid rgba(255,220,200,.7);
+  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;color:#fff;
+  background:linear-gradient(180deg,#a04a30,#6a2213);cursor:pointer;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4);
+}
+.wbtn.x{background:linear-gradient(180deg,#d05a3c,#8e1d0c)}
+.wbtn:hover{filter:brightness(1.25)}
+
+/* CV Sayfası */
+.pdf-bar{background:#cfc8b4;border-bottom:1px solid #8d8574;padding:4px 8px;display:flex;gap:14px;font-size:11px;color:#3a332a}
+.pdf-view{background:#2a2622;padding:16px;height:410px;overflow-y:auto;display:flex;justify-content:center}
+.pdf-sheet{background:#efe9d9;width:100%;max-width:580px;padding:26px;color:#241f1a;box-shadow:0 6px 20px rgba(0,0,0,.6)}
+.pdf-head{display:flex;gap:16px;border-bottom:2px solid #6d2314;padding-bottom:14px;margin-bottom:14px}
+.avatar{width:90px;height:110px;border:1px solid #8a8070;background:#d5cdb9;display:flex;align-items:center;justify-content:center;overflow:hidden;flex:0 0 auto}
+.pdf-head h1{margin:0 0 3px;font-size:20px;color:#5e1d10}
+.tag{font-size:11px;color:#4a443a;font-weight:bold;margin-bottom:5px}
+.contact{font-size:10.5px;color:#57503f;display:flex;flex-wrap:wrap;gap:10px}
+.sec{font-size:12px;font-weight:bold;color:#6d2314;border-bottom:1px solid #b9ae94;padding-bottom:3px;margin:12px 0 6px}
+.body-txt{font-size:11px;line-height:1.5;color:#302a22}
+.pills{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.pill{background:#e0d8c2;border:1px solid #a89b7d;border-radius:2px;padding:2px 5px;font-size:10px;color:#5e1d10;font-weight:bold}
+.proj{margin-bottom:6px;padding-left:8px;border-left:2px solid #8f3521}
+.proj b{color:#43210f;font-size:11px}
+.proj span{display:block;font-size:10px;color:#4f4739}
+
+/* Mayın Tarlası */
+.ms-box{background:#b9b2a0;padding:6px;border:3px outset #e7e1cf}
+.ms-score{background:#b9b2a0;border:3px inset #f0ead8;padding:4px 8px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.ms-dig{background:#0a0a08;color:#d63a20;font-family:'VT323',monospace;font-size:24px;line-height:1;padding:1px 5px;letter-spacing:2px;border:1px inset #7a7364}
+.ms-face{width:26px;height:26px;border:2px outset #f0ead8;background:#bdb6a4;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer}
+.ms-grid{display:grid;grid-template-columns:repeat(9,22px);grid-template-rows:repeat(9,22px);gap:1px;border:3px inset #f0ead8;background:#6f6857}
+.ms-cell{width:22px;height:22px;background:#b9b2a0;border:2px outset #efe9d7;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;cursor:pointer}
+.ms-cell.open{border:1px solid #6f6857;background:#c6bfad}
+
+/* Not Defteri */
+.np-body{
+  background:#12150f;color:#9fbb8a;font-family:'VT323',monospace;font-size:18px;line-height:1.35;
+  padding:12px;width:400px;height:270px;overflow:auto;white-space:pre-wrap;border:2px inset #8a8270;
+}
+
+/* Kaset */
+.tape-body{background:#000;width:380px;height:270px;position:relative;overflow:hidden}
+.tape-static{position:absolute;inset:0;opacity:.5;background-image:radial-gradient(rgba(255,255,255,.9) .6px,transparent .7px),radial-gradient(rgba(0,0,0,1) .6px,transparent .7px);background-size:3px 3px,4px 4px;animation:grainShift .1s steps(2) infinite}
+.tape-shape{position:absolute;left:50%;bottom:-6%;width:110px;height:200px;margin-left:-55px;border-radius:45px 45px 0 0;background:#000;opacity:0;transition:opacity 2s}
+.tape-shape.on{opacity:.92}
+.tape-osd{position:absolute;left:10px;top:8px;color:#d7d2be;font-family:'VT323',monospace;font-size:19px}
+.tape-time{position:absolute;right:10px;bottom:8px;color:#d7d2be;font-family:'VT323',monospace;font-size:18px}
+
+/* Görev Çubuğu & Başlat */
+.taskbar{
+  position:absolute;left:0;right:0;bottom:0;height:34px;z-index:800;display:flex;align-items:center;
+  background:linear-gradient(180deg,#3a2118 0%,#5c2a19 10%,#431d12 55%,#20100a 100%);
+  box-shadow:inset 0 1px 0 rgba(255,190,150,.4);
+}
+.start{
+  height:100%;display:flex;align-items:center;gap:6px;padding:0 16px 0 10px;cursor:pointer;
+  color:#f0e4d6;font-size:13.5px;font-style:italic;font-weight:bold;
+  background:linear-gradient(180deg,#6d7a35 0%,#4d5a22 46%,#39441a 52%,#4a5620 100%);
+  border-radius:0 12px 12px 0;box-shadow:2px 0 5px rgba(0,0,0,.6);
+}
+.start:hover{filter:brightness(1.15)}
+.tasks{display:flex;gap:3px;margin-left:8px;flex:1;overflow:hidden}
+.task{
+  height:25px;min-width:125px;max-width:160px;display:flex;align-items:center;gap:6px;padding:0 8px;
+  font-size:11px;color:#f2e8dd;cursor:pointer;border-radius:3px;border:1px solid #2b140c;
+  background:linear-gradient(180deg,#7a3520 0%,#5a2314 52%,#48190e 100%);
+}
+.task.active{background:linear-gradient(180deg,#3d1409 0%,#5a2314 60%,#6d2a18 100%)}
+.tray{height:100%;display:flex;align-items:center;gap:8px;padding:0 12px;color:#f0e2d4;font-size:11px;background:#24160e;border-left:1px solid #1a0f0a}
+
+/* Başlat Menüsü */
+.startmenu{
+  position:absolute;left:0;bottom:34px;width:350px;z-index:850;display:none;flex-direction:column;
+  background:#e6e0ce;border:2px solid #6d2314;border-bottom:none;border-radius:6px 6px 0 0;overflow:hidden;
+  box-shadow:4px -2px 18px rgba(0,0,0,.8);
+}
+.startmenu.open{display:flex}
+.sm-head{background:linear-gradient(90deg,#6d2314,#a4472c);padding:10px 14px;display:flex;align-items:center;gap:12px;color:#f6ece2}
+.sm-av{width:40px;height:40px;border:2px solid #e8dcc8;background:#2a1a12;display:flex;align-items:center;justify-content:center;font-size:20px;border-radius:3px}
+.sm-body{display:grid;grid-template-columns:1fr 1fr;min-height:230px}
+.sm-l{background:#efe9d7;padding:8px;display:flex;flex-direction:column;gap:3px}
+.sm-r{background:#ddd3bb;border-left:1px solid #b6aa8e;padding:8px;display:flex;flex-direction:column;gap:4px}
+.mi{display:flex;align-items:center;gap:8px;padding:5px 7px;border-radius:2px;cursor:pointer;font-size:11px;color:#241f19}
+.mi:hover{background:#8f3521;color:#fff}
+.mi small{display:block;font-size:9px;opacity:.7}
+.sm-foot{background:linear-gradient(180deg,#8f3521,#4d1a0f);padding:8px 12px;display:flex;justify-content:flex-end}
+.sd{display:flex;align-items:center;gap:6px;background:transparent;border:none;color:#f6ece2;font-size:11px;cursor:pointer}
+
+/* CRT Efekt Katmanları */
+.lay{position:absolute;inset:0;pointer-events:none}
+.scan{z-index:960;background:linear-gradient(rgba(0,0,0,0) 50%, rgba(0,0,0,.36) 50%);background-size:100% 3px}
+.aperture{z-index:961;background:linear-gradient(90deg, rgba(255,0,60,.05), rgba(0,255,90,.03), rgba(60,80,255,.05));background-size:3px 100%;mix-blend-mode:overlay}
+.rollbar{z-index:962;height:120px;top:-130px;background:linear-gradient(180deg,transparent,rgba(255,255,255,.06) 40%,rgba(180,255,190,.05) 70%,transparent);animation:roll 8s linear infinite}
+@keyframes roll{to{top:100%}}
+.flick{z-index:964;background:rgba(200,255,210,.02);animation:flick .14s steps(2,end) infinite}
+@keyframes flick{0%{opacity:.5}50%{opacity:1}100%{opacity:.7}}
+.vign{z-index:965;box-shadow:inset 0 0 110px rgba(0,0,0,.92), inset 0 0 35px rgba(0,0,0,.95)}
+
+/* Sağ Arkadaki Lambanın Ekrana Yansıması */
+.glass{
+  position:absolute;inset:0;z-index:970;pointer-events:none;mix-blend-mode:screen;
+  background:
+    radial-gradient(40% 28% at 86% 16%, rgba(255,214,165,.32) 0%, rgba(255,190,130,.12) 38%, transparent 72%),
+    radial-gradient(22% 14% at 92% 10%, rgba(255,240,215,.35) 0%, transparent 68%),
+    linear-gradient(196deg, rgba(255,255,255,.06) 0%, transparent 34%);
+}
+
+/* Kapatma Animasyonu */
+#screen-wrapper.off .desktop, #screen-wrapper.off .lay, #screen-wrapper.off .glass{display:none}
+#screen-wrapper.off{background:#030403}
+.collapsing{animation:collapse .45s ease-in forwards;transform-origin:50% 50%}
+@keyframes collapse{
+  0%{transform:scale(1,1);filter:brightness(1)}
+  38%{transform:scale(1.02,.012);filter:brightness(7)}
+  72%{transform:scale(.3,.006);filter:brightness(5)}
+  100%{transform:scale(0,0);filter:brightness(0)}
+}
+
+/* UI Yardım Kutusu */
+.hint{
+  position:fixed;bottom:12px;left:50%;transform:translateX(-50%);
+  font-family:'VT323',monospace;font-size:18px;color:#a89578;
+  letter-spacing:1px;z-index:1000;pointer-events:none;text-shadow:0 2px 6px #000;
+}
+</style>
+</head>
+<body>
+
+<div id="webgl-container"></div>
+<div id="css3d-container"></div>
+<div class="hint" id="hint">Mouse ile odaya bakabilirsin — simgeleri çift tıkla</div>
+
+<!-- THREE.JS CSS3D İÇİNE GÖMÜLECEK DOM EKRANI -->
+<div id="screen-wrapper">
+  <div class="desktop" id="desktop">
+    <div class="wp-sky"></div>
+    <div class="wp-hill"></div>
+    <div class="wp-figure" id="wpFigure"></div>
+    <div class="wp-grain"></div>
+
+    <div id="icon-layer"></div>
+
+    <!-- CV Portfolyo -->
+    <div class="xp-window" id="win-cv" data-title="Benim_Hakkimda.pdf" data-icon="📕" style="top:25px;left:130px;width:590px">
+      <div class="xp-title" data-drag>
+        <span>📕 Adobe Reader 6.0 — [Benim_Hakkimda.pdf]</span>
+        <div class="wctl"><div class="wbtn" data-min>_</div><div class="wbtn x" data-close>✕</div></div>
+      </div>
+      <div class="pdf-bar"><span>💾 Kaydet</span><span>🖨️ Yazdır</span><span>🔍 %100</span><span>📄 Sayfa 1 / 1</span></div>
+      <div class="pdf-view">
+        <div class="pdf-sheet">
+          <div class="pdf-head">
+            <div class="avatar">
+              <svg viewBox="0 0 90 110" width="90" height="110">
+                <rect width="90" height="110" fill="#cfc7b2"/>
+                <circle cx="45" cy="40" r="20" fill="#7d7361"/>
+                <path d="M4 110c4-28 22-40 41-40s37 12 41 40z" fill="#7d7361"/>
+              </svg>
+            </div>
+            <div>
+              <h1>Muhammed Can Ceylan</h1>
+              <div class="tag">Bilgisayar Mühendisliği Öğrencisi / Yazılım Geliştirici</div>
+              <div class="contact"><span>📍 Bartın &amp; Tuzla, İstanbul</span><span>🌐 github.com/MuhammedCanCeylan</span></div>
+              <div style="margin-top:7px;font-size:11px;color:#4a4238">
+                Sistem mimarileri, siber güvenlik ve otonom teknolojiler üzerine geliştirmeler yapıyorum.
+              </div>
+            </div>
+          </div>
+
+          <div class="sec">Teknik Yetenekler</div>
+          <div class="body-txt">
+            <b>Diller:</b> Python, C, C++, C#, Java, JavaScript, TypeScript, Rust, SQL, HTML/CSS.<br>
+            <b>Araçlar:</b> React, Flutter, Node.js, Git, Linux, Docker, Unity.
+            <div class="pills">
+              <span class="pill">Python</span><span class="pill">TypeScript</span><span class="pill">C++</span>
+              <span class="pill">React</span><span class="pill">Docker</span><span class="pill">Siber Güvenlik</span>
+            </div>
+          </div>
+
+          <div class="sec">Öne Çıkan Projeler</div>
+          <div class="body-txt">
+            <div class="proj"><b>🏍️ MotoWeather</b><span>Motosiklet sürücüleri için rota ve hava durumu analiz servisi.</span></div>
+            <div class="proj"><b>📚 quizlet-clone-pro</b><span>Aralıklı tekrar algoritmasıyla çalışan öğrenme uygulaması.</span></div>
+            <div class="proj"><b>🛡️ ShadowTrade &amp; Desktop-Sentinel</b><span>Güvenli işlem ve masaüstü sistem analiz altyapısı.</span></div>
+            <div class="proj"><b>🎯 Monopoly ML &amp; amazon-plus</b><span>Pekiştirmeli öğrenme modelleri ve e-ticaret çözümleri.</span></div>
+          </div>
+
+          <div class="sec">Programlar &amp; Etkinlikler</div>
+          <div class="body-txt"><b>Siber Vatan:</b> Ulusal siber güvenlik programı.<br><b>TEKNOFEST:</b> Otonom sistemler ve yapay zeka projeleri.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mayın Tarlası -->
+    <div class="xp-window" id="win-mines" data-title="Mayın Tarlası" data-icon="💣" style="top:70px;left:440px;width:226px">
+      <div class="xp-title" data-drag>
+        <span>💣 Mayın Tarlası</span>
+        <div class="wctl"><div class="wbtn" data-min>_</div><div class="wbtn x" data-close>✕</div></div>
+      </div>
+      <div class="ms-box">
+        <div class="ms-score">
+          <div class="ms-dig" id="ms-mines">010</div>
+          <div class="ms-face" id="ms-face">🙂</div>
+          <div class="ms-dig" id="ms-timer">000</div>
+        </div>
+        <div class="ms-grid" id="ms-board"></div>
+      </div>
+    </div>
+
+    <!-- Not Defteri -->
+    <div class="xp-window" id="win-note" data-title="BENIOKU.txt" data-icon="📝" style="top:120px;left:210px">
+      <div class="xp-title" data-drag>
+        <span>📝 BENIOKU.txt — Not Defteri</span>
+        <div class="wctl"><div class="wbtn" data-min>_</div><div class="wbtn x" data-close>✕</div></div>
+      </div>
+      <div class="np-body" id="npBody"></div>
+    </div>
+
+    <!-- Kaset Oynatıcı -->
+    <div class="xp-window" id="win-tape" data-title="kamera_01.avi" data-icon="📼" style="top:90px;left:290px">
+      <div class="xp-title" data-drag>
+        <span>📼 Media Player — kamera_01.avi</span>
+        <div class="wctl"><div class="wbtn" data-min>_</div><div class="wbtn x" data-close>✕</div></div>
+      </div>
+      <div class="tape-body">
+        <div class="tape-static"></div>
+        <div class="tape-shape" id="tapeShape"></div>
+        <div class="tape-osd">▶ KAYIT</div>
+        <div class="tape-time" id="tapeTime">00:00:00</div>
+      </div>
+    </div>
+
+    <!-- Başlat Menüsü -->
+    <div class="startmenu" id="startMenu">
+      <div class="sm-head">
+        <div class="sm-av">👤</div>
+        <div style="font-weight:bold;font-size:14px;">Muhammed Can Ceylan</div>
+      </div>
+      <div class="sm-body">
+        <div class="sm-l">
+          <div class="mi" data-open="win-cv"><span>📕</span><div><b>CV — Portfolyo</b><small>Hakkımda ve projelerim</small></div></div>
+          <div class="mi" data-open="win-mines"><span>💣</span><div><b>Mayın Tarlası</b><small>Klasik bomba oyunu</small></div></div>
+          <div class="mi" data-open="win-note"><span>📝</span><div><b>Not Defteri</b><small>BENIOKU.txt</small></div></div>
+          <div class="mi" data-open="win-tape"><span>📼</span><div><b>Media Player</b><small>kamera_01.avi</small></div></div>
+        </div>
+        <div class="sm-r">
+          <div class="mi" onclick="alert('Belgelerim klasörü boş.')">📁 Belgelerim</div>
+          <div class="mi" onclick="alert('Resimlerim okunamadı.')">🖼️ Resimlerim</div>
+          <div class="mi" onclick="alert('Aygıt: TRINOVOX CRT (Three.js 3D)')">⚙️ Özellikler</div>
+        </div>
+      </div>
+      <div class="sm-foot">
+        <button class="sd" id="btnOff"><span>🔌</span><span>Ekranı kapat</span></button>
+      </div>
+    </div>
+
+    <!-- Görev Çubuğu -->
+    <div class="taskbar">
+      <div class="start" id="startBtn"><span>başlat</span></div>
+      <div class="tasks" id="tasks"></div>
+      <div class="tray">
+        <span id="btnHum" style="cursor:pointer;" title="CRT Sesi">🔇</span>
+        <span id="tray-clock">00:00</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="lay scan"></div>
+  <div class="lay aperture"></div>
+  <div class="lay rollbar"></div>
+  <div class="lay flick"></div>
+  <div class="lay vign"></div>
+  <div class="glass"></div>
+</div>
+
+<script>
+/* ═════════════════════════════════════════════════════════════
+   1. THREE.JS 3B SAHNE & CSS3D ENTEGRASYONU
+   ═════════════════════════════════════════════════════════════ */
+let sceneWebGL, sceneCSS, camera, rendererWebGL, rendererCSS;
+let screenLight;
+
+function init3D() {
+  const containerWebGL = document.getElementById('webgl-container');
+  const containerCSS = document.getElementById('css3d-container');
+
+  // Sahneler ve Kamera
+  sceneWebGL = new THREE.Scene();
+  sceneCSS = new THREE.Scene();
+
+  camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 6000);
+  camera.position.set(0, 30, 1600);
+
+  // 1. WebGL Renderer (Oda, TV Kasası, Işıklandırmalar)
+  rendererWebGL = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  rendererWebGL.setSize(window.innerWidth, window.innerHeight);
+  rendererWebGL.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  rendererWebGL.shadowMap.enabled = true;
+  containerWebGL.appendChild(rendererWebGL.domElement);
+
+  // 2. CSS3D Renderer (İnteraktif Windows XP DOM Ekranı)
+  rendererCSS = new THREE.CSS3DRenderer();
+  rendererCSS.setSize(window.innerWidth, window.innerHeight);
+  containerCSS.appendChild(rendererCSS.domElement);
+
+  // ── IŞIKLANDIRMA ──
+  const ambientLight = new THREE.AmbientLight(0x28201a, 1.4);
+  sceneWebGL.add(ambientLight);
+
+  // Sağ arkadaki lamba (Warm Glow)
+  const lampLight = new THREE.PointLight(0xffa855, 3.2, 2800);
+  lampLight.position.set(750, 480, 200);
+  sceneWebGL.add(lampLight);
+
+  // Monitör ışığının masaya ve çerçeveye yansıması
+  screenLight = new THREE.PointLight(0x7da882, 1.3, 1100);
+  screenLight.position.set(0, 20, 180);
+  sceneWebGL.add(screenLight);
+
+  // ── 3D MODELLER: MASA, DUVAR VE TV GÖVDESİ ──
+  // Duvar
+  const wallGeo = new THREE.PlaneGeometry(5000, 3000);
+  const wallMat = new THREE.MeshStandardMaterial({ color: 0x14100c, roughness: 0.95 });
+  const wallMesh = new THREE.Mesh(wallGeo, wallMat);
+  wallMesh.position.set(0, 0, -450);
+  sceneWebGL.add(wallMesh);
+
+  // Ahşap Masa Düzlemi
+  const deskGeo = new THREE.PlaneGeometry(4500, 2500);
+  const deskMat = new THREE.MeshStandardMaterial({ color: 0x24170e, roughness: 0.7, metalness: 0.1 });
+  const deskMesh = new THREE.Mesh(deskGeo, deskMat);
+  deskMesh.position.set(0, -360, 200);
+  deskMesh.rotation.x = -Math.PI / 2.1;
+  sceneWebGL.add(deskMesh);
+
+  // TV Gövdesi (Bej/Zeytin Retro Plastik Kasa)
+  const tvGroup = new THREE.Group();
+  const caseMat = new THREE.MeshStandardMaterial({ color: 0x473f35, roughness: 0.65, metalness: 0.12 });
+  const bezelMat = new THREE.MeshStandardMaterial({ color: 0x1b1814, roughness: 0.8 });
+
+  // Ana Kasa
+  const chassisGeo = new THREE.BoxGeometry(1080, 840, 480);
+  const chassisMesh = new THREE.Mesh(chassisGeo, caseMat);
+  chassisMesh.position.set(0, 30, -180);
+  tvGroup.add(chassisMesh);
+
+  // Ekranı Çevreleyen Plastik Bezel (Çerçeve)
+  const bezelGeo = new THREE.BoxGeometry(940, 720, 50);
+  const bezelMesh = new THREE.Mesh(bezelGeo, bezelMat);
+  bezelMesh.position.set(0, 42, 20);
+  tvGroup.add(bezelMesh);
+
+  // TV Alt Konsol (Hoparlör Izgarası ve Düğmeler)
+  const knobGeo = new THREE.CylinderGeometry(20, 20, 15, 24);
+  const knobMat = new THREE.MeshStandardMaterial({ color: 0x1e1a17, roughness: 0.4 });
+  const knob1 = new THREE.Mesh(knobGeo, knobMat);
+  knob1.rotation.x = Math.PI / 2;
+  knob1.position.set(380, -320, 60);
+  tvGroup.add(knob1);
+
+  // LED Işık
+  const ledGeo = new THREE.SphereGeometry(5, 16, 16);
+  const ledMat = new THREE.MeshBasicMaterial({ color: 0xff3b1e });
+  const ledMesh = new THREE.Mesh(ledGeo, ledMat);
+  ledMesh.position.set(415, -320, 60);
+  tvGroup.add(ledMesh);
+
+  sceneWebGL.add(tvGroup);
+
+  // ── CSS3D NESNESİ: GERÇEK XP EKRANI ──
+  const screenDOM = document.getElementById('screen-wrapper');
+  const cssScreenObject = new THREE.CSS3DObject(screenDOM);
+  // Ekranı TV çerçevesinin tam ortasına hizala
+  cssScreenObject.position.set(0, 42, 46);
+  sceneCSS.add(cssScreenObject);
+
+  // Boyutlandırma
+  window.addEventListener('resize', onWindowResize);
+}
+
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  rendererWebGL.setSize(window.innerWidth, window.innerHeight);
+  rendererCSS.setSize(window.innerWidth, window.innerHeight);
+}
+
+/* ═════════════════════════════════════════════════════════════
+   2. FARE HAREKETİ İLE YUMUŞAK 3D PARALLAX (LERP)
+   ═════════════════════════════════════════════════════════════ */
+let targetCamX = 0, targetCamY = 30;
+window.addEventListener('mousemove', (e) => {
+  const nx = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
+  const ny = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
+  targetCamX = nx * 120;
+  targetCamY = 30 - ny * 70;
+});
+
+function animate() {
+  requestAnimationFrame(animate);
+  camera.position.x += (targetCamX - camera.position.x) * 0.05;
+  camera.position.y += (targetCamY - camera.position.y) * 0.05;
+  camera.lookAt(0, 20, 0);
+
+  rendererWebGL.render(sceneWebGL, camera);
+  rendererCSS.render(sceneCSS, camera);
+}
+
+/* ═════════════════════════════════════════════════════════════
+   3. SAĞLAM PENCERE SÜRÜKLEME (UÇMAYAN KOORDİNAT SİSTEMİ)
+   ═════════════════════════════════════════════════════════════ */
+const desktop = document.getElementById('desktop');
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+let topZ = 100;
+
+function front(w){ topZ++; w.style.zIndex = topZ; syncTasks(); }
+
+function dragWindow(handle, win){
+  let startMouseX, startMouseY, startLeft, startTop;
+
+  handle.addEventListener('pointerdown', (e) => {
+    if (e.target.closest('.wbtn')) return;
+    front(win);
+
+    startMouseX = e.clientX;
+    startMouseY = e.clientY;
+    startLeft = win.offsetLeft;
+    startTop = win.offsetTop;
+
+    handle.setPointerCapture(e.pointerId);
+
+    const onPointerMove = (ev) => {
+      // 3B Sahnedeki DOM dönüşüm ölçeğini yakala (fırlama yapmaz)
+      const rect = desktop.getBoundingClientRect();
+      const scaleX = desktop.offsetWidth / rect.width;
+      const scaleY = desktop.offsetHeight / rect.height;
+
+      const dx = (ev.clientX - startMouseX) * scaleX;
+      const dy = (ev.clientY - startMouseY) * scaleY;
+
+      win.style.left = clamp(startLeft + dx, 0, desktop.offsetWidth - win.offsetWidth) + 'px';
+      win.style.top = clamp(startTop + dy, 0, desktop.offsetHeight - win.offsetHeight) + 'px';
+    };
+
+    const onPointerUp = (ev) => {
+      handle.releasePointerCapture(ev.pointerId);
+      handle.removeEventListener('pointermove', onPointerMove);
+      handle.removeEventListener('pointerup', onPointerUp);
+    };
+
+    handle.addEventListener('pointermove', onPointerMove);
+    handle.addEventListener('pointerup', onPointerUp);
+    e.preventDefault();
+  });
+}
+
+document.querySelectorAll('.xp-window').forEach(w => {
+  w.addEventListener('pointerdown', () => front(w));
+  w.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', (ev) => { ev.stopPropagation(); closeWin(w.id); }));
+  w.querySelectorAll('[data-min]').forEach(b => b.addEventListener('click', (ev) => { ev.stopPropagation(); minWin(w.id); }));
+  const h = w.querySelector('[data-drag]');
+  if(h) dragWindow(h, w);
+});
+
+function openWin(id){
+  const w = document.getElementById(id);
+  w.style.display = 'flex';
+  front(w);
+  if(id === 'win-mines') initMines();
+  if(id === 'win-note') typeNote();
+  if(id === 'win-tape') playTape();
+  syncTasks();
+}
+function closeWin(id){
+  document.getElementById(id).style.display = 'none';
+  if(id === 'win-tape') stopTape();
+  syncTasks();
+}
+function minWin(id){
+  document.getElementById(id).style.display = 'none';
+  syncTasks();
+}
+
+function syncTasks(){
+  const bar = document.getElementById('tasks');
+  bar.innerHTML = '';
+  document.querySelectorAll('.xp-window').forEach(w => {
+    if(w.style.display !== 'flex') return;
+    const b = document.createElement('div');
+    b.className = 'task active';
+    b.innerHTML = `<span>${w.dataset.icon}</span><span>${w.dataset.title}</span>`;
+    b.onclick = () => front(w);
+    bar.appendChild(b);
+  });
+}
+
+/* ═════════════════════════════════════════════════════════════
+   4. MASAÜSTÜ SİMGELERİ VE BAŞLAT MENÜSÜ
+   ═════════════════════════════════════════════════════════════ */
+const ICONS = [
+  {id:'cv', gl:'📕', lb:'Benim_Hakkimda.pdf', act:() => openWin('win-cv')},
+  {id:'mines', gl:'💣', lb:'Mayın Tarlası', act:() => openWin('win-mines')},
+  {id:'note', gl:'📝', lb:'BENIOKU.txt', act:() => openWin('win-note')},
+  {id:'tape', gl:'📼', lb:'kamera_01.avi', act:() => openWin('win-tape')}
+];
+
+const layer = document.getElementById('icon-layer');
+ICONS.forEach((ic, i) => {
+  const el = document.createElement('div');
+  el.className = 'dicon';
+  el.style.left = '20px';
+  el.style.top = (20 + i * 95) + 'px';
+  el.innerHTML = `<div class="gl">${ic.gl}</div><div class="lb">${ic.lb}</div>`;
+  el.ondblclick = ic.act;
+  layer.appendChild(el);
+});
+
+// Başlat Menüsü Toggle
+const startBtn = document.getElementById('startBtn');
+const startMenu = document.getElementById('startMenu');
+startBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  startMenu.classList.toggle('open');
+});
+desktop.addEventListener('click', () => startMenu.classList.remove('open'));
+startMenu.querySelectorAll('[data-open]').forEach(mi => {
+  mi.onclick = () => {
+    startMenu.classList.remove('open');
+    openWin(mi.dataset.open);
+  };
+});
+
+// Saat
+setInterval(() => {
+  const d = new Date();
+  document.getElementById('tray-clock').textContent = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}, 1000);
+
+/* ═════════════════════════════════════════════════════════════
+   5. GERÇEK MAYIN TARLASI MOTORU
+   ═════════════════════════════════════════════════════════════ */
+const R = 9, C = 9, M = 10;
+let grid = [], over = false, msInt = null, msSec = 0, flags = 0, started = false;
+
+function initMines(){
+  const b = document.getElementById('ms-board');
+  b.innerHTML = ''; grid = []; over = false; msSec = 0; flags = 0; started = false;
+  clearInterval(msInt);
+  document.getElementById('ms-timer').textContent = '000';
+  document.getElementById('ms-mines').textContent = '010';
+  document.getElementById('ms-face').textContent = '🙂';
+
+  for(let r=0; r<R; r++){
+    const row = [];
+    for(let c=0; c<C; c++){
+      row.push({mine:false, open:false, flag:false, n:0});
+      const cell = document.createElement('div');
+      cell.className = 'ms-cell';
+      cell.id = `c${r}-${c}`;
+      cell.onclick = () => openCell(r, c);
+      cell.oncontextmenu = (ev) => { ev.preventDefault(); flagCell(r, c); };
+      b.appendChild(cell);
+    }
+    grid.push(row);
+  }
+  let p = 0;
+  while(p < M){
+    const r = Math.floor(Math.random() * R), c = Math.floor(Math.random() * C);
+    if(!grid[r][c].mine){ grid[r][c].mine = true; p++; }
+  }
+  for(let r=0; r<R; r++) for(let c=0; c<C; c++){
+    if(grid[r][c].mine) continue;
+    let n = 0;
+    for(let dr=-1; dr<2; dr++) for(let dc=-1; dc<2; dc++){
+      const nr = r + dr, nc = c + dc;
+      if(nr >= 0 && nr < R && nc >= 0 && nc < C && grid[nr][nc].mine) n++;
+    }
+    grid[r][c].n = n;
+  }
+}
+document.getElementById('ms-face').onclick = initMines;
+
+function openCell(r, c){
+  if(over || grid[r][c].open || grid[r][c].flag) return;
+  if(!started){
+    started = true;
+    msInt = setInterval(() => { if(!over && msSec < 999) { msSec++; document.getElementById('ms-timer').textContent = String(msSec).padStart(3,'0'); } }, 1000);
+  }
+  const d = grid[r][c], el = document.getElementById(`c${r}-${c}`);
+  d.open = true; el.classList.add('open');
+
+  if(d.mine){
+    el.textContent = '💣'; el.style.background = '#8e1d0c';
+    document.getElementById('ms-face').textContent = '💀';
+    over = true; clearInterval(msInt);
+    for(let i=0; i<R; i++) for(let j=0; j<C; j++) if(grid[i][j].mine) {
+      const e = document.getElementById(`c${i}-${j}`); e.textContent = '💣'; e.classList.add('open');
+    }
+    return;
+  }
+  if(d.n > 0){
+    el.textContent = d.n;
+    el.style.color = ['','#1b3f8f','#2c6b28','#9e2417','#141f55','#6b1a12','#1a5f63','#111','#555'][d.n];
+  } else {
+    for(let dr=-1; dr<2; dr++) for(let dc=-1; dc<2; dc++){
+      const nr = r + dr, nc = c + dc;
+      if(nr >= 0 && nr < R && nc >= 0 && nc < C) openCell(nr, nc);
+    }
+  }
+}
+
+function flagCell(r, c){
+  if(over || grid[r][c].open) return;
+  const d = grid[r][c], el = document.getElementById(`c${r}-${c}`);
+  d.flag = !d.flag; el.textContent = d.flag ? '🚩' : '';
+  flags += d.flag ? 1 : -1;
+  document.getElementById('ms-mines').textContent = String(M - flags).padStart(3, '0');
+}
+
+/* ═════════════════════════════════════════════════════════════
+   6. SES VE EKRAN KAPATMA
+   ═════════════════════════════════════════════════════════════ */
+const NOTE = `BENIOKU.txt — son kayıt 12.08.2004 03:14
+
+Bu makine 2004'ten beri kapatılmadı.
+Ekranı kapatsan da tüp hâlâ ısınıyor.
+
+Sağ arkandaki lambayı fark ettin mi?
+Camdaki yansımada iki şey var ama
+odada sadece sen varsın.
+
+M.C.C.`;
+
+function typeNote(){
+  const el = document.getElementById('npBody');
+  el.textContent = ''; let i = 0;
+  const tm = setInterval(() => {
+    el.textContent = NOTE.slice(0, ++i);
+    if(i >= NOTE.length) clearInterval(tm);
+  }, 20);
+}
+
+let tapeInt = null, tapeSec = 0;
+function playTape(){
+  if(tapeInt) return;
+  tapeSec = 0;
+  tapeInt = setInterval(() => {
+    tapeSec++;
+    const s = String(tapeSec % 60).padStart(2,'0');
+    document.getElementById('tapeTime').textContent = `00:00:${s}`;
+    if(tapeSec === 8) document.getElementById('tapeShape').classList.add('on');
+  }, 1000);
+}
+function stopTape(){ clearInterval(tapeInt); tapeInt = null; }
+
+document.getElementById('btnOff').onclick = () => {
+  const scr = document.getElementById('screen-wrapper');
+  scr.classList.add('collapsing');
+  if(screenLight) screenLight.intensity = 0;
+  setTimeout(() => { scr.classList.add('off'); scr.classList.remove('collapsing'); }, 450);
+};
+
+// Başlangıç
+init3D();
+animate();
+initMines();
+syncTasks();
+setTimeout(() => openWin('win-cv'), 600);
+</script>
+</body>
+</html>

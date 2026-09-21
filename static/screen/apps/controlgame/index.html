@@ -1,0 +1,271 @@
+﻿<!--
+CONTROL // FBC TERMINAL EXPERIENCE - ASSET LISTESI
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama |
+|------------|----------------------|------------|----------------------------------------------|
+| icon.png   | 32x32                | Zorunlu    | XP masaustu / uygulama ikonu                 |
+
+NOTLAR:
+- Bu proje agir 3D oyunu taklit eden sahte bir canvas shooter DEGILDIR.
+- Control icin atmosferik launcher / Bureau terminal / cinematic showcase modudur.
+- Temel deneyim tamamen yereldir; YouTube veya harici CDN gerektirmez.
+- alert(), confirm(), prompt() kullanmaz.
+- Ikinci XP pencere basligi / taskbar cizmez.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>CONTROL // FBC Terminal</title>
+<style>
+:root{
+  --red:#e3172f;--red2:#8b0617;--ink:#070709;--ink2:#111115;--paper:#e9e9ea;
+  --muted:#a3a3aa;--line:rgba(255,255,255,.12);--soft:rgba(255,255,255,.055);
+  --ok:#bcd0c2;--warn:#e0c6a6;--shadow:0 30px 90px rgba(0,0,0,.62)
+}
+*{box-sizing:border-box} html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#050506;color:#eee;font-family:"Segoe UI",Tahoma,Arial,sans-serif}
+button,input{font:inherit} button{color:inherit}
+body.reduce-motion *,body.reduce-motion *:before,body.reduce-motion *:after{animation:none!important;transition-duration:.001ms!important}
+body.no-grain .grain,body.no-scan .scan{display:none}
+#app{position:relative;width:100%;height:100%;overflow:hidden;background:
+radial-gradient(circle at 78% 35%,rgba(227,23,47,.19),transparent 33%),
+linear-gradient(120deg,#0b0b0d 0%,#050506 45%,#160408 100%)}
+#app:before{content:"";position:absolute;inset:-20%;background:
+repeating-linear-gradient(90deg,transparent 0 97px,rgba(255,255,255,.018) 98px),
+repeating-linear-gradient(0deg,transparent 0 97px,rgba(255,255,255,.013) 98px);transform:rotate(-5deg) scale(1.14);pointer-events:none}
+.grain,.scan{position:absolute;inset:0;pointer-events:none;z-index:90}
+.grain{opacity:.12;background-image:repeating-radial-gradient(circle at 21% 31%,rgba(255,255,255,.11) 0 1px,transparent 1px 4px);background-size:7px 7px;mix-blend-mode:overlay}
+.scan{opacity:.07;background:repeating-linear-gradient(0deg,rgba(255,255,255,.07) 0 1px,transparent 1px 3px)}
+.arch{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none}
+.arch .beam{position:absolute;background:linear-gradient(180deg,rgba(72,72,77,.94),rgba(8,8,10,.98));box-shadow:var(--shadow);border-left:1px solid rgba(255,255,255,.08)}
+.arch .b1{right:-7%;bottom:-8%;width:41%;height:102%;transform:skewY(-7deg)}
+.arch .b2{right:24%;bottom:3%;width:25%;height:67%;transform:skewY(8deg)}
+.arch .b3{right:12%;top:10%;width:45%;height:12%;transform:rotate(-5deg)}
+.arch .red{position:absolute;right:13%;top:-9%;width:23%;height:126%;background:linear-gradient(180deg,rgba(255,40,65,.86),rgba(130,0,17,.68));transform:rotate(10deg);filter:drop-shadow(0 0 42px rgba(227,23,47,.31));animation:redFloat 9s ease-in-out infinite alternate}
+@keyframes redFloat{from{transform:translateX(-2vw) rotate(10deg)}to{transform:translateX(4vw) rotate(10deg)}}
+.shell{position:relative;z-index:10;height:100%;display:grid;grid-template-columns:minmax(290px,34%) 1fr}
+.sidebar{display:flex;flex-direction:column;justify-content:center;padding:clamp(26px,6vh,72px) clamp(26px,5vw,82px);min-width:0}
+.eyebrow{font-size:9px;letter-spacing:4px;color:#b9b9be;text-transform:uppercase;margin-bottom:20px}
+.logo{position:relative;margin:0 0 38px;font-size:clamp(56px,8vw,112px);line-height:.79;letter-spacing:-7px;font-weight:900;text-transform:uppercase;text-shadow:5px 0 0 rgba(227,23,47,.24),0 22px 38px rgba(0,0,0,.8)}
+.logo:after{content:"";position:absolute;left:-4px;bottom:-20px;width:104px;height:5px;background:var(--red);box-shadow:0 0 24px rgba(227,23,47,.68)}
+.identity{max-width:390px;margin-bottom:28px;color:#b7b7bc;font-size:10px;letter-spacing:.7px;line-height:1.8;text-transform:uppercase}
+.status-strip{display:grid;grid-template-columns:1fr 1fr;gap:7px;max-width:390px;margin-bottom:21px}
+.pill{border:1px solid var(--line);background:rgba(0,0,0,.28);padding:8px 10px;font-size:9px;letter-spacing:1px;color:#aaa;text-transform:uppercase}
+.pill b{color:#fff;font-weight:700}.pill .redtxt{color:#ff6074}
+nav{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
+.menu{position:relative;min-width:270px;padding:9px 14px 9px 24px;border:0;background:transparent;text-align:left;color:#c7c7ca;cursor:pointer;letter-spacing:2px;font-size:11px;font-weight:700;text-transform:uppercase;transition:.14s}
+.menu:before{content:"";position:absolute;left:0;top:50%;width:0;height:2px;background:var(--red);transform:translateY(-50%);transition:.14s}
+.menu:hover,.menu.active,.menu:focus-visible{outline:none;color:#fff;transform:translateX(6px);background:linear-gradient(90deg,rgba(227,23,47,.19),transparent)}
+.menu:hover:before,.menu.active:before{width:16px}.menu.locked{opacity:.42;cursor:not-allowed}.menu.locked:hover{transform:none;background:transparent}.menu.locked:hover:before{width:0}
+.version{margin-top:24px;color:#626269;font-size:8px;letter-spacing:1.4px;line-height:1.7;text-transform:uppercase}
+.content{position:relative;overflow:hidden}.view{position:absolute;inset:0;padding:clamp(28px,6vw,86px);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transform:translateX(28px);transition:.22s}
+.view.active{opacity:1;visibility:visible;transform:none}.panel{width:min(760px,100%);max-height:84vh;overflow:auto;padding:clamp(25px,4vw,46px);background:linear-gradient(145deg,rgba(16,16,19,.91),rgba(4,4,6,.95));border:1px solid var(--line);box-shadow:var(--shadow),inset 3px 0 0 rgba(227,23,47,.62);backdrop-filter:blur(8px)}
+.kicker{color:var(--red);font-size:9px;letter-spacing:4px;font-weight:800;text-transform:uppercase}.panel h2{margin:8px 0 21px;font-size:clamp(31px,4.2vw,52px);line-height:.95;text-transform:uppercase;letter-spacing:-1.4px}.panel p{margin:0 0 18px;color:#b8b8be;font-size:11px;line-height:1.75}
+.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid rgba(255,255,255,.23);background:var(--red);padding:11px 17px;color:#fff;cursor:pointer;font-size:10px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;box-shadow:0 10px 30px rgba(227,23,47,.19)}
+.btn:hover,.btn:focus-visible{outline:1px solid #fff;outline-offset:3px;background:#fb2940}.btn.ghost{background:rgba(0,0,0,.3);box-shadow:none}.btn.small{padding:7px 10px;font-size:8px;letter-spacing:1px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.card{position:relative;border:1px solid var(--line);background:rgba(255,255,255,.025);padding:15px 17px;overflow:hidden;cursor:pointer}.card:hover{background:rgba(227,23,47,.07)}.card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--red);transform:scaleY(0);transform-origin:bottom;transition:.17s}.card:hover:before,.card.selected:before{transform:scaleY(1)}
+.card strong{display:block;font-size:11px;letter-spacing:1.5px;text-transform:uppercase}.card small{display:block;margin-top:7px;color:#85858c;line-height:1.55;font-size:9px}.card.locked{opacity:.38;cursor:not-allowed}.tag{display:inline-block;margin-top:9px;padding:4px 7px;border:1px solid rgba(255,255,255,.13);font-size:8px;letter-spacing:1px;text-transform:uppercase;color:#aaa}.tag.red{color:#ff7888;border-color:rgba(227,23,47,.35)}
+.progress-wrap{margin-top:16px}.progress-top{display:flex;justify-content:space-between;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#8e8e95;margin-bottom:6px}.progress{height:6px;background:#1d1d21;border:1px solid rgba(255,255,255,.07)}.progress>span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--red2),var(--red));box-shadow:0 0 15px rgba(227,23,47,.3);transition:width .35s}
+.rankbox{display:grid;grid-template-columns:130px 1fr;gap:20px;align-items:center}.rank-seal{aspect-ratio:1;border:1px solid rgba(255,255,255,.15);background:radial-gradient(circle at 35% 35%,rgba(227,23,47,.32),rgba(20,20,23,.6) 50%,#09090b 75%);display:grid;place-items:center;position:relative;overflow:hidden}.rank-seal:before,.rank-seal:after{content:"";position:absolute;inset:17%;border:1px solid rgba(255,255,255,.18);transform:rotate(45deg)}.rank-seal:after{inset:29%;border-color:rgba(227,23,47,.55)}.rank-number{font-size:42px;font-weight:900;z-index:2}.rank-meta h3{margin:0 0 7px;font-size:18px;letter-spacing:1px;text-transform:uppercase}.rank-meta p{margin:0 0 10px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}.stat{border:1px solid var(--line);background:rgba(255,255,255,.02);padding:10px}.stat b{display:block;font-size:16px}.stat span{font-size:8px;color:#85858c;letter-spacing:1px;text-transform:uppercase}
+.setting{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:15px 0;border-bottom:1px solid rgba(255,255,255,.08)}.setting strong{display:block;font-size:10px;letter-spacing:1.4px;text-transform:uppercase}.setting small{display:block;color:#77777f;font-size:9px;margin-top:5px;max-width:430px;line-height:1.45}.toggle{min-width:68px;height:28px;border:1px solid rgba(255,255,255,.18);background:#111;color:#777;cursor:pointer;font-size:8px;letter-spacing:1px;font-weight:800}.toggle.on{background:var(--red);color:#fff;border-color:#ff4e62}
+.overlay{position:absolute;inset:0;z-index:70;display:none;background:#030304}.overlay.open{display:flex}.cinematic{align-items:center;justify-content:center;overflow:hidden}.cinematic-bg{position:absolute;inset:-15%;background:radial-gradient(circle at 50% 42%,rgba(227,23,47,.34),transparent 21%),linear-gradient(110deg,#020203 0 48%,#2a050b 48% 62%,#050506 62%);animation:cinBg 7s ease-in-out infinite alternate}.cinematic-bg:before{content:"";position:absolute;left:49%;top:-10%;width:14%;height:120%;background:linear-gradient(180deg,#ff344b,#79000f);transform:rotate(9deg);filter:blur(.2px);box-shadow:0 0 70px rgba(227,23,47,.4)}@keyframes cinBg{to{transform:scale(1.04) translateX(2%)}}
+.cinematic-copy{position:relative;z-index:2;width:min(780px,86%);text-align:center}.cinematic-copy .chapter{font-size:9px;letter-spacing:4px;color:#c7c7cb;text-transform:uppercase}.cinematic-copy h3{margin:14px 0 12px;font-size:clamp(34px,6vw,78px);line-height:.88;letter-spacing:-2px;text-transform:uppercase}.cinematic-copy p{max-width:620px;margin:0 auto;color:#c3c3c7;font-size:11px;line-height:1.8}.cinematic-controls{position:absolute;left:16px;right:16px;top:14px;z-index:4;display:flex;justify-content:space-between;align-items:center}.cinematic-progress{position:absolute;left:0;right:0;bottom:0;height:4px;background:#111;z-index:5}.cinematic-progress span{display:block;height:100%;width:0;background:var(--red);transition:width .3s linear}
+.console{padding:clamp(18px,5vw,65px);background:rgba(2,2,3,.97)}.terminal{width:100%;height:100%;display:flex;flex-direction:column;border-left:4px solid var(--red);background:#070709;box-shadow:0 0 70px rgba(227,23,47,.12);padding:20px 24px;font-family:Consolas,"Courier New",monospace}.term-head{display:flex;justify-content:space-between;align-items:center;color:#aaa;padding-bottom:12px;border-bottom:1px solid #242429;font-size:9px;letter-spacing:2px}.term-out{flex:1;overflow:auto;white-space:pre-wrap;padding:14px 0;color:#e7e7e9;font-size:11px;line-height:1.65}.term-row{display:flex;align-items:center;gap:8px;border-top:1px solid #242429;padding-top:11px;color:var(--red)}#consoleInput{flex:1;border:0;outline:none;background:transparent;color:#fff;caret-color:var(--red);font:11px Consolas,"Courier New",monospace;user-select:text}
+.dialog-shade{position:absolute;inset:0;z-index:96;background:rgba(0,0,0,.64);opacity:0;visibility:hidden;transition:.16s}.dialog-shade.open{opacity:1;visibility:visible}.dialog{position:absolute;z-index:97;left:50%;top:50%;width:min(460px,calc(100% - 36px));transform:translate(-50%,-50%) scale(.96);background:#101013;border:1px solid rgba(255,255,255,.18);border-left:4px solid var(--red);box-shadow:var(--shadow);padding:23px;opacity:0;visibility:hidden;transition:.16s}.dialog.open{opacity:1;visibility:visible;transform:translate(-50%,-50%) scale(1)}.dialog h3{margin:0 0 10px;font-size:16px;letter-spacing:1px;text-transform:uppercase}.dialog p{margin:0 0 17px;color:#aaa;font-size:10px;line-height:1.65}
+.toast-wrap{position:absolute;right:16px;top:16px;z-index:110;display:flex;flex-direction:column;gap:8px;pointer-events:none}.toast{width:min(330px,80vw);padding:12px 14px;background:rgba(11,11,14,.96);border:1px solid var(--line);border-left:3px solid var(--red);box-shadow:0 12px 40px rgba(0,0,0,.45);animation:toastIn .2s ease}.toast b{display:block;font-size:9px;letter-spacing:1.2px;text-transform:uppercase}.toast span{display:block;color:#96969c;font-size:9px;margin-top:4px;line-height:1.45}@keyframes toastIn{from{opacity:0;transform:translateX(25px)}to{opacity:1;transform:none}}
+.hotkey{position:absolute;right:16px;bottom:13px;z-index:12;font-size:8px;letter-spacing:1.2px;color:rgba(255,255,255,.25);text-transform:uppercase}
+@media(max-width:800px){.shell{grid-template-columns:1fr}.sidebar{justify-content:flex-start;padding:28px 22px 14px}.identity,.eyebrow,.version,.status-strip{display:none}.logo{font-size:58px;margin-bottom:27px}nav{flex-direction:row;flex-wrap:wrap;gap:3px}.menu{min-width:0;padding:8px 10px;font-size:8px}.content{position:absolute;inset:190px 0 0}.view{align-items:flex-start;padding:10px 18px 26px}.grid{grid-template-columns:1fr}.rankbox{grid-template-columns:90px 1fr}.stats{grid-template-columns:1fr}.arch{opacity:.5}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="arch" aria-hidden="true"><div class="beam b1"></div><div class="beam b2"></div><div class="beam b3"></div><div class="red"></div></div>
+  <div class="grain"></div><div class="scan"></div>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="eyebrow">Federal Bureau / Restricted Terminal</div>
+      <h1 class="logo">CONTROL</h1>
+      <div class="identity">DIRECTOR AUTHORIZATION ACCEPTED<br>OLDEST HOUSE INTERNAL NETWORK<br>CLEARANCE <span id="sideClearance">LEVEL 01</span></div>
+      <div class="status-strip">
+        <div class="pill">Rank <b id="sideRank">Probationary</b></div>
+        <div class="pill">Signal <b class="redtxt">Unstable</b></div>
+      </div>
+      <nav id="nav">
+        <button class="menu active" data-view="home">Continue</button>
+        <button class="menu" data-view="operations">Operations</button>
+        <button class="menu" data-view="files">Case Files</button>
+        <button class="menu" data-view="clearance">Clearance</button>
+        <button class="menu" data-view="options">Options</button>
+        <button class="menu" data-action="console">Bureau Console</button>
+        <button class="menu" data-action="reset">Reset Profile</button>
+        <button class="menu" data-action="exit">Return to Desktop</button>
+      </nav>
+      <div class="version">FBC TERMINAL BUILD 2.0<br>LOCAL CINEMATIC EXPERIENCE</div>
+    </aside>
+
+    <section class="content">
+      <section class="view active" id="view-home"><div class="panel">
+        <div class="kicker">Executive Sector</div><h2>The Oldest House</h2>
+        <p>Internal geometry is fluctuating. Several Bureau sectors remain sealed. Director-level authorization is required to continue deeper into the archive.</p>
+        <p>This module is an atmospheric CONTROL-inspired Bureau terminal for the Windows XP simulation. It intentionally does not imitate the original game's 3D combat.</p>
+        <div class="actions"><button class="btn" id="startSequence">▶ Start Operation</button><button class="btn ghost" id="openConsoleHome">Open Console</button></div>
+        <div class="progress-wrap"><div class="progress-top"><span>Current Clearance Progress</span><span id="homeProgressText">0 / 100 XP</span></div><div class="progress"><span id="homeProgressBar"></span></div></div>
+      </div></section>
+
+      <section class="view" id="view-operations"><div class="panel">
+        <div class="kicker">Bureau Operations</div><h2>Operations</h2>
+        <div class="grid" id="missionGrid"></div>
+      </div></section>
+
+      <section class="view" id="view-files"><div class="panel">
+        <div class="kicker">Classified Archive</div><h2>Case Files</h2>
+        <div class="grid" id="fileGrid"></div>
+      </div></section>
+
+      <section class="view" id="view-clearance"><div class="panel">
+        <div class="kicker">Personnel Record</div><h2>Clearance</h2>
+        <div class="rankbox"><div class="rank-seal"><div class="rank-number" id="rankNumber">1</div></div><div class="rank-meta">
+          <h3 id="rankTitle">Probationary Agent</h3><p id="rankDesc">Initial Bureau access. Executive terminals only.</p>
+          <div class="progress-wrap"><div class="progress-top"><span>Next Clearance</span><span id="rankProgressText">0 / 100 XP</span></div><div class="progress"><span id="rankProgressBar"></span></div></div>
+        </div></div>
+        <div class="stats"><div class="stat"><b id="statXp">0</b><span>Total XP</span></div><div class="stat"><b id="statMissions">0</b><span>Operations Cleared</span></div><div class="stat"><b id="statAchievements">0</b><span>Achievements</span></div></div>
+      </div></section>
+
+      <section class="view" id="view-options"><div class="panel">
+        <div class="kicker">System Configuration</div><h2>Options</h2>
+        <div class="setting"><div><strong>Bureau Ambience</strong><small>Procedural Web Audio drone. No original music files are used.</small></div><button class="toggle on" id="soundToggle">ON</button></div>
+        <div class="setting"><div><strong>Scanlines</strong><small>Security-terminal CRT overlay.</small></div><button class="toggle on" id="scanToggle">ON</button></div>
+        <div class="setting"><div><strong>Film Grain</strong><small>Subtle analog noise over the interface.</small></div><button class="toggle on" id="grainToggle">ON</button></div>
+        <div class="setting"><div><strong>Motion Effects</strong><small>Ambient Bureau architecture and glitch movement.</small></div><button class="toggle on" id="motionToggle">ON</button></div>
+      </div></section>
+    </section>
+  </div>
+
+  <div class="hotkey">[`] Bureau Console • [Esc] Back</div>
+
+  <section class="overlay cinematic" id="cinematic">
+    <div class="cinematic-bg"></div>
+    <div class="cinematic-controls"><span class="kicker" id="cinematicLabel">BUREAU OPERATION</span><button class="btn ghost small" id="cinematicSkip">Skip</button></div>
+    <div class="cinematic-copy"><div class="chapter" id="cinematicChapter">DIRECTOR BRIEFING</div><h3 id="cinematicTitle">THE OLDEST HOUSE</h3><p id="cinematicText">Internal architecture is no longer stable.</p></div>
+    <div class="cinematic-progress"><span id="cinematicProgress"></span></div>
+  </section>
+
+  <section class="overlay console" id="console"><div class="terminal">
+    <div class="term-head"><span>FBC INTERNAL COMMAND INTERFACE</span><button class="btn ghost small" id="closeConsole">Close</button></div>
+    <div class="term-out" id="termOut"></div>
+    <div class="term-row"><span>&gt;</span><input id="consoleInput" autocomplete="off" spellcheck="false" aria-label="Bureau command input"></div>
+  </div></section>
+
+  <div class="dialog-shade" id="dialogShade"></div>
+  <section class="dialog" id="dialog" role="dialog" aria-modal="true"><h3 id="dialogTitle">Bureau Message</h3><p id="dialogText"></p><div class="actions"><button class="btn" id="dialogOk">Continue</button></div></section>
+  <div class="toast-wrap" id="toastWrap"></div>
+</div>
+<script>
+(()=>{
+'use strict';
+const STORAGE_KEY='xp_control_fbc_v2';
+const defaultState={xp:0,completed:[],openedFiles:[],achievements:[],settings:{sound:true,scan:true,grain:true,motion:true}};
+let state=loadState();
+
+const ranks=[
+ {level:1,min:0,max:100,title:'Probationary Agent',desc:'Initial Bureau access. Executive terminals only.'},
+ {level:2,min:100,max:250,title:'Junior Investigator',desc:'Maintenance records and low-risk altered-item files unlocked.'},
+ {level:3,min:250,max:450,title:'Field Investigator',desc:'Research Sector operations become available.'},
+ {level:4,min:450,max:700,title:'Senior Agent',desc:'Restricted thresholds and Hotline archives unlocked.'},
+ {level:5,min:700,max:1000,title:'Prime Candidate',desc:'High-risk internal operations and sealed records unlocked.'},
+ {level:6,min:1000,max:1300,title:'Director Clearance',desc:'Highest local terminal authorization. Full archive access granted.'}
+];
+const missions=[
+ {id:'executive',level:1,name:'Executive Lockdown',xp:70,desc:'Restore Bureau internal communications and identify the source of the sector-wide signal distortion.'},
+ {id:'maintenance',level:2,name:'Maintenance Blackout',xp:95,desc:'Trace the power fluctuation beneath Central Executive and re-route emergency systems.'},
+ {id:'research',level:3,name:'Research Breach',xp:120,desc:'Review altered-material telemetry and stabilize the Research Sector containment network.'},
+ {id:'threshold',level:4,name:'Threshold Survey',xp:150,desc:'Analyze a spatial threshold whose geometry no longer matches Bureau architectural records.'},
+ {id:'hotline',level:5,name:'Hotline Resonance',xp:180,desc:'Establish a controlled Director-level Hotline connection and document the resulting signal pattern.'},
+ {id:'director',level:6,name:'Director Protocol',xp:220,desc:'Execute the final Bureau archive synchronization and seal the terminal record.'}
+];
+const files=[
+ {id:'ai04',level:1,name:'Altered Item / AI-04',desc:'A low-risk altered object whose observed behavior changes when directly documented.'},
+ {id:'exec',level:1,name:'Executive Sector Report',desc:'Internal memo detailing emergency lockdown procedures for Central Executive.'},
+ {id:'maint',level:2,name:'Maintenance Power Grid',desc:'Schematic summary of energy routing, emergency generators, and sealed maintenance corridors.'},
+ {id:'research',level:3,name:'Research Containment Note',desc:'A classified note concerning material samples exhibiting nonlocal response patterns.'},
+ {id:'threshold',level:4,name:'Threshold Incident T-17',desc:'Spatial measurements remain inconsistent between observation teams. Further study authorized.'},
+ {id:'hotline',level:5,name:'Hotline Procedure',desc:'Director authorization required. Unscheduled contact is prohibited by standing Bureau order.'},
+ {id:'redacted',level:6,name:'████████ / Director Archive',desc:'Record unsealed under Director-level local terminal clearance.'}
+];
+const cinematicScenes=[
+ {chapter:'DIRECTOR BRIEFING',title:'THE OLDEST HOUSE',text:'Internal architecture is no longer stable. Bureau maps can no longer be trusted.'},
+ {chapter:'SIGNAL EVENT',title:'RESONANCE',text:'A hostile frequency has propagated through multiple sectors. Personnel status is unknown.'},
+ {chapter:'AUTHORIZATION',title:'SERVICE WEAPON',text:'Director-level authority has been recognized by the building. Restricted systems are responding.'},
+ {chapter:'FINAL NOTICE',title:'TAKE CONTROL',text:'The next instruction is yours. The Bureau is waiting.'}
+];
+
+const $=s=>document.querySelector(s); const $$=s=>[...document.querySelectorAll(s)];
+const els={
+ views:$$('.view'),menus:$$('.menu[data-view]'),missionGrid:$('#missionGrid'),fileGrid:$('#fileGrid'),
+ sideClearance:$('#sideClearance'),sideRank:$('#sideRank'),homeProgressText:$('#homeProgressText'),homeProgressBar:$('#homeProgressBar'),
+ rankNumber:$('#rankNumber'),rankTitle:$('#rankTitle'),rankDesc:$('#rankDesc'),rankProgressText:$('#rankProgressText'),rankProgressBar:$('#rankProgressBar'),
+ statXp:$('#statXp'),statMissions:$('#statMissions'),statAchievements:$('#statAchievements'),
+ cinematic:$('#cinematic'),cinematicChapter:$('#cinematicChapter'),cinematicTitle:$('#cinematicTitle'),cinematicText:$('#cinematicText'),cinematicProgress:$('#cinematicProgress'),
+ console:$('#console'),termOut:$('#termOut'),consoleInput:$('#consoleInput'),dialog:$('#dialog'),dialogShade:$('#dialogShade'),dialogTitle:$('#dialogTitle'),dialogText:$('#dialogText'),toastWrap:$('#toastWrap')
+};
+function loadState(){try{return Object.assign(structuredClone(defaultState),JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'));}catch{return structuredClone(defaultState)}}
+function saveState(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}
+function currentRank(){return [...ranks].reverse().find(r=>state.xp>=r.min)||ranks[0]}
+function nextRank(){const r=currentRank();return ranks.find(x=>x.level===r.level+1)||null}
+function showView(name){els.views.forEach(v=>v.classList.toggle('active',v.id==='view-'+name));els.menus.forEach(m=>m.classList.toggle('active',m.dataset.view===name))}
+function toast(title,text){const d=document.createElement('div');d.className='toast';d.innerHTML=`<b>${escapeHtml(title)}</b><span>${escapeHtml(text)}</span>`;els.toastWrap.appendChild(d);setTimeout(()=>d.remove(),3600)}
+function escapeHtml(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function showDialog(title,text){els.dialogTitle.textContent=title;els.dialogText.textContent=text;els.dialog.classList.add('open');els.dialogShade.classList.add('open')}
+function hideDialog(){els.dialog.classList.remove('open');els.dialogShade.classList.remove('open')}
+function awardAchievement(id,title,text){if(state.achievements.includes(id))return;state.achievements.push(id);saveState();toast('Achievement Unlocked',title+' — '+text)}
+function awardXp(amount,reason){state.xp+=amount;saveState();toast('Clearance XP +'+amount,reason);const beforeLevel=currentRank().level;renderAll();const afterLevel=currentRank().level;if(afterLevel>beforeLevel)toast('Clearance Increased','Level '+afterLevel+' authorization granted.')}
+function renderAll(){renderMissions();renderFiles();renderRank();applySettings()}
+function renderRank(){const r=currentRank(),n=nextRank();els.sideClearance.textContent='LEVEL '+String(r.level).padStart(2,'0');els.sideRank.textContent=r.title;els.rankNumber.textContent=r.level;els.rankTitle.textContent=r.title;els.rankDesc.textContent=r.desc;els.statXp.textContent=state.xp;els.statMissions.textContent=state.completed.length;els.statAchievements.textContent=state.achievements.length;
+ const base=r.min,target=n?n.min:r.max,span=Math.max(1,target-base),p=n?Math.max(0,Math.min(100,((state.xp-base)/span)*100)):100;els.rankProgressBar.style.width=p+'%';els.homeProgressBar.style.width=p+'%';els.rankProgressText.textContent=n?`${state.xp-base} / ${span} XP`:'MAX CLEARANCE';els.homeProgressText.textContent=els.rankProgressText.textContent}
+function renderMissions(){const level=currentRank().level;els.missionGrid.innerHTML='';missions.forEach(m=>{const locked=level<m.level,done=state.completed.includes(m.id);const c=document.createElement('div');c.className='card'+(locked?' locked':'')+(done?' selected':'');c.innerHTML=`<strong>${String(m.level).padStart(2,'0')} / ${escapeHtml(m.name)}</strong><small>${escapeHtml(m.desc)}</small><span class="tag ${done?'red':''}">${locked?'CLEARANCE '+m.level+' REQUIRED':done?'CLEARED':'+'+m.xp+' XP'}</span>`;c.addEventListener('click',()=>{if(locked){showDialog('ACCESS DENIED','This operation requires Clearance Level '+m.level+'.');return}startMission(m)});els.missionGrid.appendChild(c)})}
+function renderFiles(){const level=currentRank().level;els.fileGrid.innerHTML='';files.forEach(f=>{const locked=level<f.level,opened=state.openedFiles.includes(f.id);const c=document.createElement('div');c.className='card'+(locked?' locked':'')+(opened?' selected':'');c.innerHTML=`<strong>${locked?'████████████':escapeHtml(f.name)}</strong><small>${locked?'File sealed under a higher Bureau clearance level.':escapeHtml(f.desc)}</small><span class="tag ${opened?'red':''}">${locked?'LEVEL '+f.level:'ARCHIVE RECORD'}</span>`;c.addEventListener('click',()=>{if(locked){showDialog('SEALED FILE','Clearance Level '+f.level+' required.');return}if(!state.openedFiles.includes(f.id)){state.openedFiles.push(f.id);saveState();awardAchievement('archive-'+f.id,'Archivist','Opened '+f.name)}showDialog(f.name,f.desc)});els.fileGrid.appendChild(c)})}
+function startMission(m){if(state.completed.includes(m.id)){runCinematic(m.name,()=>showDialog('OPERATION ARCHIVED',m.name+' has already been cleared.'));return}runCinematic(m.name,()=>{state.completed.push(m.id);state.xp+=m.xp;saveState();awardAchievement('mission-'+m.id,'Operation Cleared',m.name);if(state.completed.length===1)awardAchievement('first-op','First Response','Completed the first Bureau operation.');if(state.completed.length===missions.length)awardAchievement('all-ops','Directorate','Cleared every local operation.');renderAll();toast('Operation Complete',m.name+' • +'+m.xp+' XP')})}
+let cinematicTimer=null;function runCinematic(label,onDone){clearInterval(cinematicTimer);els.cinematic.classList.add('open');let i=0;const show=()=>{const s=cinematicScenes[i];els.cinematicChapter.textContent=s.chapter;els.cinematicTitle.textContent=s.title;els.cinematicText.textContent=s.text;els.cinematicProgress.style.width=((i+1)/cinematicScenes.length*100)+'%'};show();cinematicTimer=setInterval(()=>{i++;if(i>=cinematicScenes.length){clearInterval(cinematicTimer);setTimeout(()=>{els.cinematic.classList.remove('open');if(onDone)onDone()},450);return}show()},2200)}
+function closeCinematic(){clearInterval(cinematicTimer);els.cinematic.classList.remove('open')}
+
+let audioCtx=null,master=null;function initAudio(){if(audioCtx)return;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;audioCtx=new AC();master=audioCtx.createGain();master.gain.value=0;master.connect(audioCtx.destination);const o1=audioCtx.createOscillator(),o2=audioCtx.createOscillator(),g1=audioCtx.createGain(),g2=audioCtx.createGain(),f=audioCtx.createBiquadFilter(),lfo=audioCtx.createOscillator(),lg=audioCtx.createGain();o1.type='sine';o1.frequency.value=42;o2.type='triangle';o2.frequency.value=67;g1.gain.value=.14;g2.gain.value=.035;f.type='lowpass';f.frequency.value=250;f.Q.value=1.6;lfo.type='sine';lfo.frequency.value=.08;lg.gain.value=16;o1.connect(g1);o2.connect(g2);g1.connect(f);g2.connect(f);f.connect(master);lfo.connect(lg);lg.connect(f.frequency);o1.start();o2.start();lfo.start()}
+function setSound(on){state.settings.sound=on;saveState();if(on){initAudio();if(audioCtx){audioCtx.resume();const t=audioCtx.currentTime;master.gain.cancelScheduledValues(t);master.gain.setValueAtTime(master.gain.value,t);master.gain.linearRampToValueAtTime(.1,t+1)}}else if(audioCtx){const t=audioCtx.currentTime;master.gain.cancelScheduledValues(t);master.gain.setValueAtTime(master.gain.value,t);master.gain.linearRampToValueAtTime(0,t+.25)}}
+function applySettings(){document.body.classList.toggle('no-scan',!state.settings.scan);document.body.classList.toggle('no-grain',!state.settings.grain);document.body.classList.toggle('reduce-motion',!state.settings.motion);[['soundToggle','sound'],['scanToggle','scan'],['grainToggle','grain'],['motionToggle','motion']].forEach(([id,k])=>{const b=$('#'+id);b.textContent=state.settings[k]?'ON':'OFF';b.classList.toggle('on',!!state.settings[k])})}
+function toggleSetting(k){state.settings[k]=!state.settings[k];if(k==='sound')setSound(state.settings[k]);else{saveState();applySettings()}}
+
+const boot=`FBC SECURE TERMINAL\nFEDERAL BUREAU INTERNAL NETWORK\n\nNODE ........ OLDEST-HOUSE-06\nSTATUS ...... ONLINE\nCLEARANCE ... LOCAL PROFILE\n\nType HELP for available commands.\n`;els.termOut.textContent=boot;
+function print(t=''){els.termOut.textContent+='\n'+t;els.termOut.scrollTop=els.termOut.scrollHeight}
+function openConsole(){els.console.classList.add('open');setTimeout(()=>els.consoleInput.focus(),20)}function closeConsole(){els.console.classList.remove('open')}
+function execCmd(raw){const cmd=raw.trim().toLowerCase();if(!cmd)return;print('> '+raw);const r=currentRank();switch(cmd){
+ case'help':print('HELP\nSTATUS\nPROFILE\nMISSIONS\nFILES\nHOTLINE\nTHRESHOLD\nLAUNCH\nMUTE\nCLEAR\nEXIT\n\nHidden aliases may exist.');break;
+ case'status':print(`OLDEST HOUSE .... ACTIVE\nCLEARANCE ...... LEVEL ${r.level}\nXP ............. ${state.xp}\nOPERATIONS ..... ${state.completed.length}/${missions.length}\nSIGNAL ......... UNSTABLE`);break;
+ case'profile':print(`${r.title.toUpperCase()}\n${r.desc}\nACHIEVEMENTS ... ${state.achievements.length}`);break;
+ case'missions':print(missions.map(m=>`${state.completed.includes(m.id)?'[CLEARED]':'[OPEN]   '} L${m.level} ${m.name}`).join('\n'));break;
+ case'files':print(files.map(f=>`${r.level>=f.level?'[ACCESS]':'[SEALED]'} ${f.name}`).join('\n'));break;
+ case'hotline':print(r.level>=5?'HOTLINE CHANNEL AVAILABLE. SIGNAL NONLOCAL.':'ACCESS DENIED. CLEARANCE 5 REQUIRED.');break;
+ case'threshold':print(r.level>=4?'THRESHOLD T-17: GEOMETRY MISMATCH CONFIRMED.':'ACCESS DENIED. CLEARANCE 4 REQUIRED.');break;
+ case'launch':closeConsole();runCinematic('CONSOLE LAUNCH',()=>toast('Cinematic Complete','Bureau sequence closed.'));break;
+ case'mute':setSound(!state.settings.sound);applySettings();print('Bureau ambience '+(state.settings.sound?'enabled.':'disabled.'));break;
+ case'clear':els.termOut.textContent='';break;
+ case'exit':closeConsole();break;
+ case'god':case'godmode':print('ALTERED AUTHORIZATION REQUEST\nDENIED.\nReality modification privileges are unavailable through this terminal.');awardAchievement('secret-god','Unauthorized Request','Attempted a reality modification command.');break;
+ case'noclip':print('SPATIAL COLLISION OVERRIDE\nERROR: Building geometry declined request.');awardAchievement('secret-noclip','Geometry Dispute','Asked the Oldest House to ignore geometry.');break;
+ case'serviceweapon':print('OBJECT REQUEST\nCLASSIFICATION ... RESTRICTED\nBINDING .......... DIRECTOR ONLY\nSTATUS ........... █████████');awardAchievement('secret-weapon','Object of Power','Queried a restricted object record.');break;
+ default:print('UNKNOWN COMMAND: '+cmd.toUpperCase())}}
+
+$$('.menu[data-view]').forEach(b=>b.addEventListener('click',()=>{showView(b.dataset.view);if(state.settings.sound)setSound(true)}));
+$('[data-action="console"]').addEventListener('click',openConsole);$('#openConsoleHome').addEventListener('click',openConsole);$('#closeConsole').addEventListener('click',closeConsole);
+$('[data-action="reset"]').addEventListener('click',()=>showDialog('RESET PROFILE','Use console command RESETCONFIRM to erase local mission progress. This avoids accidental resets.'));
+$('[data-action="exit"]').addEventListener('click',()=>{window.parent.postMessage({type:'XP_APP_CLOSE_REQUEST',app:'controlgame'},'*');showDialog('RETURN TO DESKTOP','Close request sent to the parent WindowManager. If unsupported, use the outer XP window close button.')});
+$('#startSequence').addEventListener('click',()=>runCinematic('DIRECTOR BRIEFING',()=>{awardAchievement('first-launch','The Oldest House','Completed the local cinematic briefing.');renderAll()}));
+$('#cinematicSkip').addEventListener('click',closeCinematic);$('#dialogOk').addEventListener('click',hideDialog);els.dialogShade.addEventListener('click',hideDialog);
+$('#soundToggle').addEventListener('click',()=>toggleSetting('sound'));$('#scanToggle').addEventListener('click',()=>toggleSetting('scan'));$('#grainToggle').addEventListener('click',()=>toggleSetting('grain'));$('#motionToggle').addEventListener('click',()=>toggleSetting('motion'));
+els.consoleInput.addEventListener('keydown',e=>{if(e.key!=='Enter')return;const v=els.consoleInput.value;els.consoleInput.value='';if(v.trim().toLowerCase()==='resetconfirm'){state=structuredClone(defaultState);saveState();renderAll();print('LOCAL PROFILE RESET COMPLETE.');return}execCmd(v)});
+document.addEventListener('keydown',e=>{if(e.key==='`'||e.key==='F10'){e.preventDefault();els.console.classList.contains('open')?closeConsole():openConsole();return}if(e.key==='Escape'){if(els.dialog.classList.contains('open'))hideDialog();else if(els.cinematic.classList.contains('open'))closeCinematic();else if(els.console.classList.contains('open'))closeConsole()}});
+document.addEventListener('pointerdown',()=>{if(state.settings.sound)setSound(true)},{once:true});
+renderAll();
+})();
+</script>
+</body>
+</html>
+

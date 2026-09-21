@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="gtasf.lol favicon">
+  <title>gtasf.lol</title>
+
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff4fa3"/>
+      <stop offset="55%" stop-color="#ff7a45"/>
+      <stop offset="100%" stop-color="#2a1430"/>
+    </linearGradient>
+    <linearGradient id="road" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#12131a"/>
+      <stop offset="100%" stop-color="#05060a"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="0.6"/>
+    </filter>
+  </defs>
+
+  <!-- Rounded tile -->
+  <rect width="32" height="32" rx="6" ry="6" fill="url(#sky)"/>
+
+  <!-- Sun disc -->
+  <circle cx="16" cy="14" r="5.5" fill="#ffe27a" opacity="0.95"/>
+  <rect x="10.5" y="13.5" width="11" height="0.6" fill="url(#sky)" opacity="0.8"/>
+  <rect x="10.5" y="15.2" width="11" height="0.5" fill="url(#sky)" opacity="0.7"/>
+  <rect x="10.5" y="16.7" width="11" height="0.4" fill="url(#sky)" opacity="0.6"/>
+
+  <!-- Skyline silhouette -->
+  <g fill="#1a0a26">
+    <rect x="2"  y="17" width="3"  height="6"/>
+    <rect x="5"  y="15" width="2"  height="8"/>
+    <rect x="7"  y="18" width="4"  height="5"/>
+    <rect x="22" y="16" width="2"  height="7"/>
+    <rect x="24" y="14" width="3"  height="9"/>
+    <rect x="27" y="17" width="3"  height="6"/>
+  </g>
+
+  <!-- Ground / road area -->
+  <rect x="0" y="22" width="32" height="10" fill="url(#road)"/>
+
+  <!-- Road lane stripes -->
+  <g fill="#ffd84a">
+    <rect x="3"  y="27" width="3" height="1"/>
+    <rect x="8"  y="27" width="3" height="1"/>
+    <rect x="13" y="27" width="3" height="1"/>
+    <rect x="18" y="27" width="3" height="1"/>
+    <rect x="23" y="27" width="3" height="1"/>
+  </g>
+
+  <!-- Neon "VI" lettermark -->
+  <g filter="url(#glow)">
+    <path d="M 10 6 L 12 14 L 14 6" stroke="#00e5ff" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="17" y="6" width="1.6" height="8" rx="0.3" fill="#ff4fa3"/>
+  </g>
+  <g>
+    <path d="M 10 6 L 12 14 L 14 6" stroke="#e0ffff" stroke-width="0.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="17.3" y="6.2" width="1" height="7.6" rx="0.2" fill="#ffe8f3"/>
+  </g>
+</svg>

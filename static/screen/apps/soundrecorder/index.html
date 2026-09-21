@@ -1,0 +1,766 @@
+<!--
+WINDOWS XP SOUND RECORDER - ASSET LISTESI
+
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama |
+|------------|----------------------|------------|----------------------------------------------|
+| icon.png   | 32x32                | Zorunlu    | XP masaustu / Sistem Araclari ikonu          |
+
+NOTLAR:
+- Gercek mikrofon kaydi getUserMedia + Web Audio API ile yapilir.
+- Kayitlar 16-bit mono PCM WAV olarak disari aktarilir.
+- Windows XP Sound Recorder'in 60 saniyelik varsayilan kayit siniri taklit edilir.
+- alert(), confirm(), prompt() kullanilmaz.
+- Dış XP Luna baslik cubugu ve gorev cubugu ana WindowManager tarafindan saglanir.
+-->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ses Kaydedicisi</title>
+<style>
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden}
+body{
+  font:11px Tahoma,Arial,sans-serif;
+  color:#000;background:#ECE9D8;
+}
+button,input,select{font:11px Tahoma,Arial,sans-serif}
+button{cursor:default}
+.app{
+  width:100%;height:100%;
+  min-width:365px;min-height:210px;
+  display:grid;grid-template-rows:25px 1fr 20px;
+  background:#ECE9D8;
+}
+
+/* MENU */
+.menubar{
+  display:flex;align-items:center;padding:0 4px;
+  border-bottom:1px solid #ACA899;background:#ECE9D8;
+}
+.menu{
+  position:relative;height:24px;padding:0 7px;
+  display:flex;align-items:center;
+}
+.menu:hover,.menu.open{background:#316AC5;color:#fff}
+.dropdown{
+  display:none;position:absolute;left:0;top:23px;z-index:90;
+  min-width:205px;padding:2px;
+  background:#fff;color:#000;border:1px solid #716F64;
+  box-shadow:2px 2px 4px rgba(0,0,0,.35)
+}
+.menu.open .dropdown{display:block}
+.mi{
+  height:22px;display:flex;align-items:center;
+  padding:0 8px 0 25px;white-space:nowrap;
+}
+.mi:hover{background:#316AC5;color:#fff}
+.mi.disabled{color:#999;pointer-events:none}
+.shortcut{margin-left:auto;padding-left:20px;color:#777}
+.mi:hover .shortcut{color:#fff}
+.sep{height:1px;background:#ACA899;border-bottom:1px solid #fff;margin:3px 2px}
+
+/* MAIN */
+.main{
+  min-height:0;padding:8px 10px 7px;
+  display:flex;flex-direction:column;gap:7px;
+}
+.infoRow{
+  height:22px;display:flex;justify-content:space-between;align-items:center;
+  padding:0 5px;
+}
+.counter{min-width:118px}
+.counter b{font-weight:normal}
+.display{
+  flex:1;min-height:74px;
+  border:2px inset #fff;background:#001c00;
+  position:relative;overflow:hidden;
+}
+#wave{
+  width:100%;height:100%;display:block;
+}
+.centerLine{
+  position:absolute;left:0;right:0;top:50%;
+  height:1px;background:#063d06;pointer-events:none
+}
+.timeline{
+  display:flex;align-items:center;gap:7px
+}
+#position{
+  width:100%;accent-color:#909090;
+}
+.transport{
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  padding-top:1px;
+}
+.tbtn{
+  width:43px;height:29px;
+  background:#ECE9D8;border:2px outset #fff;
+  display:flex;align-items:center;justify-content:center;
+  padding:0;
+}
+.tbtn:active:not(:disabled){border-style:inset}
+.tbtn:disabled{opacity:.45}
+.glyph{display:block;position:relative;width:18px;height:16px}
+.glyph.start:before{
+  content:"";position:absolute;left:1px;top:2px;width:3px;height:12px;background:#111
+}
+.glyph.start:after{
+  content:"";position:absolute;left:5px;top:2px;
+  border-top:6px solid transparent;border-bottom:6px solid transparent;border-right:9px solid #111
+}
+.glyph.back:before,.glyph.back:after{
+  content:"";position:absolute;top:3px;
+  border-top:5px solid transparent;border-bottom:5px solid transparent;border-right:7px solid #111
+}
+.glyph.back:before{left:2px}.glyph.back:after{left:8px}
+.glyph.forward:before,.glyph.forward:after{
+  content:"";position:absolute;top:3px;
+  border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #111
+}
+.glyph.forward:before{left:2px}.glyph.forward:after{left:8px}
+.glyph.play:before{
+  content:"";position:absolute;left:5px;top:2px;
+  border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:10px solid #111
+}
+.glyph.stop:before{
+  content:"";position:absolute;left:4px;top:3px;width:11px;height:11px;background:#111
+}
+.glyph.record:before{
+  content:"";position:absolute;left:4px;top:2px;width:12px;height:12px;border-radius:50%;background:#d40000
+}
+.note{
+  min-height:18px;text-align:center;color:#555;font-size:10px
+}
+
+/* STATUS */
+.statusbar{
+  display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:2px;
+  padding:2px;border-top:1px solid #ACA899;background:#ECE9D8
+}
+.status{
+  height:16px;border:1px inset #fff;padding:0 5px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  line-height:14px
+}
+
+/* DIALOG */
+.shade{
+  display:none;position:absolute;inset:0;z-index:150;
+  background:rgba(0,0,0,.18);align-items:center;justify-content:center;padding:15px
+}
+.shade.show{display:flex}
+.xp-dialog{
+  width:min(460px,92vw);max-height:88%;
+  background:#ECE9D8;color:#000;border:2px outset #fff;
+  box-shadow:4px 5px 14px rgba(0,0,0,.45);
+  display:flex;flex-direction:column
+}
+.dtitle{
+  min-height:25px;display:flex;align-items:center;justify-content:space-between;
+  padding:2px 3px 2px 7px;color:#fff;font-weight:bold;
+  background:linear-gradient(90deg,#0A246A,#3A6EA5)
+}
+.dx{
+  width:21px;height:20px;padding:0;color:#fff;font-weight:bold;
+  background:#D8503C;border:2px outset #fff
+}
+.dbody{padding:13px;line-height:1.45;overflow:auto}
+.dactions{padding:0 12px 11px;display:flex;justify-content:flex-end;gap:7px}
+.xpbtn{
+  min-width:78px;height:25px;background:#ECE9D8;border:2px outset #fff
+}
+.xpbtn:active{border-style:inset}
+.row{
+  display:grid;grid-template-columns:120px minmax(0,1fr);gap:8px;
+  align-items:center;margin:7px 0
+}
+.textbox,.selectbox{
+  width:100%;height:23px;border:2px inset #fff;background:#fff;padding:1px 4px
+}
+.props{
+  display:grid;grid-template-columns:110px 1fr;gap:6px 10px;
+}
+.props b{font-weight:normal;color:#555}
+.msg{
+  display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start
+}
+.infoicon{
+  width:32px;height:32px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;background:#316AC5;border:1px solid #174B9E;
+  font:bold 23px Georgia,serif
+}
+.fileHint{
+  margin-top:8px;padding:7px;border:1px solid #D6C36A;background:#FFF7D8;color:#5B5226
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="menubar">
+    <div class="menu" data-menu>Dosya
+      <div class="dropdown">
+        <div class="mi" data-cmd="new">Yeni <span class="shortcut">Ctrl+N</span></div>
+        <div class="mi" data-cmd="open">Aç... <span class="shortcut">Ctrl+O</span></div>
+        <div class="mi" data-cmd="save">Kaydet <span class="shortcut">Ctrl+S</span></div>
+        <div class="mi" data-cmd="saveas">Farklı Kaydet...</div>
+        <div class="mi" data-cmd="revert">Geri Alınan Sürüme Dön</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="properties">Özellikler</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="exit">Çıkış</div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu>Düzen
+      <div class="dropdown">
+        <div class="mi" data-cmd="copy">Kopyala <span class="shortcut">Ctrl+C</span></div>
+        <div class="mi" data-cmd="pasteinsert">Yapıştır Ekle <span class="shortcut">Ctrl+V</span></div>
+        <div class="mi" data-cmd="pastemix">Yapıştır Karıştır</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="insertfile">Dosya Ekle...</div>
+        <div class="mi" data-cmd="mixfile">Dosyayla Karıştır...</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="deletebefore">Geçerli Konumdan Öncesini Sil</div>
+        <div class="mi" data-cmd="deleteafter">Geçerli Konumdan Sonrasını Sil</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="audioprops">Ses Özellikleri</div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu>Efektler
+      <div class="dropdown">
+        <div class="mi" data-cmd="volup">Sesi Artır (25%)</div>
+        <div class="mi" data-cmd="voldown">Sesi Azalt</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="speedup">Hızı Artır (100%)</div>
+        <div class="mi" data-cmd="speeddown">Hızı Azalt</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="echo">Yankı Ekle</div>
+        <div class="mi" data-cmd="reverse">Ters Çevir</div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu>Yardım
+      <div class="dropdown">
+        <div class="mi" data-cmd="help">Yardım Konuları</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="about">Ses Kaydedicisi Hakkında</div>
+      </div>
+    </div>
+  </div>
+
+  <main class="main">
+    <div class="infoRow">
+      <div class="counter">Konum: <b id="posText">0,00 sn.</b></div>
+      <div class="counter" style="text-align:right">Uzunluk: <b id="lenText">0,00 sn.</b></div>
+    </div>
+
+    <div class="display">
+      <canvas id="wave"></canvas>
+      <div class="centerLine"></div>
+    </div>
+
+    <div class="timeline">
+      <span>0</span>
+      <input id="position" type="range" min="0" max="1000" value="0">
+      <span id="endLabel">60</span>
+    </div>
+
+    <div class="transport">
+      <button class="tbtn" id="startBtn" title="Başa git"><i class="glyph start"></i></button>
+      <button class="tbtn" id="backBtn" title="Geri sar"><i class="glyph back"></i></button>
+      <button class="tbtn" id="forwardBtn" title="İleri sar"><i class="glyph forward"></i></button>
+      <button class="tbtn" id="playBtn" title="Yürüt"><i class="glyph play"></i></button>
+      <button class="tbtn" id="stopBtn" title="Durdur"><i class="glyph stop"></i></button>
+      <button class="tbtn" id="recordBtn" title="Kaydet"><i class="glyph record"></i></button>
+    </div>
+
+    <div class="note" id="note">Mikrofon kaydı için kırmızı düğmeye basın.</div>
+  </main>
+
+  <div class="statusbar">
+    <div class="status" id="status">Hazır</div>
+    <div class="status" id="format">PCM 44,100 kHz; 16 Bit; Mono</div>
+  </div>
+
+  <input id="openInput" type="file" accept="audio/*,.wav" hidden>
+  <input id="insertInput" type="file" accept="audio/*,.wav" hidden>
+  <input id="mixInput" type="file" accept="audio/*,.wav" hidden>
+
+  <div class="shade" id="shade">
+    <div class="xp-dialog">
+      <div class="dtitle"><span id="dtitle">Ses Kaydedicisi</span><button class="dx" id="dx" type="button">×</button></div>
+      <div class="dbody" id="dbody"></div>
+      <div class="dactions" id="dactions"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(()=>{
+'use strict';
+
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+
+const MAX_SECONDS=60;
+let ctx=null;
+let samples=new Float32Array(0);
+let sampleRate=44100;
+let currentPos=0;
+let filename='Ses.wav';
+let savedSnapshot=new Float32Array(0);
+let copyBuffer=new Float32Array(0);
+
+let mediaStream=null;
+let mediaSource=null;
+let processor=null;
+let recording=false;
+let recordParts=[];
+let recordStartedAt=0;
+let recordTimer=null;
+
+let playSource=null;
+let playing=false;
+let playStartTime=0;
+let playStartPos=0;
+let raf=0;
+
+const wave=$('#wave'),wctx=wave.getContext('2d');
+const position=$('#position');
+const posText=$('#posText'),lenText=$('#lenText');
+const status=$('#status'),format=$('#format'),note=$('#note');
+
+function ac(){
+  if(!ctx){
+    ctx=new (window.AudioContext||window.webkitAudioContext)();
+    sampleRate=ctx.sampleRate||44100;
+    updateFormat();
+  }
+  if(ctx.state==='suspended')ctx.resume();
+  return ctx;
+}
+function updateFormat(){
+  format.textContent=`PCM ${(sampleRate/1000).toFixed(3).replace('.',',')} kHz; 16 Bit; Mono`;
+}
+function duration(){return samples.length/sampleRate}
+function fmt(v){return Math.max(0,v).toFixed(2).replace('.',',')+' sn.'}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function setStatus(t){status.textContent=t}
+
+function resizeWave(){
+  const dpr=Math.min(devicePixelRatio||1,2),r=wave.getBoundingClientRect();
+  wave.width=Math.max(1,Math.round(r.width*dpr));
+  wave.height=Math.max(1,Math.round(r.height*dpr));
+  wctx.setTransform(dpr,0,0,dpr,0,0);
+  drawWave();
+}
+function drawWave(){
+  const r=wave.getBoundingClientRect(),W=r.width,H=r.height;
+  wctx.clearRect(0,0,W,H);
+  wctx.fillStyle='#001c00';wctx.fillRect(0,0,W,H);
+  wctx.strokeStyle='#004b00';wctx.lineWidth=1;
+  wctx.beginPath();wctx.moveTo(0,H/2);wctx.lineTo(W,H/2);wctx.stroke();
+
+  if(!samples.length)return;
+
+  const per=Math.max(1,Math.floor(samples.length/W));
+  wctx.strokeStyle='#00ff00';wctx.lineWidth=1;
+  wctx.beginPath();
+
+  for(let x=0;x<W;x++){
+    const start=x*per,end=Math.min(samples.length,start+per);
+    let min=1,max=-1;
+    for(let i=start;i<end;i++){
+      const v=samples[i];if(v<min)min=v;if(v>max)max=v;
+    }
+    const y1=(1-max)*H/2,y2=(1-min)*H/2;
+    wctx.moveTo(x,y1);wctx.lineTo(x,y2);
+  }
+  wctx.stroke();
+
+  const px=duration()?clamp(currentPos/duration(),0,1)*W:0;
+  wctx.strokeStyle='#d7d7d7';
+  wctx.beginPath();wctx.moveTo(px,0);wctx.lineTo(px,H);wctx.stroke();
+}
+function updateUI(){
+  const len=duration();
+  currentPos=clamp(currentPos,0,len||0);
+  posText.textContent=fmt(currentPos);
+  lenText.textContent=fmt(len);
+  position.value=len?Math.round(currentPos/len*1000):0;
+  $('#endLabel').textContent=len?Math.ceil(len):MAX_SECONDS;
+  const has=!!samples.length;
+  $('#playBtn').disabled=!has||recording;
+  $('#startBtn').disabled=!has||recording;
+  $('#backBtn').disabled=!has||recording;
+  $('#forwardBtn').disabled=!has||recording;
+  drawWave();
+}
+
+/* MENUS */
+function closeMenus(){$$('[data-menu]').forEach(m=>m.classList.remove('open'))}
+$$('[data-menu]').forEach(m=>m.addEventListener('mousedown',e=>{
+  if(e.target.closest('.mi'))return;
+  const was=m.classList.contains('open');closeMenus();if(!was)m.classList.add('open');
+}));
+document.addEventListener('mousedown',e=>{if(!e.target.closest('[data-menu]'))closeMenus()});
+document.addEventListener('click',e=>{
+  const mi=e.target.closest('.mi[data-cmd]');if(!mi||mi.classList.contains('disabled'))return;
+  closeMenus();runCommand(mi.dataset.cmd);
+});
+
+/* XP DIALOG */
+const shade=$('#shade');
+function showDialog(title,html,buttons){
+  $('#dtitle').textContent=title;
+  $('#dbody').innerHTML=html;
+  $('#dactions').innerHTML='';
+  (buttons||[{label:'Tamam',action:hideDialog}]).forEach(b=>{
+    const x=document.createElement('button');x.className='xpbtn';x.type='button';x.textContent=b.label;
+    x.onclick=b.action||hideDialog;$('#dactions').appendChild(x);
+  });
+  shade.classList.add('show');
+}
+function hideDialog(){shade.classList.remove('show')}
+$('#dx').onclick=hideDialog;
+shade.addEventListener('mousedown',e=>{if(e.target===shade)hideDialog()});
+function info(msg,title='Ses Kaydedicisi'){
+  showDialog(title,`<div class="msg"><div class="infoicon">i</div><div>${escapeHtml(msg)}</div></div>`);
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+/* RECORDING */
+async function startRecording(){
+  if(recording)return;
+  stopPlayback();
+  try{
+    const audio=ac();
+    mediaStream=await navigator.mediaDevices.getUserMedia({audio:{channelCount:1},video:false});
+    mediaSource=audio.createMediaStreamSource(mediaStream);
+    processor=audio.createScriptProcessor(4096,1,1);
+    recordParts=[];
+    recording=true;recordStartedAt=performance.now();
+
+    processor.onaudioprocess=e=>{
+      if(!recording)return;
+      const input=e.inputBuffer.getChannelData(0);
+      recordParts.push(new Float32Array(input));
+    };
+
+    mediaSource.connect(processor);
+    // keep processor alive without audible microphone feedback
+    const mute=audio.createGain();mute.gain.value=0;
+    processor.connect(mute);mute.connect(audio.destination);
+    processor._muteNode=mute;
+
+    $('#recordBtn').disabled=true;
+    note.textContent='Kaydediliyor...';
+    setStatus('Kaydediliyor');
+
+    recordTimer=setInterval(()=>{
+      const elapsed=(performance.now()-recordStartedAt)/1000;
+      posText.textContent=fmt(elapsed);
+      if(elapsed>=MAX_SECONDS)stopRecording();
+    },50);
+  }catch(err){
+    recording=false;
+    info('Mikrofona erişilemedi.\n\nTarayıcıda mikrofon iznini verin ve projeyi localhost/HTTPS üzerinden çalıştırın.');
+    setStatus('Mikrofon kullanılamıyor');
+  }
+}
+function stopRecording(){
+  if(!recording)return;
+  recording=false;
+  clearInterval(recordTimer);recordTimer=null;
+
+  try{if(processor){processor.disconnect();if(processor._muteNode)processor._muteNode.disconnect()}}catch{}
+  try{if(mediaSource)mediaSource.disconnect()}catch{}
+  try{if(mediaStream)mediaStream.getTracks().forEach(t=>t.stop())}catch{}
+  processor=mediaSource=mediaStream=null;
+
+  const total=recordParts.reduce((n,a)=>n+a.length,0);
+  let fresh=new Float32Array(total),off=0;
+  recordParts.forEach(a=>{fresh.set(a,off);off+=a.length});
+  const maxLen=Math.floor(MAX_SECONDS*sampleRate);
+  if(fresh.length>maxLen)fresh=fresh.slice(0,maxLen);
+
+  samples=fresh;
+  currentPos=0;
+  savedSnapshot=new Float32Array(samples);
+  filename='Ses.wav';
+  recordParts=[];
+
+  $('#recordBtn').disabled=false;
+  note.textContent='Kayıt tamamlandı.';
+  setStatus('Hazır');
+  updateUI();
+}
+
+/* PLAYBACK */
+function stopPlayback(){
+  if(playSource){try{playSource.stop()}catch{}try{playSource.disconnect()}catch{}}
+  playSource=null;playing=false;cancelAnimationFrame(raf);
+  if(samples.length)updateUI();
+}
+function play(){
+  if(!samples.length||recording)return;
+  stopPlayback();
+  const audio=ac();
+  const startSample=Math.floor(currentPos*sampleRate);
+  if(startSample>=samples.length){currentPos=0}
+  const offset=Math.floor(currentPos*sampleRate);
+  const remaining=samples.length-offset;
+  if(remaining<=0)return;
+
+  const buf=audio.createBuffer(1,remaining,sampleRate);
+  buf.copyToChannel(samples.slice(offset),0);
+  playSource=audio.createBufferSource();playSource.buffer=buf;playSource.connect(audio.destination);
+  playStartPos=currentPos;playStartTime=audio.currentTime;playing=true;
+  playSource.onended=()=>{
+    if(!playing)return;
+    playing=false;currentPos=duration();playSource=null;updateUI();
+  };
+  playSource.start();
+  const tick=()=>{
+    if(!playing)return;
+    currentPos=clamp(playStartPos+(audio.currentTime-playStartTime),0,duration());
+    updateUI();raf=requestAnimationFrame(tick);
+  };
+  raf=requestAnimationFrame(tick);
+  setStatus('Yürütülüyor');
+}
+$('#playBtn').onclick=play;
+$('#stopBtn').onclick=()=>{if(recording)stopRecording();else{stopPlayback();setStatus('Hazır')}};
+$('#recordBtn').onclick=startRecording;
+$('#startBtn').onclick=()=>{stopPlayback();currentPos=0;updateUI()};
+$('#backBtn').onclick=()=>{stopPlayback();currentPos=clamp(currentPos-0.5,0,duration());updateUI()};
+$('#forwardBtn').onclick=()=>{stopPlayback();currentPos=clamp(currentPos+0.5,0,duration());updateUI()};
+position.addEventListener('input',()=>{
+  stopPlayback();currentPos=duration()*Number(position.value)/1000;updateUI();
+});
+
+/* FILE DECODE */
+async function decodeFile(file){
+  const array=await file.arrayBuffer();
+  const audio=ac();
+  const decoded=await audio.decodeAudioData(array.slice(0));
+  sampleRate=decoded.sampleRate;
+  let mono=new Float32Array(decoded.length);
+  for(let ch=0;ch<decoded.numberOfChannels;ch++){
+    const src=decoded.getChannelData(ch);
+    for(let i=0;i<src.length;i++)mono[i]+=src[i]/decoded.numberOfChannels;
+  }
+  updateFormat();
+  return mono;
+}
+$('#openInput').addEventListener('change',async()=>{
+  const f=$('#openInput').files[0];if(!f)return;
+  try{
+    stopPlayback();samples=await decodeFile(f);currentPos=0;filename=f.name.replace(/\.[^.]+$/,'')+'.wav';
+    savedSnapshot=new Float32Array(samples);setStatus('Dosya açıldı');updateUI();
+  }catch{info('Bu ses dosyası açılamadı. WAV, MP3, OGG veya tarayıcının desteklediği bir ses dosyası seçin.')}
+  $('#openInput').value='';
+});
+$('#insertInput').addEventListener('change',async()=>{
+  const f=$('#insertInput').files[0];if(!f)return;
+  try{insertSamples(await decodeFile(f));setStatus('Dosya eklendi')}catch{info('Dosya eklenemedi.')}
+  $('#insertInput').value='';
+});
+$('#mixInput').addEventListener('change',async()=>{
+  const f=$('#mixInput').files[0];if(!f)return;
+  try{mixSamples(await decodeFile(f));setStatus('Dosyalar karıştırıldı')}catch{info('Dosya karıştırılamadı.')}
+  $('#mixInput').value='';
+});
+
+/* WAV */
+function wavBlob(data){
+  const rate=sampleRate;
+  const buffer=new ArrayBuffer(44+data.length*2),view=new DataView(buffer);
+  const write=(o,s)=>{for(let i=0;i<s.length;i++)view.setUint8(o+i,s.charCodeAt(i))};
+  write(0,'RIFF');view.setUint32(4,36+data.length*2,true);write(8,'WAVE');
+  write(12,'fmt ');view.setUint32(16,16,true);view.setUint16(20,1,true);
+  view.setUint16(22,1,true);view.setUint32(24,rate,true);view.setUint32(28,rate*2,true);
+  view.setUint16(32,2,true);view.setUint16(34,16,true);
+  write(36,'data');view.setUint32(40,data.length*2,true);
+  let o=44;
+  for(let i=0;i<data.length;i++,o+=2){
+    const s=clamp(data[i],-1,1);view.setInt16(o,s<0?s*0x8000:s*0x7fff,true);
+  }
+  return new Blob([view],{type:'audio/wav'});
+}
+function downloadWav(name){
+  if(!samples.length)return info('Kaydedilecek ses yok.');
+  const a=document.createElement('a');a.href=URL.createObjectURL(wavBlob(samples));
+  a.download=name||'Ses.wav';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  filename=name||filename;savedSnapshot=new Float32Array(samples);setStatus('Kaydedildi');
+}
+function saveAs(){
+  showDialog('Farklı Kaydet',`
+    <div class="row"><label>Dosya adı:</label><input class="textbox" id="saveName" value="${escapeHtml(filename)}"></div>
+    <div class="row"><label>Kayıt türü:</label><select class="selectbox"><option>Ses (*.wav)</option></select></div>
+    <div class="fileHint">Dosya tarayıcının indirme klasörüne kaydedilir.</div>
+  `,[
+    {label:'Kaydet',action:()=>{
+      let n=$('#saveName').value.trim()||'Ses.wav';if(!/\.wav$/i.test(n))n+='.wav';
+      hideDialog();downloadWav(n);
+    }},
+    {label:'İptal',action:hideDialog}
+  ]);
+}
+
+/* EDITING */
+function insertSamples(extra){
+  stopPlayback();
+  const p=Math.floor(currentPos*sampleRate);
+  const out=new Float32Array(samples.length+extra.length);
+  out.set(samples.slice(0,p),0);out.set(extra,p);out.set(samples.slice(p),p+extra.length);
+  samples=out;updateUI();
+}
+function mixSamples(extra){
+  stopPlayback();
+  const p=Math.floor(currentPos*sampleRate),len=Math.max(samples.length,p+extra.length);
+  const out=new Float32Array(len);out.set(samples);
+  for(let i=0;i<extra.length;i++)out[p+i]=clamp((out[p+i]||0)+extra[i],-1,1);
+  samples=out;updateUI();
+}
+function deleteBefore(){
+  if(!samples.length)return;
+  const p=Math.floor(currentPos*sampleRate);
+  samples=samples.slice(p);currentPos=0;updateUI();
+}
+function deleteAfter(){
+  if(!samples.length)return;
+  const p=Math.floor(currentPos*sampleRate);
+  samples=samples.slice(0,p);currentPos=clamp(currentPos,0,duration());updateUI();
+}
+
+/* EFFECTS */
+function effectVolume(factor){
+  if(!samples.length)return;
+  const out=new Float32Array(samples.length);
+  for(let i=0;i<samples.length;i++)out[i]=clamp(samples[i]*factor,-1,1);
+  samples=out;drawWave();
+}
+function speedUp(){
+  if(samples.length<2)return;
+  const out=new Float32Array(Math.ceil(samples.length/2));
+  for(let i=0;i<out.length;i++)out[i]=samples[Math.min(samples.length-1,i*2)];
+  samples=out;currentPos=clamp(currentPos/2,0,duration());updateUI();
+}
+function speedDown(){
+  if(!samples.length)return;
+  const out=new Float32Array(samples.length*2);
+  for(let i=0;i<samples.length-1;i++){
+    out[i*2]=samples[i];out[i*2+1]=(samples[i]+samples[i+1])/2;
+  }
+  out[out.length-2]=samples[samples.length-1];out[out.length-1]=samples[samples.length-1];
+  samples=out;currentPos=clamp(currentPos*2,0,duration());updateUI();
+}
+function addEcho(){
+  if(!samples.length)return;
+  const delay=Math.floor(sampleRate*.18),out=new Float32Array(samples.length+delay);
+  out.set(samples);
+  for(let i=0;i<samples.length;i++)out[i+delay]=clamp(out[i+delay]+samples[i]*.42,-1,1);
+  samples=out;updateUI();
+}
+function reverse(){
+  if(!samples.length)return;
+  samples=new Float32Array(Array.from(samples).reverse());currentPos=duration()-currentPos;updateUI();
+}
+
+/* PROPERTIES */
+function properties(){
+  const bytes=44+samples.length*2;
+  showDialog('Ses Özellikleri',`
+    <div class="props">
+      <b>Dosya:</b><span>${escapeHtml(filename)}</span>
+      <b>Uzunluk:</b><span>${fmt(duration())}</span>
+      <b>Veri Boyutu:</b><span>${bytes.toLocaleString('tr-TR')} bayt</span>
+      <b>Ses Biçimi:</b><span>PCM ${(sampleRate/1000).toFixed(3).replace('.',',')} kHz; 16 Bit; Mono</span>
+    </div>
+    <fieldset style="margin-top:13px;border:1px solid #ACA899;padding:9px">
+      <legend>Biçim Dönüştürme</legend>
+      Bu web sürümü kayıtları standart 16-bit mono PCM WAV olarak dışarı aktarır.
+    </fieldset>
+  `);
+}
+function audioProperties(){
+  showDialog('Ses Özellikleri',`
+    <fieldset style="border:1px solid #ACA899;padding:9px;margin-bottom:8px">
+      <legend>Ses Kaydı</legend>
+      <div class="row"><label>Varsayılan aygıt:</label><input class="textbox" value="Tarayıcı varsayılan mikrofonu" readonly></div>
+    </fieldset>
+    <fieldset style="border:1px solid #ACA899;padding:9px">
+      <legend>Ses Yürütme</legend>
+      <div class="row"><label>Varsayılan aygıt:</label><input class="textbox" value="Tarayıcı varsayılan çıkışı" readonly></div>
+    </fieldset>
+  `);
+}
+
+/* COMMANDS */
+function runCommand(cmd){
+  if(cmd==='new'){stopPlayback();if(recording)stopRecording();samples=new Float32Array(0);currentPos=0;filename='Ses.wav';savedSnapshot=new Float32Array(0);setStatus('Yeni ses');updateUI()}
+  else if(cmd==='open')$('#openInput').click();
+  else if(cmd==='save')downloadWav(filename);
+  else if(cmd==='saveas')saveAs();
+  else if(cmd==='revert'){samples=new Float32Array(savedSnapshot);currentPos=0;setStatus('Son kaydedilen sürüme dönüldü');updateUI()}
+  else if(cmd==='properties')properties();
+  else if(cmd==='exit'){try{window.parent.postMessage({type:'XP_APP_CLOSE_REQUEST',app:'soundrecorder'},'*')}catch{}}
+  else if(cmd==='copy'){copyBuffer=new Float32Array(samples);setStatus('Ses panoya kopyalandı')}
+  else if(cmd==='pasteinsert'){if(copyBuffer.length)insertSamples(copyBuffer);else info('Ses panosu boş.')}
+  else if(cmd==='pastemix'){if(copyBuffer.length)mixSamples(copyBuffer);else info('Ses panosu boş.')}
+  else if(cmd==='insertfile')$('#insertInput').click();
+  else if(cmd==='mixfile')$('#mixInput').click();
+  else if(cmd==='deletebefore')deleteBefore();
+  else if(cmd==='deleteafter')deleteAfter();
+  else if(cmd==='audioprops')audioProperties();
+  else if(cmd==='volup'){effectVolume(1.25);setStatus('Ses artırıldı')}
+  else if(cmd==='voldown'){effectVolume(.8);setStatus('Ses azaltıldı')}
+  else if(cmd==='speedup'){speedUp();setStatus('Hız artırıldı')}
+  else if(cmd==='speeddown'){speedDown();setStatus('Hız azaltıldı')}
+  else if(cmd==='echo'){addEcho();setStatus('Yankı eklendi')}
+  else if(cmd==='reverse'){reverse();setStatus('Ses ters çevrildi')}
+  else if(cmd==='help')showDialog('Ses Kaydedicisi Yardımı',`
+    <b>Ses kaydetmek için:</b><br>
+    Kırmızı Kayıt düğmesine basın ve mikrofon izni verin. Windows XP davranışını taklit etmek için tek kayıt en fazla 60 saniyedir.<br><br>
+    <b>Düzenleme:</b><br>
+    Konum kaydırıcısını kullanarak sesin bir noktasına gidin. Düzen menüsünden başını/sonunu kesebilir, ses ekleyebilir veya karıştırabilirsiniz.<br><br>
+    <b>Efektler:</b><br>
+    Ses düzeyi, hız, yankı ve ters oynatma efektleri gerçek ses verisine uygulanır.
+  `)
+  else if(cmd==='about')showDialog('Ses Kaydedicisi Hakkında',`
+    <div class="msg"><div class="infoicon">i</div><div>
+      <b>Microsoft Windows XP</b><br>
+      Ses Kaydedicisi web rekonstrüksiyonu<br><br>
+      Gerçek mikrofon kaydı ve WAV dışa aktarma desteklenir.
+    </div></div>
+  `);
+}
+
+/* native popup ban */
+window.alert=m=>info(String(m));
+window.confirm=m=>{info(String(m));return false};
+window.prompt=m=>{info(String(m));return null};
+
+/* shortcuts */
+document.addEventListener('keydown',e=>{
+  if(shade.classList.contains('show')){if(e.key==='Escape'){e.preventDefault();hideDialog()}return}
+  if(e.ctrlKey&&e.key.toLowerCase()==='n'){e.preventDefault();runCommand('new')}
+  else if(e.ctrlKey&&e.key.toLowerCase()==='o'){e.preventDefault();runCommand('open')}
+  else if(e.ctrlKey&&e.key.toLowerCase()==='s'){e.preventDefault();runCommand('save')}
+  else if(e.ctrlKey&&e.key.toLowerCase()==='c'){e.preventDefault();runCommand('copy')}
+  else if(e.ctrlKey&&e.key.toLowerCase()==='v'){e.preventDefault();runCommand('pasteinsert')}
+  else if(e.key===' ' && !['INPUT','SELECT','BUTTON'].includes(document.activeElement?.tagName||'')){e.preventDefault();playing?stopPlayback():play()}
+});
+
+window.addEventListener('resize',resizeWave);
+resizeWave();updateFormat();updateUI();
+})();
+</script>
+</body>
+</html>

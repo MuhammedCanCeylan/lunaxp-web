@@ -1,0 +1,699 @@
+<!--
+FAR CRY (2004) - NOSTALGIC LAUNCHER / CINEMATIC SHOWCASE - ASSET LISTESI
+
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama |
+|------------|----------------------|------------|----------------------------------------------|
+| icon.png   | 32x32                | Zorunlu    | XP masaustu / uygulama ikonu                 |
+
+NOTLAR:
+- Bu, CryEngine 1'in veya Far Cry oyununun browser portu değildir.
+- Harici Far Cry görseli, videosu, müziği veya oyun dosyası kullanılmaz.
+- Tropik ada, deniz, gökyüzü, radar, dürbün, araçlar ve sinematik sahneler Canvas/CSS ile prosedürel üretilir.
+- Sesler Web Audio ile sentetik olarak oluşturulur; telifli soundtrack kullanılmaz.
+- Dış XP Luna başlık çubuğu ve görev çubuğu ana WindowManager tarafından sağlanır; burada ikinci pencere başlığı çizilmez.
+- alert(), confirm(), prompt() kullanılmaz; tüm mesajlar sayfa içi .xp-dialog ile verilir.
+-->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Far Cry</title>
+<style>
+:root{
+  --cyan:#9de7f2;
+  --blue:#1d92bf;
+  --deep:#082b43;
+  --green:#80b85d;
+  --sand:#d9c895;
+  --panel:rgba(5,20,28,.78);
+  --line:rgba(155,225,242,.55);
+}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#000}
+body{font-family:Arial,Helvetica,sans-serif;color:#e8f6f8;user-select:none}
+button,input,select{font:inherit}
+button{cursor:default}
+#app{position:relative;width:100%;height:100%;overflow:hidden;background:#031a24}
+#scene{position:absolute;inset:0;width:100%;height:100%;display:block}
+.overlay{
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    linear-gradient(180deg,rgba(0,15,24,.15),transparent 35%,rgba(0,10,16,.42)),
+    radial-gradient(circle at center,transparent 45%,rgba(0,0,0,.42));
+}
+.scanlines{
+  position:absolute;inset:0;pointer-events:none;opacity:.09;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.08) 0 1px,transparent 1px 3px);
+}
+#topbar{
+  position:absolute;left:0;right:0;top:0;height:72px;
+  display:flex;align-items:flex-start;justify-content:space-between;padding:14px 20px;
+  background:linear-gradient(180deg,rgba(0,18,29,.9),transparent);
+  pointer-events:none
+}
+.logo{
+  font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;
+  font-size:46px;line-height:.9;font-style:italic;letter-spacing:-1px;
+  color:#e7fbff;text-shadow:0 2px 0 #0b4a66,0 0 12px #7feaff66;
+  transform:skewX(-8deg)
+}
+.logo small{display:block;font:9px Arial,sans-serif;letter-spacing:5px;margin:5px 0 0 4px;color:#8fcbd8}
+.profile{
+  text-align:right;font-size:10px;color:#8dbbc4;text-transform:uppercase;letter-spacing:1px
+}
+.profile b{display:block;color:#fff;font-size:15px;letter-spacing:0;margin-top:2px}
+
+#mainMenu{
+  position:absolute;left:28px;top:100px;width:300px;bottom:38px;
+  display:flex;flex-direction:column
+}
+.menuHead{
+  color:#b7eaf1;text-transform:uppercase;letter-spacing:3px;font-size:10px;
+  border-bottom:1px solid var(--line);padding:0 3px 6px;margin-bottom:7px
+}
+.menuBtn{
+  position:relative;width:100%;height:41px;border:0;text-align:left;padding:0 16px;
+  color:#a6cbd2;background:linear-gradient(90deg,rgba(1,25,37,.92),rgba(2,31,45,.55),transparent);
+  font-weight:bold;font-size:17px;text-transform:uppercase;letter-spacing:.4px;
+  border-left:3px solid rgba(118,201,219,.24);
+  text-shadow:1px 1px #00131c
+}
+.menuBtn:after{
+  content:"";position:absolute;left:0;bottom:0;width:90%;height:1px;background:linear-gradient(90deg,var(--line),transparent)
+}
+.menuBtn:hover,.menuBtn.sel{
+  color:#fff;border-left-color:#9cefff;
+  background:linear-gradient(90deg,rgba(9,91,117,.95),rgba(5,56,78,.63),transparent);
+  transform:translateX(5px)
+}
+.menuBtn .num{float:right;opacity:.55;font-size:10px;line-height:41px}
+.tip{
+  margin-top:auto;padding:10px 12px;color:#86adb5;font-size:10px;line-height:1.45;
+  background:linear-gradient(90deg,rgba(0,21,30,.72),transparent);border-left:2px solid #337b91
+}
+
+.view{
+  display:none;position:absolute;left:360px;right:28px;top:98px;bottom:48px;
+  background:linear-gradient(135deg,rgba(5,24,31,.90),rgba(1,13,19,.76));
+  border:1px solid rgba(124,206,221,.35);box-shadow:0 0 25px rgba(0,0,0,.45);overflow:hidden
+}
+.view.active{display:block}
+.viewHead{
+  height:46px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(130,214,229,.34);
+  background:linear-gradient(90deg,rgba(15,73,91,.56),transparent)
+}
+.viewHead h2{margin:0;font-size:20px;text-transform:uppercase;font-style:italic;letter-spacing:.8px}
+.viewHead span{font-size:10px;color:#85b7c0}
+.viewBody{height:calc(100% - 46px);overflow:auto;padding:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:9px}
+.card{
+  position:relative;min-height:115px;padding:11px;border:1px solid rgba(120,193,205,.28);
+  background:linear-gradient(145deg,rgba(16,55,64,.66),rgba(2,17,22,.78));overflow:hidden
+}
+.card:hover,.card.sel{border-color:#90e4ef;background:linear-gradient(145deg,rgba(16,89,107,.72),rgba(3,31,42,.82))}
+.card h3{margin:0 0 6px;font-size:14px;text-transform:uppercase}
+.card p{margin:0;color:#9abcc2;font-size:10px;line-height:1.4}
+.badge{
+  position:absolute;right:9px;top:8px;padding:2px 5px;border:1px solid #6ebdca;color:#bdf5ff;
+  font-size:9px;text-transform:uppercase
+}
+.action{
+  height:30px;min-width:105px;padding:0 13px;border:1px solid #4eafc2;
+  background:linear-gradient(#176e89,#0b4053);color:#eaffff;font-weight:bold;text-transform:uppercase;font-size:10px
+}
+.action:hover{background:linear-gradient(#2691ad,#0e5870)}
+.action.secondary{border-color:#49666c;background:linear-gradient(#233a40,#12262b)}
+.row{display:flex;gap:8px;align-items:center;margin:8px 0}
+.label{width:130px;color:#a8c9ce;font-size:10px}
+input[type=range]{flex:1;accent-color:#49b3c8}
+select,input[type=text]{
+  min-width:180px;height:25px;background:#082632;color:#dff8fb;border:1px solid #578793;padding:2px 5px
+}
+
+/* new game */
+.difficulty{min-height:145px}
+.difficulty .symbol{float:right;font:50px Impact,sans-serif;color:#6dd4e955;margin:-3px 3px 0 10px}
+.missionList{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:7px}
+.mission{
+  padding:9px;border:1px solid rgba(112,183,198,.25);background:rgba(2,22,29,.74);min-height:70px
+}
+.mission.locked{opacity:.45}
+.mission b{display:block;font-size:12px;color:#d9f7fb;text-transform:uppercase}
+.mission span{font-size:9px;color:#7faab2}
+
+/* load */
+.saveRow{
+  display:grid;grid-template-columns:100px 1fr 110px;gap:9px;align-items:center;
+  padding:8px;border-bottom:1px solid rgba(126,200,213,.16)
+}
+.thumb{
+  height:58px;border:1px solid #4d7e86;background:
+    linear-gradient(#6ec2d3 0 38%,#3d7451 39% 58%,#d7c28d 59% 70%,#155273 71%);
+  position:relative;overflow:hidden
+}
+.thumb:after{content:"";position:absolute;right:8px;bottom:8px;width:35px;height:13px;background:#273638;transform:skewX(-18deg)}
+
+/* options */
+.tabs{display:flex;gap:3px;margin-bottom:10px}
+.tab{padding:6px 11px;border:1px solid #426d76;background:#0b2933;color:#a6c9ce}
+.tab.sel{background:#175d70;color:#fff}
+fieldset{border:1px solid rgba(109,179,192,.36);margin:0 0 10px;padding:10px}
+legend{padding:0 5px;color:#bfeef4}
+.check{display:flex;align-items:center;gap:6px;margin:6px 0}
+
+/* profile */
+.profileBox{display:grid;grid-template-columns:110px 1fr;gap:14px}
+.avatar{
+  height:110px;border:1px solid #4c8490;background:
+    radial-gradient(circle at 50% 34%,#d2b38c 0 13%,transparent 14%),
+    linear-gradient(160deg,transparent 0 42%,#243f43 43% 100%),
+    linear-gradient(#254c5a,#071a20);
+}
+.statLine{display:flex;justify-content:space-between;border-bottom:1px solid rgba(116,191,205,.15);padding:6px 0;color:#9abcc2}
+.statLine b{color:#e9fbfd}
+
+/* console */
+#console{
+  display:none;position:absolute;z-index:120;left:7%;right:7%;top:8%;bottom:8%;
+  border:1px solid #3e6b55;background:rgba(0,5,3,.96);color:#9ed3a5;font:13px Consolas,monospace;
+  box-shadow:0 0 40px #000
+}
+#console.open{display:flex;flex-direction:column}
+.consoleHead{height:34px;padding:8px 10px;color:#dfe9df;border-bottom:1px solid #263f2d;background:#071109}
+#conOut{flex:1;overflow:auto;white-space:pre-wrap;padding:10px;user-select:text}
+.conInput{display:flex;gap:6px;padding:8px 10px;border-top:1px solid #263f2d}
+.conInput span{color:#67b36c}
+#conInput{flex:1;border:0;outline:0;background:transparent;color:#d7ead7;font:13px Consolas,monospace}
+
+/* cinematic */
+#cinematic{display:none;position:absolute;inset:0;z-index:100;background:#000}
+#cinematic.show{display:block}
+#cineCanvas{display:block;width:100%;height:100%}
+.cineHud{position:absolute;inset:0;pointer-events:none}
+.letterTop,.letterBottom{position:absolute;left:0;right:0;height:7%;background:#000}
+.letterTop{top:0}.letterBottom{bottom:0}
+.cineText{
+  position:absolute;left:50%;bottom:10%;transform:translateX(-50%);
+  min-width:450px;text-align:center;color:#fff;text-shadow:2px 2px 4px #000
+}
+.cineText small{display:block;color:#9be7f1;letter-spacing:4px;margin-bottom:5px}
+.cineProgress{position:absolute;left:0;right:0;bottom:7%;height:3px;background:#041820}
+.cineProgress i{display:block;height:100%;width:0;background:#6bd7e8}
+
+/* bottom hint */
+#hintbar{
+  position:absolute;left:360px;right:26px;bottom:17px;height:20px;
+  display:flex;align-items:center;gap:12px;padding:0 8px;background:linear-gradient(90deg,rgba(0,20,28,.75),transparent);
+  color:#6fa5ae;font-size:9px
+}
+.key{display:inline-block;padding:2px 5px;border:1px solid #61838a;background:#0a2027;color:#d9f3f7}
+
+/* dialogs */
+#dialogShade{
+  display:none;position:absolute;inset:0;z-index:140;background:rgba(0,0,0,.34);
+  align-items:center;justify-content:center;padding:18px
+}
+#dialogShade.show{display:flex}
+.xp-dialog{
+  width:min(440px,92vw);background:#ece9d8;color:#000;border:2px outset #fff;
+  font:11px Tahoma,Arial,sans-serif;box-shadow:4px 5px 15px #000
+}
+.xp-title{
+  min-height:25px;display:flex;align-items:center;justify-content:space-between;padding:2px 3px 2px 7px;
+  background:linear-gradient(90deg,#0a246a,#3a6ea5);color:#fff;font-weight:bold
+}
+.xp-title button{width:21px;height:20px;padding:0;color:#fff;background:#d8503c;border:2px outset #fff;font-weight:bold}
+.xp-body{padding:13px;line-height:1.45;white-space:pre-wrap}
+.xp-actions{display:flex;justify-content:flex-end;gap:7px;padding:0 12px 11px}
+.xp-actions button{min-width:82px;height:25px;background:#ece9d8;border:2px outset #fff;font:11px Tahoma,sans-serif}
+
+@media(max-width:840px){
+  #mainMenu{width:245px;left:14px}
+  .view{left:276px;right:12px}
+  #hintbar{left:276px}
+  .logo{font-size:36px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="scene"></canvas>
+  <div class="overlay"></div><div class="scanlines"></div>
+
+  <div id="topbar">
+    <div class="logo">FAR CRY<small>CRYENGINE 1 // 2004 TRIBUTE</small></div>
+    <div class="profile">PROFILE<b id="profileTop">JACK</b></div>
+  </div>
+
+  <aside id="mainMenu">
+    <div class="menuHead">Main Menu</div>
+    <button class="menuBtn sel" data-view="newgame">New Game <span class="num">01</span></button>
+    <button class="menuBtn" data-view="loadgame">Load Game <span class="num">02</span></button>
+    <button class="menuBtn" data-view="options">Options <span class="num">03</span></button>
+    <button class="menuBtn" data-view="profile">Profile <span class="num">04</span></button>
+    <button class="menuBtn" data-view="multiplayer">Multiplayer <span class="num">05</span></button>
+    <button class="menuBtn" data-view="mods">Mods <span class="num">06</span></button>
+    <button class="menuBtn" data-action="console">Console <span class="num">F10</span></button>
+    <div class="tip">
+      <b style="color:#c7edf2">LOCAL CINEMATIC BUILD</b><br>
+      Gerçek Far Cry motoru değildir. Tarayıcıya hazır CryEngine 1 portu bulunmadığı için XP vitrini; menüler,
+      görev seçimi, tropik ada sinematikleri, dürbün, araç ve debug konsolu içerir.
+    </div>
+  </aside>
+
+  <section class="view active" id="view-newgame">
+    <div class="viewHead"><h2>New Game</h2><span>SELECT DIFFICULTY</span></div>
+    <div class="viewBody">
+      <div class="grid">
+        <div class="card difficulty sel" data-diff="Easy"><span class="symbol">I</span><h3>Easy</h3><p>Daha fazla sağlık, daha yavaş düşman tepki süresi.</p></div>
+        <div class="card difficulty" data-diff="Medium"><span class="symbol">II</span><h3>Medium</h3><p>Klasik deneyim için dengeli zorluk.</p></div>
+        <div class="card difficulty" data-diff="Challenging"><span class="symbol">III</span><h3>Challenging</h3><p>Daha hassas düşmanlar ve daha az hata payı.</p></div>
+        <div class="card difficulty" data-diff="Realistic"><span class="symbol">IV</span><h3>Realistic</h3><p>Yüksek hasar ve agresif yapay zekâ hissi.</p></div>
+      </div>
+      <div style="margin-top:14px;text-align:right">
+        <button class="action" id="startCampaign">Start Campaign</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="view-loadgame">
+    <div class="viewHead"><h2>Load Game</h2><span>AUTOSAVE / CHECKPOINT</span></div>
+    <div class="viewBody" id="saveList"></div>
+  </section>
+
+  <section class="view" id="view-options">
+    <div class="viewHead"><h2>Options</h2><span>VIDEO // AUDIO // CONTROLS</span></div>
+    <div class="viewBody">
+      <div class="tabs">
+        <button class="tab sel" data-tab="video">Video</button>
+        <button class="tab" data-tab="audio">Audio</button>
+        <button class="tab" data-tab="controls">Controls</button>
+        <button class="tab" data-tab="game">Game</button>
+      </div>
+      <div id="optionContent"></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-profile">
+    <div class="viewHead"><h2>Profile</h2><span>LOCAL PLAYER PROFILE</span></div>
+    <div class="viewBody">
+      <div class="profileBox">
+        <div class="avatar"></div>
+        <div>
+          <div class="row"><div class="label">Profile Name</div><input id="profileInput" type="text" value="Jack"></div>
+          <div class="statLine"><span>Campaign Progress</span><b id="profileProgress">18%</b></div>
+          <div class="statLine"><span>Checkpoint Saves</span><b id="profileSaves">3</b></div>
+          <div class="statLine"><span>Enemies Tagged</span><b id="tagged">24</b></div>
+          <div class="statLine"><span>Vehicles Used</span><b id="vehicles">3</b></div>
+          <div style="margin-top:12px;text-align:right"><button class="action" id="saveProfile">Save Profile</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="view-multiplayer">
+    <div class="viewHead"><h2>Multiplayer</h2><span>LAN / INTERNET</span></div>
+    <div class="viewBody">
+      <div class="grid">
+        <div class="card"><span class="badge">Offline</span><h3>Internet</h3><p>Orijinal Ubisoft çevrimiçi servisleri bu web simülasyonuna bağlanmaz.</p></div>
+        <div class="card"><span class="badge">Demo</span><h3>LAN Browser</h3><p>Yerel nostalji sunucu listesi oluşturur; gerçek socket bağlantısı yapmaz.</p></div>
+        <div class="card"><h3>Game Modes</h3><p>Deathmatch, Team Deathmatch ve Assault dönemi arayüzünü temsil eder.</p></div>
+      </div>
+      <div style="margin-top:15px"><button class="action" id="scanLan">Scan LAN</button></div>
+      <div id="lanList" style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-mods">
+    <div class="viewHead"><h2>Mods</h2><span>CRYENGINE MOD SDK ERA</span></div>
+    <div class="viewBody">
+      <div class="grid">
+        <div class="card"><span class="badge">Active</span><h3>Far Cry Classic</h3><p>Temel nostalji vitrini.</p></div>
+        <div class="card"><h3>Sandbox Map Pack</h3><p>Kurgusal yerel mod kaydı. Gerçek oyun dosyası içermez.</p></div>
+        <div class="card"><h3>Island Benchmark</h3><p>Prosedürel tropik sahneyi benchmark sinematiği olarak oynatır.</p><button class="action" data-cine="benchmark" style="margin-top:8px">Run</button></div>
+      </div>
+    </div>
+  </section>
+
+  <div id="hintbar">
+    <span><span class="key">↑↓</span> Navigate</span>
+    <span><span class="key">Enter</span> Select</span>
+    <span><span class="key">Esc</span> Back</span>
+    <span><span class="key">F10</span> Console</span>
+  </div>
+
+  <div id="cinematic">
+    <canvas id="cineCanvas"></canvas>
+    <div class="cineHud">
+      <div class="letterTop"></div><div class="letterBottom"></div>
+      <div class="cineText"><small id="cineChapter">SOUTH PACIFIC</small><b id="cineCaption">APPROACHING THE ISLAND</b></div>
+      <div class="cineProgress"><i id="cineProgress"></i></div>
+    </div>
+  </div>
+
+  <div id="console">
+    <div class="consoleHead">CRYENGINE 1 // LOCAL DEBUG CONSOLE — F10 / ` TO CLOSE</div>
+    <div id="conOut"></div>
+    <div class="conInput"><span>]</span><input id="conInput" autocomplete="off" spellcheck="false"></div>
+  </div>
+
+  <div id="dialogShade">
+    <div class="xp-dialog">
+      <div class="xp-title"><span id="dialogTitle">Far Cry</span><button id="dialogX" type="button">×</button></div>
+      <div class="xp-body" id="dialogText"></div>
+      <div class="xp-actions" id="dialogActions"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(()=>{
+'use strict';
+
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const STORE='xp_farcry_showcase_v1';
+
+const defaults={
+ profile:'Jack',difficulty:'Medium',progress:18,
+ options:{resolution:'1024x768',quality:'Very High',water:'High',shadows:'High',volume:70,music:55,sensitivity:55,subtitles:true,autosave:true},
+ saves:[
+  {title:'Carrier',time:'00:28:14',progress:6},
+  {title:'Fort',time:'01:12:47',progress:12},
+  {title:'Pier',time:'02:01:03',progress:18}
+ ],
+ tagged:24,vehicles:3
+};
+function load(){try{return Object.assign(structuredClone(defaults),JSON.parse(localStorage.getItem(STORE)||'{}'))}catch{return structuredClone(defaults)}}
+let state=load();
+function save(){try{localStorage.setItem(STORE,JSON.stringify(state))}catch{}}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+/* background tropical island */
+const canvas=$('#scene'),ctx=canvas.getContext('2d');
+let w=0,h=0;
+function resize(){
+ const dpr=Math.min(devicePixelRatio||1,2),r=canvas.getBoundingClientRect();w=r.width;h=r.height;
+ canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);
+ resizeCine();
+}
+function drawPalm(c,x,y,s,lean=0){
+ c.save();c.translate(x,y);c.rotate(lean);c.strokeStyle='#3a2e1e';c.lineWidth=5*s;c.beginPath();c.moveTo(0,0);c.quadraticCurveTo(5*s,-30*s,-2*s,-70*s);c.stroke();
+ c.translate(-2*s,-70*s);
+ c.strokeStyle='#163e25';c.lineWidth=3*s;
+ for(let i=0;i<9;i++){const a=-Math.PI*.9+i*Math.PI*.22;c.beginPath();c.moveTo(0,0);c.quadraticCurveTo(Math.cos(a)*28*s,Math.sin(a)*13*s,Math.cos(a)*42*s,Math.sin(a)*30*s);c.stroke()}
+ c.restore();
+}
+function background(t){
+ t*=.001;
+ ctx.clearRect(0,0,w,h);
+ let sky=ctx.createLinearGradient(0,0,0,h*.56);sky.addColorStop(0,'#2d8db7');sky.addColorStop(.55,'#77cedd');sky.addColorStop(1,'#d5e7c9');ctx.fillStyle=sky;ctx.fillRect(0,0,w,h*.58);
+ // clouds
+ ctx.fillStyle='rgba(255,255,255,.35)';
+ for(let i=0;i<8;i++){let x=(i*187+t*7)% (w+140)-70,y=60+(i%3)*42;ctx.beginPath();ctx.ellipse(x,y,75,18,0,0,Math.PI*2);ctx.fill()}
+ // distant mountains
+ ctx.fillStyle='#326f56';ctx.beginPath();ctx.moveTo(0,h*.53);
+ for(let i=0;i<10;i++)ctx.lineTo(i*w/9,h*.45-((i*73)%70));ctx.lineTo(w,h*.60);ctx.lineTo(0,h*.60);ctx.closePath();ctx.fill();
+ // beach
+ ctx.fillStyle='#d4c58e';ctx.fillRect(0,h*.54,w,h*.16);
+ // sea
+ let sea=ctx.createLinearGradient(0,h*.65,0,h);sea.addColorStop(0,'#1a7499');sea.addColorStop(1,'#063b5b');ctx.fillStyle=sea;ctx.fillRect(0,h*.66,w,h*.34);
+ ctx.strokeStyle='rgba(190,245,252,.20)';ctx.lineWidth=1;
+ for(let i=0;i<13;i++){const y=h*.7+i*18+Math.sin(t*1.8+i)*4;ctx.beginPath();ctx.moveTo(0,y);ctx.quadraticCurveTo(w*.5,y+8,w,y);ctx.stroke()}
+ // dock
+ ctx.fillStyle='#5e4930';ctx.beginPath();ctx.moveTo(w*.65,h*.60);ctx.lineTo(w*.69,h*.60);ctx.lineTo(w*.84,h*.82);ctx.lineTo(w*.78,h*.82);ctx.closePath();ctx.fill();
+ // palms
+ drawPalm(ctx,w*.10,h*.65,1.1,-.08);drawPalm(ctx,w*.22,h*.62,.9,.05);drawPalm(ctx,w*.91,h*.65,1.2,.06);
+ // boat silhouette
+ const bx=w*.64+Math.sin(t*.5)*8,by=h*.76;
+ ctx.save();ctx.translate(bx,by);ctx.fillStyle='#15292c';ctx.beginPath();ctx.moveTo(-50,0);ctx.lineTo(45,0);ctx.lineTo(30,19);ctx.lineTo(-36,19);ctx.closePath();ctx.fill();ctx.fillRect(-10,-17,23,17);ctx.restore();
+ requestAnimationFrame(background);
+}
+requestAnimationFrame(background);
+
+/* UI navigation */
+let current='newgame',menuIndex=0,optTab='video';
+function showView(name){
+ current=name;
+ $$('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+name));
+ $$('.menuBtn[data-view]').forEach(b=>b.classList.toggle('sel',b.dataset.view===name));
+ if(name==='loadgame')renderSaves();
+ if(name==='profile')renderProfile();
+}
+$$('[data-view]').forEach(b=>b.onclick=()=>{showView(b.dataset.view);clickSound()});
+$('[data-action="console"]').onclick=openConsole;
+
+$$('[data-diff]').forEach(c=>c.onclick=()=>{
+ $$('.difficulty').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');state.difficulty=c.dataset.diff;save();clickSound();
+});
+$$('[data-diff]').forEach(c=>c.classList.toggle('sel',c.dataset.diff===state.difficulty));
+
+/* saves */
+function renderSaves(){
+ $('#saveList').innerHTML=state.saves.map((s,i)=>`
+  <div class="saveRow" data-save="${i}">
+   <div class="thumb"></div>
+   <div><b>${esc(s.title)}</b><br><span style="color:#81adb5;font-size:10px">Checkpoint // ${s.progress}% campaign</span></div>
+   <div><span style="font-size:10px;color:#8fb8c0">${esc(s.time)}</span><br><button class="action" data-load="${i}" style="margin-top:5px">Load</button></div>
+  </div>`).join('');
+ $$('[data-load]').forEach(b=>b.onclick=()=>startCinematic('load',state.saves[+b.dataset.load].title));
+}
+renderSaves();
+
+$('#startCampaign').onclick=()=>startCinematic('campaign','Carrier');
+
+/* options */
+function renderOptions(){
+ const o=state.options;
+ $$('.tab').forEach(t=>t.classList.toggle('sel',t.dataset.tab===optTab));
+ let h='';
+ if(optTab==='video')h=`
+  <fieldset><legend>Display</legend>
+   <div class="row"><div class="label">Resolution</div><select id="res"><option>800x600</option><option>1024x768</option><option>1280x720</option><option>1600x900</option></select></div>
+   <div class="row"><div class="label">Quality</div><select id="quality"><option>Low</option><option>Medium</option><option>High</option><option>Very High</option></select></div>
+   <div class="row"><div class="label">Water Quality</div><select id="water"><option>Low</option><option>Medium</option><option>High</option></select></div>
+   <div class="row"><div class="label">Shadows</div><select id="shadows"><option>Off</option><option>Medium</option><option>High</option></select></div>
+  </fieldset>`;
+ if(optTab==='audio')h=`
+  <fieldset><legend>Audio</legend>
+   <div class="row"><div class="label">Master Volume</div><input id="volume" type="range" min="0" max="100" value="${o.volume}"></div>
+   <div class="row"><div class="label">Music Volume</div><input id="music" type="range" min="0" max="100" value="${o.music}"></div>
+  </fieldset>`;
+ if(optTab==='controls')h=`
+  <fieldset><legend>Mouse</legend>
+   <div class="row"><div class="label">Sensitivity</div><input id="sens" type="range" min="10" max="100" value="${o.sensitivity}"></div>
+  </fieldset>
+  <fieldset><legend>Bindings</legend>
+   <div class="statLine"><span>Move</span><b>W A S D</b></div>
+   <div class="statLine"><span>Jump</span><b>SPACE</b></div>
+   <div class="statLine"><span>Use</span><b>F</b></div>
+   <div class="statLine"><span>Binoculars</span><b>B</b></div>
+  </fieldset>`;
+ if(optTab==='game')h=`
+  <fieldset><legend>Game</legend>
+   <label class="check"><input id="subtitles" type="checkbox" ${o.subtitles?'checked':''}> Subtitles</label>
+   <label class="check"><input id="autosave" type="checkbox" ${o.autosave?'checked':''}> Autosave checkpoints</label>
+  </fieldset>`;
+ h+=`<div style="text-align:right"><button class="action" id="applyOptions">Apply</button></div>`;
+ $('#optionContent').innerHTML=h;
+ if($('#res')){$('#res').value=o.resolution;$('#quality').value=o.quality;$('#water').value=o.water;$('#shadows').value=o.shadows}
+ $('#applyOptions').onclick=applyOptions;
+}
+function applyOptions(){
+ const o=state.options;
+ if($('#res')){o.resolution=$('#res').value;o.quality=$('#quality').value;o.water=$('#water').value;o.shadows=$('#shadows').value}
+ if($('#volume')){o.volume=+$('#volume').value;o.music=+$('#music').value}
+ if($('#sens'))o.sensitivity=+$('#sens').value;
+ if($('#subtitles')){o.subtitles=$('#subtitles').checked;o.autosave=$('#autosave').checked}
+ save();dialog('Options','Settings applied.');
+}
+$$('[data-tab]').forEach(t=>t.onclick=()=>{optTab=t.dataset.tab;renderOptions();clickSound()});
+renderOptions();
+
+/* profile */
+function renderProfile(){
+ $('#profileInput').value=state.profile;$('#profileTop').textContent=state.profile.toUpperCase();
+ $('#profileProgress').textContent=state.progress+'%';$('#profileSaves').textContent=state.saves.length;
+ $('#tagged').textContent=state.tagged;$('#vehicles').textContent=state.vehicles;
+}
+$('#saveProfile').onclick=()=>{state.profile=$('#profileInput').value.trim()||'Jack';save();renderProfile();dialog('Profile','Profile saved.')};
+renderProfile();
+
+/* LAN */
+$('#scanLan').onclick=()=>{
+ $('#lanList').innerHTML='<div style="padding:8px;color:#83adb5">Scanning local network...</div>';
+ setTimeout(()=>{$('#lanList').innerHTML=`
+  <div class="saveRow"><div class="thumb"></div><div><b>CRY-LAN-01</b><br><span style="color:#83adb5;font-size:10px">Assault // 3/16 players // 38 ms</span></div><button class="action secondary" data-join>Join</button></div>
+  <div class="saveRow"><div class="thumb"></div><div><b>Tropical DM</b><br><span style="color:#83adb5;font-size:10px">Deathmatch // 5/12 players // 62 ms</span></div><button class="action secondary" data-join>Join</button></div>`;
+  $$('[data-join]').forEach(b=>b.onclick=()=>dialog('Multiplayer','This is a local nostalgia simulation. No real network connection is created.'));
+ },650);
+};
+$$('[data-cine]').forEach(b=>b.onclick=()=>startCinematic(b.dataset.cine,'Island Benchmark'));
+
+/* audio */
+let ac=null,ambOsc=null,ambGain=null;
+function audio(){if(!ac)ac=new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();return ac}
+function clickSound(){
+ try{const a=audio(),o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.value=620;g.gain.setValueAtTime(.018*(state.options.volume/100),a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.05);o.connect(g).connect(a.destination);o.start();o.stop(a.currentTime+.055)}catch{}
+}
+function startAmbience(){
+ try{
+   const a=audio();stopAmbience();ambOsc=a.createOscillator();ambGain=a.createGain();
+   ambOsc.type='triangle';ambOsc.frequency.value=52;ambGain.gain.value=.012*(state.options.volume/100);ambOsc.connect(ambGain).connect(a.destination);ambOsc.start()
+ }catch{}
+}
+function stopAmbience(){try{if(ambOsc){ambOsc.stop();ambOsc.disconnect()}if(ambGain)ambGain.disconnect()}catch{}ambOsc=ambGain=null}
+
+/* cinematic procedural */
+const cinematic=$('#cinematic'),cine=$('#cineCanvas'),cc=cine.getContext('2d');
+let cw=0,ch=0,cineStart=0,cineReq=0,cineType='campaign',cineMission='Carrier';
+function resizeCine(){
+ const dpr=Math.min(devicePixelRatio||1,2),r=cine.getBoundingClientRect();cw=r.width||innerWidth;ch=r.height||innerHeight;
+ cine.width=Math.round(cw*dpr);cine.height=Math.round(ch*dpr);cc.setTransform(dpr,0,0,dpr,0,0);
+}
+function startCinematic(type,mission){
+ cineType=type;cineMission=mission;cineStart=performance.now();cinematic.classList.add('show');resizeCine();startAmbience();
+ cancelAnimationFrame(cineReq);cineReq=requestAnimationFrame(drawCine);clickSound();
+}
+function skySea(){
+ let sky=cc.createLinearGradient(0,0,0,ch*.62);sky.addColorStop(0,'#1c739c');sky.addColorStop(.7,'#83d4df');sky.addColorStop(1,'#d9e7c4');cc.fillStyle=sky;cc.fillRect(0,0,cw,ch*.64);
+ let sea=cc.createLinearGradient(0,ch*.6,0,ch);sea.addColorStop(0,'#2083a4');sea.addColorStop(1,'#053753');cc.fillStyle=sea;cc.fillRect(0,ch*.6,cw,ch*.4);
+}
+function island(offset=0,scale=1){
+ const base=ch*.62;cc.fillStyle='#2d6846';cc.beginPath();cc.moveTo(-60+offset,base);
+ for(let i=0;i<14;i++){const x=-40+i*(cw+80)/13+offset, y=base-30-((i*57)%110)*scale;cc.lineTo(x,y)}
+ cc.lineTo(cw+70+offset,base);cc.closePath();cc.fill();
+ cc.fillStyle='#d6c790';cc.fillRect(offset,base-4,cw,18);
+}
+function boat(x,y,s=1){
+ cc.save();cc.translate(x,y);cc.scale(s,s);cc.fillStyle='#27373a';cc.beginPath();cc.moveTo(-60,0);cc.lineTo(65,0);cc.lineTo(42,26);cc.lineTo(-45,26);cc.closePath();cc.fill();cc.fillStyle='#182326';cc.fillRect(-8,-24,34,24);cc.strokeStyle='#111';cc.lineWidth=4;cc.beginPath();cc.moveTo(3,-25);cc.lineTo(3,-57);cc.stroke();cc.restore();
+}
+function jeep(x,y,s=1){
+ cc.save();cc.translate(x,y);cc.scale(s,s);cc.fillStyle='#40523e';cc.fillRect(-50,-17,90,28);cc.fillRect(-15,-38,38,22);cc.fillStyle='#172024';cc.fillRect(-9,-33,27,15);cc.fillStyle='#080808';for(const q of [-31,28]){cc.beginPath();cc.arc(q,13,14,0,Math.PI*2);cc.fill()}cc.restore();
+}
+function helicopter(x,y,s=1){
+ cc.save();cc.translate(x,y);cc.scale(s,s);cc.fillStyle='#293a36';cc.beginPath();cc.ellipse(0,0,40,18,0,0,Math.PI*2);cc.fill();cc.fillRect(28,-5,58,7);cc.strokeStyle='#18211f';cc.lineWidth=3;cc.beginPath();cc.moveTo(-45,-20);cc.lineTo(45,-20);cc.stroke();cc.beginPath();cc.moveTo(82,-22);cc.lineTo(82,16);cc.stroke();cc.restore();
+}
+function binocularMask(){
+ cc.save();cc.fillStyle='rgba(0,0,0,.66)';cc.fillRect(0,0,cw,ch);
+ cc.globalCompositeOperation='destination-out';cc.beginPath();cc.ellipse(cw*.42,ch*.50,cw*.28,ch*.37,0,0,Math.PI*2);cc.ellipse(cw*.58,ch*.50,cw*.28,ch*.37,0,0,Math.PI*2);cc.fill();cc.restore();
+ cc.strokeStyle='#9bdde5aa';cc.lineWidth=1;cc.beginPath();cc.moveTo(cw*.5-30,ch*.5);cc.lineTo(cw*.5+30,ch*.5);cc.moveTo(cw*.5,ch*.5-30);cc.lineTo(cw*.5,ch*.5+30);cc.stroke();
+}
+function drawCine(now){
+ const t=(now-cineStart)/1000,duration=cineType==='benchmark'?12:15,p=clamp(t/duration,0,1);
+ $('#cineProgress').style.width=(p*100)+'%';
+ cc.clearRect(0,0,cw,ch);
+ skySea();
+ const phase=Math.floor(t/3);
+ if(cineType==='benchmark'){
+   island(-((t*35)%cw)*.25,1);
+   for(let i=0;i<7;i++)drawPalm(cc,(i*173-t*45)%(cw+150)-50,ch*.63,0.55+(i%3)*.15,(i%2?-.1:.08));
+   boat(cw*.62+Math.sin(t)*30,ch*.75,.65);helicopter(cw*.72-t*20,ch*.25,.8);
+   $('#cineChapter').textContent='CRYENGINE 1 BENCHMARK';
+   $('#cineCaption').textContent=t<3?'TROPICAL ISLAND':t<6?'VEGETATION / WATER':t<9?'VEHICLES / DISTANCE':'BENCHMARK COMPLETE';
+ }else{
+   if(phase===0){
+     island(0,1);boat(cw*.60+t*15,ch*.75,.85);
+     $('#cineChapter').textContent='SOUTH PACIFIC';$('#cineCaption').textContent='APPROACHING THE ISLAND';
+   }else if(phase===1){
+     island(0,1);for(let i=0;i<6;i++)drawPalm(cc,70+i*135,ch*.65,.7+(i%2)*.18,0);
+     jeep(cw*.60+Math.sin(t*1.4)*40,ch*.68,.7);binocularMask();
+     $('#cineChapter').textContent='RECON';$('#cineCaption').textContent='MERCENARY PATROL TAGGED';
+   }else if(phase===2){
+     island(0,.9);helicopter(cw*.72-(t-6)*18,ch*.28,.95);boat(cw*.28,ch*.76,.65);
+     $('#cineChapter').textContent='CONTACT';$('#cineCaption').textContent='HOSTILES INBOUND';
+   }else if(phase===3){
+     island(-30,.8);jeep(cw*.48+(t-9)*45,ch*.70,.85);
+     // dust
+     cc.fillStyle='#d2c19055';for(let i=0;i<35;i++){cc.beginPath();cc.arc(cw*.42-((i*37+t*52)%160),ch*.72+Math.sin(i+t)*30,2+i%6,0,Math.PI*2);cc.fill()}
+     $('#cineChapter').textContent='ESCAPE';$('#cineCaption').textContent='VEHICLE ACQUIRED';
+   }else{
+     island(0,1);helicopter(cw*.36,ch*.26,.6);boat(cw*.67,ch*.77,.9);
+     $('#cineChapter').textContent='MISSION';$('#cineCaption').textContent=(cineMission||'CARRIER').toUpperCase()+' // CHECKPOINT REACHED';
+   }
+ }
+ if(p<1)cineReq=requestAnimationFrame(drawCine);else finishCine();
+}
+function finishCine(){
+ stopAmbience();
+ setTimeout(()=>{
+  cinematic.classList.remove('show');
+  if(cineType!=='benchmark'){
+    state.progress=clamp(state.progress+3,0,100);state.tagged+=4;state.vehicles+=1;
+    state.saves.push({title:cineMission||'Carrier',time:new Date().toLocaleTimeString('tr-TR'),progress:state.progress});
+    state.saves=state.saves.slice(-6);save();renderProfile();
+  }
+ },380);
+}
+cinematic.onclick=()=>{cancelAnimationFrame(cineReq);stopAmbience();cinematic.classList.remove('show')};
+
+/* console */
+const consoleEl=$('#console'),conOut=$('#conOut'),conInput=$('#conInput');
+function print(s=''){conOut.textContent+=String(s)+'\n';conOut.scrollTop=conOut.scrollHeight}
+function openConsole(){consoleEl.classList.add('open');if(!conOut.textContent)print('CRYENGINE 1 LOCAL DEBUG CONSOLE\nType HELP for commands.\n');setTimeout(()=>conInput.focus(),0)}
+function closeConsole(){consoleEl.classList.remove('open')}
+conInput.addEventListener('keydown',e=>{
+ if(e.key!=='Enter')return;
+ const raw=conInput.value.trim();conInput.value='';if(!raw)return;print('] '+raw);runCommand(raw);
+});
+function runCommand(raw){
+ const [cmd,...args]=raw.toLowerCase().split(/\s+/);
+ switch(cmd){
+  case'help':print('HELP\nGOD\nGIVEALL\nAMMO\nMAP <name>\nMAPLIST\nDIFFICULTY <easy|medium|challenging|realistic>\nBENCHMARK\nPROFILE\nSTATUS\nMUTE\nCLEAR\nRESETCONFIRM\nEXIT');break;
+  case'god':print('GOD MODE ENABLED (showcase only).');break;
+  case'giveall':print('ALL WEAPONS / ITEMS GRANTED (showcase only).');break;
+  case'ammo':print('AMMO REFILLED.');break;
+  case'maplist':print('training\ncarrier\nfort\npier\nresearch\ntreehouse\nbunker\nsteam\nregulator\ncontrol\nrebellion\narchive\ncooler\nboat\ncatacombs\nriver\nswamp\nfactory\ndam\nvolcano');break;
+  case'map':closeConsole();startCinematic('campaign',args.join(' ')||'Carrier');break;
+  case'difficulty':{
+    const d=(args[0]||'medium');state.difficulty=d.charAt(0).toUpperCase()+d.slice(1);save();print('DIFFICULTY = '+state.difficulty.toUpperCase());break;
+  }
+  case'benchmark':closeConsole();startCinematic('benchmark','Island Benchmark');break;
+  case'profile':print(`PROFILE ..... ${state.profile}\nPROGRESS .... ${state.progress}%\nDIFFICULTY .. ${state.difficulty}\nSAVES ....... ${state.saves.length}\nTAGGED ...... ${state.tagged}\nVEHICLES .... ${state.vehicles}`);break;
+  case'status':print('RENDERER .... WEB CANVAS CINEMATIC\nNETWORK ..... OFFLINE\nCRYENGINE ... SIMULATED UI ONLY\nAUDIO ....... SYNTHETIC WEB AUDIO');break;
+  case'mute':state.options.volume=state.options.volume?0:70;save();print('MASTER VOLUME = '+state.options.volume);break;
+  case'clear':conOut.textContent='';break;
+  case'resetconfirm':state=structuredClone(defaults);save();location.reload();break;
+  case'exit':closeConsole();break;
+  default:print('UNKNOWN COMMAND: '+cmd.toUpperCase());
+ }
+}
+
+/* dialogs */
+const shade=$('#dialogShade');
+function dialog(title,text,buttons){
+ $('#dialogTitle').textContent=title;$('#dialogText').textContent=text;$('#dialogActions').innerHTML='';
+ (buttons||[{label:'Tamam',action:hideDialog}]).forEach(b=>{const x=document.createElement('button');x.type='button';x.textContent=b.label;x.onclick=b.action||hideDialog;$('#dialogActions').appendChild(x)});
+ shade.classList.add('show');
+}
+function hideDialog(){shade.classList.remove('show')}
+$('#dialogX').onclick=hideDialog;shade.onmousedown=e=>{if(e.target===shade)hideDialog()};
+window.alert=m=>dialog('Far Cry',String(m));
+window.confirm=m=>{dialog('Far Cry',String(m));return false};
+window.prompt=m=>{dialog('Far Cry',String(m));return null};
+
+/* keyboard */
+function setMenuIndex(i){
+ const bs=$$('.menuBtn');menuIndex=(i+bs.length)%bs.length;bs.forEach((b,n)=>b.classList.toggle('sel',n===menuIndex));
+}
+document.addEventListener('keydown',e=>{
+ if(shade.classList.contains('show')){if(e.key==='Escape'||e.key==='Enter'){e.preventDefault();hideDialog()}return}
+ if(consoleEl.classList.contains('open')){if(e.key==='F10'||e.key==='`'||e.key==='Escape'){e.preventDefault();closeConsole()}return}
+ if(cinematic.classList.contains('show')){if(e.key==='Escape'){e.preventDefault();cancelAnimationFrame(cineReq);stopAmbience();cinematic.classList.remove('show')}return}
+ if(e.key==='F10'||e.key==='`'){e.preventDefault();openConsole();return}
+ const tag=document.activeElement?.tagName||'';
+ if(['INPUT','SELECT','BUTTON'].includes(tag)&&document.activeElement!==document.body)return;
+ if(e.key==='ArrowDown'){e.preventDefault();setMenuIndex(menuIndex+1)}
+ if(e.key==='ArrowUp'){e.preventDefault();setMenuIndex(menuIndex-1)}
+ if(e.key==='Enter'){e.preventDefault();$$('.menuBtn')[menuIndex].click()}
+ if(e.key==='Escape'){e.preventDefault();showView('newgame');setMenuIndex(0)}
+});
+
+window.addEventListener('resize',resize);resize();
+})();
+</script>
+</body>
+</html>

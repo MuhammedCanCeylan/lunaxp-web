@@ -1,0 +1,4081 @@
+<!--
+QUICKTIME PLAYER 7.6 - ASSET LISTESI
+
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama |
+|------------|----------------------|------------|------------------------------------------|
+| icon.png   | 32x32                | Zorunlu    | Windows XP masaustu / registry ikonu    |
+
+NOT:
+- Ana Windows XP WindowManager dis pencere basligini zaten olusturur.
+- Bu uygulama ikinci bir Windows titlebar veya taskbar CIZMEZ.
+- Harici gorsel asset gerekmez.
+- Oynatma HTML5 Video / Audio motoruyla yapilir.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width,initial-scale=1.0"
+>
+
+<title>QuickTime Player</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+body {
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    color: #111;
+    background: #ECE9D8;
+    user-select: none;
+}
+
+button,
+input,
+select {
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+}
+
+button {
+    outline: none;
+}
+
+/* =========================================================
+   APP
+   ========================================================= */
+
+.app {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background:
+        linear-gradient(
+            180deg,
+            #eeeeee,
+            #b7b7b7
+        );
+}
+
+/* =========================================================
+   MENU BAR
+   ========================================================= */
+
+.menu-bar {
+    height: 25px;
+    flex: 0 0 25px;
+    display: flex;
+    align-items: stretch;
+    padding-left: 2px;
+    background: #ECE9D8;
+    border-bottom: 1px solid #ACA899;
+    position: relative;
+    z-index: 100;
+}
+
+.menu {
+    position: relative;
+}
+
+.menu-button {
+    height: 24px;
+    border: 1px solid transparent;
+    background: transparent;
+    padding: 1px 8px;
+}
+
+.menu-button:hover,
+.menu.open .menu-button {
+    border-color: #316AC5;
+    background: #C1D2EE;
+}
+
+.dropdown {
+    display: none;
+    position: absolute;
+    top: 23px;
+    left: 0;
+    min-width: 215px;
+    padding: 2px;
+    background: #F5F4EA;
+    border: 1px solid #808080;
+    box-shadow: 2px 2px 4px rgba(0,0,0,.35);
+}
+
+.menu.open .dropdown {
+    display: block;
+}
+
+.dropdown button {
+    width: 100%;
+    height: 23px;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    padding: 3px 22px 3px 8px;
+}
+
+.dropdown button:hover:not(:disabled) {
+    background: #316AC5;
+    color: #fff;
+}
+
+.dropdown button:disabled {
+    color: #888;
+}
+
+.separator {
+    height: 1px;
+    margin: 3px 4px;
+    background: #ACA899;
+}
+
+/* =========================================================
+   QUICKTIME BODY
+   ========================================================= */
+
+.player-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding: 6px;
+    background:
+        linear-gradient(
+            90deg,
+            #b5b5b5 0,
+            #e6e6e6 10%,
+            #c6c6c6 25%,
+            #e9e9e9 50%,
+            #bebebe 75%,
+            #e1e1e1 90%,
+            #a9a9a9 100%
+        );
+}
+
+/* =========================================================
+   DISPLAY
+   ========================================================= */
+
+.display-frame {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    overflow: hidden;
+    background: #000;
+    border:
+        1px solid
+        #5d5d5d;
+    box-shadow:
+        inset 0 0 0 1px #111,
+        0 1px 1px #fff;
+}
+
+#video {
+    display: none;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+}
+
+#video.active {
+    display: block;
+}
+
+#audio {
+    display: none;
+}
+
+.idle-screen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: #bbb;
+    background:
+        radial-gradient(
+            circle at center,
+            #2c2c2c,
+            #050505 70%
+        );
+}
+
+.idle-screen.hidden {
+    display: none;
+}
+
+.qt-logo {
+    width: 92px;
+    height: 92px;
+    position: relative;
+    border-radius: 50%;
+    margin-bottom: 14px;
+    background:
+        radial-gradient(
+            circle at 36% 28%,
+            #ffffff 0,
+            #e4f3ff 7%,
+            #7bbced 22%,
+            #1573b4 47%,
+            #04477d 72%,
+            #00294d 100%
+        );
+    border: 2px solid #d8ecfb;
+    box-shadow:
+        0 0 25px rgba(69,160,223,.35),
+        inset 0 0 10px #fff;
+}
+
+.qt-logo::before {
+    content: "Q";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 7px;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    font-size: 66px;
+    text-shadow:
+        0 2px 2px #124c77;
+}
+
+.qt-logo::after {
+    content: "";
+    position: absolute;
+    width: 8px;
+    height: 24px;
+    right: 17px;
+    bottom: 3px;
+    background: #fff;
+    transform: rotate(-35deg);
+    border-radius: 3px;
+}
+
+.idle-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #ddd;
+}
+
+.idle-version {
+    margin-top: 3px;
+    color: #777;
+}
+
+/* =========================================================
+   AUDIO DISPLAY
+   ========================================================= */
+
+.audio-display {
+    display: none;
+    position: absolute;
+    inset: 0;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background:
+        radial-gradient(
+            circle at center,
+            #35475a,
+            #070b0f 70%
+        );
+    color: white;
+}
+
+.audio-display.active {
+    display: flex;
+}
+
+.audio-disc {
+    width: 125px;
+    height: 125px;
+    border-radius: 50%;
+    position: relative;
+    margin-bottom: 15px;
+    background:
+        repeating-radial-gradient(
+            circle,
+            #181818 0,
+            #181818 3px,
+            #444 4px,
+            #202020 6px
+        );
+    box-shadow:
+        0 5px 18px #000,
+        inset 0 0 15px #777;
+}
+
+.audio-disc::after {
+    content: "";
+    position: absolute;
+    inset: 44px;
+    border-radius: 50%;
+    background:
+        radial-gradient(
+            circle,
+            #080808 0 26%,
+            #dceafa 28% 34%,
+            #4689bc 36% 66%,
+            #ddd 68%
+        );
+}
+
+.audio-disc.spinning {
+    animation:
+        discSpin
+        4s linear
+        infinite;
+}
+
+@keyframes discSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.audio-name {
+    max-width: 80%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* =========================================================
+   DROP
+   ========================================================= */
+
+.drop-overlay {
+    display: none;
+    position: absolute;
+    inset: 12px;
+    z-index: 25;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    border: 2px dashed white;
+    background: rgba(20,94,153,.82);
+    pointer-events: none;
+}
+
+.display-frame.dragging .drop-overlay {
+    display: flex;
+}
+
+/* =========================================================
+   OSD
+   ========================================================= */
+
+.osd {
+    opacity: 0;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 20;
+    padding: 5px 8px;
+    color: white;
+    border: 1px solid #888;
+    background: rgba(0,0,0,.72);
+    transition: opacity .15s;
+    pointer-events: none;
+}
+
+.osd.visible {
+    opacity: 1;
+}
+
+/* =========================================================
+   CONTROL BAR
+   ========================================================= */
+
+.control-shell {
+    flex: 0 0 auto;
+    min-height: 82px;
+    padding: 6px 7px 5px;
+    border:
+        1px solid
+        #767676;
+    border-top-color: #ececec;
+    border-left-color: #ececec;
+    background:
+        linear-gradient(
+            90deg,
+            #aaa,
+            #e7e7e7 12%,
+            #c4c4c4 34%,
+            #eee 50%,
+            #c1c1c1 70%,
+            #ddd 88%,
+            #999
+        );
+    box-shadow:
+        inset 0 1px white;
+}
+
+.timeline-row {
+    height: 25px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.time-text {
+    min-width: 50px;
+    font-family: "Courier New", monospace;
+    font-size: 11px;
+    color: #222;
+}
+
+.time-text.end {
+    text-align: right;
+}
+
+.timeline {
+    flex: 1;
+    height: 15px;
+    accent-color: #5f89a7;
+}
+
+.selection-track {
+    display: none;
+    height: 13px;
+    margin:
+        -1px
+        55px
+        2px;
+    position: relative;
+    border:
+        1px inset
+        #ddd;
+    background: #eee;
+}
+
+.selection-track.active {
+    display: block;
+}
+
+.selection-range {
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    left: 0;
+    right: 0;
+    background: #89a9c1;
+}
+
+.in-marker,
+.out-marker {
+    position: absolute;
+    top: -3px;
+    width: 5px;
+    height: 17px;
+    background: #265b87;
+}
+
+.in-marker {
+    left: 0;
+}
+
+.out-marker {
+    right: 0;
+}
+
+.controls-row {
+    height: 38px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.round-button {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid #555;
+    cursor: pointer;
+    color: #111;
+    font-weight: bold;
+    background:
+        radial-gradient(
+            circle at 35% 25%,
+            #fff,
+            #dadada 35%,
+            #a3a3a3 67%,
+            #d8d8d8
+        );
+    box-shadow:
+        inset 0 1px #fff,
+        0 1px 1px #555;
+}
+
+.round-button:hover {
+    filter: brightness(1.08);
+}
+
+.round-button:active {
+    box-shadow:
+        inset 0 2px 4px #666;
+}
+
+.play-button {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+}
+
+.control-divider {
+    width: 1px;
+    height: 28px;
+    margin: 0 3px;
+    background: #777;
+    border-right: 1px solid #eee;
+}
+
+.movie-title {
+    flex: 1;
+    min-width: 0;
+    padding: 0 6px;
+    font-weight: bold;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+.volume-area {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.volume-slider {
+    width: 80px;
+    accent-color: #678da8;
+}
+
+.rate-box {
+    width: 58px;
+    height: 23px;
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.status-bar {
+    height: 22px;
+    flex: 0 0 22px;
+    display: flex;
+    gap: 2px;
+    padding: 2px;
+    background: #ECE9D8;
+}
+
+.status-section {
+    height: 17px;
+    padding: 1px 6px;
+    display: flex;
+    align-items: center;
+    border: 1px inset white;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.status-main {
+    flex: 1;
+}
+
+/* =========================================================
+   DIALOG
+   ========================================================= */
+
+.dialog-overlay {
+    display: none;
+    position: absolute;
+    z-index: 1000;
+    inset: 0;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    background: rgba(0,0,0,.25);
+}
+
+.dialog-overlay.active {
+    display: flex;
+}
+
+.xp-dialog {
+    width: min(455px, 94%);
+    border: 1px solid #003C74;
+    background: #ECE9D8;
+    box-shadow: 4px 5px 14px rgba(0,0,0,.5);
+}
+
+.dialog-title {
+    height: 27px;
+    display: flex;
+    align-items: center;
+    padding: 0 7px;
+    color: white;
+    font-weight: bold;
+    background:
+        linear-gradient(
+            90deg,
+            #0058D6,
+            #3A93FF
+        );
+}
+
+.dialog-body {
+    padding: 14px 15px;
+    line-height: 17px;
+}
+
+.dialog-body h3 {
+    margin: 0 0 8px;
+    font-size: 13px;
+}
+
+.dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    padding: 0 12px 12px;
+}
+
+.xp-button {
+    min-width: 76px;
+    min-height: 24px;
+    border: 2px outset #fff;
+    background: #ECE9D8;
+}
+
+.xp-button:active {
+    border-style: inset;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns:
+        125px
+        1fr;
+    margin-top: 8px;
+    border-top: 1px solid #ACA899;
+    border-left: 1px solid #ACA899;
+}
+
+.info-grid > div {
+    min-height: 26px;
+    padding: 5px;
+    border-right: 1px solid #ACA899;
+    border-bottom: 1px solid #ACA899;
+}
+
+.info-key {
+    background: #E5E2D4;
+}
+
+.form-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 7px 0;
+}
+
+.form-row label {
+    width: 90px;
+}
+
+.form-row input {
+    flex: 1;
+    height: 23px;
+}
+
+/* =========================================================
+   SMALL SCREEN
+   ========================================================= */
+
+@media(max-width: 580px) {
+
+    .movie-title {
+        display: none;
+    }
+
+    .volume-slider {
+        width: 55px;
+    }
+
+    .selection-track {
+        margin-left: 45px;
+        margin-right: 45px;
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div
+    class="app"
+    id="app"
+>
+
+
+    <!-- =================================================
+         MENU
+         ================================================= -->
+
+    <div class="menu-bar">
+
+
+        <div class="menu">
+
+            <button class="menu-button">
+                File
+            </button>
+
+            <div class="dropdown">
+
+                <button data-action="open">
+                    Open File...
+                </button>
+
+                <button data-action="open-url">
+                    Open URL...
+                </button>
+
+                <div class="separator"></div>
+
+                <button data-action="close">
+                    Close Movie
+                </button>
+
+                <div class="separator"></div>
+
+                <button data-action="properties">
+                    Show Movie Properties
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="menu">
+
+            <button class="menu-button">
+                Edit
+            </button>
+
+            <div class="dropdown">
+
+                <button data-action="set-in">
+                    Set Selection Start
+                </button>
+
+                <button data-action="set-out">
+                    Set Selection End
+                </button>
+
+                <button data-action="clear-selection">
+                    Clear Selection
+                </button>
+
+                <div class="separator"></div>
+
+                <button data-action="capture">
+                    Copy Current Frame...
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="menu">
+
+            <button class="menu-button">
+                View
+            </button>
+
+            <div class="dropdown">
+
+                <button data-action="fullscreen">
+                    Enter Full Screen
+                </button>
+
+                <button data-action="fit">
+                    Fit to Window
+                </button>
+
+                <button data-action="actual">
+                    Actual Size
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="menu">
+
+            <button class="menu-button">
+                Movie
+            </button>
+
+            <div class="dropdown">
+
+                <button data-action="play">
+                    Play / Pause
+                </button>
+
+                <button data-action="beginning">
+                    Go to Beginning
+                </button>
+
+                <button data-action="back">
+                    Step Back
+                </button>
+
+                <button data-action="forward">
+                    Step Forward
+                </button>
+
+                <div class="separator"></div>
+
+                <button data-action="loop">
+                    Loop Movie
+                </button>
+
+                <button data-action="loop-selection">
+                    Loop Selection
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="menu">
+
+            <button class="menu-button">
+                Window
+            </button>
+
+            <div class="dropdown">
+
+                <button data-action="info">
+                    Movie Inspector
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="menu">
+
+            <button class="menu-button">
+                Help
+            </button>
+
+            <div class="dropdown">
+
+                <button data-action="about">
+                    About QuickTime Player
+                </button>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =================================================
+         PLAYER
+         ================================================= -->
+
+    <div class="player-body">
+
+
+        <div
+            class="display-frame"
+            id="displayFrame"
+        >
+
+
+            <video
+                id="video"
+                preload="metadata"
+                playsinline
+            ></video>
+
+
+            <audio
+                id="audio"
+                preload="metadata"
+            ></audio>
+
+
+            <div
+                class="idle-screen"
+                id="idleScreen"
+            >
+
+                <div class="qt-logo"></div>
+
+                <div class="idle-title">
+                    QuickTime Player
+                </div>
+
+                <div class="idle-version">
+                    Version 7.6
+                </div>
+
+            </div>
+
+
+            <div
+                class="audio-display"
+                id="audioDisplay"
+            >
+
+                <div
+                    class="audio-disc"
+                    id="audioDisc"
+                ></div>
+
+                <div
+                    class="audio-name"
+                    id="audioName"
+                >
+                    Audio
+                </div>
+
+            </div>
+
+
+            <div
+                class="drop-overlay"
+            >
+                Drop movie or audio file here
+            </div>
+
+
+            <div
+                class="osd"
+                id="osd"
+            >
+                Ready
+            </div>
+
+
+        </div>
+
+
+        <!-- =============================================
+             CONTROLS
+             ============================================= -->
+
+        <div class="control-shell">
+
+
+            <div class="timeline-row">
+
+                <span
+                    class="time-text"
+                    id="currentTime"
+                >
+                    00:00
+                </span>
+
+
+                <input
+                    class="timeline"
+                    id="timeline"
+                    type="range"
+                    min="0"
+                    max="1000"
+                    value="0"
+                >
+
+
+                <span
+                    class="time-text end"
+                    id="duration"
+                >
+                    00:00
+                </span>
+
+            </div>
+
+
+            <div
+                class="selection-track"
+                id="selectionTrack"
+            >
+
+                <div
+                    class="selection-range"
+                    id="selectionRange"
+                ></div>
+
+                <div
+                    class="in-marker"
+                    id="inMarker"
+                ></div>
+
+                <div
+                    class="out-marker"
+                    id="outMarker"
+                ></div>
+
+            </div>
+
+
+            <div class="controls-row">
+
+
+                <button
+                    class="round-button"
+                    id="beginButton"
+                    title="Beginning"
+                >
+                    |◀
+                </button>
+
+
+                <button
+                    class="round-button"
+                    id="rewindButton"
+                    title="Rewind 5 seconds"
+                >
+                    ◀
+                </button>
+
+
+                <button
+                    class="round-button play-button"
+                    id="playButton"
+                    title="Play / Pause"
+                >
+                    ▶
+                </button>
+
+
+                <button
+                    class="round-button"
+                    id="forwardButton"
+                    title="Forward 5 seconds"
+                >
+                    ▶
+                </button>
+
+
+                <button
+                    class="round-button"
+                    id="endButton"
+                    title="End"
+                >
+                    ▶|
+                </button>
+
+
+                <div class="control-divider"></div>
+
+
+                <div
+                    class="movie-title"
+                    id="movieTitle"
+                >
+                    No Movie
+                </div>
+
+
+                <select
+                    class="rate-box"
+                    id="rate"
+                    title="Playback Rate"
+                >
+                    <option value="0.5">0.5x</option>
+                    <option value="0.75">0.75x</option>
+                    <option value="1" selected>1x</option>
+                    <option value="1.25">1.25x</option>
+                    <option value="1.5">1.5x</option>
+                    <option value="2">2x</option>
+                </select>
+
+
+                <div class="control-divider"></div>
+
+
+                <div class="volume-area">
+
+                    <button
+                        class="round-button"
+                        id="muteButton"
+                        title="Mute"
+                    >
+                        ♪
+                    </button>
+
+                    <input
+                        class="volume-slider"
+                        id="volume"
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                        value="0.8"
+                    >
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =================================================
+         STATUS
+         ================================================= -->
+
+    <div class="status-bar">
+
+        <div
+            class="status-section status-main"
+            id="statusMain"
+        >
+            Ready
+        </div>
+
+        <div
+            class="status-section"
+            id="statusFormat"
+        >
+            No Movie
+        </div>
+
+        <div
+            class="status-section"
+            id="statusRate"
+        >
+            1x
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         DIALOG
+         ================================================= -->
+
+    <div
+        class="dialog-overlay"
+        id="dialogOverlay"
+    >
+
+        <div class="xp-dialog">
+
+            <div
+                class="dialog-title"
+                id="dialogTitle"
+            >
+                QuickTime Player
+            </div>
+
+            <div
+                class="dialog-body"
+                id="dialogBody"
+            ></div>
+
+            <div
+                class="dialog-buttons"
+                id="dialogButtons"
+            ></div>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<input
+    id="fileInput"
+    type="file"
+    hidden
+    accept="
+        video/*,
+        audio/*,
+        .mov,
+        .qt,
+        .mp4,
+        .m4v,
+        .mp3,
+        .m4a,
+        .aac,
+        .wav,
+        .aiff,
+        .aif,
+        .ogg,
+        .webm
+    "
+>
+
+
+<script>
+
+(() => {
+
+"use strict";
+
+
+/* =========================================================
+   ELEMENTS
+   ========================================================= */
+
+const app =
+    document.getElementById(
+        "app"
+    );
+
+const video =
+    document.getElementById(
+        "video"
+    );
+
+const audio =
+    document.getElementById(
+        "audio"
+    );
+
+const displayFrame =
+    document.getElementById(
+        "displayFrame"
+    );
+
+const idleScreen =
+    document.getElementById(
+        "idleScreen"
+    );
+
+const audioDisplay =
+    document.getElementById(
+        "audioDisplay"
+    );
+
+const audioDisc =
+    document.getElementById(
+        "audioDisc"
+    );
+
+const audioName =
+    document.getElementById(
+        "audioName"
+    );
+
+const fileInput =
+    document.getElementById(
+        "fileInput"
+    );
+
+const timeline =
+    document.getElementById(
+        "timeline"
+    );
+
+const currentTimeLabel =
+    document.getElementById(
+        "currentTime"
+    );
+
+const durationLabel =
+    document.getElementById(
+        "duration"
+    );
+
+const movieTitle =
+    document.getElementById(
+        "movieTitle"
+    );
+
+const volume =
+    document.getElementById(
+        "volume"
+    );
+
+const rate =
+    document.getElementById(
+        "rate"
+    );
+
+const playButton =
+    document.getElementById(
+        "playButton"
+    );
+
+const muteButton =
+    document.getElementById(
+        "muteButton"
+    );
+
+const selectionTrack =
+    document.getElementById(
+        "selectionTrack"
+    );
+
+const selectionRange =
+    document.getElementById(
+        "selectionRange"
+    );
+
+const inMarker =
+    document.getElementById(
+        "inMarker"
+    );
+
+const outMarker =
+    document.getElementById(
+        "outMarker"
+    );
+
+const statusMain =
+    document.getElementById(
+        "statusMain"
+    );
+
+const statusFormat =
+    document.getElementById(
+        "statusFormat"
+    );
+
+const statusRate =
+    document.getElementById(
+        "statusRate"
+    );
+
+const osd =
+    document.getElementById(
+        "osd"
+    );
+
+const dialogOverlay =
+    document.getElementById(
+        "dialogOverlay"
+    );
+
+const dialogTitle =
+    document.getElementById(
+        "dialogTitle"
+    );
+
+const dialogBody =
+    document.getElementById(
+        "dialogBody"
+    );
+
+const dialogButtons =
+    document.getElementById(
+        "dialogButtons"
+    );
+
+
+/* =========================================================
+   STATE
+   ========================================================= */
+
+const state = {
+
+    type:
+        null,
+
+    file:
+        null,
+
+    sourceURL:
+        null,
+
+    displayURL:
+        "",
+
+    selectionIn:
+        null,
+
+    selectionOut:
+        null,
+
+    loopMovie:
+        false,
+
+    loopSelection:
+        false,
+
+    actualSize:
+        false,
+
+    osdTimer:
+        null,
+
+    dragCounter:
+        0
+
+};
+
+
+/* =========================================================
+   BASIC HELPERS
+   ========================================================= */
+
+function player() {
+
+    return (
+        state.type ===
+        "audio"
+    )
+        ? audio
+        : video;
+
+}
+
+
+function setStatus(text) {
+
+    statusMain.textContent =
+        text;
+
+}
+
+
+function escapeHTML(text) {
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+    div.textContent =
+        String(text);
+
+    return div.innerHTML;
+
+}
+
+
+function humanSize(bytes) {
+
+    if (
+        !Number.isFinite(bytes)
+    ) {
+
+        return "Unknown";
+
+    }
+
+    if (
+        bytes < 1024
+    ) {
+
+        return (
+            bytes +
+            " bytes"
+        );
+
+    }
+
+    if (
+        bytes <
+        1024 *
+        1024
+    ) {
+
+        return (
+            (
+                bytes /
+                1024
+            ).toFixed(1)
+            +
+            " KB"
+        );
+
+    }
+
+    return (
+        (
+            bytes /
+            (
+                1024 *
+                1024
+            )
+        ).toFixed(2)
+        +
+        " MB"
+    );
+
+}
+
+
+function formatTime(seconds) {
+
+    if (
+        !Number.isFinite(seconds)
+    ) {
+
+        return "00:00";
+
+    }
+
+    seconds =
+        Math.max(
+            0,
+            Math.floor(seconds)
+        );
+
+    const h =
+        Math.floor(
+            seconds /
+            3600
+        );
+
+    const m =
+        Math.floor(
+            (
+                seconds %
+                3600
+            )
+            /
+            60
+        );
+
+    const s =
+        seconds %
+        60;
+
+    if (
+        h > 0
+    ) {
+
+        return (
+            String(h)
+            +
+            ":"
+            +
+            String(m)
+                .padStart(2,"0")
+            +
+            ":"
+            +
+            String(s)
+                .padStart(2,"0")
+        );
+
+    }
+
+    return (
+        String(m)
+            .padStart(2,"0")
+        +
+        ":"
+        +
+        String(s)
+            .padStart(2,"0")
+    );
+
+}
+
+
+function extensionOf(name) {
+
+    const dot =
+        name.lastIndexOf(".");
+
+    if (
+        dot < 0
+    ) {
+
+        return "";
+
+    }
+
+    return name
+        .slice(
+            dot + 1
+        )
+        .toUpperCase();
+
+}
+
+
+function showOSD(text) {
+
+    osd.textContent =
+        text;
+
+    osd.classList.add(
+        "visible"
+    );
+
+    clearTimeout(
+        state.osdTimer
+    );
+
+    state.osdTimer =
+        setTimeout(
+            () =>
+                osd.classList.remove(
+                    "visible"
+                ),
+            1100
+        );
+
+}
+
+
+/* =========================================================
+   DIALOG
+   ========================================================= */
+
+function showDialog(
+    title,
+    html,
+    buttons = null
+) {
+
+    dialogTitle.textContent =
+        title;
+
+    dialogBody.innerHTML =
+        html;
+
+    dialogButtons.innerHTML =
+        "";
+
+    const configs =
+        buttons ||
+        [
+            {
+                text:
+                    "OK",
+
+                click:
+                    closeDialog
+            }
+        ];
+
+    configs.forEach(
+        config => {
+
+            const button =
+                document.createElement(
+                    "button"
+                );
+
+            button.className =
+                "xp-button";
+
+            button.textContent =
+                config.text;
+
+            button.addEventListener(
+                "click",
+                config.click
+            );
+
+            dialogButtons.appendChild(
+                button
+            );
+
+        }
+    );
+
+    dialogOverlay.classList.add(
+        "active"
+    );
+
+}
+
+
+function closeDialog() {
+
+    dialogOverlay.classList.remove(
+        "active"
+    );
+
+}
+
+
+/* =========================================================
+   MEDIA TYPE
+   ========================================================= */
+
+function detectType(
+    name,
+    mime = ""
+) {
+
+    const lower =
+        name.toLowerCase();
+
+    if (
+        mime.startsWith(
+            "audio/"
+        )
+    ) {
+
+        return "audio";
+
+    }
+
+    if (
+        mime.startsWith(
+            "video/"
+        )
+    ) {
+
+        return "video";
+
+    }
+
+    if (
+        /\.(mp3|m4a|aac|wav|wave|aiff|aif|ogg|oga|flac)$/i
+            .test(lower)
+    ) {
+
+        return "audio";
+
+    }
+
+    return "video";
+
+}
+
+
+/* =========================================================
+   RESET SOURCE
+   ========================================================= */
+
+function releaseLocalURL() {
+
+    if (
+        state.sourceURL &&
+        state.sourceURL.startsWith(
+            "blob:"
+        )
+    ) {
+
+        URL.revokeObjectURL(
+            state.sourceURL
+        );
+
+    }
+
+    state.sourceURL =
+        null;
+
+}
+
+
+/* =========================================================
+   LOAD FILE
+   ========================================================= */
+
+function loadLocalFile(
+    file
+) {
+
+    if (!file) {
+
+        return;
+
+    }
+
+    releaseLocalURL();
+
+    state.file =
+        file;
+
+    state.sourceURL =
+        URL.createObjectURL(
+            file
+        );
+
+    state.displayURL =
+        file.name;
+
+    const type =
+        detectType(
+            file.name,
+            file.type
+        );
+
+    loadSource(
+        state.sourceURL,
+        type,
+        file.name
+    );
+
+}
+
+
+/* =========================================================
+   LOAD URL
+   ========================================================= */
+
+function loadRemoteURL(
+    url
+) {
+
+    if (!url) {
+
+        return;
+
+    }
+
+    releaseLocalURL();
+
+    state.file =
+        null;
+
+    state.sourceURL =
+        url;
+
+    state.displayURL =
+        url;
+
+    const pathname =
+        url.split("?")[0];
+
+    const type =
+        detectType(
+            pathname
+        );
+
+    loadSource(
+        url,
+        type,
+        pathname
+            .split("/")
+            .pop()
+        ||
+        "Network Movie"
+    );
+
+}
+
+
+/* =========================================================
+   LOAD SOURCE
+   ========================================================= */
+
+function loadSource(
+    source,
+    type,
+    name
+) {
+
+    video.pause();
+    audio.pause();
+
+    video.removeAttribute(
+        "src"
+    );
+
+    audio.removeAttribute(
+        "src"
+    );
+
+    state.type =
+        type;
+
+    state.selectionIn =
+        null;
+
+    state.selectionOut =
+        null;
+
+    state.loopSelection =
+        false;
+
+    renderSelection();
+
+    idleScreen.classList.add(
+        "hidden"
+    );
+
+    movieTitle.textContent =
+        name;
+
+    if (
+        type ===
+        "audio"
+    ) {
+
+        video.classList.remove(
+            "active"
+        );
+
+        audioDisplay.classList.add(
+            "active"
+        );
+
+        audio.src =
+            source;
+
+        audioName.textContent =
+            name;
+
+        statusFormat.textContent =
+            "Audio";
+
+        audio.load();
+
+    } else {
+
+        audioDisplay.classList.remove(
+            "active"
+        );
+
+        video.classList.add(
+            "active"
+        );
+
+        video.src =
+            source;
+
+        statusFormat.textContent =
+            extensionOf(name) ||
+            "Movie";
+
+        video.load();
+
+    }
+
+    timeline.value =
+        0;
+
+    currentTimeLabel.textContent =
+        "00:00";
+
+    durationLabel.textContent =
+        "00:00";
+
+    player().volume =
+        Number(
+            volume.value
+        );
+
+    player().playbackRate =
+        Number(
+            rate.value
+        );
+
+    setStatus(
+        "Opening " +
+        name +
+        "..."
+    );
+
+    player()
+        .play()
+        .catch(
+            () => {
+                setStatus(
+                    "Movie loaded. Press Play."
+                );
+            }
+        );
+
+}
+
+
+/* =========================================================
+   CLOSE MOVIE
+   ========================================================= */
+
+function closeMovie() {
+
+    video.pause();
+    audio.pause();
+
+    video.removeAttribute(
+        "src"
+    );
+
+    audio.removeAttribute(
+        "src"
+    );
+
+    video.load();
+    audio.load();
+
+    releaseLocalURL();
+
+    state.file =
+        null;
+
+    state.type =
+        null;
+
+    state.displayURL =
+        "";
+
+    state.selectionIn =
+        null;
+
+    state.selectionOut =
+        null;
+
+    state.loopSelection =
+        false;
+
+    state.loopMovie =
+        false;
+
+    video.classList.remove(
+        "active"
+    );
+
+    audioDisplay.classList.remove(
+        "active"
+    );
+
+    audioDisc.classList.remove(
+        "spinning"
+    );
+
+    idleScreen.classList.remove(
+        "hidden"
+    );
+
+    movieTitle.textContent =
+        "No Movie";
+
+    statusFormat.textContent =
+        "No Movie";
+
+    currentTimeLabel.textContent =
+        "00:00";
+
+    durationLabel.textContent =
+        "00:00";
+
+    timeline.value =
+        0;
+
+    renderSelection();
+
+    setStatus(
+        "Ready"
+    );
+
+}
+
+
+/* =========================================================
+   PLAYBACK
+   ========================================================= */
+
+function togglePlay() {
+
+    if (
+        !state.type
+    ) {
+
+        fileInput.click();
+
+        return;
+
+    }
+
+    const media =
+        player();
+
+    if (
+        media.paused
+    ) {
+
+        if (
+            state.loopSelection &&
+            state.selectionOut !== null &&
+            (
+                media.currentTime <
+                state.selectionIn
+                ||
+                media.currentTime >=
+                state.selectionOut
+            )
+        ) {
+
+            media.currentTime =
+                state.selectionIn;
+
+        }
+
+        media
+            .play()
+            .catch(() => {});
+
+    } else {
+
+        media.pause();
+
+    }
+
+}
+
+
+function goBeginning() {
+
+    if (!state.type) {
+
+        return;
+
+    }
+
+    player().currentTime =
+        state.loopSelection &&
+        state.selectionIn !== null
+            ? state.selectionIn
+            : 0;
+
+}
+
+
+function goEnd() {
+
+    if (!state.type) {
+
+        return;
+
+    }
+
+    const media =
+        player();
+
+    if (
+        !Number.isFinite(
+            media.duration
+        )
+    ) {
+
+        return;
+
+    }
+
+    media.currentTime =
+        state.loopSelection &&
+        state.selectionOut !== null
+            ? state.selectionOut
+            : Math.max(
+                0,
+                media.duration -
+                .05
+            );
+
+}
+
+
+function seekBy(seconds) {
+
+    if (
+        !state.type
+    ) {
+
+        return;
+
+    }
+
+    const media =
+        player();
+
+    if (
+        !Number.isFinite(
+            media.duration
+        )
+    ) {
+
+        return;
+
+    }
+
+    media.currentTime =
+        Math.min(
+            media.duration,
+            Math.max(
+                0,
+                media.currentTime +
+                seconds
+            )
+        );
+
+    showOSD(
+        (
+            seconds > 0
+                ? "+"
+                : ""
+        )
+        +
+        seconds
+        +
+        " sec"
+    );
+
+}
+
+
+/* =========================================================
+   TIMELINE
+   ========================================================= */
+
+function updateTimeline() {
+
+    if (
+        !state.type
+    ) {
+
+        return;
+
+    }
+
+    const media =
+        player();
+
+    currentTimeLabel.textContent =
+        formatTime(
+            media.currentTime
+        );
+
+    durationLabel.textContent =
+        formatTime(
+            media.duration
+        );
+
+    if (
+        Number.isFinite(
+            media.duration
+        )
+        &&
+        media.duration > 0
+    ) {
+
+        timeline.value =
+            Math.round(
+                media.currentTime /
+                media.duration *
+                1000
+            );
+
+    }
+
+    if (
+        state.loopSelection &&
+        state.selectionIn !== null &&
+        state.selectionOut !== null &&
+        media.currentTime >=
+            state.selectionOut
+    ) {
+
+        media.currentTime =
+            state.selectionIn;
+
+        if (
+            media.paused
+        ) {
+
+            media
+                .play()
+                .catch(() => {});
+
+        }
+
+    }
+
+}
+
+
+timeline.addEventListener(
+    "input",
+    () => {
+
+        if (
+            !state.type
+        ) {
+
+            return;
+
+        }
+
+        const media =
+            player();
+
+        if (
+            !Number.isFinite(
+                media.duration
+            )
+        ) {
+
+            return;
+
+        }
+
+        media.currentTime =
+            media.duration *
+            (
+                Number(
+                    timeline.value
+                )
+                /
+                1000
+            );
+
+    }
+);
+
+
+/* =========================================================
+   VOLUME
+   ========================================================= */
+
+function applyVolume() {
+
+    video.volume =
+        Number(
+            volume.value
+        );
+
+    audio.volume =
+        Number(
+            volume.value
+        );
+
+    video.muted =
+        false;
+
+    audio.muted =
+        false;
+
+    muteButton.textContent =
+        Number(volume.value) === 0
+            ? "×"
+            : "♪";
+
+}
+
+
+volume.addEventListener(
+    "input",
+    () => {
+
+        applyVolume();
+
+        showOSD(
+            "Volume "
+            +
+            Math.round(
+                Number(
+                    volume.value
+                )
+                *
+                100
+            )
+            +
+            "%"
+        );
+
+    }
+);
+
+
+function toggleMute() {
+
+    if (
+        !state.type
+    ) {
+
+        return;
+
+    }
+
+    const media =
+        player();
+
+    media.muted =
+        !media.muted;
+
+    muteButton.textContent =
+        media.muted
+            ? "×"
+            : "♪";
+
+    showOSD(
+        media.muted
+            ? "Muted"
+            : "Sound On"
+    );
+
+}
+
+
+/* =========================================================
+   RATE
+   ========================================================= */
+
+rate.addEventListener(
+    "change",
+    () => {
+
+        const value =
+            Number(
+                rate.value
+            );
+
+        video.playbackRate =
+            value;
+
+        audio.playbackRate =
+            value;
+
+        statusRate.textContent =
+            value +
+            "x";
+
+        showOSD(
+            "Playback Rate: "
+            +
+            value
+            +
+            "x"
+        );
+
+    }
+);
+
+
+/* =========================================================
+   SELECTION
+   ========================================================= */
+
+function setSelectionIn() {
+
+    if (
+        !state.type
+    ) {
+
+        return;
+
+    }
+
+    const media =
+        player();
+
+    state.selectionIn =
+        media.currentTime;
+
+    if (
+        state.selectionOut !== null &&
+        state.selectionOut <
+        state.selectionIn
+    ) {
+
+        state.selectionOut =
+            null;
+
+    }
+
+    renderSelection();
+
+    showOSD(
+        "In: "
+        +
+        formatTime(
+            state.selectionIn
+        )
+    );
+
+}
+
+
+function setSelectionOut() {
+
+    if (
+        !state.type
+    ) {
+
+        return;
+
+    }
+
+    const media =
+        player();
+
+    if (
+        state.selectionIn === null
+    ) {
+
+        state.selectionIn =
+            0;
+
+    }
+
+    state.selectionOut =
+        Math.max(
+            state.selectionIn,
+            media.currentTime
+        );
+
+    renderSelection();
+
+    showOSD(
+        "Out: "
+        +
+        formatTime(
+            state.selectionOut
+        )
+    );
+
+}
+
+
+function clearSelection() {
+
+    state.selectionIn =
+        null;
+
+    state.selectionOut =
+        null;
+
+    state.loopSelection =
+        false;
+
+    renderSelection();
+
+    showOSD(
+        "Selection Cleared"
+    );
+
+}
+
+
+function renderSelection() {
+
+    const media =
+        player();
+
+    if (
+        state.selectionIn === null &&
+        state.selectionOut === null
+    ) {
+
+        selectionTrack.classList.remove(
+            "active"
+        );
+
+        return;
+
+    }
+
+    selectionTrack.classList.add(
+        "active"
+    );
+
+    const duration =
+        Number.isFinite(
+            media.duration
+        )
+        &&
+        media.duration > 0
+            ? media.duration
+            : 1;
+
+    const start =
+        state.selectionIn === null
+            ? 0
+            : (
+                state.selectionIn /
+                duration *
+                100
+            );
+
+    const end =
+        state.selectionOut === null
+            ? 100
+            : (
+                state.selectionOut /
+                duration *
+                100
+            );
+
+    inMarker.style.left =
+        start +
+        "%";
+
+    outMarker.style.left =
+        end +
+        "%";
+
+    outMarker.style.right =
+        "auto";
+
+    selectionRange.style.left =
+        start +
+        "%";
+
+    selectionRange.style.right =
+        (
+            100 -
+            end
+        )
+        +
+        "%";
+
+}
+
+
+/* =========================================================
+   LOOP
+   ========================================================= */
+
+function toggleLoopMovie() {
+
+    state.loopMovie =
+        !state.loopMovie;
+
+    if (
+        state.type
+    ) {
+
+        player().loop =
+            state.loopMovie &&
+            !state.loopSelection;
+
+    }
+
+    showOSD(
+        "Loop Movie: "
+        +
+        (
+            state.loopMovie
+                ? "On"
+                : "Off"
+        )
+    );
+
+}
+
+
+function toggleLoopSelection() {
+
+    if (
+        state.selectionIn === null ||
+        state.selectionOut === null ||
+        state.selectionOut <=
+        state.selectionIn
+    ) {
+
+        showDialog(
+            "QuickTime Player",
+            `
+            <p>
+                Set both a selection start and
+                selection end before enabling
+                selection looping.
+            </p>
+            `
+        );
+
+        return;
+
+    }
+
+    state.loopSelection =
+        !state.loopSelection;
+
+    player().loop =
+        false;
+
+    showOSD(
+        "Loop Selection: "
+        +
+        (
+            state.loopSelection
+                ? "On"
+                : "Off"
+        )
+    );
+
+}
+
+
+/* =========================================================
+   SIZE / FULLSCREEN
+   ========================================================= */
+
+function fitWindow() {
+
+    state.actualSize =
+        false;
+
+    video.style.width =
+        "100%";
+
+    video.style.height =
+        "100%";
+
+    video.style.maxWidth =
+        "100%";
+
+    video.style.maxHeight =
+        "100%";
+
+    showOSD(
+        "Fit to Window"
+    );
+
+}
+
+
+function actualSize() {
+
+    if (
+        state.type !==
+        "video"
+    ) {
+
+        return;
+
+    }
+
+    if (
+        !video.videoWidth ||
+        !video.videoHeight
+    ) {
+
+        return;
+
+    }
+
+    state.actualSize =
+        true;
+
+    video.style.width =
+        video.videoWidth +
+        "px";
+
+    video.style.height =
+        video.videoHeight +
+        "px";
+
+    video.style.maxWidth =
+        "none";
+
+    video.style.maxHeight =
+        "none";
+
+    showOSD(
+        "Actual Size "
+        +
+        video.videoWidth
+        +
+        "×"
+        +
+        video.videoHeight
+    );
+
+}
+
+
+function fullscreen() {
+
+    if (
+        document.fullscreenElement
+    ) {
+
+        document
+            .exitFullscreen()
+            .catch(
+                () => {}
+            );
+
+        return;
+
+    }
+
+    displayFrame
+        .requestFullscreen()
+        .catch(
+            () => {
+
+                showDialog(
+                    "Full Screen",
+                    `
+                    <p>
+                        Full-screen mode was blocked
+                        by the browser or iframe
+                        permissions.
+                    </p>
+                    `
+                );
+
+            }
+        );
+
+}
+
+
+/* =========================================================
+   FRAME CAPTURE
+   ========================================================= */
+
+function captureFrame() {
+
+    if (
+        state.type !==
+        "video"
+        ||
+        !video.videoWidth
+    ) {
+
+        showDialog(
+            "Save Current Frame",
+            `
+            <p>
+                No video frame is available.
+            </p>
+            `
+        );
+
+        return;
+
+    }
+
+    try {
+
+        const canvas =
+            document.createElement(
+                "canvas"
+            );
+
+        canvas.width =
+            video.videoWidth;
+
+        canvas.height =
+            video.videoHeight;
+
+        const context =
+            canvas.getContext(
+                "2d"
+            );
+
+        context.drawImage(
+            video,
+            0,
+            0
+        );
+
+        canvas.toBlob(
+            blob => {
+
+                if (!blob) {
+
+                    return;
+
+                }
+
+                const url =
+                    URL.createObjectURL(
+                        blob
+                    );
+
+                const anchor =
+                    document.createElement(
+                        "a"
+                    );
+
+                anchor.href =
+                    url;
+
+                anchor.download =
+                    "quicktime-frame-"
+                    +
+                    Date.now()
+                    +
+                    ".png";
+
+                anchor.click();
+
+                setTimeout(
+                    () =>
+                        URL.revokeObjectURL(
+                            url
+                        ),
+                    1000
+                );
+
+                showOSD(
+                    "Frame Saved"
+                );
+
+            },
+            "image/png"
+        );
+
+    } catch (_) {
+
+        showDialog(
+            "Save Current Frame",
+            `
+            <p>
+                The current frame could not be
+                captured.
+            </p>
+
+            <p>
+                Remote movies may prevent frame
+                capture because of browser
+                cross-origin security rules.
+            </p>
+            `
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   PROPERTIES
+   ========================================================= */
+
+function movieProperties() {
+
+    if (
+        !state.type
+    ) {
+
+        showDialog(
+            "Movie Properties",
+            `
+            <p>
+                No movie is currently open.
+            </p>
+            `
+        );
+
+        return;
+
+    }
+
+    const media =
+        player();
+
+    const filename =
+        state.file
+            ? state.file.name
+            : state.displayURL;
+
+    const size =
+        state.file
+            ? humanSize(
+                state.file.size
+            )
+            : "Network Source";
+
+    const format =
+        state.file
+            ? (
+                extensionOf(
+                    state.file.name
+                )
+                ||
+                state.file.type
+                ||
+                "Unknown"
+            )
+            : "Network Movie";
+
+    let dimensions =
+        "Audio Only";
+
+    if (
+        state.type ===
+        "video"
+    ) {
+
+        dimensions =
+            video.videoWidth
+            &&
+            video.videoHeight
+                ? (
+                    video.videoWidth
+                    +
+                    " × "
+                    +
+                    video.videoHeight
+                )
+                : "Unknown";
+
+    }
+
+    showDialog(
+        "Movie Properties",
+
+        `
+        <h3>
+            ${escapeHTML(filename)}
+        </h3>
+
+        <div class="info-grid">
+
+            <div class="info-key">
+                Format
+            </div>
+
+            <div>
+                ${escapeHTML(format)}
+            </div>
+
+
+            <div class="info-key">
+                File size
+            </div>
+
+            <div>
+                ${escapeHTML(size)}
+            </div>
+
+
+            <div class="info-key">
+                Duration
+            </div>
+
+            <div>
+                ${formatTime(media.duration)}
+            </div>
+
+
+            <div class="info-key">
+                Dimensions
+            </div>
+
+            <div>
+                ${dimensions}
+            </div>
+
+
+            <div class="info-key">
+                Playback rate
+            </div>
+
+            <div>
+                ${media.playbackRate}x
+            </div>
+
+
+            <div class="info-key">
+                Volume
+            </div>
+
+            <div>
+                ${Math.round(media.volume * 100)}%
+            </div>
+
+        </div>
+        `
+    );
+
+}
+
+
+/* =========================================================
+   URL DIALOG
+   ========================================================= */
+
+function openURLDialog() {
+
+    showDialog(
+        "Open URL",
+
+        `
+        <p>
+            Enter the direct URL of a movie
+            or audio file.
+        </p>
+
+        <div class="form-row">
+
+            <label>
+                URL:
+            </label>
+
+            <input
+                id="movieURLInput"
+                type="text"
+                autocomplete="off"
+                value="https://"
+            >
+
+        </div>
+
+        <p style="color:#666">
+            The server must permit browser playback.
+        </p>
+        `,
+
+        [
+
+            {
+                text:
+                    "Open",
+
+                click:
+                    () => {
+
+                        const input =
+                            document.getElementById(
+                                "movieURLInput"
+                            );
+
+                        const value =
+                            input.value.trim();
+
+                        if (
+                            !/^https?:\/\//i.test(
+                                value
+                            )
+                        ) {
+
+                            return;
+
+                        }
+
+                        closeDialog();
+
+                        loadRemoteURL(
+                            value
+                        );
+
+                    }
+            },
+
+            {
+                text:
+                    "Cancel",
+
+                click:
+                    closeDialog
+            }
+
+        ]
+    );
+
+    setTimeout(
+        () => {
+
+            const input =
+                document.getElementById(
+                    "movieURLInput"
+                );
+
+            if (input) {
+
+                input.focus();
+                input.select();
+
+            }
+
+        },
+        20
+    );
+
+}
+
+
+/* =========================================================
+   ABOUT
+   ========================================================= */
+
+function about() {
+
+    showDialog(
+        "About QuickTime Player",
+
+        `
+        <div style="
+            display:flex;
+            gap:14px;
+            align-items:center;
+        ">
+
+            <div
+                class="qt-logo"
+                style="
+                    width:70px;
+                    height:70px;
+                    margin:0;
+                    flex:0 0 70px;
+                "
+            ></div>
+
+            <div>
+
+                <h3>
+                    QuickTime Player 7.6
+                </h3>
+
+                <p>
+                    Windows XP Web Desktop Edition
+                </p>
+
+                <p>
+                    Browser media engine:
+                    HTML5 Video / Audio
+                </p>
+
+            </div>
+
+        </div>
+
+        <p style="margin-top:14px">
+
+            This recreation does not include Apple's
+            proprietary QuickTime codec engine.
+
+        </p>
+        `
+    );
+
+}
+
+
+/* =========================================================
+   MEDIA EVENTS
+   ========================================================= */
+
+function registerMedia(
+    media
+) {
+
+    media.addEventListener(
+        "loadedmetadata",
+        () => {
+
+            updateTimeline();
+
+            renderSelection();
+
+            setStatus(
+                "Movie loaded."
+            );
+
+        }
+    );
+
+
+    media.addEventListener(
+        "timeupdate",
+        updateTimeline
+    );
+
+
+    media.addEventListener(
+        "play",
+        () => {
+
+            playButton.textContent =
+                "Ⅱ";
+
+            if (
+                state.type ===
+                "audio"
+            ) {
+
+                audioDisc.classList.add(
+                    "spinning"
+                );
+
+            }
+
+            setStatus(
+                "Playing."
+            );
+
+        }
+    );
+
+
+    media.addEventListener(
+        "pause",
+        () => {
+
+            playButton.textContent =
+                "▶";
+
+            audioDisc.classList.remove(
+                "spinning"
+            );
+
+            if (
+                media.currentTime > 0 &&
+                !media.ended
+            ) {
+
+                setStatus(
+                    "Paused."
+                );
+
+            }
+
+        }
+    );
+
+
+    media.addEventListener(
+        "ended",
+        () => {
+
+            audioDisc.classList.remove(
+                "spinning"
+            );
+
+            if (
+                state.loopMovie
+            ) {
+
+                media.currentTime =
+                    0;
+
+                media
+                    .play()
+                    .catch(
+                        () => {}
+                    );
+
+            } else {
+
+                playButton.textContent =
+                    "▶";
+
+                setStatus(
+                    "Movie finished."
+                );
+
+            }
+
+        }
+    );
+
+
+    media.addEventListener(
+        "error",
+        () => {
+
+            const code =
+                media.error
+                    ? media.error.code
+                    : 0;
+
+            let explanation =
+                "The browser could not decode this media.";
+
+            if (
+                state.file &&
+                state.file.name
+                    .toLowerCase()
+                    .endsWith(
+                        ".mov"
+                    )
+            ) {
+
+                explanation =
+                    `
+                    This QuickTime .MOV file uses a
+                    codec or media profile that the
+                    current browser cannot decode.
+                    `;
+
+            }
+
+            showDialog(
+                "QuickTime Player Error",
+
+                `
+                <h3>
+                    Error opening movie
+                </h3>
+
+                <p>
+                    ${explanation}
+                </p>
+
+                <p>
+                    Browser error code:
+                    <b>${code}</b>
+                </p>
+
+                <p>
+                    H.264/AAC MP4 or MOV files generally
+                    provide the best compatibility when
+                    the browser supports those codecs.
+                </p>
+                `
+            );
+
+            setStatus(
+                "Playback error."
+            );
+
+        }
+    );
+
+}
+
+
+registerMedia(
+    video
+);
+
+registerMedia(
+    audio
+);
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+document
+    .getElementById(
+        "playButton"
+    )
+    .addEventListener(
+        "click",
+        togglePlay
+    );
+
+
+document
+    .getElementById(
+        "beginButton"
+    )
+    .addEventListener(
+        "click",
+        goBeginning
+    );
+
+
+document
+    .getElementById(
+        "endButton"
+    )
+    .addEventListener(
+        "click",
+        goEnd
+    );
+
+
+document
+    .getElementById(
+        "rewindButton"
+    )
+    .addEventListener(
+        "click",
+        () =>
+            seekBy(
+                -5
+            )
+    );
+
+
+document
+    .getElementById(
+        "forwardButton"
+    )
+    .addEventListener(
+        "click",
+        () =>
+            seekBy(
+                5
+            )
+    );
+
+
+muteButton.addEventListener(
+    "click",
+    toggleMute
+);
+
+
+/* =========================================================
+   FILE INPUT
+   ========================================================= */
+
+fileInput.addEventListener(
+    "change",
+    () => {
+
+        const file =
+            fileInput.files[0];
+
+        if (file) {
+
+            loadLocalFile(
+                file
+            );
+
+        }
+
+        fileInput.value =
+            "";
+
+    }
+);
+
+
+/* =========================================================
+   DRAG DROP
+   ========================================================= */
+
+displayFrame.addEventListener(
+    "dragenter",
+    event => {
+
+        event.preventDefault();
+
+        state.dragCounter++;
+
+        displayFrame.classList.add(
+            "dragging"
+        );
+
+    }
+);
+
+
+displayFrame.addEventListener(
+    "dragover",
+    event => {
+
+        event.preventDefault();
+
+    }
+);
+
+
+displayFrame.addEventListener(
+    "dragleave",
+    event => {
+
+        event.preventDefault();
+
+        state.dragCounter--;
+
+        if (
+            state.dragCounter <= 0
+        ) {
+
+            state.dragCounter =
+                0;
+
+            displayFrame.classList.remove(
+                "dragging"
+            );
+
+        }
+
+    }
+);
+
+
+displayFrame.addEventListener(
+    "drop",
+    event => {
+
+        event.preventDefault();
+
+        state.dragCounter =
+            0;
+
+        displayFrame.classList.remove(
+            "dragging"
+        );
+
+        const file =
+            event.dataTransfer.files[0];
+
+        if (file) {
+
+            loadLocalFile(
+                file
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   MENU
+   ========================================================= */
+
+function closeMenus() {
+
+    document
+        .querySelectorAll(
+            ".menu.open"
+        )
+        .forEach(
+            menu =>
+                menu.classList.remove(
+                    "open"
+                )
+        );
+
+}
+
+
+document
+    .querySelectorAll(
+        ".menu-button"
+    )
+    .forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                event => {
+
+                    event.stopPropagation();
+
+                    const menu =
+                        button.closest(
+                            ".menu"
+                        );
+
+                    const open =
+                        menu.classList.contains(
+                            "open"
+                        );
+
+                    closeMenus();
+
+                    if (!open) {
+
+                        menu.classList.add(
+                            "open"
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+
+document.addEventListener(
+    "click",
+    closeMenus
+);
+
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+function executeAction(
+    action
+) {
+
+    switch (
+        action
+    ) {
+
+        case "open":
+
+            fileInput.click();
+
+            break;
+
+
+        case "open-url":
+
+            openURLDialog();
+
+            break;
+
+
+        case "close":
+
+            closeMovie();
+
+            break;
+
+
+        case "properties":
+        case "info":
+
+            movieProperties();
+
+            break;
+
+
+        case "set-in":
+
+            setSelectionIn();
+
+            break;
+
+
+        case "set-out":
+
+            setSelectionOut();
+
+            break;
+
+
+        case "clear-selection":
+
+            clearSelection();
+
+            break;
+
+
+        case "capture":
+
+            captureFrame();
+
+            break;
+
+
+        case "fullscreen":
+
+            fullscreen();
+
+            break;
+
+
+        case "fit":
+
+            fitWindow();
+
+            break;
+
+
+        case "actual":
+
+            actualSize();
+
+            break;
+
+
+        case "play":
+
+            togglePlay();
+
+            break;
+
+
+        case "beginning":
+
+            goBeginning();
+
+            break;
+
+
+        case "back":
+
+            seekBy(
+                -.04
+            );
+
+            break;
+
+
+        case "forward":
+
+            seekBy(
+                .04
+            );
+
+            break;
+
+
+        case "loop":
+
+            toggleLoopMovie();
+
+            break;
+
+
+        case "loop-selection":
+
+            toggleLoopSelection();
+
+            break;
+
+
+        case "about":
+
+            about();
+
+            break;
+
+    }
+
+    closeMenus();
+
+}
+
+
+document
+    .querySelectorAll(
+        "[data-action]"
+    )
+    .forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                () =>
+                    executeAction(
+                        button.dataset.action
+                    )
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   DIALOG
+   ========================================================= */
+
+dialogOverlay.addEventListener(
+    "mousedown",
+    event => {
+
+        if (
+            event.target ===
+            dialogOverlay
+        ) {
+
+            closeDialog();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   KEYBOARD
+   ========================================================= */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.target.tagName ===
+            "INPUT"
+        ) {
+
+            return;
+
+        }
+
+        if (
+            event.ctrlKey &&
+            event.key.toLowerCase() ===
+            "o"
+        ) {
+
+            event.preventDefault();
+
+            fileInput.click();
+
+            return;
+
+        }
+
+        switch (
+            event.key
+        ) {
+
+            case " ":
+
+                event.preventDefault();
+
+                togglePlay();
+
+                break;
+
+
+            case "ArrowLeft":
+
+                event.preventDefault();
+
+                seekBy(
+                    -5
+                );
+
+                break;
+
+
+            case "ArrowRight":
+
+                event.preventDefault();
+
+                seekBy(
+                    5
+                );
+
+                break;
+
+
+            case "ArrowUp":
+
+                event.preventDefault();
+
+                volume.value =
+                    Math.min(
+                        1,
+                        Number(
+                            volume.value
+                        )
+                        +
+                        .05
+                    );
+
+                applyVolume();
+
+                break;
+
+
+            case "ArrowDown":
+
+                event.preventDefault();
+
+                volume.value =
+                    Math.max(
+                        0,
+                        Number(
+                            volume.value
+                        )
+                        -
+                        .05
+                    );
+
+                applyVolume();
+
+                break;
+
+
+            case "Home":
+
+                goBeginning();
+
+                break;
+
+
+            case "End":
+
+                goEnd();
+
+                break;
+
+
+            case "Escape":
+
+                closeDialog();
+
+                closeMenus();
+
+                break;
+
+
+            case "i":
+            case "I":
+
+                if (
+                    event.ctrlKey
+                ) {
+
+                    event.preventDefault();
+
+                    movieProperties();
+
+                }
+
+                break;
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   INITIALIZE
+   ========================================================= */
+
+applyVolume();
+
+setStatus(
+    "Ready - Open or drag a movie into QuickTime Player."
+);
+
+window.addEventListener(
+    "beforeunload",
+    releaseLocalURL
+);
+
+})();
+
+</script>
+
+</body>
+</html>

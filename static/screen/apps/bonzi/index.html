@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Microsoft Agent Yardımcıları</title>
+<link rel="stylesheet" href="clippy.js/build/clippy.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Tahoma,sans-serif}
+html,body{width:100%;height:100%;background:transparent!important;overflow:hidden;pointer-events:none!important}
+#clippy,.clippy,[id^="clippy"],[class^="clippy"],.clippy-balloon,.clippy-balloon *{pointer-events:auto!important}
+
+.agent-context-menu{
+  position:fixed;display:none;min-width:205px;padding:2px;background:#ece9d8;
+  border:2px outset #fff;box-shadow:3px 3px 8px rgba(0,0,0,.45);
+  z-index:2147483647;pointer-events:auto!important;color:#000;font-size:11px;
+}
+.agent-context-menu.show{display:block}
+.agent-context-menu .menu-item{
+  min-height:22px;padding:4px 24px 4px 23px;position:relative;cursor:default;white-space:nowrap;
+}
+.agent-context-menu .menu-item:hover{background:#316ac5;color:#fff}
+.agent-context-menu .menu-item.disabled{color:#888;pointer-events:none}
+.agent-context-menu .menu-separator{height:1px;background:#aca899;border-bottom:1px solid #fff;margin:3px 1px}
+.agent-context-menu .check{position:absolute;left:6px;font-weight:bold}
+.agent-context-menu .arrow{position:absolute;right:7px}
+
+.xp-dialog{
+  position:fixed;display:none;width:470px;max-width:calc(100vw - 24px);
+  background:#ece9d8;border:1px solid #003c74;box-shadow:4px 5px 16px rgba(0,0,0,.5);
+  z-index:2147483647;pointer-events:auto!important;color:#000;
+}
+.xp-dialog.show{display:block}
+.xp-titlebar{
+  height:27px;display:flex;align-items:center;justify-content:space-between;padding:0 4px 0 7px;
+  color:#fff;font-size:11px;font-weight:bold;
+  background:linear-gradient(to bottom,#3b95ff,#0756df 55%,#0045b8);
+}
+.xp-close{
+  width:21px;height:21px;border:1px solid #fff;border-radius:3px;color:#fff;font-weight:bold;
+  background:linear-gradient(#f5a08c,#d94428);cursor:default;
+}
+.xp-body{padding:10px}
+.xp-footer{display:flex;justify-content:flex-end;gap:7px;padding:0 10px 10px}
+.xp-btn{min-width:78px;height:24px;padding:0 9px;background:#ece9d8;border:2px outset #fff;font:11px Tahoma,sans-serif}
+.xp-btn:active{border-style:inset}
+.xp-btn:disabled{color:#888}
+
+.manager-intro{margin-bottom:8px;line-height:1.45}
+.agent-list{height:270px;background:#fff;border:1px solid #7f9db9;overflow:auto}
+.agent-row{
+  height:27px;display:grid;grid-template-columns:22px 1fr 78px;align-items:center;
+  gap:6px;padding:2px 6px;border-bottom:1px solid #eee;cursor:default;
+}
+.agent-row:hover{background:#e8f1fb}
+.agent-row.selected{background:#316ac5;color:#fff}
+.agent-dot{
+  width:12px;height:12px;border-radius:50%;background:#aaa;border:1px solid #666;
+}
+.agent-dot.loaded{background:#38a338;border-color:#1d6f1d}
+.agent-dot.loading{background:#d8a51d;border-color:#8e6a12}
+.agent-dot.error{background:#c83232;border-color:#7d1717}
+.agent-status{text-align:right;font-size:10px;color:#666}
+.agent-row.selected .agent-status{color:#fff}
+.manager-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.manager-note{margin-top:8px;color:#555;font-size:10px;line-height:1.4}
+
+.text-dialog{width:330px}
+.text-dialog textarea{
+  width:100%;height:75px;padding:4px;border:2px inset #fff;background:#fff;
+  font:11px Tahoma,sans-serif;resize:none;
+}
+
+.toast{
+  position:fixed;right:10px;bottom:10px;display:none;max-width:300px;padding:7px 9px;
+  background:#ffffe1;border:1px solid #000;box-shadow:2px 2px 5px rgba(0,0,0,.35);
+  z-index:2147483647;pointer-events:none;font-size:11px;color:#000;
+}
+.toast.show{display:block}
+</style>
+</head>
+<body>
+
+<div class="agent-context-menu" id="agentContextMenu">
+  <div class="menu-item" id="activeAgentLabel" style="font-weight:bold">Bonzi</div>
+  <div class="menu-separator"></div>
+
+  <div class="menu-item" data-act="joke">Fıkra Anlat</div>
+  <div class="menu-item" data-act="fact">Gerçek Söyle</div>
+  <div class="menu-item" data-act="speak">Konuştur...</div>
+  <div class="menu-item" data-act="random">Rastgele Animasyon</div>
+  <div class="menu-item" data-act="move">Rastgele Yürü</div>
+  <div class="menu-item" data-act="gesture">İşaret Et</div>
+  <div class="menu-item" data-act="stop">Sustur</div>
+
+  <div class="menu-separator"></div>
+  <div class="menu-item" data-act="manager">Karakterler...</div>
+  <div class="menu-item" data-act="showAll">Tüm Karakterleri Göster</div>
+  <div class="menu-item" data-act="closeOthers">Diğer Karakterleri Kapat</div>
+
+  <div class="menu-separator"></div>
+  <div class="menu-item" data-act="hide">Gizle</div>
+  <div class="menu-item" data-act="dispose">Bu Karakteri Kapat</div>
+</div>
+
+<div class="xp-dialog" id="agentManager">
+  <div class="xp-titlebar">
+    <span>Microsoft Agent Karakterleri</span>
+    <button class="xp-close" data-close="agentManager">X</button>
+  </div>
+  <div class="xp-body">
+    <div class="manager-intro">
+      Kullanmak istediğiniz masaüstü yardımcısını seçin.
+      Birden fazla karakter aynı anda çalışabilir.
+    </div>
+    <div class="agent-list" id="agentList"></div>
+    <div class="manager-actions">
+      <button class="xp-btn" id="mgrAdd">Yanına Ekle</button>
+      <button class="xp-btn" id="mgrOnly">Sadece Bunu Göster</button>
+      <button class="xp-btn" id="mgrAll">Tümünü Göster</button>
+      <button class="xp-btn" id="mgrRemove">Kapat</button>
+    </div>
+    <div class="manager-note">
+      Kısayol: <b>Ctrl+Shift+A</b> karakter yöneticisini açar.
+      Bir karaktere sağ tıklarsanız o karakter aktif olur.
+    </div>
+  </div>
+  <div class="xp-footer">
+    <button class="xp-btn" data-close="agentManager">Tamam</button>
+  </div>
+</div>
+
+<div class="xp-dialog text-dialog" id="speakDialog">
+  <div class="xp-titlebar">
+    <span id="speakTitle">Karakteri Konuştur</span>
+    <button class="xp-close" data-close="speakDialog">X</button>
+  </div>
+  <div class="xp-body">
+    <textarea id="speakText" placeholder="Söylemesini istediğiniz metni yazın..."></textarea>
+  </div>
+  <div class="xp-footer">
+    <button class="xp-btn" data-close="speakDialog">İptal</button>
+    <button class="xp-btn" id="speakOk">Söyle</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+window.addEventListener('unhandledrejection', function(e){
+  if(e.reason && (e.reason.name==='NotAllowedError' || e.reason.name==='AbortError')){
+    e.preventDefault();
+  }
+});
+</script>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="clippy.js/build/clippy.min.js"></script>
+
+<script>
+(function(){
+'use strict';
+
+clippy.BASE_PATH = 'clippy.js/agents/';
+
+const AGENT_NAMES = [
+  'Bonzi','Clippy','F1','Genie','Genius',
+  'Links','Merlin','Peedy','Rocky','Rover'
+];
+
+const STORAGE_KEY = 'xp_ms_agents_v2';
+const loaded = new Map();
+const status = new Map(AGENT_NAMES.map(n=>[n,'not-loaded']));
+const idleTimers = new Map();
+
+let activeName = 'Bonzi';
+let managerSelection = 'Bonzi';
+
+const jokes = [
+  "Computers make very fast, very accurate mistakes.",
+  "I would tell you a UDP joke, but you might not get it.",
+  "Why did the computer go to the doctor? Because it had a virus!",
+  "There are 10 types of people: those who understand binary, and those who don't."
+];
+
+const facts = [
+  "The first computer bug was an actual moth found in a computer.",
+  "A day on Venus is longer than a year on Venus.",
+  "Octopuses have three hearts.",
+  "The original Office Assistants used animated Microsoft Agent characters."
+];
+
+function el(id){ return document.getElementById(id); }
+
+function toast(text, ms=2200){
+  const t=el('toast');
+  t.textContent=text;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>t.classList.remove('show'),ms);
+}
+
+function getAgent(name=activeName){
+  return loaded.get(name) || null;
+}
+
+function safeAnimations(agent){
+  try{
+    const list=agent && typeof agent.animations==='function' ? agent.animations() : [];
+    return Array.isArray(list) ? list : [];
+  }catch(e){ return []; }
+}
+
+function playFirst(agent, names){
+  if(!agent) return false;
+  const list=safeAnimations(agent);
+  for(const name of names){
+    if(list.includes(name)){
+      try{ agent.play(name); return true; }catch(e){}
+    }
+  }
+  return false;
+}
+
+function randomAnimation(agent){
+  if(!agent) return;
+  const list=safeAnimations(agent);
+  if(list.length){
+    try{ agent.play(list[Math.floor(Math.random()*list.length)]); }catch(e){}
+  }else if(typeof agent.animate==='function'){
+    try{ agent.animate(); }catch(e){}
+  }
+}
+
+function saveState(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      activeName,
+      loaded:[...loaded.keys()]
+    }));
+  }catch(e){}
+}
+
+function loadState(){
+  try{
+    const data=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');
+    if(data && AGENT_NAMES.includes(data.activeName)) activeName=data.activeName;
+    if(data && Array.isArray(data.loaded)){
+      return data.loaded.filter(n=>AGENT_NAMES.includes(n));
+    }
+  }catch(e){}
+  return ['Bonzi'];
+}
+
+function initialPosition(index){
+  const cols=5;
+  const x=40 + (index % cols) * 145;
+  const y=55 + Math.floor(index / cols) * 190;
+  return {
+    x:Math.min(Math.max(10,x), Math.max(10,window.innerWidth-220)),
+    y:Math.min(Math.max(10,y), Math.max(10,window.innerHeight-210))
+  };
+}
+
+function attachAgentEvents(name, agent){
+  const $node=$(agent._el);
+  $node.attr('data-agent-name',name);
+  $node.css('pointer-events','auto');
+
+  $node.off('.xpAgent');
+
+  $node.on('contextmenu.xpAgent',function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    activeName=name;
+    managerSelection=name;
+    showContextMenu(e.clientX,e.clientY);
+    renderManager();
+    saveState();
+  });
+
+  $node.on('dblclick.xpAgent',function(e){
+    e.stopPropagation();
+    activeName=name;
+    managerSelection=name;
+    randomAnimation(agent);
+    renderManager();
+    saveState();
+  });
+
+  $node.on('click.xpAgent',function(e){
+    activeName=name;
+    managerSelection=name;
+    renderManager();
+    saveState();
+  });
+}
+
+function startIdle(name,agent){
+  stopIdle(name);
+  const timer=setInterval(()=>{
+    if(!loaded.has(name)) return;
+    if(Math.random()<0.25) randomAnimation(agent);
+  },45000 + Math.floor(Math.random()*15000));
+  idleTimers.set(name,timer);
+}
+
+function stopIdle(name){
+  const t=idleTimers.get(name);
+  if(t) clearInterval(t);
+  idleTimers.delete(name);
+}
+
+function loadAgent(name, opts={}){
+  if(!AGENT_NAMES.includes(name)) return Promise.reject(new Error('Bilinmeyen karakter: '+name));
+
+  const existing=loaded.get(name);
+  if(existing){
+    try{ existing.show(); }catch(e){}
+    activeName=name;
+    managerSelection=name;
+    status.set(name,'loaded');
+    renderManager();
+    saveState();
+    return Promise.resolve(existing);
+  }
+
+  if(status.get(name)==='loading'){
+    return new Promise((resolve,reject)=>{
+      const wait=setInterval(()=>{
+        const a=loaded.get(name);
+        if(a){clearInterval(wait);resolve(a)}
+        else if(status.get(name)==='error'){clearInterval(wait);reject(new Error(name+' yüklenemedi'))}
+      },100);
+    });
+  }
+
+  status.set(name,'loading');
+  renderManager();
+
+  return new Promise((resolve,reject)=>{
+    let settled=false;
+
+    const fail=(err)=>{
+      if(settled) return;
+      settled=true;
+      status.set(name,'error');
+      renderManager();
+      toast(name+' yüklenemedi. agents/'+name+' klasörünü kontrol et.');
+      reject(err instanceof Error?err:new Error(String(err||'Yükleme hatası')));
+    };
+
+    try{
+      clippy.load(name,function(agent){
+        if(settled) return;
+        settled=true;
+
+        loaded.set(name,agent);
+        status.set(name,'loaded');
+        activeName=name;
+        managerSelection=name;
+
+        attachAgentEvents(name,agent);
+
+        try{ agent.show(); }catch(e){}
+
+        const idx=AGENT_NAMES.indexOf(name);
+        const pos=initialPosition(idx);
+        if(typeof agent.moveTo==='function'){
+          try{ agent.moveTo(pos.x,pos.y,0); }catch(e){
+            try{ agent.moveTo(pos.x,pos.y); }catch(_){}
+          }
+        }
+
+        startIdle(name,agent);
+        renderManager();
+        saveState();
+
+        if(opts.greet!==false){
+          setTimeout(()=>{
+            try{
+              playFirst(agent,['Greeting','Greet','Wave','Pleased','Acknowledge']);
+              agent.speak("Hello! I'm "+name+".");
+            }catch(e){}
+          },250);
+        }
+
+        resolve(agent);
+      },fail);
+
+      setTimeout(()=>{
+        if(!settled && !loaded.has(name)) fail(new Error('Yükleme zaman aşımı'));
+      },10000);
+
+    }catch(err){
+      fail(err);
+    }
+  });
+}
+
+function disposeAgent(name){
+  const agent=loaded.get(name);
+  if(!agent) return;
+
+  stopIdle(name);
+
+  try{ agent.stop(); }catch(e){}
+  try{
+    if(typeof agent.dispose==='function') agent.dispose();
+    else if(agent._el) $(agent._el).remove();
+  }catch(e){
+    try{ if(agent._el) $(agent._el).remove(); }catch(_){}
+  }
+
+  loaded.delete(name);
+  status.set(name,'not-loaded');
+
+  if(activeName===name){
+    activeName=loaded.size ? [...loaded.keys()][0] : 'Bonzi';
+  }
+
+  renderManager();
+  saveState();
+}
+
+async function showAllAgents(){
+  closeMenus();
+  for(const name of AGENT_NAMES){
+    try{ await loadAgent(name,{greet:false}); }
+    catch(e){}
+    await new Promise(r=>setTimeout(r,90));
+  }
+  toast(loaded.size+' karakter açık.');
+}
+
+async function onlyAgent(name){
+  const agent=await loadAgent(name,{greet:false}).catch(()=>null);
+  if(!agent) return;
+
+  [...loaded.keys()].forEach(n=>{
+    if(n!==name) disposeAgent(n);
+  });
+
+  activeName=name;
+  managerSelection=name;
+  try{
+    agent.show();
+    playFirst(agent,['Greeting','Greet','Wave','Pleased']);
+    agent.speak("I'm "+name+". Ready to help!");
+  }catch(e){}
+  renderManager();
+  saveState();
+}
+
+function closeOthers(){
+  const keep=activeName;
+  [...loaded.keys()].forEach(n=>{ if(n!==keep) disposeAgent(n); });
+  toast('Yalnızca '+keep+' açık.');
+}
+
+function showContextMenu(x,y){
+  const menu=el('agentContextMenu');
+  el('activeAgentLabel').textContent=activeName;
+  menu.classList.add('show');
+
+  const r=menu.getBoundingClientRect();
+  menu.style.left=Math.max(2,Math.min(x,window.innerWidth-r.width-3))+'px';
+  menu.style.top=Math.max(2,Math.min(y,window.innerHeight-r.height-3))+'px';
+}
+
+function closeMenus(){
+  el('agentContextMenu').classList.remove('show');
+}
+
+function showDialog(id){
+  const d=el(id);
+  d.classList.add('show');
+  requestAnimationFrame(()=>{
+    const r=d.getBoundingClientRect();
+    d.style.left=Math.max(6,(window.innerWidth-r.width)/2)+'px';
+    d.style.top=Math.max(6,(window.innerHeight-r.height)/2)+'px';
+  });
+}
+
+function hideDialog(id){
+  el(id).classList.remove('show');
+}
+
+function openManager(){
+  closeMenus();
+  managerSelection=activeName;
+  renderManager();
+  showDialog('agentManager');
+}
+
+function renderManager(){
+  const list=el('agentList');
+  if(!list) return;
+  list.innerHTML='';
+
+  AGENT_NAMES.forEach(name=>{
+    const row=document.createElement('div');
+    row.className='agent-row'+(managerSelection===name?' selected':'');
+    row.dataset.name=name;
+
+    const dot=document.createElement('span');
+    dot.className='agent-dot';
+    const s=status.get(name);
+    if(s==='loaded') dot.classList.add('loaded');
+    else if(s==='loading') dot.classList.add('loading');
+    else if(s==='error') dot.classList.add('error');
+
+    const label=document.createElement('span');
+    label.textContent=name + (activeName===name?'  (aktif)':'');
+
+    const st=document.createElement('span');
+    st.className='agent-status';
+    st.textContent=s==='loaded'?'Açık':s==='loading'?'Yükleniyor':s==='error'?'Hata':'Kapalı';
+
+    row.append(dot,label,st);
+    row.onclick=()=>{
+      managerSelection=name;
+      renderManager();
+    };
+    row.ondblclick=()=>{
+      managerSelection=name;
+      loadAgent(name).catch(()=>{});
+    };
+
+    list.appendChild(row);
+  });
+}
+
+function activeAction(action){
+  const agent=getAgent();
+  if(!agent){
+    toast('Önce bir karakter aç.');
+    return;
+  }
+
+  if(action==='joke'){
+    playFirst(agent,['Congratulate','Pleased','Explain','Wave']);
+    setTimeout(()=>{try{agent.speak(jokes[Math.floor(Math.random()*jokes.length)])}catch(e){}},300);
+  }
+  else if(action==='fact'){
+    playFirst(agent,['Explain','Thinking','Think','Pleased']);
+    setTimeout(()=>{try{agent.speak(facts[Math.floor(Math.random()*facts.length)])}catch(e){}},300);
+  }
+  else if(action==='random'){
+    randomAnimation(agent);
+  }
+  else if(action==='move'){
+    if(typeof agent.moveTo==='function'){
+      const x=Math.max(10,Math.random()*Math.max(10,window.innerWidth-210));
+      const y=Math.max(10,Math.random()*Math.max(10,window.innerHeight-190));
+      try{agent.moveTo(x,y)}catch(e){}
+    }
+  }
+  else if(action==='gesture'){
+    if(typeof agent.gestureAt==='function'){
+      try{agent.gestureAt(Math.random()*window.innerWidth,Math.random()*window.innerHeight)}catch(e){}
+    }
+  }
+  else if(action==='stop'){
+    try{agent.stop()}catch(e){}
+  }
+  else if(action==='hide'){
+    try{agent.hide()}catch(e){}
+  }
+  else if(action==='dispose'){
+    disposeAgent(activeName);
+  }
+  else if(action==='speak'){
+    el('speakTitle').textContent=activeName+' Konuşsun';
+    el('speakText').value='';
+    showDialog('speakDialog');
+    setTimeout(()=>el('speakText').focus(),50);
+  }
+}
+
+el('agentContextMenu').addEventListener('click',function(e){
+  const item=e.target.closest('.menu-item');
+  if(!item || !item.dataset.act) return;
+  const act=item.dataset.act;
+  closeMenus();
+
+  if(act==='manager') openManager();
+  else if(act==='showAll') showAllAgents();
+  else if(act==='closeOthers') closeOthers();
+  else activeAction(act);
+});
+
+document.addEventListener('click',function(e){
+  if(!e.target.closest('#agentContextMenu')) closeMenus();
+});
+
+document.querySelectorAll('[data-close]').forEach(btn=>{
+  btn.addEventListener('click',()=>hideDialog(btn.dataset.close));
+});
+
+el('mgrAdd').onclick=()=>loadAgent(managerSelection).catch(()=>{});
+el('mgrOnly').onclick=()=>onlyAgent(managerSelection);
+el('mgrAll').onclick=()=>showAllAgents();
+el('mgrRemove').onclick=()=>disposeAgent(managerSelection);
+
+el('speakOk').onclick=()=>{
+  const text=el('speakText').value.trim();
+  const agent=getAgent();
+  if(text && agent){
+    try{agent.speak(text)}catch(e){}
+  }
+  hideDialog('speakDialog');
+};
+
+document.addEventListener('keydown',function(e){
+  if(e.ctrlKey && e.shiftKey && e.key.toLowerCase()==='a'){
+    e.preventDefault();
+    openManager();
+    return;
+  }
+
+  if(e.ctrlKey && e.shiftKey && e.key.toLowerCase()==='b'){
+    e.preventDefault();
+    const a=getAgent();
+    if(a){
+      try{a.hide()}catch(_){}
+      setTimeout(()=>{try{a.show()}catch(_){}},350);
+    }
+    return;
+  }
+
+  if(e.key==='Escape'){
+    closeMenus();
+    hideDialog('agentManager');
+    hideDialog('speakDialog');
+  }
+});
+
+window.addEventListener('resize',()=>{
+  let i=0;
+  loaded.forEach((agent,name)=>{
+    const p=initialPosition(i++);
+    try{
+      if(agent._el){
+        const $e=$(agent._el);
+        const left=parseInt($e.css('left'),10)||0;
+        const top=parseInt($e.css('top'),10)||0;
+        const maxX=Math.max(0,window.innerWidth-$e.outerWidth());
+        const maxY=Math.max(0,window.innerHeight-$e.outerHeight());
+        $e.css({
+          left:Math.max(0,Math.min(left,maxX)),
+          top:Math.max(0,Math.min(top,maxY))
+        });
+      }
+    }catch(e){}
+  });
+});
+
+const startup=loadState();
+renderManager();
+
+(async function init(){
+  const names=startup.length?startup:['Bonzi'];
+  for(const name of names){
+    try{await loadAgent(name,{greet:names.length===1})}
+    catch(e){}
+  }
+  if(!loaded.size){
+    loadAgent('Bonzi').catch(()=>openManager());
+  }
+})();
+})();
+</script>
+</body>
+</html>

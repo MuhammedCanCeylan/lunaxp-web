@@ -1,0 +1,910 @@
+<!--
+WINDOWS XP WORDPAD - ASSET LISTESI
+
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama |
+|------------|----------------------|------------|----------------------------------------------|
+| icon.png   | 32x32                | Zorunlu    | XP Accessories / WordPad ikonu               |
+
+NOTLAR:
+- Bu uygulama Windows XP WordPad arayuzunu ve temel RichEdit is akisini tarayicida yeniden olusturur.
+- RTF / TXT / Unicode Text / HTML dosyalari yerel olarak acilip kaydedilebilir.
+- Eski binary Word 6/95 .doc ve .wri dosyalari browser icinde parse edilmez.
+- Dış XP Luna baslik cubugu ve gorev cubugu ana WindowManager tarafindan saglanir; burada ikinci titlebar/taskbar yoktur.
+- alert(), confirm(), prompt() kullanilmaz; tum bildirimler uygulama ici .xp-dialog ile gosterilir.
+-->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WordPad</title>
+<style>
+:root{
+  --xp:#ECE9D8;
+  --border:#ACA899;
+  --blue:#316AC5;
+}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden}
+body{font:11px Tahoma,Arial,sans-serif;background:var(--xp);color:#000}
+button,input,select{font:11px Tahoma,Arial,sans-serif}
+button{cursor:default}
+
+.app{
+  width:100%;height:100%;min-width:560px;min-height:380px;
+  display:grid;grid-template-rows:25px 33px 31px 24px minmax(0,1fr) 21px;
+  background:var(--xp)
+}
+
+/* MENUS */
+.menubar{
+  display:flex;align-items:center;padding:0 4px;
+  border-bottom:1px solid var(--border);background:var(--xp)
+}
+.menu{position:relative;height:24px;padding:0 7px;display:flex;align-items:center}
+.menu:hover,.menu.open{background:var(--blue);color:#fff}
+.dropdown{
+  display:none;position:absolute;left:0;top:23px;z-index:120;
+  min-width:220px;padding:2px;background:#fff;color:#000;
+  border:1px solid #716F64;box-shadow:2px 2px 4px rgba(0,0,0,.35)
+}
+.menu.open .dropdown{display:block}
+.mi{
+  min-height:22px;display:flex;align-items:center;padding:3px 8px 3px 26px;white-space:nowrap
+}
+.mi:hover{background:var(--blue);color:#fff}
+.mi.disabled{color:#999;pointer-events:none}
+.mi .shortcut{margin-left:auto;padding-left:22px;color:#777}
+.mi:hover .shortcut{color:#fff}
+.sep{height:1px;background:var(--border);border-bottom:1px solid #fff;margin:3px 2px}
+
+/* TOOLBARS */
+.toolbar,.formatbar{
+  display:flex;align-items:center;gap:2px;padding:3px 5px;
+  border-bottom:1px solid var(--border);background:var(--xp);overflow:hidden
+}
+.tool{
+  width:27px;height:26px;padding:0;display:flex;align-items:center;justify-content:center;
+  background:transparent;border:1px solid transparent;border-radius:2px
+}
+.tool:hover:not(:disabled){background:#fff;border-color:#9b9b9b}
+.tool:active:not(:disabled),.tool.on{background:#d7d7d7;border:1px inset #fff}
+.tool:disabled{opacity:.35}
+.toolsep{width:1px;height:22px;background:#aaa;border-right:1px solid #fff;margin:0 3px}
+.ico{font:bold 15px Arial;line-height:1}
+.ico.new{font-size:17px;color:#315a92}
+.ico.open{font-size:16px;color:#c59522}
+.ico.save{font-size:16px;color:#2c5c9c}
+.ico.print{font-size:16px;color:#444}
+.ico.cut{font-size:15px}
+.ico.copy{font-size:15px}
+.ico.paste{font-size:15px}
+.ico.undo,.ico.redo{font-size:18px;color:#2c5c9c}
+.select{
+  height:24px;border:2px inset #fff;background:#fff;padding:1px 3px
+}
+#fontName{width:145px}
+#fontSize{width:56px}
+.colorTool{position:relative}
+.colorLine{position:absolute;left:6px;right:6px;bottom:3px;height:3px;background:#000}
+.palette{
+  display:none;position:absolute;z-index:130;top:29px;left:0;width:134px;padding:5px;
+  background:var(--xp);border:2px outset #fff;grid-template-columns:repeat(6,18px);gap:3px
+}
+.colorTool.open .palette{display:grid}
+.swatch{width:18px;height:18px;border:1px solid #555;padding:0}
+.swatch:hover{outline:2px solid #316AC5}
+
+/* RULER */
+.ruler{
+  position:relative;height:24px;margin:0;padding:0 28px;
+  background:#f4f4f0;border-bottom:1px solid #aaa;overflow:hidden
+}
+.rulerTrack{
+  position:relative;height:19px;margin-top:2px;
+  border:1px solid #aaa;background:#fff
+}
+.rulerTrack:before{
+  content:"";position:absolute;inset:0;
+  background:
+    repeating-linear-gradient(90deg,#777 0 1px,transparent 1px 12px),
+    repeating-linear-gradient(90deg,transparent 0 59px,#555 59px 60px);
+  background-size:auto 5px,auto 8px;background-repeat:repeat-x;background-position:0 bottom,0 bottom;
+  opacity:.55
+}
+.rulerNums{position:absolute;left:0;right:0;top:1px;height:10px;color:#555;font-size:9px}
+.rulerNums span{position:absolute;transform:translateX(-50%)}
+.marginMark{position:absolute;top:1px;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent}
+.marginMark.left{left:7px;border-top:7px solid #666}
+.marginMark.right{right:7px;border-top:7px solid #666}
+
+/* WORKSPACE */
+.workspace{
+  min-height:0;overflow:auto;background:#808080;padding:18px 22px 40px
+}
+.page{
+  width:min(816px,calc(100% - 8px));min-height:1056px;margin:0 auto;
+  background:#fff;box-shadow:1px 1px 3px rgba(0,0,0,.65);
+  position:relative
+}
+.editor{
+  min-height:1056px;padding:76px 72px 78px;outline:none;
+  font-family:"Times New Roman",serif;font-size:12pt;line-height:1.25;
+  white-space:pre-wrap;word-wrap:break-word
+}
+.editor p{margin:0 0 .25em}
+.editor:empty:before{content:"";display:block}
+.editor ul,.editor ol{margin-top:.3em;margin-bottom:.3em}
+
+/* STATUS */
+.statusbar{
+  display:grid;grid-template-columns:minmax(0,1fr) 90px 80px;gap:2px;padding:2px;
+  border-top:1px solid var(--border);background:var(--xp)
+}
+.status{
+  height:16px;border:1px inset #fff;padding:0 5px;line-height:14px;
+  overflow:hidden;white-space:nowrap;text-overflow:ellipsis
+}
+
+/* DIALOG */
+.shade{
+  display:none;position:absolute;inset:0;z-index:220;background:rgba(0,0,0,.18);
+  align-items:center;justify-content:center;padding:18px
+}
+.shade.show{display:flex}
+.dialog{
+  width:min(480px,94vw);max-height:88%;display:flex;flex-direction:column;
+  background:var(--xp);border:2px outset #fff;box-shadow:4px 5px 15px rgba(0,0,0,.48)
+}
+.dtitle{
+  min-height:25px;display:flex;align-items:center;justify-content:space-between;
+  padding:2px 3px 2px 7px;background:linear-gradient(90deg,#0A246A,#3A6EA5);
+  color:#fff;font-weight:bold
+}
+.dx{width:21px;height:20px;padding:0;color:#fff;background:#D8503C;border:2px outset #fff;font-weight:bold}
+.dbody{padding:13px;overflow:auto;line-height:1.45}
+.dactions{display:flex;justify-content:flex-end;gap:7px;padding:0 12px 11px}
+.xpbtn{min-width:78px;height:25px;background:var(--xp);border:2px outset #fff}
+.xpbtn:active{border-style:inset}
+.row{display:grid;grid-template-columns:120px 1fr;gap:8px;align-items:center;margin:7px 0}
+.textbox,.dselect{width:100%;height:24px;border:2px inset #fff;background:#fff;padding:2px 4px}
+.check{display:flex;gap:6px;align-items:center;margin:7px 0}
+.msg{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start}
+.infoicon{
+  width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  color:#fff;background:#316AC5;border:1px solid #174B9E;font:bold 23px Georgia,serif
+}
+.warnicon{
+  width:32px;height:32px;clip-path:polygon(50% 0,100% 100%,0 100%);
+  background:#F2CD3A;position:relative
+}
+.warnicon:after{content:"!";position:absolute;left:12px;top:8px;font:bold 19px Arial;color:#333}
+.findgrid{display:grid;grid-template-columns:100px 1fr;gap:7px;align-items:center}
+.radioCol{margin:9px 0 0 105px}
+.preview{
+  max-width:300px;margin:0 auto;background:#777;padding:11px
+}
+.previewPage{
+  aspect-ratio:8.5/11;background:#fff;border:1px solid #555;padding:18px;
+  color:#444;font:8px "Times New Roman",serif;overflow:hidden
+}
+
+/* PRINT */
+@media print{
+  body{background:#fff}
+  .menubar,.toolbar,.formatbar,.ruler,.statusbar,.shade{display:none!important}
+  .app{display:block}
+  .workspace{padding:0;overflow:visible;background:#fff}
+  .page{box-shadow:none;width:auto;min-height:0;margin:0}
+  .editor{padding:0;min-height:0}
+}
+@media(max-width:700px){
+  .app{min-width:480px}
+  #fontName{width:110px}
+  .workspace{padding:10px}
+  .editor{padding:55px 48px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="menubar">
+    <div class="menu" data-menu>Dosya
+      <div class="dropdown">
+        <div class="mi" data-cmd="new">Yeni... <span class="shortcut">Ctrl+N</span></div>
+        <div class="mi" data-cmd="open">Aç... <span class="shortcut">Ctrl+O</span></div>
+        <div class="mi" data-cmd="save">Kaydet <span class="shortcut">Ctrl+S</span></div>
+        <div class="mi" data-cmd="saveas">Farklı Kaydet...</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="printpreview">Baskı Önizleme</div>
+        <div class="mi" data-cmd="print">Yazdır... <span class="shortcut">Ctrl+P</span></div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="exit">Çıkış</div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu>Düzen
+      <div class="dropdown">
+        <div class="mi" data-cmd="undo">Geri Al <span class="shortcut">Ctrl+Z</span></div>
+        <div class="mi" data-cmd="redo">Yinele <span class="shortcut">Ctrl+Y</span></div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="cut">Kes <span class="shortcut">Ctrl+X</span></div>
+        <div class="mi" data-cmd="copy">Kopyala <span class="shortcut">Ctrl+C</span></div>
+        <div class="mi" data-cmd="paste">Yapıştır <span class="shortcut">Ctrl+V</span></div>
+        <div class="mi" data-cmd="delete">Sil <span class="shortcut">Del</span></div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="find">Bul... <span class="shortcut">Ctrl+F</span></div>
+        <div class="mi" data-cmd="findnext">Sonrakini Bul <span class="shortcut">F3</span></div>
+        <div class="mi" data-cmd="replace">Değiştir... <span class="shortcut">Ctrl+H</span></div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="selectall">Tümünü Seç <span class="shortcut">Ctrl+A</span></div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu>Görünüm
+      <div class="dropdown">
+        <div class="mi" data-cmd="toggleToolbar">✓ Araç Çubuğu</div>
+        <div class="mi" data-cmd="toggleFormat">✓ Biçim Çubuğu</div>
+        <div class="mi" data-cmd="toggleRuler">✓ Cetvel</div>
+        <div class="mi" data-cmd="toggleStatus">✓ Durum Çubuğu</div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu>Ekle
+      <div class="dropdown">
+        <div class="mi" data-cmd="datetime">Tarih ve Saat...</div>
+        <div class="mi" data-cmd="object">Nesne...</div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu>Biçim
+      <div class="dropdown">
+        <div class="mi" data-cmd="fontdialog">Yazı Tipi...</div>
+        <div class="mi" data-cmd="bullet">Madde İşareti Stili</div>
+        <div class="mi" data-cmd="paragraph">Paragraf...</div>
+        <div class="mi" data-cmd="tabs">Sekmeler...</div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu>Yardım
+      <div class="dropdown">
+        <div class="mi" data-cmd="help">Yardım Konuları</div>
+        <div class="sep"></div>
+        <div class="mi" data-cmd="about">WordPad Hakkında</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar" id="toolbar">
+    <button class="tool" data-cmd="new" title="Yeni"><span class="ico new">▤</span></button>
+    <button class="tool" data-cmd="open" title="Aç"><span class="ico open">▰</span></button>
+    <button class="tool" data-cmd="save" title="Kaydet"><span class="ico save">▣</span></button>
+    <button class="tool" data-cmd="print" title="Yazdır"><span class="ico print">▧</span></button>
+    <span class="toolsep"></span>
+    <button class="tool" data-cmd="cut" title="Kes"><span class="ico cut">✂</span></button>
+    <button class="tool" data-cmd="copy" title="Kopyala"><span class="ico copy">▦</span></button>
+    <button class="tool" data-cmd="paste" title="Yapıştır"><span class="ico paste">▣</span></button>
+    <span class="toolsep"></span>
+    <button class="tool" data-cmd="undo" title="Geri Al"><span class="ico undo">↶</span></button>
+    <button class="tool" data-cmd="redo" title="Yinele"><span class="ico redo">↷</span></button>
+    <span class="toolsep"></span>
+    <button class="tool" data-cmd="find" title="Bul"><span class="ico">⌕</span></button>
+  </div>
+
+  <div class="formatbar" id="formatbar">
+    <select class="select" id="fontName" title="Yazı tipi">
+      <option>Arial</option>
+      <option>Arial Black</option>
+      <option>Comic Sans MS</option>
+      <option>Courier New</option>
+      <option selected>Times New Roman</option>
+      <option>Tahoma</option>
+      <option>Verdana</option>
+    </select>
+    <select class="select" id="fontSize" title="Yazı tipi boyutu">
+      <option>8</option><option>9</option><option>10</option><option>11</option>
+      <option selected>12</option><option>14</option><option>16</option><option>18</option>
+      <option>20</option><option>22</option><option>24</option><option>26</option><option>28</option>
+      <option>36</option><option>48</option><option>72</option>
+    </select>
+    <span class="toolsep"></span>
+    <button class="tool" data-format="bold" title="Kalın"><b>B</b></button>
+    <button class="tool" data-format="italic" title="İtalik"><i>I</i></button>
+    <button class="tool" data-format="underline" title="Altı çizili"><u>U</u></button>
+    <div class="colorTool" id="colorTool">
+      <button class="tool" id="colorBtn" title="Metin rengi"><b>A</b><span class="colorLine" id="colorLine"></span></button>
+      <div class="palette" id="palette"></div>
+    </div>
+    <span class="toolsep"></span>
+    <button class="tool" data-format="justifyleft" title="Sola hizala">≡</button>
+    <button class="tool" data-format="justifycenter" title="Ortala">≣</button>
+    <button class="tool" data-format="justifyright" title="Sağa hizala">≡</button>
+    <button class="tool" data-format="insertunorderedlist" title="Madde işaretleri">•≡</button>
+  </div>
+
+  <div class="ruler" id="ruler">
+    <div class="rulerTrack" id="rulerTrack">
+      <div class="rulerNums" id="rulerNums"></div>
+      <span class="marginMark left"></span><span class="marginMark right"></span>
+    </div>
+  </div>
+
+  <main class="workspace" id="workspace">
+    <div class="page" id="page">
+      <div class="editor" id="editor" contenteditable="true" spellcheck="true"><p><br></p></div>
+    </div>
+  </main>
+
+  <div class="statusbar" id="statusbar">
+    <div class="status" id="status">Yardım için Yardım menüsünü tıklatın.</div>
+    <div class="status" id="charStatus">0 karakter</div>
+    <div class="status" id="modeStatus">RTF</div>
+  </div>
+
+  <input id="openInput" type="file" accept=".rtf,.txt,.html,.htm,text/plain,text/rtf,text/html" hidden>
+
+  <div class="shade" id="shade">
+    <div class="dialog">
+      <div class="dtitle"><span id="dtitle">WordPad</span><button class="dx" id="dx" type="button">×</button></div>
+      <div class="dbody" id="dbody"></div>
+      <div class="dactions" id="dactions"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(()=>{
+'use strict';
+
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+const editor=$('#editor');
+const shade=$('#shade');
+
+let filename='Belge.rtf';
+let docType='rtf'; // rtf | txt | unicode | html
+let dirty=false;
+let lastFind='';
+let lastFindPos=0;
+let savedHTML=editor.innerHTML;
+let savedSelection=null;
+
+const colors=['#000000','#808080','#800000','#ff0000','#808000','#ffff00','#008000','#00ff00','#008080','#00ffff','#000080','#0000ff','#800080','#ff00ff','#ffffff','#c0c0c0','#993300','#ff9900'];
+
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function setStatus(s){$('#status').textContent=s}
+function updateTitle(){
+  try{
+    window.parent.postMessage({type:'XP_APP_TITLE',app:'wordpad',title:`${dirty?'*':''}${filename} - WordPad`},'*');
+  }catch{}
+}
+function updateStats(){
+  const t=(editor.innerText||'').replace(/\n$/,'');
+  $('#charStatus').textContent=t.length+' karakter';
+  $('#modeStatus').textContent=docType==='rtf'?'RTF':docType==='unicode'?'Unicode':docType==='html'?'HTML':'Metin';
+  updateTitle();
+}
+function markDirty(){dirty=true;updateStats()}
+editor.addEventListener('input',markDirty);
+
+/* Menus */
+function closeMenus(){$$('[data-menu]').forEach(x=>x.classList.remove('open'));$('#colorTool').classList.remove('open')}
+$$('[data-menu]').forEach(m=>m.addEventListener('mousedown',e=>{
+  if(e.target.closest('.mi'))return;
+  const was=m.classList.contains('open');closeMenus();if(!was)m.classList.add('open');
+}));
+document.addEventListener('mousedown',e=>{
+  if(!e.target.closest('[data-menu]')&&!e.target.closest('#colorTool'))closeMenus();
+});
+document.addEventListener('click',e=>{
+  const c=e.target.closest('[data-cmd]');
+  if(c && !c.closest('.toolbar')){closeMenus();runCommand(c.dataset.cmd)}
+});
+
+/* Toolbar */
+$('#toolbar').addEventListener('click',e=>{
+  const b=e.target.closest('[data-cmd]');if(b)runCommand(b.dataset.cmd)
+});
+
+/* Selection helpers */
+function focusEditor(){editor.focus()}
+function exec(cmd,val=null){
+  focusEditor();
+  try{document.execCommand(cmd,false,val)}catch{}
+  markDirty();syncFormatState();
+}
+function syncFormatState(){
+  const map={bold:'bold',italic:'italic',underline:'underline',justifyleft:'justifyleft',justifycenter:'justifycenter',justifyright:'justifyright',insertunorderedlist:'insertunorderedlist'};
+  $$('[data-format]').forEach(b=>{
+    try{b.classList.toggle('on',!!document.queryCommandState(map[b.dataset.format]))}catch{}
+  });
+}
+editor.addEventListener('keyup',syncFormatState);
+editor.addEventListener('mouseup',syncFormatState);
+
+$('#formatbar').addEventListener('click',e=>{
+  const b=e.target.closest('[data-format]');
+  if(!b)return;
+  exec(b.dataset.format);
+});
+$('#fontName').onchange=()=>exec('fontName',$('#fontName').value);
+$('#fontSize').onchange=()=>{
+  // execCommand fontSize uses 1-7; map common point sizes and then convert generated <font size> to CSS.
+  const pt=Number($('#fontSize').value);
+  const size=pt<=9?1:pt<=10?2:pt<=12?3:pt<=14?4:pt<=18?5:pt<=24?6:7;
+  exec('fontSize',String(size));
+  editor.querySelectorAll('font[size]').forEach(f=>{
+    f.style.fontSize=pt+'pt';f.removeAttribute('size');
+  });
+};
+
+/* Color palette */
+const palette=$('#palette');
+palette.innerHTML=colors.map(c=>`<button class="swatch" type="button" data-color="${c}" style="background:${c}" title="${c}"></button>`).join('');
+$('#colorBtn').onclick=e=>{e.stopPropagation();$('#colorTool').classList.toggle('open')};
+palette.onclick=e=>{
+  const s=e.target.closest('[data-color]');if(!s)return;
+  const c=s.dataset.color;$('#colorLine').style.background=c;exec('foreColor',c);$('#colorTool').classList.remove('open');
+};
+
+/* Ruler */
+function renderRuler(){
+  const nums=$('#rulerNums');nums.innerHTML='';
+  for(let i=1;i<=11;i++){
+    const s=document.createElement('span');s.textContent=i;s.style.left=(i/12*100)+'%';nums.appendChild(s);
+  }
+}
+renderRuler();
+
+/* XP Dialog */
+function showDialog(title,html,buttons){
+  saveSel();
+  $('#dtitle').textContent=title;$('#dbody').innerHTML=html;$('#dactions').innerHTML='';
+  (buttons||[{label:'Tamam',action:hideDialog}]).forEach(b=>{
+    const x=document.createElement('button');x.className='xpbtn';x.type='button';x.textContent=b.label;x.onclick=b.action||hideDialog;$('#dactions').appendChild(x)
+  });
+  shade.classList.add('show');
+}
+function hideDialog(){shade.classList.remove('show');restoreSel()}
+$('#dx').onclick=hideDialog;
+shade.addEventListener('mousedown',e=>{if(e.target===shade)hideDialog()});
+function info(msg,title='WordPad'){showDialog(title,`<div class="msg"><div class="infoicon">i</div><div>${esc(msg).replace(/\n/g,'<br>')}</div></div>`)}
+function warn(msg,title='WordPad'){showDialog(title,`<div class="msg"><div class="warnicon"></div><div>${esc(msg).replace(/\n/g,'<br>')}</div></div>`)}
+function saveSel(){
+  const sel=window.getSelection();if(sel&&sel.rangeCount&&editor.contains(sel.anchorNode)){savedSelection=sel.getRangeAt(0).cloneRange()}
+}
+function restoreSel(){
+  if(!savedSelection)return;
+  const sel=window.getSelection();sel.removeAllRanges();sel.addRange(savedSelection);editor.focus()
+}
+
+/* New */
+function newDialog(){
+  showDialog('Yeni',`
+    <div>Oluşturmak istediğiniz belge türünü seçin:</div>
+    <label class="check"><input type="radio" name="doctype" value="rtf" checked> Zengin Metin Belgesi</label>
+    <label class="check"><input type="radio" name="doctype" value="txt"> Metin Belgesi</label>
+    <label class="check"><input type="radio" name="doctype" value="unicode"> Unicode Metin Belgesi</label>
+  `,[
+    {label:'Tamam',action:()=>{
+      const v=document.querySelector('input[name=doctype]:checked').value;
+      hideDialog();newDoc(v);
+    }},
+    {label:'İptal',action:hideDialog}
+  ]);
+}
+function newDoc(type='rtf'){
+  docType=type;
+  filename=type==='rtf'?'Belge.rtf':type==='unicode'?'Belge.txt':'Belge.txt';
+  editor.innerHTML='<p><br></p>';
+  editor.style.fontFamily=type==='rtf'?'"Times New Roman",serif':'"Courier New",monospace';
+  editor.style.fontSize=type==='rtf'?'12pt':'10pt';
+  dirty=false;savedHTML=editor.innerHTML;lastFindPos=0;updateStats();focusEditor();
+}
+
+/* Open */
+$('#openInput').addEventListener('change',async()=>{
+  const file=$('#openInput').files[0];if(!file)return;
+  try{
+    const ext=(file.name.split('.').pop()||'').toLowerCase();
+    if(ext==='rtf'){
+      const text=await file.text();
+      editor.innerHTML=rtfToHtml(text);
+      docType='rtf';
+    }else if(ext==='html'||ext==='htm'){
+      const text=await file.text();
+      const doc=new DOMParser().parseFromString(text,'text/html');
+      editor.innerHTML=doc.body.innerHTML;
+      docType='html';
+    }else{
+      const buf=await file.arrayBuffer();
+      let text;
+      const u8=new Uint8Array(buf);
+      if(u8.length>=2&&u8[0]===0xff&&u8[1]===0xfe){
+        text=new TextDecoder('utf-16le').decode(buf.slice(2));docType='unicode';
+      }else{
+        text=new TextDecoder('utf-8').decode(buf);docType='txt';
+      }
+      editor.textContent=text;
+    }
+    filename=file.name;dirty=false;savedHTML=editor.innerHTML;lastFindPos=0;setStatus('Dosya açıldı.');updateStats();
+  }catch(err){warn('Dosya açılamadı.\n\n'+(err&&err.message?err.message:String(err)))}
+  $('#openInput').value='';
+});
+
+/* Save */
+function downloadBlob(blob,name){
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000)
+}
+function plainText(){return (editor.innerText||'').replace(/\n$/,'')}
+function saveCurrent(forceAs=false){
+  if(forceAs)return saveAsDialog();
+  if(docType==='txt'||docType==='unicode'||docType==='html'||docType==='rtf')doSave(filename,docType);
+}
+function doSave(name,type){
+  let blob;
+  if(type==='rtf'){
+    blob=new Blob([htmlToRtf(editor)],{type:'application/rtf'});
+  }else if(type==='html'){
+    const out='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+esc(name)+'</title></head><body>'+editor.innerHTML+'</body></html>';
+    blob=new Blob([out],{type:'text/html;charset=utf-8'});
+  }else if(type==='unicode'){
+    const txt=plainText();
+    const arr=new Uint8Array(2+txt.length*2);arr[0]=0xff;arr[1]=0xfe;
+    const dv=new DataView(arr.buffer);
+    for(let i=0;i<txt.length;i++)dv.setUint16(2+i*2,txt.charCodeAt(i),true);
+    blob=new Blob([arr],{type:'text/plain'});
+  }else{
+    blob=new Blob([plainText()],{type:'text/plain;charset=utf-8'});
+  }
+  downloadBlob(blob,name);
+  filename=name;docType=type;dirty=false;savedHTML=editor.innerHTML;setStatus('Dosya kaydedildi.');updateStats();
+}
+function saveAsDialog(){
+  const base=filename.replace(/\.(rtf|txt|html?)$/i,'');
+  showDialog('Farklı Kaydet',`
+    <div class="row"><label>Dosya adı:</label><input class="textbox" id="saveName" value="${esc(filename)}"></div>
+    <div class="row"><label>Kayıt türü:</label>
+      <select class="dselect" id="saveType">
+        <option value="rtf" ${docType==='rtf'?'selected':''}>Zengin Metin Biçimi (*.rtf)</option>
+        <option value="txt" ${docType==='txt'?'selected':''}>Metin Belgesi (*.txt)</option>
+        <option value="unicode" ${docType==='unicode'?'selected':''}>Unicode Metin Belgesi (*.txt)</option>
+        <option value="html" ${docType==='html'?'selected':''}>HTML Belgesi (*.html)</option>
+      </select>
+    </div>
+  `,[
+    {label:'Kaydet',action:()=>{
+      let name=$('#saveName').value.trim()||'Belge';
+      const type=$('#saveType').value;
+      const ext=type==='rtf'?'.rtf':type==='html'?'.html':'.txt';
+      if(!new RegExp('\\'+ext+'$','i').test(name))name=name.replace(/\.[^.]+$/,'')+ext;
+      hideDialog();
+      if((type==='txt'||type==='unicode')&&hasRichFormatting()){
+        showDialog('WordPad',`<div class="msg"><div class="warnicon"></div><div>Bu belge biçimlendirme içeriyor.<br><br>Metin belgesi olarak kaydederseniz biçimlendirme kaybolur.</div></div>`,[
+          {label:'Evet',action:()=>{hideDialog();doSave(name,type)}},
+          {label:'Hayır',action:hideDialog}
+        ]);
+      }else doSave(name,type);
+    }},
+    {label:'İptal',action:hideDialog}
+  ]);
+}
+function hasRichFormatting(){
+  return !!editor.querySelector('b,strong,i,em,u,font,span[style],ul,ol,[style*="text-align"]');
+}
+
+/* Basic RTF export/import */
+function rtfEscapeText(s){
+  let out='';
+  for(const ch of s){
+    const code=ch.charCodeAt(0);
+    if(ch==='\\'||ch==='{'||ch==='}')out+='\\'+ch;
+    else if(code>127)out+='\\u'+(code>32767?code-65536:code)+'?';
+    else if(ch==='\t')out+='\\tab ';
+    else if(ch==='\n')out+='\\line ';
+    else out+=ch;
+  }
+  return out;
+}
+function htmlToRtf(root){
+  const fonts=['Times New Roman','Arial','Courier New','Tahoma','Verdana','Comic Sans MS'];
+  const fontTable=fonts.map((f,i)=>`{\\f${i}\\fnil ${f};}`).join('');
+  const colorTable=';\\red0\\green0\\blue0;\\red255\\green0\\blue0;\\red0\\green128\\blue0;\\red0\\green0\\blue255;';
+  function fontIndex(name){
+    const n=(name||'').replace(/["']/g,'').split(',')[0].trim();
+    const i=fonts.findIndex(f=>f.toLowerCase()===n.toLowerCase());return i<0?0:i;
+  }
+  function walk(node){
+    if(node.nodeType===Node.TEXT_NODE)return rtfEscapeText(node.nodeValue||'');
+    if(node.nodeType!==Node.ELEMENT_NODE)return '';
+    const tag=node.tagName.toLowerCase();
+    let pre='',post='',blockEnd='';
+    const st=node.style||{};
+    if(tag==='b'||tag==='strong'||st.fontWeight==='bold'||Number(st.fontWeight)>=600){pre+='\\b ';post='\\b0 '+post}
+    if(tag==='i'||tag==='em'||st.fontStyle==='italic'){pre+='\\i ';post='\\i0 '+post}
+    if(tag==='u'||st.textDecoration.includes('underline')){pre+='\\ul ';post='\\ulnone '+post}
+    if(tag==='br')return '\\line ';
+    if(tag==='p'||tag==='div'){blockEnd='\\par\n'}
+    if(tag==='li'){pre+='\\bullet\\tab ';blockEnd='\\par\n'}
+    if(tag==='font'&&node.getAttribute('face'))pre+=`\\f${fontIndex(node.getAttribute('face'))} `;
+    if(st.fontFamily)pre+=`\\f${fontIndex(st.fontFamily)} `;
+    if(st.fontSize&&st.fontSize.endsWith('pt'))pre+=`\\fs${Math.round(parseFloat(st.fontSize)*2)} `;
+    const align=st.textAlign||node.getAttribute('align')||'';
+    if(align==='center')pre+='\\qc ';
+    else if(align==='right')pre+='\\qr ';
+    else if(align==='justify')pre+='\\qj ';
+    else if(align==='left')pre+='\\ql ';
+    let body='';node.childNodes.forEach(c=>body+=walk(c));
+    return pre+body+post+blockEnd;
+  }
+  let body='';root.childNodes.forEach(c=>body+=walk(c));
+  return `{\\rtf1\\ansi\\ansicpg1254\\deff0{\\fonttbl${fontTable}}{\\colortbl${colorTable}}\\viewkind4\\uc1\\pard\\f0\\fs24 ${body}}`;
+}
+function rtfToHtml(rtf){
+  let html='',bold=false,italic=false,under=false,align='left';
+  const stack=[];
+  let i=0;
+  const openStyles=()=>`${bold?'<b>':''}${italic?'<i>':''}${under?'<u>':''}`;
+  const closeStyles=()=>`${under?'</u>':''}${italic?'</i>':''}${bold?'</b>':''}`;
+  html='<p>';
+  while(i<rtf.length){
+    const ch=rtf[i];
+    if(ch==='{'){stack.push({bold,italic,under,align});i++;continue}
+    if(ch==='}'){
+      const s=stack.pop();if(s){bold=s.bold;italic=s.italic;under=s.under;align=s.align}
+      i++;continue
+    }
+    if(ch==='\\'){
+      if(rtf[i+1]==='\\'||rtf[i+1]==='{'||rtf[i+1]==='}'){html+=esc(rtf[i+1]);i+=2;continue}
+      const m=rtf.slice(i).match(/^\\([a-zA-Z]+)(-?\d+)? ?/);
+      if(!m){i++;continue}
+      const word=m[1].toLowerCase(),num=m[2]!==undefined?Number(m[2]):null;i+=m[0].length;
+      if(word==='par'||word==='line')html+='</p><p>';
+      else if(word==='tab')html+='&nbsp;&nbsp;&nbsp;&nbsp;';
+      else if(word==='b'){html+=bold?'</b>':'<b>';bold=num!==0}
+      else if(word==='i'){html+=italic?'</i>':'<i>';italic=num!==0}
+      else if(word==='ul'){if(!under)html+='<u>';under=true}
+      else if(word==='ulnone'){if(under)html+='</u>';under=false}
+      else if(word==='qc'){align='center';html+='</p><p style="text-align:center">'}
+      else if(word==='qr'){align='right';html+='</p><p style="text-align:right">'}
+      else if(word==='ql'){align='left';html+='</p><p style="text-align:left">'}
+      else if(word==='bullet')html+='• ';
+      else if(word==='u'&&num!==null){
+        let n=num;if(n<0)n+=65536;html+=esc(String.fromCharCode(n));
+        if(rtf[i]==='?')i++;
+      }
+      continue
+    }
+    if(ch==='\r'||ch==='\n'){i++;continue}
+    html+=esc(ch);i++;
+  }
+  html+='</p>';
+  html=html.replace(/<p><\/p>/g,'').replace(/<p>\s*<\/p>/g,'');
+  return html||'<p><br></p>';
+}
+
+/* Find/replace */
+function findDialog(replaceMode=false){
+  showDialog(replaceMode?'Değiştir':'Bul',`
+    <div class="findgrid">
+      <label>Aranan:</label><input class="textbox" id="findText" value="${esc(lastFind)}">
+      ${replaceMode?'<label>Yeni değer:</label><input class="textbox" id="replaceText">':''}
+    </div>
+    <div class="radioCol">
+      <label class="check"><input type="checkbox" id="matchCase"> Büyük/küçük harf eşleştir</label>
+    </div>
+  `,[
+    {label:'Sonrakini Bul',action:()=>{lastFind=$('#findText').value;findNext($('#matchCase').checked)}},
+    ...(replaceMode?[
+      {label:'Değiştir',action:()=>replaceOne($('#findText').value,$('#replaceText').value,$('#matchCase').checked)},
+      {label:'Tümünü Değiştir',action:()=>replaceAll($('#findText').value,$('#replaceText').value,$('#matchCase').checked)}
+    ]:[]),
+    {label:'İptal',action:hideDialog}
+  ]);
+  setTimeout(()=>$('#findText')?.focus(),0);
+}
+function selectTextOffsets(start,end){
+  const walker=document.createTreeWalker(editor,NodeFilter.SHOW_TEXT);
+  let pos=0,startNode=null,endNode=null,startOff=0,endOff=0,node;
+  while(node=walker.nextNode()){
+    const next=pos+node.nodeValue.length;
+    if(startNode===null&&start>=pos&&start<=next){startNode=node;startOff=start-pos}
+    if(endNode===null&&end>=pos&&end<=next){endNode=node;endOff=end-pos;break}
+    pos=next;
+  }
+  if(startNode&&endNode){
+    const r=document.createRange();r.setStart(startNode,startOff);r.setEnd(endNode,endOff);
+    const s=window.getSelection();s.removeAllRanges();s.addRange(r);editor.focus();return true
+  }
+  return false;
+}
+function findNext(matchCase=false){
+  const needle=lastFind||$('#findText')?.value||'';if(!needle)return;
+  const text=editor.innerText||'',hay=matchCase?text:text.toLowerCase(),n=matchCase?needle:needle.toLowerCase();
+  let idx=hay.indexOf(n,lastFindPos);
+  if(idx<0)idx=hay.indexOf(n,0);
+  if(idx<0){info(`"${needle}" bulunamadı.`);return}
+  hideDialog();selectTextOffsets(idx,idx+needle.length);lastFindPos=idx+needle.length;setStatus(`"${needle}" bulundu.`)
+}
+function replaceOne(find,repl,matchCase){
+  lastFind=find;findNext(matchCase);
+  if(window.getSelection().toString())exec('insertText',repl);
+}
+function replaceAll(find,repl,matchCase){
+  if(!find)return;
+  const text=editor.innerText||'';
+  const flags=matchCase?'g':'gi';
+  const re=new RegExp(find.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),flags);
+  const count=(text.match(re)||[]).length;
+  editor.innerText=text.replace(re,repl);dirty=true;hideDialog();updateStats();setStatus(count+' eşleşme değiştirildi.')
+}
+
+/* Insert date/time */
+function dateTimeDialog(){
+  const d=new Date();
+  const options=[
+    d.toLocaleDateString('tr-TR'),
+    d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}),
+    d.toLocaleString('tr-TR'),
+    d.toLocaleDateString('tr-TR',{day:'2-digit',month:'long',year:'numeric'}),
+    d.toLocaleDateString('en-US')
+  ];
+  showDialog('Tarih ve Saat',`
+    <div>Biçim:</div>
+    <select class="dselect" id="dtSelect" size="5" style="height:104px;margin-top:6px">
+      ${options.map(x=>`<option>${esc(x)}</option>`).join('')}
+    </select>
+  `,[
+    {label:'Tamam',action:()=>{const v=$('#dtSelect').value||options[0];hideDialog();restoreSel();exec('insertText',v)}},
+    {label:'İptal',action:hideDialog}
+  ]);
+  $('#dtSelect').selectedIndex=0;
+}
+
+/* Formatting dialogs */
+function fontDialog(){
+  const fonts=['Arial','Arial Black','Comic Sans MS','Courier New','Tahoma','Times New Roman','Verdana'];
+  const sizes=[8,9,10,11,12,14,16,18,20,22,24,28,36,48,72];
+  showDialog('Yazı Tipi',`
+    <div class="row"><label>Yazı tipi:</label><select class="dselect" id="dfont">${fonts.map(f=>`<option ${f===$('#fontName').value?'selected':''}>${f}</option>`).join('')}</select></div>
+    <div class="row"><label>Boyut:</label><select class="dselect" id="dsize">${sizes.map(s=>`<option ${String(s)===$('#fontSize').value?'selected':''}>${s}</option>`).join('')}</select></div>
+    <label class="check"><input type="checkbox" id="dbold"> Kalın</label>
+    <label class="check"><input type="checkbox" id="ditalic"> İtalik</label>
+    <label class="check"><input type="checkbox" id="dunder"> Altı çizili</label>
+  `,[
+    {label:'Tamam',action:()=>{
+      const f=$('#dfont').value,s=$('#dsize').value,b=$('#dbold').checked,i=$('#ditalic').checked,u=$('#dunder').checked;
+      hideDialog();restoreSel();$('#fontName').value=f;$('#fontSize').value=s;exec('fontName',f);
+      const old=$('#fontSize').value;$('#fontSize').value=s;$('#fontSize').dispatchEvent(new Event('change'));
+      if(b)exec('bold');if(i)exec('italic');if(u)exec('underline');
+    }},
+    {label:'İptal',action:hideDialog}
+  ]);
+}
+function paragraphDialog(){
+  showDialog('Paragraf',`
+    <div class="row"><label>Hizalama:</label><select class="dselect" id="alignSel"><option value="justifyleft">Sol</option><option value="justifycenter">Orta</option><option value="justifyright">Sağ</option><option value="justifyfull">İki yana yasla</option></select></div>
+    <div class="row"><label>Satır aralığı:</label><select class="dselect" id="lineHeight"><option value="1">Tek</option><option value="1.5">1,5 satır</option><option value="2">Çift</option></select></div>
+  `,[
+    {label:'Tamam',action:()=>{
+      const a=$('#alignSel').value,lh=$('#lineHeight').value;hideDialog();restoreSel();exec(a);
+      document.execCommand('formatBlock',false,'p');
+      const sel=window.getSelection();let n=sel.anchorNode;if(n&&n.nodeType===3)n=n.parentElement;
+      const p=n&&n.closest?n.closest('p,div'):null;if(p)p.style.lineHeight=lh;
+      markDirty();
+    }},
+    {label:'İptal',action:hideDialog}
+  ]);
+}
+function tabsDialog(){
+  showDialog('Sekmeler',`
+    <div class="row"><label>Sekme aralığı:</label><input class="textbox" id="tabSize" type="number" min="1" max="16" value="4"></div>
+    <div>Tarayıcı sürümünde Tab tuşu seçilen boşluk sayısını ekler.</div>
+  `,[
+    {label:'Tamam',action:()=>{editor.dataset.tabSize=$('#tabSize').value;hideDialog()}},
+    {label:'İptal',action:hideDialog}
+  ]);
+}
+
+/* print preview */
+function printPreview(){
+  const text=plainText().slice(0,3000);
+  showDialog('Baskı Önizleme',`
+    <div class="preview"><div class="previewPage">${editor.innerHTML}</div></div>
+  `,[{label:'Yazdır...',action:()=>{hideDialog();setTimeout(()=>window.print(),50)}},{label:'Kapat',action:hideDialog}]);
+}
+
+/* toggles */
+function toggle(id){
+  const el=$(id);const hidden=el.style.display==='none';el.style.display=hidden?'':'none';
+}
+
+/* Commands */
+function runCommand(cmd){
+  if(cmd==='new')newDialog();
+  else if(cmd==='open')$('#openInput').click();
+  else if(cmd==='save')saveCurrent(false);
+  else if(cmd==='saveas')saveCurrent(true);
+  else if(cmd==='printpreview')printPreview();
+  else if(cmd==='print')window.print();
+  else if(cmd==='exit'){try{window.parent.postMessage({type:'XP_APP_CLOSE_REQUEST',app:'wordpad'},'*')}catch{}}
+  else if(cmd==='undo')exec('undo');
+  else if(cmd==='redo')exec('redo');
+  else if(cmd==='cut')exec('cut');
+  else if(cmd==='copy'){focusEditor();document.execCommand('copy')}
+  else if(cmd==='paste'){focusEditor();document.execCommand('paste')}
+  else if(cmd==='delete')exec('delete');
+  else if(cmd==='selectall')exec('selectAll');
+  else if(cmd==='find')findDialog(false);
+  else if(cmd==='findnext')findNext(false);
+  else if(cmd==='replace')findDialog(true);
+  else if(cmd==='toggleToolbar')toggle('#toolbar');
+  else if(cmd==='toggleFormat')toggle('#formatbar');
+  else if(cmd==='toggleRuler')toggle('#ruler');
+  else if(cmd==='toggleStatus')toggle('#statusbar');
+  else if(cmd==='datetime')dateTimeDialog();
+  else if(cmd==='object')info('Bu web sürümünde OLE nesneleri desteklenmiyor.\n\nMetin, RTF ve HTML içeriği kullanılabilir.');
+  else if(cmd==='fontdialog')fontDialog();
+  else if(cmd==='bullet')exec('insertUnorderedList');
+  else if(cmd==='paragraph')paragraphDialog();
+  else if(cmd==='tabs')tabsDialog();
+  else if(cmd==='help')showDialog('WordPad Yardımı',`
+    <b>Belge oluşturma</b><br>Dosya → Yeni ile Zengin Metin, Metin veya Unicode Metin belgesi oluşturabilirsiniz.<br><br>
+    <b>Biçimlendirme</b><br>Yazı tipi, boyut, kalın, italik, altı çizili, renk, hizalama ve madde işaretlerini Biçim Çubuğu'ndan kullanın.<br><br>
+    <b>Dosyalar</b><br>RTF, TXT, Unicode TXT ve HTML yerel olarak açılabilir ve kaydedilebilir. Eski binary .DOC/.WRI dosyaları bu browser sürümünde desteklenmez.<br><br>
+    <b>Kısayollar</b><br>Ctrl+N, Ctrl+O, Ctrl+S, Ctrl+P, Ctrl+Z, Ctrl+Y, Ctrl+F, Ctrl+H, Ctrl+B, Ctrl+I ve Ctrl+U desteklenir.
+  `);
+  else if(cmd==='about')showDialog('WordPad Hakkında',`
+    <div class="msg"><div class="infoicon">i</div><div><b>Microsoft Windows XP WordPad</b><br><br>XP Web Simulator için RichEdit tarzı WordPad rekonstrüksiyonu.<br><br>RTF ve düz metin dosyaları tamamen tarayıcı içinde işlenir.</div></div>
+  `);
+}
+
+/* TAB insertion */
+editor.addEventListener('keydown',e=>{
+  if(e.key==='Tab'){
+    e.preventDefault();const n=Number(editor.dataset.tabSize||4);exec('insertText',' '.repeat(n))
+  }
+});
+
+/* keyboard shortcuts */
+document.addEventListener('keydown',e=>{
+  if(shade.classList.contains('show')){
+    if(e.key==='Escape'){e.preventDefault();hideDialog()}
+    return;
+  }
+  const k=e.key.toLowerCase();
+  if(e.ctrlKey&&k==='n'){e.preventDefault();newDialog()}
+  else if(e.ctrlKey&&k==='o'){e.preventDefault();$('#openInput').click()}
+  else if(e.ctrlKey&&k==='s'){e.preventDefault();saveCurrent(false)}
+  else if(e.ctrlKey&&k==='p'){e.preventDefault();window.print()}
+  else if(e.ctrlKey&&k==='f'){e.preventDefault();findDialog(false)}
+  else if(e.ctrlKey&&k==='h'){e.preventDefault();findDialog(true)}
+  else if(e.ctrlKey&&k==='b'){e.preventDefault();exec('bold')}
+  else if(e.ctrlKey&&k==='i'){e.preventDefault();exec('italic')}
+  else if(e.ctrlKey&&k==='u'){e.preventDefault();exec('underline')}
+  else if(e.key==='F3'){e.preventDefault();findNext(false)}
+});
+
+/* native popup ban */
+window.alert=m=>info(String(m));
+window.confirm=m=>{info(String(m));return false};
+window.prompt=m=>{info(String(m));return null};
+
+/* Draft safety */
+const DRAFT='xp_wordpad_draft_v1';
+setInterval(()=>{
+  try{
+    localStorage.setItem(DRAFT,JSON.stringify({html:editor.innerHTML,filename,docType,dirty,time:Date.now()}))
+  }catch{}
+},5000);
+
+window.addEventListener('beforeunload',()=>{
+  try{localStorage.setItem(DRAFT,JSON.stringify({html:editor.innerHTML,filename,docType,dirty,time:Date.now()}))}catch{}
+});
+
+updateStats();updateTitle();focusEditor();
+})();
+</script>
+</body>
+</html>

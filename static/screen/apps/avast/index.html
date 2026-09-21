@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>avast! 4 Antivirus</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden}
+body{
+    font-family:Tahoma,Verdana,sans-serif;
+    font-size:11px;
+    color:#000;
+    background:#ECE9D8;
+    display:flex;
+    flex-direction:column;
+    -webkit-user-select:none;
+    user-select:none;
+    cursor:default;
+}
+svg.ico{width:16px;height:16px;flex:0 0 16px;pointer-events:none}
+input[type=checkbox]{accent-color:#316ac5;vertical-align:middle}
+
+.log-box::-webkit-scrollbar{width:16px;height:16px}
+.log-box::-webkit-scrollbar-track{background:#f1f1f1;border-left:1px solid #d4d0c8}
+.log-box::-webkit-scrollbar-thumb{
+    background:linear-gradient(to right,#ffffff 0%,#cfe0f7 25%,#7ba2e7 70%,#4a7fd4 100%);
+    border:1px solid #5b7fc7;border-radius:2px;
+}
+.log-box::-webkit-scrollbar-thumb:hover{
+    background:linear-gradient(to right,#ffffff 0%,#e0ecfd 25%,#5b8fe0 70%,#2f6fd0 100%);
+}
+.log-box::-webkit-scrollbar-corner{background:#f1f1f1}
+
+.menubar{
+    display:flex;height:20px;flex:0 0 20px;
+    background:#ECE9D8;border-bottom:1px solid #d6d2c2;
+    position:relative;z-index:80;
+}
+.menu-item{position:relative;display:flex;align-items:stretch}
+.menu-title{display:flex;align-items:center;padding:0 9px;font-size:11px;white-space:nowrap}
+.menu-title:hover,.menu-item.open .menu-title{background:#316AC5;color:#fff}
+.dropdown{
+    display:none;position:absolute;top:100%;left:0;min-width:200px;
+    background:#fff;border:1px solid #aca899;
+    box-shadow:3px 3px 6px rgba(0,0,0,.35);
+    padding:2px;z-index:90;color:#000;
+}
+.dropdown.show{display:block}
+.dd-item{
+    position:relative;display:flex;justify-content:space-between;gap:26px;
+    padding:3px 10px 3px 22px;white-space:nowrap;cursor:default;
+}
+.dd-item:hover{background:#316AC5;color:#fff}
+.dd-item.disabled{color:#a6a6a6}
+.dd-item.disabled:hover{background:transparent;color:#a6a6a6}
+.dd-key{color:#888;font-size:10px}
+.dd-item:hover .dd-key{color:#dbe6f7}
+.dd-sep{height:1px;background:#d6d2c2;margin:3px 2px}
+.dd-check{position:absolute;left:7px;top:3px;font-size:11px;visibility:hidden}
+.dd-item.checked .dd-check{visibility:visible}
+
+.toolbar{
+    display:flex;align-items:center;gap:2px;
+    height:30px;flex:0 0 30px;padding:0 4px;
+    background:linear-gradient(to bottom,#fbfaf6 0%,#ece9d8 100%);
+    border-bottom:1px solid #aca899;
+}
+.tb-btn{
+    display:flex;align-items:center;gap:4px;height:24px;padding:0 8px;
+    border:1px solid transparent;border-radius:3px;white-space:nowrap;
+}
+.tb-btn:hover{border-color:#a8c4e4;background:linear-gradient(to bottom,#eaf3fe,#cfe2f8)}
+.tb-btn:active{border-color:#7ea3cf;background:linear-gradient(to bottom,#c3d9f2,#e4effc)}
+.tb-btn.disabled{opacity:.4;pointer-events:none}
+.tb-sep{width:1px;height:20px;background:#aca899;margin:0 3px}
+
+button.xp{
+    font-family:Tahoma,sans-serif;font-size:11px;color:#000;
+    padding:3px 12px;min-width:76px;
+    background:linear-gradient(to bottom,#fdfdfd 0%,#f2f1ea 45%,#e4dfd3 46%,#d8d2c6 100%);
+    border:1px solid #8e9aa8;border-radius:3px;cursor:default;
+}
+button.xp:hover{
+    border-color:#f5a623;
+    background:linear-gradient(to bottom,#fffdf5 0%,#fdf3dc 45%,#fbe6b8 46%,#f6d78e 100%);
+}
+button.xp:active{
+    border-color:#8e9aa8;
+    background:linear-gradient(to bottom,#d8d2c6,#e8e3d8);
+    box-shadow:inset 1px 1px 2px rgba(0,0,0,.25);
+}
+
+.main{
+    flex:1 1 auto;min-height:0;display:flex;flex-direction:column;
+    gap:8px;padding:8px;overflow:hidden;
+}
+
+.banner{
+    display:flex;align-items:center;gap:12px;padding:8px 10px;
+    background:linear-gradient(to bottom,#ffffff 0%,#f1f6fd 100%);
+    border:1px solid #7f9db9;border-radius:4px;flex:0 0 auto;
+}
+.banner-logo-wrap{
+    width:50px;height:50px;flex:0 0 50px;display:flex;align-items:center;justify-content:center;
+}
+.banner-logo-wrap img{
+    width:48px;height:48px;object-fit:contain;
+}
+.banner-txt{flex:1 1 auto;min-width:0}
+.banner-txt h2{font-size:13px;font-weight:bold;color:#003c74;line-height:16px}
+.banner-txt p{font-size:11px;color:#444;margin-top:3px;line-height:14px}
+.banner-txt .db{font-size:10px;color:#6b6b6b;margin-top:4px}
+
+.scan-area{flex:0 0 auto;display:flex;flex-direction:column;gap:3px}
+.progress-wrap{height:20px;background:#fff;border:1px solid #7f9db9;padding:2px}
+.progress-bar{
+    height:100%;width:0%;
+    background:repeating-linear-gradient(to right,#2f7fe0 0px,#2f7fe0 7px,#ffffff 7px,#ffffff 9px);
+    transition:width .12s linear;
+}
+.current-file{
+    font-size:10px;color:#555;height:13px;line-height:13px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+
+.log-box{
+    flex:1 1 auto;min-height:0;background:#fff;
+    border:1px solid #7f9db9;overflow-y:auto;overflow-x:hidden;padding:2px 0;
+}
+.log-line{display:flex;gap:6px;align-items:flex-start;padding:2px 8px;font-size:11px;line-height:14px}
+.log-line .dot{
+    width:8px;height:8px;flex:0 0 8px;margin-top:3px;border-radius:2px;border:1px solid rgba(0,0,0,.25);
+}
+.dot.info{background:#2f7fe0}
+.dot.ok{background:#3aa53a}
+.dot.warn{background:#e8a33d}
+.dot.threat{background:#d63a2f}
+.dot.scan{background:#a8b2bd}
+.log-line .msg{flex:1 1 auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.log-line.sel{background:#316AC5;color:#fff}
+
+.statusbar{
+    display:flex;height:20px;flex:0 0 20px;align-items:stretch;
+    background:#ECE9D8;border-top:1px solid #aca899;
+}
+.sb{padding:2px 8px;display:flex;align-items:center;font-size:11px;white-space:nowrap;overflow:hidden}
+.statusbar .sb + .sb{border-left:1px solid #fff;box-shadow:inset 1px 0 0 #aca899}
+
+.ctxmenu{
+    display:none;position:fixed;min-width:180px;background:#fff;
+    border:1px solid #aca899;box-shadow:3px 3px 6px rgba(0,0,0,.35);
+    padding:2px;z-index:200;
+}
+.ctxmenu.show{display:block}
+
+.dlg-layer{
+    display:none;position:fixed;inset:0;background:rgba(0,0,0,.18);
+    z-index:300;align-items:center;justify-content:center;
+}
+.dlg-layer.show{display:flex}
+.xp-dlg{
+    background:#ECE9D8;border:1px solid #003c74;border-radius:5px 5px 2px 2px;
+    box-shadow:4px 4px 14px rgba(0,0,0,.5);overflow:hidden;max-width:92%;
+}
+.xp-dlg-title{
+    height:22px;display:flex;align-items:center;justify-content:space-between;
+    padding:0 4px 0 8px;font-weight:bold;font-size:11px;color:#fff;
+    background:linear-gradient(to bottom,#0058ee 0%,#3a93ff 8%,#0054e3 42%,#0054e3 88%,#003c9d 100%);
+}
+.xp-dlg-x{
+    width:18px;height:18px;display:flex;align-items:center;justify-content:center;
+    font-size:10px;border:1px solid #fff;border-radius:3px;
+    background:linear-gradient(to bottom,#f08a7a,#c33a26);cursor:pointer;
+}
+.xp-dlg-body{display:flex;gap:12px;padding:16px 14px;font-size:11px;line-height:16px}
+.xp-dlg-ico{flex:0 0 32px}
+.xp-dlg-body .txt{flex:1 1 auto;min-width:0}
+.xp-dlg-ftr{
+    display:flex;justify-content:flex-end;gap:8px;padding:10px 12px;border-top:1px solid #d6d2c2;
+}
+.xp-input{
+    font-family:Tahoma,sans-serif;font-size:11px;padding:2px 4px;
+    border:1px solid #7f9db9;background:#fff;outline:none;width:100%;
+}
+.dlg-checks label{display:flex;align-items:center;gap:6px;margin-bottom:7px;cursor:default}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-scan" viewBox="0 0 16 16">
+        <path d="M3.5 1.5h5.5l3 3v10h-8.5z" fill="#ffffff" stroke="#5b7691" stroke-width="1"/>
+        <path d="M9 1.5v3h3" fill="#cfe0f2" stroke="#5b7691" stroke-width="1"/>
+        <circle cx="8" cy="9.5" r="4" fill="#bfe0ff" stroke="#1a4f8a" stroke-width="1.2"/>
+        <path d="M11 12.5l3 3" stroke="#1a4f8a" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-stop" viewBox="0 0 16 16">
+        <path d="M5 1h6l4 4v6l-4 4H5L1 11V5z" fill="#d63a2f" stroke="#8b1a10" stroke-width="1"/>
+        <rect x="5.5" y="5.5" width="5" height="5" fill="#ffffff"/>
+    </symbol>
+    <symbol id="i-folder" viewBox="0 0 16 16">
+        <path d="M1 3.5h4.6L7.2 5.5H15v8.5H1z" fill="#ffd964" stroke="#b08a20" stroke-width="1"/>
+        <path d="M1 6.2h14" stroke="#e8bd45" stroke-width="1"/>
+    </symbol>
+    <symbol id="i-update" viewBox="0 0 16 16">
+        <path d="M13 8a5 5 0 1 1-2.2-4.1" fill="none" stroke="#2f8ce8" stroke-width="2" stroke-linecap="round"/>
+        <path d="M13.6 1.1v4.3H9.3z" fill="#2f8ce8"/>
+        <path d="M3 8a5 5 0 0 1 1.5-3.5" fill="none" stroke="#7ab8f0" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-shield" viewBox="0 0 16 16">
+        <path d="M8 1l6 2.1V8c0 3.5-2.6 6-6 7-3.4-1-6-3.5-6-7V3.1z" fill="#4a8fe0" stroke="#0a3a7a" stroke-width="1"/>
+        <path d="M5 8.2l2 2 4-4.2" fill="none" stroke="#ffffff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-gear" viewBox="0 0 16 16">
+        <circle cx="8" cy="8" r="5.4" fill="#9aa4ad" stroke="#5b6670" stroke-width="3" stroke-dasharray="2.2 2.2"/>
+        <circle cx="8" cy="8" r="2.4" fill="#e8e8e8" stroke="#5b6670" stroke-width="1"/>
+    </symbol>
+    <symbol id="i-help" viewBox="0 0 16 16">
+        <circle cx="8" cy="8" r="6.5" fill="#4a8fe0" stroke="#0a3a7a" stroke-width="1"/>
+        <text x="8" y="12" text-anchor="middle" font-family="Tahoma" font-size="10" font-weight="bold" fill="#ffffff">?</text>
+    </symbol>
+    <symbol id="i-warn" viewBox="0 0 32 32">
+        <path d="M16 3L30 28H2z" fill="#ffd94a" stroke="#8b6a10" stroke-width="1.5"/>
+        <rect x="14.6" y="11" width="2.8" height="9" fill="#5a4400"/>
+        <circle cx="16" cy="23.6" r="1.8" fill="#5a4400"/>
+    </symbol>
+    <symbol id="i-err" viewBox="0 0 32 32">
+        <circle cx="16" cy="16" r="13.5" fill="#e04a3a" stroke="#8b1a10" stroke-width="1.5"/>
+        <path d="M10.5 10.5l11 11M21.5 10.5l-11 11" stroke="#ffffff" stroke-width="3.4" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-info" viewBox="0 0 32 32">
+        <circle cx="16" cy="16" r="13.5" fill="#2f7fe0" stroke="#0a3a7a" stroke-width="1.5"/>
+        <rect x="14.4" y="13" width="3.2" height="11" fill="#ffffff"/>
+        <circle cx="16" cy="9" r="2.2" fill="#ffffff"/>
+    </symbol>
+    <symbol id="i-quest" viewBox="0 0 32 32">
+        <circle cx="16" cy="16" r="13.5" fill="#4a8fe0" stroke="#0a3a7a" stroke-width="1.5"/>
+        <text x="16" y="23" text-anchor="middle" font-family="Tahoma" font-size="18" font-weight="bold" fill="#ffffff">?</text>
+    </symbol>
+</svg>
+
+<div class="menubar" id="menubar">
+    <div class="menu-item">
+        <span class="menu-title">Dosya</span>
+        <div class="dropdown">
+            <div class="dd-item" data-act="open-folder"><span>Taranacak Klasör Seç...</span><span class="dd-key">Ctrl+O</span></div>
+            <div class="dd-sep"></div>
+            <div class="dd-item" data-act="save-log"><span>Günlüğü Kaydet</span><span class="dd-key">Ctrl+S</span></div>
+            <div class="dd-item" data-act="print"><span>Yazdır...</span><span class="dd-key">Ctrl+P</span></div>
+            <div class="dd-sep"></div>
+            <div class="dd-item" data-act="exit"><span>Çıkış</span></div>
+        </div>
+    </div>
+    <div class="menu-item">
+        <span class="menu-title">Düzen</span>
+        <div class="dropdown">
+            <div class="dd-item" data-act="undo"><span>Geri Al</span><span class="dd-key">Ctrl+Z</span></div>
+            <div class="dd-sep"></div>
+            <div class="dd-item" data-act="select-all"><span>Tümünü Seç</span><span class="dd-key">Ctrl+A</span></div>
+            <div class="dd-item" data-act="copy"><span>Kopyala</span><span class="dd-key">Ctrl+C</span></div>
+            <div class="dd-sep"></div>
+            <div class="dd-item" data-act="clear-log"><span>Günlüğü Temizle</span><span class="dd-key">Ctrl+L</span></div>
+        </div>
+    </div>
+    <div class="menu-item">
+        <span class="menu-title">Görünüm</span>
+        <div class="dropdown">
+            <div class="dd-item checked" data-act="toggle-toolbar"><span class="dd-check">✓</span><span>Araç Çubuğu</span></div>
+            <div class="dd-item checked" data-act="toggle-statusbar"><span class="dd-check">✓</span><span>Durum Çubuğu</span></div>
+            <div class="dd-item checked" data-act="toggle-log"><span class="dd-check">✓</span><span>Günlük Paneli</span></div>
+        </div>
+    </div>
+    <div class="menu-item">
+        <span class="menu-title">Araçlar</span>
+        <div class="dropdown">
+            <div class="dd-item" data-act="quick-scan"><span>Hızlı Tarama</span><span class="dd-key">F5</span></div>
+            <div class="dd-item" data-act="full-scan"><span>Tam Tarama</span><span class="dd-key">Shift+F5</span></div>
+            <div class="dd-item" data-act="stop-scan"><span>Taramayı Durdur</span><span class="dd-key">Esc</span></div>
+            <div class="dd-sep"></div>
+            <div class="dd-item" data-act="update-db"><span>Virüs Veritabanını Güncelle</span><span class="dd-key">Ctrl+U</span></div>
+            <div class="dd-item" data-act="toggle-shield"><span>Kalkanı Aç / Kapat</span><span class="dd-key">Ctrl+K</span></div>
+            <div class="dd-sep"></div>
+            <div class="dd-item" data-act="settings"><span>Ayarlar...</span></div>
+        </div>
+    </div>
+    <div class="menu-item">
+        <span class="menu-title">Yardım</span>
+        <div class="dropdown">
+            <div class="dd-item" data-act="help"><span>Yardım Konuları</span><span class="dd-key">F1</span></div>
+            <div class="dd-sep"></div>
+            <div class="dd-item" data-act="about"><span>avast! Hakkında</span></div>
+        </div>
+    </div>
+</div>
+
+<div class="toolbar" id="toolbar">
+    <div class="tb-btn" id="tbScan" data-act="quick-scan" title="Hızlı Tarama (F5)">
+        <svg class="ico"><use href="#i-scan"></use></svg><span>Tara</span>
+    </div>
+    <div class="tb-btn disabled" id="tbStop" data-act="stop-scan" title="Taramayı Durdur (Esc)">
+        <svg class="ico"><use href="#i-stop"></use></svg><span>Durdur</span>
+    </div>
+    <div class="tb-sep"></div>
+    <div class="tb-btn" data-act="open-folder" title="Taranacak klasör seç (Ctrl+O)">
+        <svg class="ico"><use href="#i-folder"></use></svg><span>Klasör</span>
+    </div>
+    <div class="tb-btn" data-act="update-db" title="Virüs veritabanını güncelle (Ctrl+U)">
+        <svg class="ico"><use href="#i-update"></use></svg><span>Güncelle</span>
+    </div>
+    <div class="tb-sep"></div>
+    <div class="tb-btn" data-act="toggle-shield" title="Kalkanı Aç / Kapat (Ctrl+K)">
+        <svg class="ico"><use href="#i-shield"></use></svg><span id="tbShieldTxt">Kalkan Açık</span>
+    </div>
+    <div class="tb-sep"></div>
+    <div class="tb-btn" data-act="settings" title="Ayarlar">
+        <svg class="ico"><use href="#i-gear"></use></svg><span>Ayarlar</span>
+    </div>
+    <div class="tb-btn" data-act="help" title="Yardım (F1)">
+        <svg class="ico"><use href="#i-help"></use></svg><span>Yardım</span>
+    </div>
+</div>
+
+<div class="main" id="main">
+    <div class="banner">
+        <div class="banner-logo-wrap">
+            <img src="avast.png" onerror="this.src='../../avast.png'" alt="avast!">
+        </div>
+        <div class="banner-txt">
+            <h2 id="shieldTitle">Gerçek Zamanlı Koruma: AÇIK</h2>
+            <p id="shieldDesc">avast! kalkanı bilgisayarınızı zararlı yazılımlara karşı koruyor.</p>
+            <div class="db">Virüs veritabanı: <b id="dbVer">2003.09.17</b> &nbsp;|&nbsp; Derleme: 4.1.289</div>
+        </div>
+        <button class="xp" id="shieldBtn" data-act="toggle-shield">Kalkanı Kapat</button>
+    </div>
+
+    <div class="scan-area">
+        <div class="progress-wrap">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="current-file" id="currentFile">Hazır. Tarama başlatmak için "Tara" düğmesine basın.</div>
+    </div>
+
+    <div class="log-box" id="logBox"></div>
+</div>
+
+<div class="statusbar" id="statusbar">
+    <div class="sb" id="sbStatus" style="flex:1 1 auto">Hazır</div>
+    <div class="sb" id="sbCount" style="flex:0 0 140px">Taranan nesne: 0</div>
+    <div class="sb" id="sbShield" style="flex:0 0 110px">Kalkan: Açık</div>
+</div>
+
+<div class="ctxmenu" id="ctxMenu">
+    <div class="dd-item" data-act="copy"><span>Kopyala</span><span class="dd-key">Ctrl+C</span></div>
+    <div class="dd-item" data-act="select-all"><span>Tümünü Seç</span><span class="dd-key">Ctrl+A</span></div>
+    <div class="dd-sep"></div>
+    <div class="dd-item" data-act="clear-log"><span>Günlüğü Temizle</span><span class="dd-key">Ctrl+L</span></div>
+</div>
+
+<div class="dlg-layer" id="dlgLayer"></div>
+
+<script>
+(function () {
+'use strict';
+
+var shieldActive   = true;
+var scanning       = false;
+var scanTimer      = null;
+var scanQueue      = [];
+var scanIndex      = 0;
+var fileCount      = 0;
+var threatCount    = 0;
+var threatFound    = false;
+var clearedBackup  = null;
+
+function syncParent() {
+    try {
+        if (parent && parent !== window) {
+            parent.window.xpShieldActive = shieldActive;
+            parent.postMessage({ type: 'xp-shield-status', active: shieldActive }, '*');
+        }
+    } catch (e) {}
+}
+
+var logBox      = document.getElementById('logBox');
+var progressBar = document.getElementById('progressBar');
+var currentFile = document.getElementById('currentFile');
+var sbStatus    = document.getElementById('sbStatus');
+var sbCount     = document.getElementById('sbCount');
+var sbShield    = document.getElementById('sbShield');
+var dlgLayer    = document.getElementById('dlgLayer');
+var ctxMenu     = document.getElementById('ctxMenu');
+var tbStop      = document.getElementById('tbStop');
+var tbScan      = document.getElementById('tbScan');
+var tbShieldTxt = document.getElementById('tbShieldTxt');
+var shieldTitle = document.getElementById('shieldTitle');
+var shieldDesc  = document.getElementById('shieldDesc');
+var shieldBtn   = document.getElementById('shieldBtn');
+var dbVer       = document.getElementById('dbVer');
+var toolbar     = document.getElementById('toolbar');
+var statusbar   = document.getElementById('statusbar');
+
+var QUICK_FILES = [
+    'C:\\WINDOWS\\system32\\ntdll.dll',
+    'C:\\WINDOWS\\system32\\kernel32.dll',
+    'C:\\WINDOWS\\system32\\drivers\\etc\\hosts',
+    'C:\\WINDOWS\\explorer.exe',
+    'C:\\Program Files\\Internet Explorer\\iexplore.exe',
+    'C:\\Belgelerim\\cv.doc',
+    'C:\\Belgelerim\\resimler\\tatil.jpg',
+    'C:\\Program Files\\Winamp\\winamp.exe',
+    'C:\\WINDOWS\\system32\\mspaint.exe',
+    'C:\\Documents and Settings\\Kullanici\\Desktop\\notlar.txt',
+    'C:\\WINDOWS\\Temp\\~DF4A2B.tmp',
+    'C:\\Program Files\\Bonzi\\bonzi.exe'
+];
+
+var FULL_FILES = QUICK_FILES.concat([
+    'C:\\WINDOWS\\system32\\shell32.dll',
+    'C:\\WINDOWS\\system32\\user32.dll',
+    'C:\\WINDOWS\\system32\\gdi32.dll',
+    'C:\\WINDOWS\\system32\\drivers\\ndis.sys',
+    'C:\\WINDOWS\\system32\\config\\system',
+    'C:\\WINDOWS\\Fonts\\tahoma.ttf',
+    'C:\\Program Files\\Messenger\\msmsgs.exe',
+    'C:\\Program Files\\Outlook Express\\msimn.exe',
+    'C:\\Program Files\\WinRAR\\winrar.exe',
+    'C:\\Program Files\\Alwil Software\\Avast4\\ashServ.exe',
+    'C:\\Belgelerim\\Muzik\\sarki.mp3',
+    'C:\\Belgelerim\\indirilenler\\bedava_kazan.exe'
+]);
+
+function logLine(text, type) {
+    var line = document.createElement('div');
+    line.className = 'log-line';
+    var dot = document.createElement('span');
+    dot.className = 'dot ' + (type || 'info');
+    var msg = document.createElement('span');
+    msg.className = 'msg';
+    msg.textContent = text;
+    msg.title = text;
+    line.appendChild(dot);
+    line.appendChild(msg);
+    logBox.appendChild(line);
+    while (logBox.children.length > 400) { logBox.removeChild(logBox.firstChild); }
+    logBox.scrollTop = logBox.scrollHeight;
+}
+
+function collectLog() {
+    var out = [];
+    var lines = logBox.querySelectorAll('.log-line .msg');
+    for (var i = 0; i < lines.length; i++) { out.push(lines[i].textContent); }
+    return out.join('\r\n');
+}
+
+function setProgress(p) {
+    progressBar.style.width = Math.max(0, Math.min(100, p)) + '%';
+}
+function updateCounters() {
+    sbCount.textContent = 'Taranan nesne: ' + fileCount;
+}
+
+function refreshShieldUI() {
+    shieldTitle.textContent = shieldActive
+        ? 'Gerçek Zamanlı Koruma: AÇIK'
+        : 'Gerçek Zamanlı Koruma: KAPALI';
+
+    shieldDesc.textContent = shieldActive
+        ? 'avast! kalkanı bilgisayarınızı zararlı yazılımlara karşı koruyor.'
+        : 'DİKKAT! Bilgisayarınız zararlı yazılımlara karşı savunmasız!';
+
+    shieldBtn.textContent   = shieldActive ? 'Kalkanı Kapat' : 'Kalkanı Aç';
+    tbShieldTxt.textContent = shieldActive ? 'Kalkan Açık' : 'Kalkan Kapalı';
+    sbShield.textContent    = 'Kalkan: ' + (shieldActive ? 'Açık' : 'Kapalı');
+    sbShield.style.color    = shieldActive ? '' : '#c00000';
+    sbShield.style.fontWeight = shieldActive ? '' : 'bold';
+}
+
+function toggleShield() {
+    shieldActive = !shieldActive;
+    syncParent();
+    refreshShieldUI();
+
+    if (shieldActive) {
+        logLine('Gerçek zamanlı koruma kalkanı etkinleştirildi.', 'ok');
+        sbStatus.textContent = 'Kalkan etkin';
+    } else {
+        logLine('DİKKAT: Koruma kalkanı devre dışı bırakıldı!', 'threat');
+        sbStatus.textContent = 'Kalkan devre dışı!';
+        makeDialog({
+            title: 'avast! Antivirus — Güvenlik Uyarısı',
+            icon: 'warn',
+            width: 420,
+            text: '<b>Koruma kalkanı kapatıldı!</b><br><br>' +
+                  'Bilgisayarınız artık virüslere ve truva atlarına karşı savunmasızdır.<br><br>' +
+                  'Zararlı yazılımlar sisteminize kolayca sızabilir.',
+            buttons: [{ label: 'Tamam' }]
+        });
+    }
+}
+
+function startScan(type) {
+    if (scanning) {
+        logLine('Tarama zaten devam ediyor.', 'warn');
+        return;
+    }
+    scanning     = true;
+    threatFound  = false;
+    threatCount  = 0;
+    fileCount    = 0;
+    scanIndex    = 0;
+    scanQueue    = (type === 'full' ? FULL_FILES : QUICK_FILES).slice();
+
+    setProgress(0);
+    updateCounters();
+    tbStop.classList.remove('disabled');
+    tbScan.classList.add('disabled');
+
+    logLine((type === 'full' ? 'Tam tarama' : 'Hızlı tarama') + ' başlatıldı.', 'info');
+    sbStatus.textContent = 'Durum: Tarama sürüyor...';
+    currentFile.textContent = 'Hazırlanıyor...';
+
+    scanTimer = setInterval(step, 140);
+}
+
+function step() {
+    if (scanIndex >= scanQueue.length) {
+        finishScan();
+        return;
+    }
+
+    var f = scanQueue[scanIndex++];
+    fileCount++;
+    currentFile.textContent = f;
+    setProgress(Math.round(scanIndex / scanQueue.length * 100));
+    updateCounters();
+    logLine('Taranıyor: ' + f, 'scan');
+
+    if (!shieldActive && !threatFound && scanIndex >= Math.ceil(scanQueue.length * 0.6)) {
+        threatFound = true;
+        threatCount++;
+        pauseScan();
+        showThreatDialog(f);
+    }
+}
+
+function pauseScan() { if (scanTimer) { clearInterval(scanTimer); scanTimer = null; } }
+function resumeScan() { if (scanning && !scanTimer) { scanTimer = setInterval(step, 140); } }
+
+function finishScan() {
+    pauseScan();
+    scanning = false;
+    tbStop.classList.add('disabled');
+    tbScan.classList.remove('disabled');
+    setProgress(100);
+    currentFile.textContent = 'Tarama tamamlandı.';
+    sbStatus.textContent = 'Hazır';
+
+    if (threatCount > 0) {
+        logLine('Tarama tamamlandı: ' + threatCount + ' tehdit bulundu!', 'threat');
+        makeDialog({
+            title: 'Tarama Tamamlandı',
+            icon: 'err',
+            width: 400,
+            text: '<b>' + threatCount + ' adet tehdit bulundu.</b><br><br>' +
+                  'Tespit edilen zararlılar karantinaya alındı. Kalkanı yeniden açın.',
+            buttons: [{ label: 'Tamam' }]
+        });
+    } else {
+        logLine('Tarama tamamlandı: Tehdit bulunamadı.', 'ok');
+        makeDialog({
+            title: 'Tarama Tamamlandı',
+            icon: 'info',
+            width: 380,
+            text: 'Taranan nesne: <b>' + fileCount + '</b><br>Bulunan tehdit: <b>0</b><br><br>Bilgisayarınız temiz.',
+            buttons: [{ label: 'Tamam' }]
+        });
+    }
+}
+
+function stopScan() {
+    if (!scanning) return;
+    pauseScan();
+    scanning = false;
+    tbStop.classList.add('disabled');
+    tbScan.classList.remove('disabled');
+    currentFile.textContent = 'Tarama durduruldu.';
+    sbStatus.textContent = 'Hazır';
+    logLine('Tarama kullanıcı tarafından durduruldu.', 'warn');
+}
+
+function showThreatDialog(file) {
+    logLine('TEHDİT: ' + file + ' -> Trojan.Bonzi.A', 'threat');
+    sbStatus.textContent = 'Tehdit tespit edildi!';
+    makeDialog({
+        title: 'avast! Antivirus — Tehdit Tespit Edildi',
+        icon: 'err',
+        width: 430,
+        text: '<b>Zararlı yazılım tespit edildi!</b><br><br>' +
+              'Dosya: <b>' + file + '</b><br>' +
+              'Tehdit: <b>Trojan.Bonzi.A</b>',
+        buttons: [
+            { label: 'Karantinaya Al', onClick: function () {
+                logLine('Karantinaya alındı: ' + file, 'ok');
+                resumeScan();
+            }},
+            { label: 'Sil', onClick: function () {
+                logLine('Silindi: ' + file, 'ok');
+                resumeScan();
+            }}
+        ]
+    });
+}
+
+function iconSvg(kind) {
+    var map = { info: 'i-info', warn: 'i-warn', error: 'i-err', err: 'i-err', question: 'i-quest' };
+    return '<svg width="32" height="32" viewBox="0 0 32 32"><use href="#' + (map[kind] || 'i-info') + '"></use></svg>';
+}
+
+function makeDialog(opts) {
+    opts = opts || {};
+    var wrap = document.createElement('div');
+    wrap.className = 'xp-dlg';
+    wrap.style.width = (opts.width || 360) + 'px';
+    var iconHtml = opts.icon ? '<div class="xp-dlg-ico">' + iconSvg(opts.icon) + '</div>' : '';
+
+    wrap.innerHTML =
+        '<div class="xp-dlg-title">' +
+            '<span>' + (opts.title || 'avast! Antivirus') + '</span>' +
+            '<span class="xp-dlg-x">✕</span>' +
+        '</div>' +
+        '<div class="xp-dlg-body">' +
+            iconHtml +
+            '<div class="txt">' + (opts.bodyHtml || opts.text || '') + '</div>' +
+        '</div>' +
+        '<div class="xp-dlg-ftr"></div>';
+
+    var ftr = wrap.querySelector('.xp-dlg-ftr');
+    var btns = opts.buttons || [{ label: 'Tamam' }];
+
+    btns.forEach(function (b, i) {
+        var btn = document.createElement('button');
+        btn.className = 'xp';
+        btn.textContent = b.label;
+        if (i === 0) btn.style.fontWeight = 'bold';
+        btn.addEventListener('click', function () {
+            if (!b.onClick || b.onClick(wrap) !== false) closeDialog(wrap);
+        });
+        ftr.appendChild(btn);
+    });
+
+    wrap.querySelector('.xp-dlg-x').addEventListener('click', function () { closeDialog(wrap); });
+    dlgLayer.appendChild(wrap);
+    dlgLayer.classList.add('show');
+    return wrap;
+}
+
+function closeDialog(wrap) {
+    if (wrap && wrap.parentNode) wrap.parentNode.removeChild(wrap);
+    if (!dlgLayer.children.length) dlgLayer.classList.remove('show');
+}
+
+var openMenuItem = null;
+function closeMenus() {
+    var drops = document.querySelectorAll('.dropdown.show');
+    for (var i = 0; i < drops.length; i++) drops[i].classList.remove('show');
+    var items = document.querySelectorAll('.menu-item.open');
+    for (var j = 0; j < items.length; j++) items[j].classList.remove('open');
+    openMenuItem = null;
+}
+
+function openMenu(item) {
+    closeMenus();
+    item.classList.add('open');
+    var dd = item.querySelector('.dropdown');
+    if (dd) dd.classList.add('show');
+    openMenuItem = item;
+}
+
+var titles = document.querySelectorAll('.menu-title');
+for (var t = 0; t < titles.length; t++) {
+    titles[t].addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (this.parentElement.classList.contains('open')) closeMenus();
+        else openMenu(this.parentElement);
+    });
+}
+
+var menuItems = document.querySelectorAll('.menu-item');
+for (var m = 0; m < menuItems.length; m++) {
+    menuItems[m].addEventListener('mouseenter', function () {
+        if (openMenuItem) openMenu(this);
+    });
+}
+
+function hideCtx() { ctxMenu.classList.remove('show'); }
+
+logBox.addEventListener('contextmenu', function (e) {
+    e.preventDefault();
+    ctxMenu.classList.add('show');
+    ctxMenu.style.left = e.clientX + 'px';
+    ctxMenu.style.top  = e.clientY + 'px';
+});
+
+function doAction(act) {
+    closeMenus();
+    hideCtx();
+    switch (act) {
+        case 'quick-scan': startScan('quick'); break;
+        case 'full-scan':  startScan('full');  break;
+        case 'stop-scan':  stopScan();         break;
+        case 'toggle-shield': toggleShield();  break;
+        case 'clear-log':
+            clearedBackup = logBox.innerHTML;
+            logBox.innerHTML = '';
+            logLine('Günlük temizlendi.', 'info');
+            break;
+    }
+}
+
+document.addEventListener('click', function (e) {
+    var el = e.target.closest ? e.target.closest('[data-act]') : null;
+    if (el) {
+        doAction(el.getAttribute('data-act'));
+        return;
+    }
+    closeMenus();
+    hideCtx();
+});
+
+syncParent();
+refreshShieldUI();
+updateCounters();
+setProgress(0);
+logLine('avast! 4 Home Edition başlatıldı.', 'info');
+logLine('Gerçek zamanlı koruma kalkanı etkinleştirildi.', 'ok');
+})();
+</script>
+</body>
+</html>

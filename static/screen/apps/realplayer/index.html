@@ -1,0 +1,4658 @@
+<!--
+REALPLAYER 10 - WINDOWS XP WEB EDITION - ASSET LISTESI
+
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama |
+|------------|----------------------|------------|------------------------------------------|
+| icon.png   | 32x32                | Zorunlu    | Windows XP masaustu / registry ikonu    |
+
+NOT:
+- Ana Windows XP WindowManager dis pencere cercevesini zaten olusturur.
+- Bu uygulamada ikinci bir Windows titlebar/taskbar YOKTUR.
+- Harici gorsel kullanilmaz.
+- RealPlayer arayuzu CSS ile uretilir.
+- HTML5 Video/Audio motoru gercek medya oynatimi icin kullanilir.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta
+    name="viewport"
+    content="width=device-width,initial-scale=1.0"
+>
+
+<title>RealPlayer</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    color: #111;
+    background: #ECE9D8;
+    user-select: none;
+}
+
+button,
+input,
+select {
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+}
+
+button {
+    outline: none;
+}
+
+/* =========================================================
+   APP
+   ========================================================= */
+
+.app {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background:
+        linear-gradient(
+            #f0f0f0,
+            #aaa
+        );
+}
+
+/* =========================================================
+   MENU
+   ========================================================= */
+
+.menu-bar {
+    flex: 0 0 25px;
+    height: 25px;
+    display: flex;
+    align-items: stretch;
+    padding-left: 2px;
+    border-bottom: 1px solid #777;
+    background: #ECE9D8;
+    position: relative;
+    z-index: 100;
+}
+
+.menu {
+    position: relative;
+}
+
+.menu-button {
+    height: 24px;
+    min-height: 24px;
+    padding: 1px 8px;
+    border: 1px solid transparent;
+    background: transparent;
+}
+
+.menu-button:hover,
+.menu.open .menu-button {
+    border-color: #316AC5;
+    background: #C1D2EE;
+}
+
+.dropdown {
+    position: absolute;
+    display: none;
+    top: 23px;
+    left: 0;
+    min-width: 220px;
+    padding: 2px;
+    background: #F5F4EA;
+    border: 1px solid #777;
+    box-shadow: 2px 2px 5px rgba(0,0,0,.4);
+}
+
+.menu.open .dropdown {
+    display: block;
+}
+
+.dropdown button {
+    width: 100%;
+    height: 23px;
+    min-height: 23px;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    padding: 3px 8px;
+}
+
+.dropdown button:hover {
+    color: white;
+    background: #316AC5;
+}
+
+.separator {
+    height: 1px;
+    background: #ACA899;
+    margin: 3px 4px;
+}
+
+/* =========================================================
+   REALPLAYER MODE BAR
+   ========================================================= */
+
+.mode-bar {
+    flex: 0 0 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 7px;
+    color: white;
+    background:
+        linear-gradient(
+            #4f5964 0%,
+            #252c33 48%,
+            #101417 52%,
+            #30383f 100%
+        );
+    border-bottom: 1px solid #000;
+    box-shadow:
+        inset 0 1px rgba(255,255,255,.3);
+}
+
+.real-brand {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-right: 9px;
+}
+
+.real-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 5px;
+    position: relative;
+    background:
+        linear-gradient(
+            135deg,
+            #53a7df,
+            #0b4a83
+        );
+    border: 1px solid #78b5e0;
+    box-shadow:
+        inset 0 1px 2px #b9e0fa,
+        0 1px 3px #000;
+}
+
+.real-logo::before {
+    content: "R";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 23px;
+    font-weight: bold;
+    font-style: italic;
+}
+
+.real-brand-text {
+    font-family: Arial, sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+    letter-spacing: -.8px;
+}
+
+.real-brand-text small {
+    display: block;
+    font-family: Tahoma, sans-serif;
+    font-size: 8px;
+    font-weight: normal;
+    letter-spacing: 0;
+    color: #a8b4bd;
+}
+
+.mode-button {
+    height: 31px;
+    padding: 0 12px;
+    color: #eee;
+    border: 1px solid #171b1e;
+    border-radius: 3px;
+    background:
+        linear-gradient(
+            #606a72,
+            #30373d 48%,
+            #252b2f 52%,
+            #485158
+        );
+    box-shadow:
+        inset 0 1px rgba(255,255,255,.3);
+}
+
+.mode-button:hover {
+    filter: brightness(1.15);
+}
+
+.mode-button.active {
+    color: white;
+    border-color: #2c6c9b;
+    background:
+        linear-gradient(
+            #4ca3dd,
+            #17689f 50%,
+            #0d4d7a 51%,
+            #227caf
+        );
+}
+
+.mode-spacer {
+    flex: 1;
+}
+
+.network-indicator {
+    color: #9daab3;
+    font-size: 10px;
+}
+
+/* =========================================================
+   MAIN
+   ========================================================= */
+
+.main {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    background: #c8c8c8;
+}
+
+/* =========================================================
+   LIBRARY
+   ========================================================= */
+
+.library {
+    width: 205px;
+    flex: 0 0 205px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #555;
+    background:
+        linear-gradient(
+            90deg,
+            #e8e8e8,
+            #bfbfbf
+        );
+}
+
+.library.hidden {
+    display: none;
+}
+
+.library-title {
+    height: 29px;
+    flex: 0 0 29px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    color: #183c58;
+    font-weight: bold;
+    background:
+        linear-gradient(
+            #fafafa,
+            #bbb
+        );
+    border-bottom: 1px solid #777;
+}
+
+.library-tabs {
+    padding: 5px;
+    border-bottom: 1px solid #999;
+}
+
+.library-tabs button {
+    width: 100%;
+    height: 27px;
+    margin-bottom: 2px;
+    padding-left: 8px;
+    text-align: left;
+    border: 1px solid transparent;
+    background: transparent;
+}
+
+.library-tabs button:hover {
+    background: #e3f1fb;
+    border-color: #7ba6c5;
+}
+
+.library-tabs button.active {
+    color: white;
+    background: #3c7199;
+    border-color: #285979;
+}
+
+.playlist-heading {
+    padding: 6px 7px 4px;
+    font-weight: bold;
+    color: #555;
+}
+
+.playlist {
+    flex: 1;
+    overflow: auto;
+    padding: 3px;
+}
+
+.playlist-empty {
+    color: #777;
+    line-height: 16px;
+    padding: 9px 7px;
+}
+
+.playlist-item {
+    min-height: 26px;
+    padding: 5px 6px;
+    margin-bottom: 1px;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.playlist-item:hover {
+    background: #edf7ff;
+    border-color: #a2c5df;
+}
+
+.playlist-item.active {
+    color: white;
+    background: #3b73a0;
+    border-color: #24557b;
+}
+
+/* =========================================================
+   PLAYER COLUMN
+   ========================================================= */
+
+.player-column {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* =========================================================
+   DISPLAY
+   ========================================================= */
+
+.display {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(
+            circle at center,
+            #283039,
+            #050607 72%
+        );
+    border-bottom: 1px solid #000;
+}
+
+video {
+    display: none;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: black;
+}
+
+video.active {
+    display: block;
+}
+
+audio {
+    display: none;
+}
+
+/* =========================================================
+   IDLE
+   ========================================================= */
+
+.idle {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: #8d9ba6;
+}
+
+.idle.hidden {
+    display: none;
+}
+
+.idle-logo {
+    width: 105px;
+    height: 105px;
+    position: relative;
+    border-radius: 14px;
+    margin-bottom: 15px;
+    background:
+        linear-gradient(
+            135deg,
+            #4ca2dd,
+            #09365d
+        );
+    box-shadow:
+        0 0 35px rgba(41,128,189,.26),
+        inset 0 2px 4px rgba(255,255,255,.5);
+}
+
+.idle-logo::before {
+    content: "R";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-right: 4px;
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 78px;
+    font-weight: bold;
+    font-style: italic;
+    text-shadow: 0 2px 3px #123c5e;
+}
+
+.idle strong {
+    color: #c7d0d7;
+    font-size: 17px;
+    font-family: Arial, sans-serif;
+}
+
+.idle small {
+    margin-top: 5px;
+}
+
+/* =========================================================
+   AUDIO / VISUALIZATION
+   ========================================================= */
+
+.audio-view {
+    display: none;
+    position: absolute;
+    inset: 0;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background:
+        linear-gradient(
+            180deg,
+            #111820,
+            #06090c
+        );
+}
+
+.audio-view.active {
+    display: flex;
+}
+
+.visualizer {
+    height: 120px;
+    width: min(460px, 80%);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 4px;
+    padding: 14px;
+    border: 1px solid #273b4a;
+    background:
+        linear-gradient(
+            #071018,
+            #020405
+        );
+    box-shadow:
+        inset 0 0 18px #000;
+}
+
+.bar {
+    width: 10px;
+    height: 20%;
+    background:
+        linear-gradient(
+            #72dfff,
+            #257cb7 65%,
+            #163c58
+        );
+    opacity: .7;
+}
+
+.audio-view.playing .bar {
+    animation:
+        equalize
+        .55s ease-in-out
+        infinite alternate;
+}
+
+.bar:nth-child(2n) {
+    animation-delay: -.2s !important;
+}
+
+.bar:nth-child(3n) {
+    animation-delay: -.35s !important;
+}
+
+.bar:nth-child(4n) {
+    animation-delay: -.48s !important;
+}
+
+@keyframes equalize {
+    from {
+        height: 12%;
+    }
+    to {
+        height: 94%;
+    }
+}
+
+.audio-title {
+    max-width: 80%;
+    margin-top: 13px;
+    color: #d6e6ef;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* =========================================================
+   DROP / OSD
+   ========================================================= */
+
+.drop-overlay {
+    display: none;
+    position: absolute;
+    inset: 13px;
+    z-index: 30;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    border: 2px dashed #bce3ff;
+    background: rgba(17,85,133,.83);
+    pointer-events: none;
+}
+
+.display.dragging .drop-overlay {
+    display: flex;
+}
+
+.osd {
+    opacity: 0;
+    position: absolute;
+    right: 13px;
+    top: 13px;
+    z-index: 25;
+    padding: 5px 8px;
+    color: white;
+    border: 1px solid #77838c;
+    background: rgba(0,0,0,.76);
+    transition: opacity .15s;
+}
+
+.osd.show {
+    opacity: 1;
+}
+
+/* =========================================================
+   INFO STRIP
+   ========================================================= */
+
+.info-strip {
+    height: 29px;
+    flex: 0 0 29px;
+    display: grid;
+    grid-template-columns: 95px 1fr 72px;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 5px;
+    color: #c0d9e9;
+    background:
+        linear-gradient(
+            #27313a,
+            #10161b
+        );
+}
+
+.time-display,
+.title-display,
+.rate-display {
+    height: 23px;
+    display: flex;
+    align-items: center;
+    border: 1px solid #060809;
+    background: #05090c;
+    box-shadow: inset 0 0 4px black;
+}
+
+.time-display {
+    justify-content: center;
+    font-family: "Courier New", monospace;
+    color: #75d9ff;
+}
+
+.title-display {
+    padding: 0 7px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rate-display {
+    justify-content: center;
+}
+
+/* =========================================================
+   CONTROLS
+   ========================================================= */
+
+.controls {
+    flex: 0 0 85px;
+    min-height: 85px;
+    padding: 6px 8px;
+    background:
+        linear-gradient(
+            #535c63 0%,
+            #272e33 43%,
+            #191e22 46%,
+            #3e474e 100%
+        );
+    border-top: 1px solid #6b757d;
+}
+
+.seek-row {
+    height: 22px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.seek {
+    flex: 1;
+    accent-color: #449bd2;
+}
+
+.controls-row {
+    height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.player-button {
+    width: 34px;
+    height: 32px;
+    padding: 0;
+    color: #e7e7e7;
+    font-weight: bold;
+    border-radius: 4px;
+    border: 1px solid #0c0f11;
+    background:
+        linear-gradient(
+            #67727a,
+            #30383e 47%,
+            #22292e 52%,
+            #505a61
+        );
+    box-shadow:
+        inset 0 1px rgba(255,255,255,.34),
+        0 1px 1px black;
+}
+
+.player-button:hover {
+    filter: brightness(1.15);
+}
+
+.player-button:active {
+    box-shadow: inset 0 2px 5px #07090a;
+}
+
+.player-button.play {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    color: white;
+    font-size: 15px;
+    border-color: #144c72;
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #78c9ef,
+            #2786be 45%,
+            #075583 72%,
+            #053555
+        );
+}
+
+.control-divider {
+    width: 1px;
+    height: 30px;
+    margin: 0 3px;
+    background: #111;
+    border-right: 1px solid #666;
+}
+
+.volume-area {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.volume {
+    width: 90px;
+    accent-color: #459ace;
+}
+
+.speed {
+    width: 60px;
+    height: 24px;
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.status-bar {
+    height: 22px;
+    flex: 0 0 22px;
+    display: flex;
+    gap: 2px;
+    padding: 2px;
+    background: #ECE9D8;
+}
+
+.status-section {
+    height: 17px;
+    display: flex;
+    align-items: center;
+    padding: 1px 6px;
+    border: 1px inset white;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.status-main {
+    flex: 1;
+}
+
+/* =========================================================
+   XP DIALOG
+   ========================================================= */
+
+.dialog-overlay {
+    display: none;
+    position: absolute;
+    z-index: 1000;
+    inset: 0;
+    padding: 15px;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,.24);
+}
+
+.dialog-overlay.active {
+    display: flex;
+}
+
+.xp-dialog {
+    width: min(465px,95%);
+    border: 1px solid #003C74;
+    background: #ECE9D8;
+    box-shadow: 4px 5px 15px rgba(0,0,0,.55);
+}
+
+.dialog-title {
+    height: 27px;
+    display: flex;
+    align-items: center;
+    padding: 0 7px;
+    color: white;
+    font-weight: bold;
+    background:
+        linear-gradient(
+            90deg,
+            #0058D6,
+            #3A93FF
+        );
+}
+
+.dialog-body {
+    padding: 14px 15px;
+    line-height: 17px;
+}
+
+.dialog-body h3 {
+    margin: 0 0 8px;
+    font-size: 13px;
+}
+
+.dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    padding: 0 12px 12px;
+}
+
+.xp-button {
+    min-width: 78px;
+    min-height: 24px;
+    border: 2px outset white;
+    background: #ECE9D8;
+}
+
+.xp-button:active {
+    border-style: inset;
+}
+
+.form-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 7px 0;
+}
+
+.form-row label {
+    width: 75px;
+}
+
+.form-row input {
+    height: 23px;
+    flex: 1;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 125px 1fr;
+    border-top: 1px solid #ACA899;
+    border-left: 1px solid #ACA899;
+}
+
+.info-grid > div {
+    padding: 5px;
+    border-right: 1px solid #ACA899;
+    border-bottom: 1px solid #ACA899;
+}
+
+.info-key {
+    background: #E5E2D4;
+}
+
+/* ========================================================= */
+
+@media(max-width: 650px) {
+
+    .library {
+        width: 160px;
+        flex-basis: 160px;
+    }
+
+    .real-brand-text {
+        display: none;
+    }
+
+    .mode-button {
+        padding: 0 7px;
+    }
+
+}
+
+@media(max-width: 520px) {
+
+    .library {
+        display: none;
+    }
+
+    .volume {
+        width: 55px;
+    }
+
+    .info-strip {
+        grid-template-columns: 80px 1fr 55px;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="app" id="app">
+
+    <!-- ==================================================
+         MENU
+         ================================================== -->
+
+    <div class="menu-bar">
+
+        <div class="menu">
+
+            <button class="menu-button">
+                File
+            </button>
+
+            <div class="dropdown">
+
+                <button data-action="open">
+                    Open File...
+                </button>
+
+                <button data-action="open-url">
+                    Open Location...
+                </button>
+
+                <button data-action="open-playlist">
+                    Open Playlist / RAM...
+                </button>
+
+                <div class="separator"></div>
+
+                <button data-action="properties">
+                    Clip Properties
+                </button>
+
+                <button data-action="capture">
+                    Save Current Frame...
+                </button>
+
+                <div class="separator"></div>
+
+                <button data-action="close">
+                    Close Clip
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="menu">
+
+            <button class="menu-button">
+                Edit
+            </button>
+
+            <div class="dropdown">
+
+                <button data-action="clear-playlist">
+                    Clear Playlist
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="menu">
+
+            <button class="menu-button">
+                View
+            </button>
+
+            <div class="dropdown">
+
+                <button data-action="library">
+                    Show / Hide Library
+                </button>
+
+                <button data-action="fullscreen">
+                    Full Screen
+                </button>
+
+                <button data-action="fit">
+                    Fit Video to Window
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="menu">
+
+            <button class="menu-button">
+                Play
+            </button>
+
+            <div class="dropdown">
+
+                <button data-action="play">
+                    Play / Pause
+                </button>
+
+                <button data-action="stop">
+                    Stop
+                </button>
+
+                <button data-action="previous">
+                    Previous Clip
+                </button>
+
+                <button data-action="next">
+                    Next Clip
+                </button>
+
+                <div class="separator"></div>
+
+                <button data-action="repeat">
+                    Repeat Playlist
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="menu">
+
+            <button class="menu-button">
+                Tools
+            </button>
+
+            <div class="dropdown">
+
+                <button data-action="codec-info">
+                    Media Compatibility
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="menu">
+
+            <button class="menu-button">
+                Help
+            </button>
+
+            <div class="dropdown">
+
+                <button data-action="about">
+                    About RealPlayer
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==================================================
+         MODE BAR
+         ================================================== -->
+
+    <div class="mode-bar">
+
+        <div class="real-brand">
+
+            <div class="real-logo"></div>
+
+            <div class="real-brand-text">
+                RealPlayer
+                <small>Digital Media Player</small>
+            </div>
+
+        </div>
+
+
+        <button
+            class="mode-button active"
+            data-mode="now"
+        >
+            Now Playing
+        </button>
+
+        <button
+            class="mode-button"
+            data-mode="library"
+        >
+            My Library
+        </button>
+
+        <button
+            class="mode-button"
+            data-mode="music"
+        >
+            Music
+        </button>
+
+        <button
+            class="mode-button"
+            data-mode="video"
+        >
+            Video
+        </button>
+
+
+        <div class="mode-spacer"></div>
+
+        <div class="network-indicator">
+            RealPlayer 10
+        </div>
+
+    </div>
+
+
+    <!-- ==================================================
+         MAIN
+         ================================================== -->
+
+    <div class="main">
+
+        <aside
+            class="library"
+            id="library"
+        >
+
+            <div class="library-title">
+                My Library
+            </div>
+
+            <div class="library-tabs">
+
+                <button
+                    class="active"
+                    data-filter="all"
+                >
+                    ▶ All Clips
+                </button>
+
+                <button
+                    data-filter="video"
+                >
+                    ▣ Videos
+                </button>
+
+                <button
+                    data-filter="audio"
+                >
+                    ♪ Music
+                </button>
+
+                <button
+                    data-filter="stream"
+                >
+                    ◉ Internet Clips
+                </button>
+
+            </div>
+
+            <div class="playlist-heading">
+                Current Playlist
+            </div>
+
+            <div
+                class="playlist"
+                id="playlist"
+            >
+
+                <div
+                    class="playlist-empty"
+                    id="playlistEmpty"
+                >
+                    No clips.<br><br>
+
+                    Open files, playlists,
+                    RealAudio links or drag
+                    media here.
+                </div>
+
+            </div>
+
+        </aside>
+
+
+        <section class="player-column">
+
+
+            <!-- DISPLAY -->
+
+            <div
+                class="display"
+                id="display"
+            >
+
+                <video
+                    id="video"
+                    preload="metadata"
+                    playsinline
+                ></video>
+
+                <audio
+                    id="audio"
+                    preload="metadata"
+                ></audio>
+
+
+                <div
+                    class="idle"
+                    id="idle"
+                >
+
+                    <div class="idle-logo"></div>
+
+                    <strong>
+                        RealPlayer
+                    </strong>
+
+                    <small>
+                        Open or drag a media clip
+                    </small>
+
+                </div>
+
+
+                <div
+                    class="audio-view"
+                    id="audioView"
+                >
+
+                    <div
+                        class="visualizer"
+                        id="visualizer"
+                    ></div>
+
+                    <div
+                        class="audio-title"
+                        id="audioTitle"
+                    >
+                        Audio Clip
+                    </div>
+
+                </div>
+
+
+                <div class="drop-overlay">
+                    Drop media or playlist here
+                </div>
+
+
+                <div
+                    class="osd"
+                    id="osd"
+                >
+                    Ready
+                </div>
+
+            </div>
+
+
+            <!-- INFO -->
+
+            <div class="info-strip">
+
+                <div
+                    class="time-display"
+                    id="timeDisplay"
+                >
+                    00:00
+                </div>
+
+                <div
+                    class="title-display"
+                    id="titleDisplay"
+                >
+                    No Clip
+                </div>
+
+                <div
+                    class="rate-display"
+                    id="rateDisplay"
+                >
+                    1.00x
+                </div>
+
+            </div>
+
+
+            <!-- CONTROLS -->
+
+            <div class="controls">
+
+                <div class="seek-row">
+
+                    <input
+                        type="range"
+                        class="seek"
+                        id="seek"
+                        min="0"
+                        max="1000"
+                        value="0"
+                    >
+
+                </div>
+
+
+                <div class="controls-row">
+
+                    <button
+                        class="player-button"
+                        id="previousButton"
+                        title="Previous"
+                    >
+                        |◀
+                    </button>
+
+                    <button
+                        class="player-button"
+                        id="rewindButton"
+                        title="Back 10 seconds"
+                    >
+                        ◀◀
+                    </button>
+
+                    <button
+                        class="player-button play"
+                        id="playButton"
+                        title="Play / Pause"
+                    >
+                        ▶
+                    </button>
+
+                    <button
+                        class="player-button"
+                        id="stopButton"
+                        title="Stop"
+                    >
+                        ■
+                    </button>
+
+                    <button
+                        class="player-button"
+                        id="forwardButton"
+                        title="Forward 10 seconds"
+                    >
+                        ▶▶
+                    </button>
+
+                    <button
+                        class="player-button"
+                        id="nextButton"
+                        title="Next"
+                    >
+                        ▶|
+                    </button>
+
+                    <div class="control-divider"></div>
+
+
+                    <button
+                        class="player-button"
+                        id="openButton"
+                        title="Open"
+                    >
+                        +
+                    </button>
+
+
+                    <button
+                        class="player-button"
+                        id="fullscreenButton"
+                        title="Full Screen"
+                    >
+                        ⛶
+                    </button>
+
+
+                    <select
+                        class="speed"
+                        id="speed"
+                        title="Playback Speed"
+                    >
+                        <option value="0.5">0.5x</option>
+                        <option value="0.75">0.75x</option>
+                        <option value="1" selected>1x</option>
+                        <option value="1.25">1.25x</option>
+                        <option value="1.5">1.5x</option>
+                        <option value="2">2x</option>
+                    </select>
+
+
+                    <div class="volume-area">
+
+                        <button
+                            class="player-button"
+                            id="muteButton"
+                            title="Mute"
+                        >
+                            ♪
+                        </button>
+
+                        <input
+                            class="volume"
+                            id="volume"
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.01"
+                            value="0.75"
+                        >
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <!-- ==================================================
+         STATUS BAR
+         ================================================== -->
+
+    <div class="status-bar">
+
+        <div
+            class="status-section status-main"
+            id="statusMain"
+        >
+            Ready
+        </div>
+
+        <div
+            class="status-section"
+            id="statusType"
+        >
+            No Clip
+        </div>
+
+        <div
+            class="status-section"
+            id="statusVolume"
+        >
+            Volume 75%
+        </div>
+
+    </div>
+
+
+    <!-- ==================================================
+         DIALOG
+         ================================================== -->
+
+    <div
+        class="dialog-overlay"
+        id="dialogOverlay"
+    >
+
+        <div class="xp-dialog">
+
+            <div
+                class="dialog-title"
+                id="dialogTitle"
+            >
+                RealPlayer
+            </div>
+
+            <div
+                class="dialog-body"
+                id="dialogBody"
+            ></div>
+
+            <div
+                class="dialog-buttons"
+                id="dialogButtons"
+            ></div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<input
+    id="fileInput"
+    type="file"
+    hidden
+    multiple
+    accept="
+        video/*,
+        audio/*,
+        .rm,
+        .rmvb,
+        .ra,
+        .mp4,
+        .m4v,
+        .webm,
+        .mov,
+        .avi,
+        .mpg,
+        .mpeg,
+        .mp3,
+        .wav,
+        .ogg,
+        .m4a,
+        .aac,
+        .flac
+    "
+>
+
+
+<input
+    id="playlistInput"
+    type="file"
+    hidden
+    accept=".ram,.m3u,.m3u8,.pls,text/plain"
+>
+
+
+<script>
+
+(() => {
+
+"use strict";
+
+/* =========================================================
+   ELEMENTS
+   ========================================================= */
+
+const video =
+    document.getElementById("video");
+
+const audio =
+    document.getElementById("audio");
+
+const display =
+    document.getElementById("display");
+
+const idle =
+    document.getElementById("idle");
+
+const audioView =
+    document.getElementById("audioView");
+
+const audioTitle =
+    document.getElementById("audioTitle");
+
+const visualizer =
+    document.getElementById("visualizer");
+
+const library =
+    document.getElementById("library");
+
+const playlist =
+    document.getElementById("playlist");
+
+const playlistEmpty =
+    document.getElementById("playlistEmpty");
+
+const fileInput =
+    document.getElementById("fileInput");
+
+const playlistInput =
+    document.getElementById("playlistInput");
+
+const seek =
+    document.getElementById("seek");
+
+const volume =
+    document.getElementById("volume");
+
+const speed =
+    document.getElementById("speed");
+
+const playButton =
+    document.getElementById("playButton");
+
+const timeDisplay =
+    document.getElementById("timeDisplay");
+
+const titleDisplay =
+    document.getElementById("titleDisplay");
+
+const rateDisplay =
+    document.getElementById("rateDisplay");
+
+const statusMain =
+    document.getElementById("statusMain");
+
+const statusType =
+    document.getElementById("statusType");
+
+const statusVolume =
+    document.getElementById("statusVolume");
+
+const osd =
+    document.getElementById("osd");
+
+const dialogOverlay =
+    document.getElementById("dialogOverlay");
+
+const dialogTitle =
+    document.getElementById("dialogTitle");
+
+const dialogBody =
+    document.getElementById("dialogBody");
+
+const dialogButtons =
+    document.getElementById("dialogButtons");
+
+
+/* =========================================================
+   STATE
+   ========================================================= */
+
+const state = {
+
+    clips: [],
+
+    index: -1,
+
+    type: null,
+
+    filter: "all",
+
+    repeat: false,
+
+    osdTimer: null,
+
+    dragCounter: 0
+
+};
+
+
+/* =========================================================
+   VISUALIZER
+   ========================================================= */
+
+for (
+    let i = 0;
+    i < 28;
+    i++
+) {
+
+    const bar =
+        document.createElement("div");
+
+    bar.className =
+        "bar";
+
+    bar.style.animationDuration =
+        (
+            .3 +
+            Math.random() * .6
+        ).toFixed(2)
+        +
+        "s";
+
+    visualizer.appendChild(
+        bar
+    );
+
+}
+
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+
+function currentPlayer() {
+
+    return (
+        state.type === "audio"
+    )
+        ? audio
+        : video;
+
+}
+
+
+function setStatus(text) {
+
+    statusMain.textContent =
+        text;
+
+}
+
+
+function showOSD(text) {
+
+    osd.textContent =
+        text;
+
+    osd.classList.add(
+        "show"
+    );
+
+    clearTimeout(
+        state.osdTimer
+    );
+
+    state.osdTimer =
+        setTimeout(
+            () =>
+                osd.classList.remove(
+                    "show"
+                ),
+            1100
+        );
+
+}
+
+
+function escapeHTML(value) {
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+    div.textContent =
+        String(value);
+
+    return div.innerHTML;
+
+}
+
+
+function humanSize(bytes) {
+
+    if (
+        !Number.isFinite(bytes)
+    ) {
+        return "Unknown";
+    }
+
+    if (
+        bytes < 1024
+    ) {
+
+        return (
+            bytes +
+            " bytes"
+        );
+
+    }
+
+    if (
+        bytes <
+        1024 * 1024
+    ) {
+
+        return (
+            bytes /
+            1024
+        ).toFixed(1)
+        +
+        " KB";
+
+    }
+
+    return (
+        bytes /
+        (
+            1024 *
+            1024
+        )
+    ).toFixed(2)
+    +
+    " MB";
+
+}
+
+
+function formatTime(seconds) {
+
+    if (
+        !Number.isFinite(seconds)
+    ) {
+
+        return "00:00";
+
+    }
+
+    seconds =
+        Math.max(
+            0,
+            Math.floor(seconds)
+        );
+
+    const hours =
+        Math.floor(
+            seconds / 3600
+        );
+
+    const minutes =
+        Math.floor(
+            (
+                seconds % 3600
+            ) /
+            60
+        );
+
+    const secs =
+        seconds % 60;
+
+    if (
+        hours
+    ) {
+
+        return (
+            hours +
+            ":" +
+            String(minutes)
+                .padStart(2,"0")
+            +
+            ":" +
+            String(secs)
+                .padStart(2,"0")
+        );
+
+    }
+
+    return (
+        String(minutes)
+            .padStart(2,"0")
+        +
+        ":"
+        +
+        String(secs)
+            .padStart(2,"0")
+    );
+
+}
+
+
+function extension(name) {
+
+    const index =
+        name.lastIndexOf(".");
+
+    return (
+        index < 0
+    )
+        ? ""
+        : name
+            .slice(index + 1)
+            .toLowerCase();
+
+}
+
+
+/* =========================================================
+   DIALOG
+   ========================================================= */
+
+function showDialog(
+    title,
+    html,
+    buttons = null
+) {
+
+    dialogTitle.textContent =
+        title;
+
+    dialogBody.innerHTML =
+        html;
+
+    dialogButtons.innerHTML =
+        "";
+
+    const list =
+        buttons ||
+        [
+            {
+                text: "OK",
+                action: closeDialog
+            }
+        ];
+
+    list.forEach(
+        config => {
+
+            const button =
+                document.createElement(
+                    "button"
+                );
+
+            button.className =
+                "xp-button";
+
+            button.textContent =
+                config.text;
+
+            button.addEventListener(
+                "click",
+                config.action
+            );
+
+            dialogButtons.appendChild(
+                button
+            );
+
+        }
+    );
+
+    dialogOverlay.classList.add(
+        "active"
+    );
+
+}
+
+
+function closeDialog() {
+
+    dialogOverlay.classList.remove(
+        "active"
+    );
+
+}
+
+
+/* =========================================================
+   TYPE DETECTION
+   ========================================================= */
+
+function detectType(
+    name,
+    mime = ""
+) {
+
+    if (
+        mime.startsWith(
+            "audio/"
+        )
+    ) {
+
+        return "audio";
+
+    }
+
+    if (
+        mime.startsWith(
+            "video/"
+        )
+    ) {
+
+        return "video";
+
+    }
+
+    const ext =
+        extension(name);
+
+    if (
+        [
+            "mp3",
+            "wav",
+            "ogg",
+            "oga",
+            "m4a",
+            "aac",
+            "flac",
+            "ra"
+        ].includes(ext)
+    ) {
+
+        return "audio";
+
+    }
+
+    return "video";
+
+}
+
+
+/* =========================================================
+   FILES
+   ========================================================= */
+
+function addFiles(files) {
+
+    const incoming =
+        Array.from(files);
+
+    incoming.forEach(
+        file => {
+
+            const clip = {
+
+                id:
+                    (
+                        crypto.randomUUID
+                            ? crypto.randomUUID()
+                            : (
+                                Date.now()
+                                +
+                                "-"
+                                +
+                                Math.random()
+                            )
+                    ),
+
+                name:
+                    file.name,
+
+                type:
+                    detectType(
+                        file.name,
+                        file.type
+                    ),
+
+                sourceType:
+                    "file",
+
+                file,
+
+                url:
+                    URL.createObjectURL(
+                        file
+                    )
+
+            };
+
+            state.clips.push(
+                clip
+            );
+
+        }
+    );
+
+    renderPlaylist();
+
+    if (
+        state.index === -1 &&
+        state.clips.length
+    ) {
+
+        loadClip(
+            0,
+            false
+        );
+
+    }
+
+    setStatus(
+        incoming.length +
+        " clip(s) added."
+    );
+
+}
+
+
+/* =========================================================
+   URL CLIP
+   ========================================================= */
+
+function addURL(url) {
+
+    const lower =
+        url.toLowerCase();
+
+    if (
+        lower.startsWith(
+            "rtsp://"
+        )
+    ) {
+
+        showDialog(
+            "RealPlayer",
+
+            `
+            <h3>
+                RTSP stream detected
+            </h3>
+
+            <p>
+                This is a classic RealPlayer-style
+                streaming URL:
+            </p>
+
+            <p style="
+                user-select:text;
+                word-break:break-all;
+            ">
+                ${escapeHTML(url)}
+            </p>
+
+            <p>
+                Modern browser media elements do not
+                provide native RTSP playback.
+            </p>
+
+            <p>
+                HTTP/HTTPS media URLs can still be
+                opened when the remote server permits
+                browser playback.
+            </p>
+            `
+        );
+
+        return;
+
+    }
+
+    if (
+        !/^https?:\/\//i.test(
+            url
+        )
+    ) {
+
+        showDialog(
+            "Open Location",
+            "<p>The location is not a supported HTTP/HTTPS media URL.</p>"
+        );
+
+        return;
+
+    }
+
+    const filename =
+        decodeURIComponent(
+            url
+                .split("?")[0]
+                .split("/")
+                .pop()
+                ||
+                "Internet Clip"
+        );
+
+    state.clips.push({
+
+        id:
+            "url-" +
+            Date.now() +
+            "-" +
+            Math.random(),
+
+        name:
+            filename,
+
+        type:
+            detectType(
+                filename
+            ),
+
+        sourceType:
+            "stream",
+
+        url
+
+    });
+
+    renderPlaylist();
+
+    loadClip(
+        state.clips.length - 1,
+        true
+    );
+
+}
+
+
+/* =========================================================
+   PLAYLIST / RAM PARSER
+   ========================================================= */
+
+async function loadPlaylistFile(
+    file
+) {
+
+    let text;
+
+    try {
+
+        text =
+            await file.text();
+
+    } catch (_) {
+
+        showDialog(
+            "RealPlayer",
+            "<p>The playlist file could not be read.</p>"
+        );
+
+        return;
+
+    }
+
+    const lines =
+        text
+            .split(
+                /\r?\n/
+            )
+            .map(
+                line =>
+                    line.trim()
+            )
+            .filter(Boolean);
+
+
+    const urls =
+        [];
+
+    for (
+        const line
+        of lines
+    ) {
+
+        if (
+            line.startsWith(
+                "#"
+            )
+        ) {
+            continue;
+        }
+
+        let candidate =
+            line;
+
+        if (
+            /^file\d+=/i.test(
+                line
+            )
+        ) {
+
+            candidate =
+                line.replace(
+                    /^file\d+=/i,
+                    ""
+                );
+
+        }
+
+        candidate =
+            candidate.trim();
+
+        if (
+            /^(https?|rtsp):\/\//i.test(
+                candidate
+            )
+        ) {
+
+            urls.push(
+                candidate
+            );
+
+        }
+
+    }
+
+
+    if (
+        !urls.length
+    ) {
+
+        showDialog(
+            "RealPlayer",
+
+            `
+            <p>
+                No HTTP, HTTPS or RTSP media
+                locations were found in:
+            </p>
+
+            <p>
+                <b>
+                    ${escapeHTML(file.name)}
+                </b>
+            </p>
+            `
+        );
+
+        return;
+
+    }
+
+
+    let added = 0;
+    let rtsp = 0;
+
+
+    for (
+        const url
+        of urls
+    ) {
+
+        if (
+            url.toLowerCase()
+                .startsWith(
+                    "rtsp://"
+                )
+        ) {
+
+            rtsp++;
+            continue;
+
+        }
+
+        const filename =
+            decodeURIComponent(
+                url
+                    .split("?")[0]
+                    .split("/")
+                    .pop()
+                    ||
+                    "Internet Clip"
+            );
+
+        state.clips.push({
+
+            id:
+                "playlist-" +
+                Date.now() +
+                "-" +
+                Math.random(),
+
+            name:
+                filename,
+
+            type:
+                detectType(
+                    filename
+                ),
+
+            sourceType:
+                "stream",
+
+            url
+
+        });
+
+        added++;
+
+    }
+
+
+    renderPlaylist();
+
+
+    if (
+        added &&
+        state.index === -1
+    ) {
+
+        loadClip(
+            0,
+            false
+        );
+
+    }
+
+
+    setStatus(
+        added +
+        " playlist location(s) imported."
+    );
+
+
+    if (
+        rtsp
+    ) {
+
+        showDialog(
+            "RealPlayer Playlist",
+
+            `
+            <p>
+                ${added} HTTP/HTTPS clip(s) were added.
+            </p>
+
+            <p>
+                ${rtsp} RTSP location(s) were detected
+                but cannot be played natively by the
+                modern browser media engine.
+            </p>
+            `
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   RENDER PLAYLIST
+   ========================================================= */
+
+function renderPlaylist() {
+
+    playlist
+        .querySelectorAll(
+            ".playlist-item"
+        )
+        .forEach(
+            item => item.remove()
+        );
+
+    playlistEmpty.style.display =
+        state.clips.length
+            ? "none"
+            : "block";
+
+    state.clips.forEach(
+        (clip,index) => {
+
+            if (
+                state.filter !==
+                "all"
+            ) {
+
+                if (
+                    state.filter ===
+                    "stream"
+                ) {
+
+                    if (
+                        clip.sourceType !==
+                        "stream"
+                    ) {
+                        return;
+                    }
+
+                } else if (
+                    clip.type !==
+                    state.filter
+                ) {
+
+                    return;
+
+                }
+
+            }
+
+            const item =
+                document.createElement(
+                    "div"
+                );
+
+            item.className =
+                "playlist-item";
+
+            if (
+                index ===
+                state.index
+            ) {
+
+                item.classList.add(
+                    "active"
+                );
+
+            }
+
+            item.textContent =
+                (
+                    clip.type ===
+                    "audio"
+                        ? "♪ "
+                        : "▶ "
+                )
+                +
+                clip.name;
+
+            item.title =
+                clip.name;
+
+            item.addEventListener(
+                "dblclick",
+                () =>
+                    loadClip(
+                        index,
+                        true
+                    )
+            );
+
+            playlist.appendChild(
+                item
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   LOAD CLIP
+   ========================================================= */
+
+function loadClip(
+    index,
+    autoplay = true
+) {
+
+    if (
+        index < 0 ||
+        index >=
+        state.clips.length
+    ) {
+
+        return;
+
+    }
+
+    const clip =
+        state.clips[index];
+
+    video.pause();
+    audio.pause();
+
+    video.removeAttribute(
+        "src"
+    );
+
+    audio.removeAttribute(
+        "src"
+    );
+
+    state.index =
+        index;
+
+    state.type =
+        clip.type;
+
+    idle.classList.add(
+        "hidden"
+    );
+
+    titleDisplay.textContent =
+        clip.name;
+
+    if (
+        clip.type ===
+        "audio"
+    ) {
+
+        video.classList.remove(
+            "active"
+        );
+
+        audioView.classList.add(
+            "active"
+        );
+
+        audioTitle.textContent =
+            clip.name;
+
+        audio.src =
+            clip.url;
+
+        audio.load();
+
+        statusType.textContent =
+            "Audio";
+
+    } else {
+
+        audioView.classList.remove(
+            "active"
+        );
+
+        video.classList.add(
+            "active"
+        );
+
+        video.src =
+            clip.url;
+
+        video.load();
+
+        statusType.textContent =
+            extension(
+                clip.name
+            ).toUpperCase()
+            ||
+            "Video";
+
+    }
+
+
+    const media =
+        currentPlayer();
+
+    media.volume =
+        Number(
+            volume.value
+        );
+
+    media.playbackRate =
+        Number(
+            speed.value
+        );
+
+
+    seek.value =
+        0;
+
+    timeDisplay.textContent =
+        "00:00";
+
+
+    renderPlaylist();
+
+
+    setStatus(
+        "Loaded: " +
+        clip.name
+    );
+
+
+    if (
+        autoplay
+    ) {
+
+        media
+            .play()
+            .catch(
+                () => {
+
+                    setStatus(
+                        "Clip loaded. Press Play."
+                    );
+
+                }
+            );
+
+    }
+
+}
+
+
+/* =========================================================
+   PLAYBACK
+   ========================================================= */
+
+function playPause() {
+
+    if (
+        state.index ===
+        -1
+    ) {
+
+        fileInput.click();
+        return;
+
+    }
+
+    const media =
+        currentPlayer();
+
+    if (
+        media.paused
+    ) {
+
+        media
+            .play()
+            .catch(
+                () => {}
+            );
+
+    } else {
+
+        media.pause();
+
+    }
+
+}
+
+
+function stop() {
+
+    if (
+        state.index ===
+        -1
+    ) {
+
+        return;
+
+    }
+
+    const media =
+        currentPlayer();
+
+    media.pause();
+
+    try {
+
+        media.currentTime =
+            0;
+
+    } catch (_) {}
+
+    updateTime();
+
+    playButton.textContent =
+        "▶";
+
+    audioView.classList.remove(
+        "playing"
+    );
+
+    setStatus(
+        "Stopped."
+    );
+
+}
+
+
+function previous() {
+
+    if (
+        !state.clips.length
+    ) {
+
+        return;
+
+    }
+
+    let index =
+        state.index - 1;
+
+    if (
+        index < 0
+    ) {
+
+        index =
+            state.clips.length - 1;
+
+    }
+
+    loadClip(
+        index,
+        true
+    );
+
+}
+
+
+function next() {
+
+    if (
+        !state.clips.length
+    ) {
+
+        return;
+
+    }
+
+    let index =
+        state.index + 1;
+
+    if (
+        index >=
+        state.clips.length
+    ) {
+
+        if (
+            state.repeat
+        ) {
+
+            index = 0;
+
+        } else {
+
+            stop();
+            return;
+
+        }
+
+    }
+
+    loadClip(
+        index,
+        true
+    );
+
+}
+
+
+function seekBy(
+    seconds
+) {
+
+    if (
+        state.index ===
+        -1
+    ) {
+
+        return;
+
+    }
+
+    const media =
+        currentPlayer();
+
+    if (
+        !Number.isFinite(
+            media.duration
+        )
+    ) {
+
+        return;
+
+    }
+
+    media.currentTime =
+        Math.max(
+            0,
+            Math.min(
+                media.duration,
+                media.currentTime +
+                seconds
+            )
+        );
+
+    showOSD(
+        (
+            seconds > 0
+                ? "+"
+                : ""
+        )
+        +
+        seconds
+        +
+        " sec"
+    );
+
+}
+
+
+/* =========================================================
+   TIME
+   ========================================================= */
+
+function updateTime() {
+
+    if (
+        state.index ===
+        -1
+    ) {
+
+        return;
+
+    }
+
+    const media =
+        currentPlayer();
+
+    timeDisplay.textContent =
+        formatTime(
+            media.currentTime
+        );
+
+    if (
+        Number.isFinite(
+            media.duration
+        )
+        &&
+        media.duration >
+        0
+    ) {
+
+        seek.value =
+            Math.round(
+                media.currentTime /
+                media.duration *
+                1000
+            );
+
+    }
+
+}
+
+
+seek.addEventListener(
+    "input",
+    () => {
+
+        if (
+            state.index ===
+            -1
+        ) {
+
+            return;
+
+        }
+
+        const media =
+            currentPlayer();
+
+        if (
+            !Number.isFinite(
+                media.duration
+            )
+        ) {
+
+            return;
+
+        }
+
+        media.currentTime =
+            media.duration *
+            (
+                Number(
+                    seek.value
+                )
+                /
+                1000
+            );
+
+    }
+);
+
+
+/* =========================================================
+   VOLUME
+   ========================================================= */
+
+function applyVolume() {
+
+    const value =
+        Number(
+            volume.value
+        );
+
+    video.volume =
+        value;
+
+    audio.volume =
+        value;
+
+    video.muted =
+        false;
+
+    audio.muted =
+        false;
+
+    statusVolume.textContent =
+        "Volume "
+        +
+        Math.round(
+            value *
+            100
+        )
+        +
+        "%";
+
+}
+
+
+function toggleMute() {
+
+    if (
+        state.index ===
+        -1
+    ) {
+
+        return;
+
+    }
+
+    const media =
+        currentPlayer();
+
+    media.muted =
+        !media.muted;
+
+    document
+        .getElementById(
+            "muteButton"
+        )
+        .textContent =
+            media.muted
+                ? "×"
+                : "♪";
+
+    showOSD(
+        media.muted
+            ? "Mute"
+            : "Sound On"
+    );
+
+}
+
+
+volume.addEventListener(
+    "input",
+    applyVolume
+);
+
+
+/* =========================================================
+   SPEED
+   ========================================================= */
+
+speed.addEventListener(
+    "change",
+    () => {
+
+        const value =
+            Number(
+                speed.value
+            );
+
+        video.playbackRate =
+            value;
+
+        audio.playbackRate =
+            value;
+
+        rateDisplay.textContent =
+            value.toFixed(2)
+            +
+            "x";
+
+        showOSD(
+            "Playback Speed "
+            +
+            value
+            +
+            "x"
+        );
+
+    }
+);
+
+
+/* =========================================================
+   FULLSCREEN
+   ========================================================= */
+
+function fullscreen() {
+
+    if (
+        document.fullscreenElement
+    ) {
+
+        document
+            .exitFullscreen()
+            .catch(
+                () => {}
+            );
+
+        return;
+
+    }
+
+    display
+        .requestFullscreen()
+        .catch(
+            () => {
+
+                showDialog(
+                    "Full Screen",
+                    `
+                    <p>
+                        Full-screen mode was blocked by
+                        the browser or iframe permissions.
+                    </p>
+                    `
+                );
+
+            }
+        );
+
+}
+
+
+/* =========================================================
+   FRAME CAPTURE
+   ========================================================= */
+
+function captureFrame() {
+
+    if (
+        state.type !==
+        "video"
+        ||
+        !video.videoWidth
+    ) {
+
+        showDialog(
+            "Save Current Frame",
+            "<p>No video frame is currently available.</p>"
+        );
+
+        return;
+
+    }
+
+    try {
+
+        const canvas =
+            document.createElement(
+                "canvas"
+            );
+
+        canvas.width =
+            video.videoWidth;
+
+        canvas.height =
+            video.videoHeight;
+
+        canvas
+            .getContext(
+                "2d"
+            )
+            .drawImage(
+                video,
+                0,
+                0
+            );
+
+        canvas.toBlob(
+            blob => {
+
+                if (!blob) {
+                    return;
+                }
+
+                const url =
+                    URL.createObjectURL(
+                        blob
+                    );
+
+                const anchor =
+                    document.createElement(
+                        "a"
+                    );
+
+                anchor.href =
+                    url;
+
+                anchor.download =
+                    "realplayer-frame-"
+                    +
+                    Date.now()
+                    +
+                    ".png";
+
+                anchor.click();
+
+                setTimeout(
+                    () =>
+                        URL.revokeObjectURL(
+                            url
+                        ),
+                    1000
+                );
+
+                showOSD(
+                    "Frame Saved"
+                );
+
+            },
+            "image/png"
+        );
+
+    } catch (_) {
+
+        showDialog(
+            "RealPlayer",
+            `
+            <p>
+                The video frame could not be captured.
+            </p>
+
+            <p>
+                Remote media may prevent frame capture
+                because of browser cross-origin rules.
+            </p>
+            `
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   PROPERTIES
+   ========================================================= */
+
+function showProperties() {
+
+    if (
+        state.index ===
+        -1
+    ) {
+
+        showDialog(
+            "Clip Properties",
+            "<p>No clip is currently open.</p>"
+        );
+
+        return;
+
+    }
+
+    const clip =
+        state.clips[
+            state.index
+        ];
+
+    const media =
+        currentPlayer();
+
+    let dimensions =
+        "Audio Only";
+
+    if (
+        clip.type ===
+        "video"
+    ) {
+
+        dimensions =
+            video.videoWidth
+            &&
+            video.videoHeight
+                ? (
+                    video.videoWidth
+                    +
+                    " × "
+                    +
+                    video.videoHeight
+                )
+                : "Unknown";
+
+    }
+
+    showDialog(
+        "Clip Properties",
+
+        `
+        <h3>
+            ${escapeHTML(clip.name)}
+        </h3>
+
+        <div class="info-grid">
+
+            <div class="info-key">
+                Source
+            </div>
+
+            <div>
+                ${
+                    clip.sourceType ===
+                    "file"
+                        ? "Local File"
+                        : "Internet Clip"
+                }
+            </div>
+
+            <div class="info-key">
+                Format
+            </div>
+
+            <div>
+                ${
+                    escapeHTML(
+                        extension(
+                            clip.name
+                        ).toUpperCase()
+                        ||
+                        "Unknown"
+                    )
+                }
+            </div>
+
+            <div class="info-key">
+                Duration
+            </div>
+
+            <div>
+                ${formatTime(media.duration)}
+            </div>
+
+            <div class="info-key">
+                Dimensions
+            </div>
+
+            <div>
+                ${dimensions}
+            </div>
+
+            <div class="info-key">
+                File size
+            </div>
+
+            <div>
+                ${
+                    clip.file
+                        ? humanSize(
+                            clip.file.size
+                        )
+                        : "Network Stream"
+                }
+            </div>
+
+            <div class="info-key">
+                Playback rate
+            </div>
+
+            <div>
+                ${media.playbackRate}x
+            </div>
+
+        </div>
+        `
+    );
+
+}
+
+
+/* =========================================================
+   URL DIALOG
+   ========================================================= */
+
+function openURLDialog() {
+
+    showDialog(
+        "Open Location",
+
+        `
+        <p>
+            Enter the URL of an Internet media clip.
+        </p>
+
+        <div class="form-row">
+
+            <label>
+                Location:
+            </label>
+
+            <input
+                id="locationInput"
+                type="text"
+                value="https://"
+                autocomplete="off"
+            >
+
+        </div>
+
+        <p style="color:#666">
+            HTTP/HTTPS direct media files are supported
+            when permitted by the remote server.
+            Classic RTSP locations can be detected but
+            cannot be decoded by modern HTML5 media.
+        </p>
+        `,
+
+        [
+
+            {
+                text:
+                    "Open",
+
+                action:
+                    () => {
+
+                        const input =
+                            document
+                                .getElementById(
+                                    "locationInput"
+                                );
+
+                        const value =
+                            input.value
+                                .trim();
+
+                        if (!value) {
+                            return;
+                        }
+
+                        closeDialog();
+
+                        addURL(
+                            value
+                        );
+
+                    }
+            },
+
+            {
+                text:
+                    "Cancel",
+
+                action:
+                    closeDialog
+            }
+
+        ]
+    );
+
+}
+
+
+/* =========================================================
+   CODEC INFO
+   ========================================================= */
+
+function codecInfo() {
+
+    const media =
+        document.createElement(
+            "video"
+        );
+
+    const tests = [
+
+        [
+            "H.264 / MP4",
+            'video/mp4; codecs="avc1.42E01E"'
+        ],
+
+        [
+            "WebM / VP9",
+            'video/webm; codecs="vp9"'
+        ],
+
+        [
+            "MP3",
+            "audio/mpeg"
+        ],
+
+        [
+            "Ogg Vorbis",
+            'audio/ogg; codecs="vorbis"'
+        ],
+
+        [
+            "RealMedia RM/RMVB",
+            "application/vnd.rn-realmedia"
+        ]
+
+    ];
+
+    const rows =
+        tests
+            .map(
+                test => {
+
+                    const response =
+                        media.canPlayType(
+                            test[1]
+                        )
+                        ||
+                        "";
+
+                    let result =
+                        "Unsupported";
+
+                    if (
+                        response ===
+                        "probably"
+                    ) {
+                        result =
+                            "Supported";
+                    } else if (
+                        response ===
+                        "maybe"
+                    ) {
+                        result =
+                            "Maybe";
+                    }
+
+                    return `
+                    <div class="info-key">
+                        ${escapeHTML(test[0])}
+                    </div>
+
+                    <div>
+                        ${result}
+                        ${
+                            response
+                                ? " (" +
+                                  response +
+                                  ")"
+                                : ""
+                        }
+                    </div>
+                    `;
+
+                }
+            )
+            .join("");
+
+
+    showDialog(
+        "Media Compatibility",
+
+        `
+        <h3>
+            Browser Media Engine
+        </h3>
+
+        <div class="info-grid">
+            ${rows}
+        </div>
+
+        <p style="margin-top:10px">
+            RealPlayer 10 originally included native
+            RealAudio/RealVideo support. This web edition
+            uses the browser's media decoders instead.
+        </p>
+        `
+    );
+
+}
+
+
+/* =========================================================
+   ABOUT
+   ========================================================= */
+
+function about() {
+
+    showDialog(
+        "About RealPlayer",
+
+        `
+        <div style="
+            display:flex;
+            align-items:center;
+            gap:14px;
+        ">
+
+            <div
+                class="real-logo"
+                style="
+                    width:72px;
+                    height:72px;
+                    flex:0 0 72px;
+                "
+            ></div>
+
+            <div>
+
+                <h3>
+                    RealPlayer 10
+                </h3>
+
+                <p>
+                    Windows XP Web Desktop Edition
+                </p>
+
+                <p>
+                    Digital Media Player
+                </p>
+
+            </div>
+
+        </div>
+
+        <p style="margin-top:14px">
+
+            This recreation uses the browser's
+            HTML5 media engine. It does not contain
+            the proprietary RealAudio or RealVideo
+            codec implementation.
+
+        </p>
+        `
+    );
+
+}
+
+
+/* =========================================================
+   CLEAR
+   ========================================================= */
+
+function clearPlaylist() {
+
+    stop();
+
+    state.clips.forEach(
+        clip => {
+
+            if (
+                clip.sourceType ===
+                "file"
+            ) {
+
+                URL.revokeObjectURL(
+                    clip.url
+                );
+
+            }
+
+        }
+    );
+
+    state.clips =
+        [];
+
+    state.index =
+        -1;
+
+    state.type =
+        null;
+
+    video.removeAttribute(
+        "src"
+    );
+
+    audio.removeAttribute(
+        "src"
+    );
+
+    video.load();
+    audio.load();
+
+    video.classList.remove(
+        "active"
+    );
+
+    audioView.classList.remove(
+        "active"
+    );
+
+    idle.classList.remove(
+        "hidden"
+    );
+
+    titleDisplay.textContent =
+        "No Clip";
+
+    statusType.textContent =
+        "No Clip";
+
+    timeDisplay.textContent =
+        "00:00";
+
+    seek.value =
+        0;
+
+    renderPlaylist();
+
+    setStatus(
+        "Playlist cleared."
+    );
+
+}
+
+
+/* =========================================================
+   MEDIA EVENTS
+   ========================================================= */
+
+function registerMedia(
+    media
+) {
+
+    media.addEventListener(
+        "timeupdate",
+        updateTime
+    );
+
+
+    media.addEventListener(
+        "loadedmetadata",
+        () => {
+
+            updateTime();
+
+            setStatus(
+                "Clip ready."
+            );
+
+        }
+    );
+
+
+    media.addEventListener(
+        "play",
+        () => {
+
+            playButton.textContent =
+                "Ⅱ";
+
+            if (
+                state.type ===
+                "audio"
+            ) {
+
+                audioView.classList.add(
+                    "playing"
+                );
+
+            }
+
+            setStatus(
+                "Playing."
+            );
+
+        }
+    );
+
+
+    media.addEventListener(
+        "pause",
+        () => {
+
+            playButton.textContent =
+                "▶";
+
+            audioView.classList.remove(
+                "playing"
+            );
+
+        }
+    );
+
+
+    media.addEventListener(
+        "ended",
+        () => {
+
+            audioView.classList.remove(
+                "playing"
+            );
+
+            next();
+
+        }
+    );
+
+
+    media.addEventListener(
+        "error",
+        () => {
+
+            const clip =
+                state.index >= 0
+                    ? state.clips[
+                        state.index
+                    ]
+                    : null;
+
+            const ext =
+                clip
+                    ? extension(
+                        clip.name
+                    )
+                    : "";
+
+            let message = `
+                The current clip could not be decoded
+                by the browser media engine.
+            `;
+
+            if (
+                [
+                    "rm",
+                    "rmvb",
+                    "ra"
+                ].includes(ext)
+            ) {
+
+                message = `
+                    This appears to be a classic
+                    RealMedia file.
+
+                    RealPlayer 10 originally included
+                    proprietary RealAudio/RealVideo
+                    decoders, but current browsers
+                    generally do not support those
+                    codecs natively.
+                `;
+
+            }
+
+
+            showDialog(
+                "RealPlayer Playback Error",
+
+                `
+                <h3>
+                    Unable to play clip
+                </h3>
+
+                <p>
+                    ${message}
+                </p>
+
+                <p>
+                    MP4/H.264, WebM, MP3, OGG and other
+                    browser-supported formats can still
+                    be played normally.
+                </p>
+                `
+            );
+
+            setStatus(
+                "Playback error."
+            );
+
+        }
+    );
+
+}
+
+
+registerMedia(
+    video
+);
+
+registerMedia(
+    audio
+);
+
+
+/* =========================================================
+   BUTTON EVENTS
+   ========================================================= */
+
+document
+    .getElementById(
+        "playButton"
+    )
+    .addEventListener(
+        "click",
+        playPause
+    );
+
+document
+    .getElementById(
+        "stopButton"
+    )
+    .addEventListener(
+        "click",
+        stop
+    );
+
+document
+    .getElementById(
+        "previousButton"
+    )
+    .addEventListener(
+        "click",
+        previous
+    );
+
+document
+    .getElementById(
+        "nextButton"
+    )
+    .addEventListener(
+        "click",
+        next
+    );
+
+document
+    .getElementById(
+        "rewindButton"
+    )
+    .addEventListener(
+        "click",
+        () =>
+            seekBy(-10)
+    );
+
+document
+    .getElementById(
+        "forwardButton"
+    )
+    .addEventListener(
+        "click",
+        () =>
+            seekBy(10)
+    );
+
+document
+    .getElementById(
+        "openButton"
+    )
+    .addEventListener(
+        "click",
+        () =>
+            fileInput.click()
+    );
+
+document
+    .getElementById(
+        "fullscreenButton"
+    )
+    .addEventListener(
+        "click",
+        fullscreen
+    );
+
+document
+    .getElementById(
+        "muteButton"
+    )
+    .addEventListener(
+        "click",
+        toggleMute
+    );
+
+
+/* =========================================================
+   FILTERS / MODES
+   ========================================================= */
+
+document
+    .querySelectorAll(
+        "[data-filter]"
+    )
+    .forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    document
+                        .querySelectorAll(
+                            "[data-filter]"
+                        )
+                        .forEach(
+                            item =>
+                                item.classList.remove(
+                                    "active"
+                                )
+                        );
+
+                    button.classList.add(
+                        "active"
+                    );
+
+                    state.filter =
+                        button.dataset.filter;
+
+                    renderPlaylist();
+
+                }
+            );
+
+        }
+    );
+
+
+document
+    .querySelectorAll(
+        "[data-mode]"
+    )
+    .forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    document
+                        .querySelectorAll(
+                            "[data-mode]"
+                        )
+                        .forEach(
+                            item =>
+                                item.classList.remove(
+                                    "active"
+                                )
+                        );
+
+                    button.classList.add(
+                        "active"
+                    );
+
+                    const mode =
+                        button.dataset.mode;
+
+                    if (
+                        mode === "library"
+                    ) {
+
+                        library.classList.remove(
+                            "hidden"
+                        );
+
+                        state.filter =
+                            "all";
+
+                    }
+
+                    if (
+                        mode === "music"
+                    ) {
+
+                        library.classList.remove(
+                            "hidden"
+                        );
+
+                        state.filter =
+                            "audio";
+
+                    }
+
+                    if (
+                        mode === "video"
+                    ) {
+
+                        library.classList.remove(
+                            "hidden"
+                        );
+
+                        state.filter =
+                            "video";
+
+                    }
+
+                    renderPlaylist();
+
+                }
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   FILE INPUTS
+   ========================================================= */
+
+fileInput.addEventListener(
+    "change",
+    () => {
+
+        addFiles(
+            fileInput.files
+        );
+
+        fileInput.value =
+            "";
+
+    }
+);
+
+
+playlistInput.addEventListener(
+    "change",
+    async () => {
+
+        const file =
+            playlistInput.files[0];
+
+        if (
+            file
+        ) {
+
+            await loadPlaylistFile(
+                file
+            );
+
+        }
+
+        playlistInput.value =
+            "";
+
+    }
+);
+
+
+/* =========================================================
+   DRAG DROP
+   ========================================================= */
+
+display.addEventListener(
+    "dragenter",
+    event => {
+
+        event.preventDefault();
+
+        state.dragCounter++;
+
+        display.classList.add(
+            "dragging"
+        );
+
+    }
+);
+
+
+display.addEventListener(
+    "dragover",
+    event => {
+
+        event.preventDefault();
+
+    }
+);
+
+
+display.addEventListener(
+    "dragleave",
+    event => {
+
+        event.preventDefault();
+
+        state.dragCounter--;
+
+        if (
+            state.dragCounter <=
+            0
+        ) {
+
+            state.dragCounter =
+                0;
+
+            display.classList.remove(
+                "dragging"
+            );
+
+        }
+
+    }
+);
+
+
+display.addEventListener(
+    "drop",
+    async event => {
+
+        event.preventDefault();
+
+        state.dragCounter =
+            0;
+
+        display.classList.remove(
+            "dragging"
+        );
+
+        const files =
+            Array.from(
+                event
+                    .dataTransfer
+                    .files
+            );
+
+        const playlistFiles =
+            files.filter(
+                file =>
+                    [
+                        "ram",
+                        "m3u",
+                        "m3u8",
+                        "pls"
+                    ].includes(
+                        extension(
+                            file.name
+                        )
+                    )
+            );
+
+        const mediaFiles =
+            files.filter(
+                file =>
+                    !playlistFiles.includes(
+                        file
+                    )
+            );
+
+        if (
+            mediaFiles.length
+        ) {
+
+            addFiles(
+                mediaFiles
+            );
+
+        }
+
+        for (
+            const file
+            of playlistFiles
+        ) {
+
+            await loadPlaylistFile(
+                file
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   MENU
+   ========================================================= */
+
+function closeMenus() {
+
+    document
+        .querySelectorAll(
+            ".menu.open"
+        )
+        .forEach(
+            menu =>
+                menu.classList.remove(
+                    "open"
+                )
+        );
+
+}
+
+
+document
+    .querySelectorAll(
+        ".menu-button"
+    )
+    .forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                event => {
+
+                    event.stopPropagation();
+
+                    const menu =
+                        button.closest(
+                            ".menu"
+                        );
+
+                    const wasOpen =
+                        menu.classList.contains(
+                            "open"
+                        );
+
+                    closeMenus();
+
+                    if (
+                        !wasOpen
+                    ) {
+
+                        menu.classList.add(
+                            "open"
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+
+document.addEventListener(
+    "click",
+    closeMenus
+);
+
+
+/* =========================================================
+   MENU ACTIONS
+   ========================================================= */
+
+function action(name) {
+
+    switch (
+        name
+    ) {
+
+        case "open":
+
+            fileInput.click();
+
+            break;
+
+
+        case "open-url":
+
+            openURLDialog();
+
+            break;
+
+
+        case "open-playlist":
+
+            playlistInput.click();
+
+            break;
+
+
+        case "properties":
+
+            showProperties();
+
+            break;
+
+
+        case "capture":
+
+            captureFrame();
+
+            break;
+
+
+        case "close":
+
+            stop();
+
+            break;
+
+
+        case "clear-playlist":
+
+            clearPlaylist();
+
+            break;
+
+
+        case "library":
+
+            library.classList.toggle(
+                "hidden"
+            );
+
+            break;
+
+
+        case "fullscreen":
+
+            fullscreen();
+
+            break;
+
+
+        case "fit":
+
+            video.style.objectFit =
+                "contain";
+
+            showOSD(
+                "Fit to Window"
+            );
+
+            break;
+
+
+        case "play":
+
+            playPause();
+
+            break;
+
+
+        case "stop":
+
+            stop();
+
+            break;
+
+
+        case "previous":
+
+            previous();
+
+            break;
+
+
+        case "next":
+
+            next();
+
+            break;
+
+
+        case "repeat":
+
+            state.repeat =
+                !state.repeat;
+
+            showOSD(
+                "Repeat: "
+                +
+                (
+                    state.repeat
+                        ? "On"
+                        : "Off"
+                )
+            );
+
+            break;
+
+
+        case "codec-info":
+
+            codecInfo();
+
+            break;
+
+
+        case "about":
+
+            about();
+
+            break;
+
+    }
+
+    closeMenus();
+
+}
+
+
+document
+    .querySelectorAll(
+        "[data-action]"
+    )
+    .forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                () =>
+                    action(
+                        button.dataset.action
+                    )
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   DIALOG
+   ========================================================= */
+
+dialogOverlay.addEventListener(
+    "mousedown",
+    event => {
+
+        if (
+            event.target ===
+            dialogOverlay
+        ) {
+
+            closeDialog();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   KEYBOARD
+   ========================================================= */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.target.tagName ===
+            "INPUT"
+        ) {
+
+            return;
+
+        }
+
+        if (
+            event.ctrlKey &&
+            event.key.toLowerCase() ===
+            "o"
+        ) {
+
+            event.preventDefault();
+
+            fileInput.click();
+
+            return;
+
+        }
+
+        switch (
+            event.key
+        ) {
+
+            case " ":
+
+                event.preventDefault();
+
+                playPause();
+
+                break;
+
+
+            case "ArrowLeft":
+
+                event.preventDefault();
+
+                seekBy(-5);
+
+                break;
+
+
+            case "ArrowRight":
+
+                event.preventDefault();
+
+                seekBy(5);
+
+                break;
+
+
+            case "ArrowUp":
+
+                event.preventDefault();
+
+                volume.value =
+                    Math.min(
+                        1,
+                        Number(
+                            volume.value
+                        )
+                        +
+                        .05
+                    );
+
+                applyVolume();
+
+                break;
+
+
+            case "ArrowDown":
+
+                event.preventDefault();
+
+                volume.value =
+                    Math.max(
+                        0,
+                        Number(
+                            volume.value
+                        )
+                        -
+                        .05
+                    );
+
+                applyVolume();
+
+                break;
+
+
+            case "Escape":
+
+                closeDialog();
+                closeMenus();
+
+                break;
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   CLEANUP
+   ========================================================= */
+
+window.addEventListener(
+    "beforeunload",
+    () => {
+
+        state.clips.forEach(
+            clip => {
+
+                if (
+                    clip.sourceType ===
+                    "file"
+                ) {
+
+                    URL.revokeObjectURL(
+                        clip.url
+                    );
+
+                }
+
+            }
+        );
+
+    }
+);
+
+
+/* =========================================================
+   INIT
+   ========================================================= */
+
+applyVolume();
+
+renderPlaylist();
+
+setStatus(
+    "Ready - Open or drag a clip into RealPlayer."
+);
+
+})();
+
+</script>
+
+</body>
+</html>

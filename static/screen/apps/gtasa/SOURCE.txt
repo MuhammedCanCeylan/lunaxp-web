@@ -1,0 +1,40 @@
+﻿GTA San Andreas - XP Browser Game Module
+
+Selected Stage:
+Stage 3 - community GTA-style browser clone
+
+Selected repository:
+https://github.com/SimonSaysGiveMeSmile/gtasf.lol
+
+Upstream description:
+A browser-based open-world prototype built with:
+- React
+- TypeScript
+- Vite
+- Three.js / React Three Fiber
+- React Three Cannon
+- Zustand
+
+Upstream states that the prototype contains:
+- player movement
+- vehicles
+- NPCs
+- an overlay HUD
+- a stylized open-world city
+
+IMPORTANT:
+This is NOT Rockstar's original Grand Theft Auto: San Andreas executable,
+map, models, missions, audio, assets, or game engine.
+
+Why not OpenSA?
+OpenSA is a serious WebGPU engine compatible with GTA San Andreas data,
+but it requires files from a legally owned GTA San Andreas installation.
+To keep this XP module standalone and avoid asking for original multi-GB
+game assets, this installer uses the standalone browser GTA-style clone instead.
+
+Build:
+Node.js/npm are required only during installation.
+The final apps/gtasa folder is a STATIC Vite build and needs no Node server.
+
+Runtime:
+Serve the normal XP project with the same static HTTP server.

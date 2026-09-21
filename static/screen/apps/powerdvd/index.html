@@ -1,0 +1,2717 @@
+<!--
+CYBERLINK POWERDVD RETRO - ASSET LISTESI
+
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama |
+|------------|-------------------------|------------|-----------------------------------------|
+| icon.png   | 32x32                   | Zorunlu    | XP masaustu / registry uygulama ikonu  |
+
+NOT:
+- Uygulama harici gorsel asset gerektirmez.
+- PowerDVD benzeri arayuz CSS ile olusturulur.
+- Ana XP WindowManager zaten pencere basligini olusturdugu icin burada
+  ikinci bir Windows baslik cubugu veya gorev cubugu YOKTUR.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, user-scalable=no"
+>
+<title>CyberLink PowerDVD</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    html,
+    body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+    }
+
+    body {
+        font-family: Tahoma, Arial, sans-serif;
+        font-size: 11px;
+        color: #111;
+        background:
+            linear-gradient(
+                180deg,
+                #d8d8d8 0%,
+                #b9b9b9 15%,
+                #8d8d8d 100%
+            );
+        user-select: none;
+    }
+
+    button,
+    input,
+    select {
+        font-family: Tahoma, Arial, sans-serif;
+        font-size: 11px;
+    }
+
+    button {
+        outline: none;
+    }
+
+    .app {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background:
+            linear-gradient(
+                180deg,
+                #dfdfdf 0,
+                #aaa 92px,
+                #777 100%
+            );
+    }
+
+    /* =====================================================
+       INTERNAL MENU
+       ===================================================== */
+
+    .menu-bar {
+        flex: 0 0 25px;
+        height: 25px;
+        display: flex;
+        align-items: stretch;
+        padding-left: 3px;
+        background:
+            linear-gradient(
+                #f9f9f9,
+                #d7d7d7
+            );
+        border-bottom: 1px solid #6b6b6b;
+        box-shadow:
+            inset 0 1px #fff,
+            0 1px rgba(255,255,255,.35);
+        position: relative;
+        z-index: 30;
+    }
+
+    .menu-item {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .menu-button {
+        height: 24px;
+        border: 1px solid transparent;
+        background: transparent;
+        padding: 0 9px;
+        color: #111;
+        cursor: default;
+    }
+
+    .menu-button:hover,
+    .menu-item.open .menu-button {
+        border-color: #7f9db9;
+        background:
+            linear-gradient(
+                #fff,
+                #dce8f6
+            );
+    }
+
+    .dropdown {
+        position: absolute;
+        display: none;
+        top: 23px;
+        left: 0;
+        min-width: 190px;
+        background: #f5f5f5;
+        border: 1px solid #666;
+        padding: 2px;
+        box-shadow: 2px 2px 5px rgba(0,0,0,.35);
+        z-index: 100;
+    }
+
+    .menu-item.open .dropdown {
+        display: block;
+    }
+
+    .dropdown button {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 23px;
+        padding: 3px 9px;
+        border: 0;
+        background: transparent;
+        text-align: left;
+        cursor: default;
+    }
+
+    .dropdown button:hover {
+        color: #fff;
+        background: #316ac5;
+    }
+
+    .dropdown .separator {
+        height: 1px;
+        margin: 3px 4px;
+        background: #aaa;
+    }
+
+    .shortcut {
+        margin-left: 25px;
+        color: inherit;
+        opacity: .75;
+    }
+
+    /* =====================================================
+       UPPER BRAND / MODE TOOLBAR
+       ===================================================== */
+
+    .mode-bar {
+        flex: 0 0 43px;
+        height: 43px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 8px;
+        border-bottom: 1px solid #555;
+        background:
+            linear-gradient(
+                #dcdcdc 0%,
+                #999 55%,
+                #747474 100%
+            );
+        box-shadow:
+            inset 0 1px #fff,
+            inset 0 -1px #444;
+    }
+
+    .brand {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin-right: auto;
+        min-width: 160px;
+    }
+
+    .brand-mark {
+        width: 28px;
+        height: 28px;
+        position: relative;
+        border-radius: 50%;
+        background:
+            radial-gradient(
+                circle at 38% 35%,
+                #fff 0,
+                #c6e1ff 13%,
+                #428fe0 38%,
+                #034caa 65%,
+                #002f71 100%
+            );
+        border: 1px solid #0a315d;
+        box-shadow:
+            inset 0 0 3px #fff,
+            0 1px 2px rgba(0,0,0,.45);
+    }
+
+    .brand-mark::after {
+        content: "";
+        position: absolute;
+        left: 9px;
+        top: 7px;
+        width: 0;
+        height: 0;
+        border-top: 7px solid transparent;
+        border-bottom: 7px solid transparent;
+        border-left: 11px solid white;
+        filter: drop-shadow(0 1px 1px #174a82);
+    }
+
+    .brand-text {
+        color: #fff;
+        line-height: 12px;
+        text-shadow: 0 1px #333;
+    }
+
+    .brand-text strong {
+        display: block;
+        font-style: italic;
+        font-size: 13px;
+        letter-spacing: -.3px;
+    }
+
+    .brand-text span {
+        font-size: 9px;
+        color: #e6e6e6;
+    }
+
+    .mode-button {
+        height: 29px;
+        padding: 0 12px;
+        border: 1px solid #4d4d4d;
+        border-radius: 3px;
+        color: #202020;
+        cursor: pointer;
+        background:
+            linear-gradient(
+                #f2f2f2,
+                #bcbcbc 50%,
+                #969696 51%,
+                #d2d2d2
+            );
+        box-shadow:
+            inset 0 1px rgba(255,255,255,.9),
+            0 1px 1px rgba(0,0,0,.35);
+    }
+
+    .mode-button:hover {
+        filter: brightness(1.1);
+    }
+
+    .mode-button.active {
+        color: white;
+        border-color: #063e85;
+        background:
+            linear-gradient(
+                #5fa7ec,
+                #1670ce 50%,
+                #0552aa 51%,
+                #187ad9
+            );
+    }
+
+    /* =====================================================
+       MAIN PLAYER
+       ===================================================== */
+
+    .main {
+        min-height: 0;
+        flex: 1;
+        display: flex;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* =====================================================
+       LIBRARY / PLAYLIST
+       ===================================================== */
+
+    .library {
+        width: 190px;
+        min-width: 150px;
+        max-width: 260px;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid #404040;
+        background:
+            linear-gradient(
+                90deg,
+                #e6e6e6,
+                #c4c4c4
+            );
+        box-shadow: inset -1px 0 rgba(255,255,255,.55);
+    }
+
+    .library.hidden {
+        display: none;
+    }
+
+    .library-header {
+        height: 28px;
+        display: flex;
+        align-items: center;
+        padding: 0 8px;
+        font-weight: bold;
+        color: #222;
+        border-bottom: 1px solid #898989;
+        background:
+            linear-gradient(
+                #f5f5f5,
+                #bcbcbc
+            );
+    }
+
+    .library-nav {
+        padding: 5px;
+        border-bottom: 1px solid #8f8f8f;
+    }
+
+    .library-nav button {
+        width: 100%;
+        height: 27px;
+        margin-bottom: 3px;
+        text-align: left;
+        padding-left: 9px;
+        border: 1px solid transparent;
+        background: transparent;
+        cursor: pointer;
+    }
+
+    .library-nav button:hover {
+        border-color: #7399c2;
+        background: #dbeafd;
+    }
+
+    .library-nav button.active {
+        border-color: #527fac;
+        background:
+            linear-gradient(
+                #e8f2ff,
+                #bbd7f7
+            );
+    }
+
+    .playlist-title {
+        padding: 5px 7px;
+        font-weight: bold;
+        color: #444;
+    }
+
+    .playlist {
+        flex: 1;
+        overflow-y: auto;
+        padding: 2px 4px 5px;
+        user-select: none;
+    }
+
+    .playlist-empty {
+        padding: 10px;
+        color: #777;
+        line-height: 16px;
+    }
+
+    .playlist-item {
+        padding: 5px 6px;
+        margin-bottom: 2px;
+        border: 1px solid transparent;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: default;
+    }
+
+    .playlist-item:hover {
+        border-color: #9ebcda;
+        background: #e9f4ff;
+    }
+
+    .playlist-item.active {
+        color: white;
+        border-color: #1f5da0;
+        background: #316ac5;
+    }
+
+    /* =====================================================
+       VIEWPORT
+       ===================================================== */
+
+    .viewer-column {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        background: #111;
+        position: relative;
+    }
+
+    .video-area {
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background:
+            radial-gradient(
+                ellipse at center,
+                #282828 0,
+                #090909 56%,
+                #000 100%
+            );
+    }
+
+    video,
+    audio {
+        outline: 0;
+    }
+
+    video {
+        display: none;
+        max-width: 100%;
+        max-height: 100%;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        background: #000;
+    }
+
+    video.active {
+        display: block;
+    }
+
+    .audio-visual {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        inset: 0;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        color: #b7d7ff;
+    }
+
+    .audio-visual.active {
+        display: flex;
+    }
+
+    .audio-disc {
+        width: 125px;
+        height: 125px;
+        border-radius: 50%;
+        position: relative;
+        background:
+            repeating-radial-gradient(
+                circle,
+                #222 0,
+                #222 3px,
+                #484848 4px,
+                #181818 6px
+            );
+        border: 2px solid #555;
+        box-shadow:
+            0 5px 20px #000,
+            inset 0 0 22px rgba(255,255,255,.16);
+        margin-bottom: 18px;
+    }
+
+    .audio-disc::before {
+        content: "";
+        position: absolute;
+        inset: 45px;
+        border-radius: 50%;
+        background:
+            radial-gradient(
+                circle,
+                #111 0,
+                #111 28%,
+                #5d9fe4 29%,
+                #1c63ae 65%,
+                #ddd 66%,
+                #888 100%
+            );
+    }
+
+    .audio-disc.spinning {
+        animation: spin 4s linear infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .idle-screen {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        color: #d8d8d8;
+        text-shadow: 0 2px 5px #000;
+    }
+
+    .idle-screen.hidden {
+        display: none;
+    }
+
+    .idle-logo {
+        width: 112px;
+        height: 112px;
+        position: relative;
+        margin-bottom: 14px;
+        opacity: .9;
+        border-radius: 50%;
+        background:
+            radial-gradient(
+                circle at 38% 35%,
+                #fff 0,
+                #a9d0ff 8%,
+                #378adf 31%,
+                #0c57ad 55%,
+                #021e46 100%
+            );
+        box-shadow:
+            0 0 40px rgba(30,118,210,.34),
+            inset 0 0 12px rgba(255,255,255,.7);
+    }
+
+    .idle-logo::after {
+        content: "";
+        position: absolute;
+        left: 43px;
+        top: 34px;
+        width: 0;
+        height: 0;
+        border-top: 22px solid transparent;
+        border-bottom: 22px solid transparent;
+        border-left: 35px solid rgba(255,255,255,.94);
+        filter: drop-shadow(0 2px 2px #174a82);
+    }
+
+    .idle-screen strong {
+        font-size: 19px;
+        font-style: italic;
+        letter-spacing: -.5px;
+    }
+
+    .idle-screen small {
+        margin-top: 6px;
+        color: #8d8d8d;
+    }
+
+    .drop-overlay {
+        display: none;
+        position: absolute;
+        inset: 14px;
+        z-index: 12;
+        border: 2px dashed #7eb7f0;
+        background: rgba(0,64,130,.78);
+        color: #fff;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-size: 15px;
+        font-weight: bold;
+        pointer-events: none;
+    }
+
+    .video-area.drag .drop-overlay {
+        display: flex;
+    }
+
+    .osd {
+        opacity: 0;
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        z-index: 15;
+        padding: 6px 9px;
+        color: #fff;
+        border: 1px solid #777;
+        border-radius: 2px;
+        background: rgba(0,0,0,.75);
+        transition: opacity .18s;
+        pointer-events: none;
+    }
+
+    .osd.show {
+        opacity: 1;
+    }
+
+    /* =====================================================
+       CONTROL DECK
+       ===================================================== */
+
+    .control-deck {
+        flex: 0 0 auto;
+        min-height: 110px;
+        padding: 5px 8px 7px;
+        border-top: 1px solid #555;
+        background:
+            linear-gradient(
+                #c6c6c6 0,
+                #8f8f8f 32%,
+                #686868 33%,
+                #8e8e8e 100%
+            );
+        box-shadow:
+            inset 0 1px #eaeaea,
+            0 -2px 10px rgba(0,0,0,.38);
+    }
+
+    .display-strip {
+        height: 31px;
+        display: grid;
+        grid-template-columns: 100px 1fr 90px;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 5px;
+    }
+
+    .time-display,
+    .media-display {
+        height: 27px;
+        display: flex;
+        align-items: center;
+        border: 1px solid #333;
+        color: #9de6ff;
+        background:
+            linear-gradient(
+                #07131a,
+                #081f2c
+            );
+        box-shadow:
+            inset 0 0 5px #000,
+            0 1px rgba(255,255,255,.4);
+    }
+
+    .time-display {
+        justify-content: center;
+        font-family: "Courier New", monospace;
+        font-size: 14px;
+        color: #84d7ff;
+        letter-spacing: .5px;
+    }
+
+    .media-display {
+        padding: 0 8px;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: #aadfff;
+    }
+
+    .rate-display {
+        height: 27px;
+        border: 1px solid #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #091923;
+        color: #8ddaff;
+        font-family: "Courier New", monospace;
+    }
+
+    .seek-row {
+        height: 20px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .seek {
+        flex: 1;
+        accent-color: #2e8ee7;
+        cursor: pointer;
+    }
+
+    .controls-row {
+        min-height: 43px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .control-button {
+        width: 34px;
+        height: 30px;
+        padding: 0;
+        border: 1px solid #3f3f3f;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        color: #161616;
+        background:
+            linear-gradient(
+                #f5f5f5 0,
+                #c5c5c5 46%,
+                #8d8d8d 50%,
+                #d4d4d4 100%
+            );
+        box-shadow:
+            inset 0 1px white,
+            0 1px 2px rgba(0,0,0,.5);
+    }
+
+    .control-button:hover {
+        filter: brightness(1.13);
+    }
+
+    .control-button:active {
+        box-shadow: inset 0 2px 4px rgba(0,0,0,.6);
+        transform: translateY(1px);
+    }
+
+    .control-button.big {
+        width: 43px;
+        height: 37px;
+        border-radius: 50%;
+        color: #fff;
+        font-size: 15px;
+        border-color: #174a80;
+        background:
+            radial-gradient(
+                circle at 35% 28%,
+                #85c5ff,
+                #1c75ce 43%,
+                #064690 68%,
+                #01336d 100%
+            );
+    }
+
+    .control-button.stop {
+        color: #d42121;
+    }
+
+    .divider {
+        width: 1px;
+        height: 27px;
+        margin: 0 3px;
+        background: #515151;
+        box-shadow: 1px 0 rgba(255,255,255,.45);
+    }
+
+    .volume-box {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .volume {
+        width: 86px;
+        accent-color: #2a8ce5;
+    }
+
+    .mini-text {
+        color: #eee;
+        font-size: 10px;
+        text-shadow: 0 1px #333;
+    }
+
+    /* =====================================================
+       STATUS BAR
+       ===================================================== */
+
+    .status-bar {
+        flex: 0 0 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        background: #ece9d8;
+        border-top: 1px solid #fff;
+        color: #333;
+        padding: 2px;
+    }
+
+    .status-section {
+        height: 16px;
+        display: flex;
+        align-items: center;
+        padding: 0 6px;
+        border: 1px solid #aca899;
+        border-top-color: #777;
+        border-left-color: #777;
+        margin-right: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    .status-main {
+        flex: 1;
+    }
+
+    /* =====================================================
+       DIALOGS
+       ===================================================== */
+
+    .dialog-layer {
+        display: none;
+        position: absolute;
+        z-index: 500;
+        inset: 0;
+        background: rgba(0,0,0,.28);
+        align-items: center;
+        justify-content: center;
+        padding: 15px;
+    }
+
+    .dialog-layer.active {
+        display: flex;
+    }
+
+    .xp-dialog {
+        width: min(410px, 95%);
+        background: #ece9d8;
+        border: 1px solid #0a246a;
+        box-shadow:
+            4px 5px 16px rgba(0,0,0,.5),
+            inset 1px 1px #fff;
+    }
+
+    .dialog-title {
+        height: 27px;
+        color: #fff;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        padding: 0 7px;
+        background:
+            linear-gradient(
+                90deg,
+                #0a246a,
+                #3a6ea5
+            );
+    }
+
+    .dialog-content {
+        padding: 15px 16px 12px;
+        line-height: 17px;
+    }
+
+    .dialog-content h3 {
+        font-size: 13px;
+        margin: 0 0 9px;
+    }
+
+    .dialog-content p {
+        margin: 5px 0;
+    }
+
+    .dialog-controls {
+        display: flex;
+        justify-content: flex-end;
+        gap: 6px;
+        padding: 0 12px 11px;
+    }
+
+    .xp-button {
+        min-width: 75px;
+        height: 25px;
+        border: 2px outset #fff;
+        background: #ece9d8;
+        padding: 0 10px;
+    }
+
+    .xp-button:active {
+        border-style: inset;
+    }
+
+    .settings-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 28px;
+        border-bottom: 1px solid #d1cec0;
+    }
+
+    .settings-row:last-child {
+        border: 0;
+    }
+
+    .settings-row select {
+        min-width: 125px;
+    }
+
+    .true-theater video {
+        filter:
+            contrast(1.10)
+            saturate(1.12)
+            brightness(1.04);
+    }
+
+    .aspect-4-3 video {
+        width: auto;
+        aspect-ratio: 4 / 3;
+    }
+
+    /* =====================================================
+       SMALL VIEWPORT
+       ===================================================== */
+
+    @media (max-width: 650px) {
+        .library {
+            width: 155px;
+        }
+
+        .mode-button {
+            padding: 0 7px;
+        }
+
+        .brand-text span {
+            display: none;
+        }
+    }
+
+    @media (max-width: 530px) {
+        .library {
+            display: none;
+        }
+
+        .brand {
+            min-width: auto;
+        }
+
+        .brand-text {
+            display: none;
+        }
+
+        .display-strip {
+            grid-template-columns: 90px 1fr 65px;
+        }
+
+        .controls-row {
+            gap: 2px;
+        }
+
+        .control-button {
+            width: 30px;
+        }
+
+        .volume {
+            width: 60px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="app" id="app">
+
+    <!-- ==================================================
+         INTERNAL MENU BAR
+         ================================================== -->
+
+    <div class="menu-bar">
+
+        <div class="menu-item">
+            <button class="menu-button">File</button>
+
+            <div class="dropdown">
+                <button data-action="open">
+                    <span>Open Media Files...</span>
+                    <span class="shortcut">Ctrl+O</span>
+                </button>
+
+                <button data-action="open-subtitle">
+                    <span>Load Subtitle...</span>
+                </button>
+
+                <div class="separator"></div>
+
+                <button data-action="clear">
+                    <span>Clear Playlist</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="menu-item">
+            <button class="menu-button">Playback</button>
+
+            <div class="dropdown">
+                <button data-action="play">
+                    <span>Play / Pause</span>
+                    <span class="shortcut">Space</span>
+                </button>
+
+                <button data-action="stop">
+                    <span>Stop</span>
+                    <span class="shortcut">S</span>
+                </button>
+
+                <button data-action="previous">
+                    <span>Previous</span>
+                </button>
+
+                <button data-action="next">
+                    <span>Next</span>
+                </button>
+
+                <div class="separator"></div>
+
+                <button data-action="speed">
+                    <span>Playback Speed</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="menu-item">
+            <button class="menu-button">View</button>
+
+            <div class="dropdown">
+                <button data-action="playlist">
+                    <span>Show / Hide Library</span>
+                </button>
+
+                <button data-action="aspect">
+                    <span>Toggle 16:9 / 4:3</span>
+                </button>
+
+                <button data-action="theater">
+                    <span>TrueTheater Effect</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="menu-item">
+            <button class="menu-button">Player</button>
+
+            <div class="dropdown">
+                <button data-action="settings">
+                    <span>Configuration...</span>
+                </button>
+
+                <button data-action="capture">
+                    <span>Capture Frame</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="menu-item">
+            <button class="menu-button">Help</button>
+
+            <div class="dropdown">
+                <button data-action="about">
+                    <span>About PowerDVD</span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ==================================================
+         MODE BAR
+         ================================================== -->
+
+    <div class="mode-bar">
+
+        <div class="brand">
+            <div class="brand-mark"></div>
+
+            <div class="brand-text">
+                <strong>PowerDVD</strong>
+                <span>Digital Media Player</span>
+            </div>
+        </div>
+
+        <button class="mode-button active" data-mode="movie">
+            Movie
+        </button>
+
+        <button class="mode-button" data-mode="video">
+            Video
+        </button>
+
+        <button class="mode-button" data-mode="music">
+            Music
+        </button>
+
+    </div>
+
+    <!-- ==================================================
+         PLAYER
+         ================================================== -->
+
+    <div class="main">
+
+        <aside class="library" id="library">
+
+            <div class="library-header">
+                Media Library
+            </div>
+
+            <div class="library-nav">
+                <button class="active" data-library-filter="all">
+                    ▶ All Media
+                </button>
+
+                <button data-library-filter="video">
+                    ▣ Videos
+                </button>
+
+                <button data-library-filter="audio">
+                    ♪ Music
+                </button>
+            </div>
+
+            <div class="playlist-title">
+                Playlist
+            </div>
+
+            <div class="playlist" id="playlist">
+                <div class="playlist-empty" id="playlistEmpty">
+                    No media files.<br><br>
+                    Choose <b>File → Open Media Files</b>
+                    or drag files onto the player.
+                </div>
+            </div>
+
+        </aside>
+
+        <section class="viewer-column">
+
+            <div class="video-area" id="videoArea">
+
+                <video
+                    id="video"
+                    preload="metadata"
+                    playsinline
+                ></video>
+
+                <audio
+                    id="audio"
+                    preload="metadata"
+                ></audio>
+
+                <div class="audio-visual" id="audioVisual">
+                    <div class="audio-disc" id="audioDisc"></div>
+                    <strong id="audioTitle">Audio</strong>
+                </div>
+
+                <div class="idle-screen" id="idleScreen">
+                    <div class="idle-logo"></div>
+                    <strong>CyberLink PowerDVD</strong>
+                    <small>Open or drag a media file to begin</small>
+                </div>
+
+                <div class="drop-overlay">
+                    Drop media files here
+                </div>
+
+                <div class="osd" id="osd">
+                    Ready
+                </div>
+
+            </div>
+
+            <!-- ==========================================
+                 CONTROL DECK
+                 ========================================== -->
+
+            <div class="control-deck">
+
+                <div class="display-strip">
+
+                    <div class="time-display" id="timeDisplay">
+                        00:00:00
+                    </div>
+
+                    <div class="media-display" id="mediaDisplay">
+                        No Disc / No Media
+                    </div>
+
+                    <div class="rate-display" id="rateDisplay">
+                        1.00x
+                    </div>
+
+                </div>
+
+                <div class="seek-row">
+                    <span class="mini-text">00:00</span>
+
+                    <input
+                        id="seek"
+                        class="seek"
+                        type="range"
+                        min="0"
+                        max="1000"
+                        value="0"
+                    >
+
+                    <span class="mini-text" id="durationText">
+                        00:00
+                    </span>
+                </div>
+
+                <div class="controls-row">
+
+                    <button
+                        class="control-button"
+                        id="previousButton"
+                        title="Previous"
+                    >
+                        |◀
+                    </button>
+
+                    <button
+                        class="control-button"
+                        id="rewindButton"
+                        title="Back 10 seconds"
+                    >
+                        ◀◀
+                    </button>
+
+                    <button
+                        class="control-button big"
+                        id="playButton"
+                        title="Play / Pause"
+                    >
+                        ▶
+                    </button>
+
+                    <button
+                        class="control-button stop"
+                        id="stopButton"
+                        title="Stop"
+                    >
+                        ■
+                    </button>
+
+                    <button
+                        class="control-button"
+                        id="forwardButton"
+                        title="Forward 10 seconds"
+                    >
+                        ▶▶
+                    </button>
+
+                    <button
+                        class="control-button"
+                        id="nextButton"
+                        title="Next"
+                    >
+                        ▶|
+                    </button>
+
+                    <div class="divider"></div>
+
+                    <button
+                        class="control-button"
+                        id="openButton"
+                        title="Open Media"
+                    >
+                        📂
+                    </button>
+
+                    <button
+                        class="control-button"
+                        id="playlistButton"
+                        title="Media Library"
+                    >
+                        ☰
+                    </button>
+
+                    <button
+                        class="control-button"
+                        id="aspectButton"
+                        title="Aspect Ratio"
+                    >
+                        4:3
+                    </button>
+
+                    <button
+                        class="control-button"
+                        id="captureButton"
+                        title="Capture Frame"
+                    >
+                        ●
+                    </button>
+
+                    <div class="volume-box">
+
+                        <button
+                            class="control-button"
+                            id="muteButton"
+                            title="Mute"
+                        >
+                            ♪
+                        </button>
+
+                        <input
+                            id="volume"
+                            class="volume"
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.01"
+                            value="0.75"
+                            title="Volume"
+                        >
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ==================================================
+             DIALOG
+             ================================================== -->
+
+        <div class="dialog-layer" id="dialogLayer">
+
+            <div class="xp-dialog">
+
+                <div class="dialog-title" id="dialogTitle">
+                    PowerDVD
+                </div>
+
+                <div class="dialog-content" id="dialogContent"></div>
+
+                <div class="dialog-controls">
+                    <button class="xp-button" id="dialogClose">
+                        OK
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ==================================================
+         STATUS BAR
+         ================================================== -->
+
+    <div class="status-bar">
+
+        <div
+            class="status-section status-main"
+            id="statusMain"
+        >
+            Ready
+        </div>
+
+        <div
+            class="status-section"
+            id="statusType"
+        >
+            No Media
+        </div>
+
+        <div
+            class="status-section"
+            id="statusVolume"
+        >
+            Volume: 75%
+        </div>
+
+    </div>
+
+</div>
+
+<input
+    type="file"
+    id="fileInput"
+    hidden
+    multiple
+    accept="video/*,audio/*,.mkv,.avi,.mpg,.mpeg,.mov,.wmv,.webm,.mp4,.m4v,.mp3,.wav,.ogg,.m4a,.aac"
+>
+
+<input
+    type="file"
+    id="subtitleInput"
+    hidden
+    accept=".vtt,text/vtt"
+>
+
+<script>
+(() => {
+    "use strict";
+
+    /* =====================================================
+       DOM
+       ===================================================== */
+
+    const app = document.getElementById("app");
+
+    const video = document.getElementById("video");
+    const audio = document.getElementById("audio");
+
+    const videoArea = document.getElementById("videoArea");
+    const idleScreen = document.getElementById("idleScreen");
+
+    const audioVisual = document.getElementById("audioVisual");
+    const audioDisc = document.getElementById("audioDisc");
+    const audioTitle = document.getElementById("audioTitle");
+
+    const library = document.getElementById("library");
+    const playlist = document.getElementById("playlist");
+    const playlistEmpty = document.getElementById("playlistEmpty");
+
+    const seek = document.getElementById("seek");
+    const volume = document.getElementById("volume");
+
+    const timeDisplay = document.getElementById("timeDisplay");
+    const durationText = document.getElementById("durationText");
+    const mediaDisplay = document.getElementById("mediaDisplay");
+    const rateDisplay = document.getElementById("rateDisplay");
+
+    const statusMain = document.getElementById("statusMain");
+    const statusType = document.getElementById("statusType");
+    const statusVolume = document.getElementById("statusVolume");
+
+    const playButton = document.getElementById("playButton");
+    const stopButton = document.getElementById("stopButton");
+    const previousButton = document.getElementById("previousButton");
+    const nextButton = document.getElementById("nextButton");
+    const rewindButton = document.getElementById("rewindButton");
+    const forwardButton = document.getElementById("forwardButton");
+
+    const openButton = document.getElementById("openButton");
+    const playlistButton = document.getElementById("playlistButton");
+    const aspectButton = document.getElementById("aspectButton");
+    const captureButton = document.getElementById("captureButton");
+    const muteButton = document.getElementById("muteButton");
+
+    const fileInput = document.getElementById("fileInput");
+    const subtitleInput = document.getElementById("subtitleInput");
+
+    const osd = document.getElementById("osd");
+
+    const dialogLayer = document.getElementById("dialogLayer");
+    const dialogTitle = document.getElementById("dialogTitle");
+    const dialogContent = document.getElementById("dialogContent");
+    const dialogClose = document.getElementById("dialogClose");
+
+    /* =====================================================
+       STATE
+       ===================================================== */
+
+    const state = {
+        playlist: [],
+        index: -1,
+        type: null,
+
+        rateIndex: 0,
+
+        rates: [
+            1,
+            1.25,
+            1.5,
+            2,
+            0.75
+        ],
+
+        trueTheater: false,
+        aspect43: false,
+
+        filter: "all",
+        osdTimer: null
+    };
+
+    /* =====================================================
+       UTILITIES
+       ===================================================== */
+
+    function currentPlayer() {
+        return state.type === "audio" ? audio : video;
+    }
+
+    function formatTime(seconds) {
+        if (!Number.isFinite(seconds)) {
+            seconds = 0;
+        }
+
+        seconds = Math.max(0, Math.floor(seconds));
+
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+
+        return [
+            String(h).padStart(2, "0"),
+            String(m).padStart(2, "0"),
+            String(s).padStart(2, "0")
+        ].join(":");
+    }
+
+    function shortTime(seconds) {
+        if (!Number.isFinite(seconds)) {
+            seconds = 0;
+        }
+
+        seconds = Math.max(0, Math.floor(seconds));
+
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+
+        return (
+            String(m).padStart(2, "0")
+            + ":"
+            + String(s).padStart(2, "0")
+        );
+    }
+
+    function escapeHTML(text) {
+        const div = document.createElement("div");
+        div.textContent = String(text);
+        return div.innerHTML;
+    }
+
+    function showOSD(message) {
+        osd.textContent = message;
+        osd.classList.add("show");
+
+        clearTimeout(state.osdTimer);
+
+        state.osdTimer = setTimeout(() => {
+            osd.classList.remove("show");
+        }, 1200);
+    }
+
+    function setStatus(message) {
+        statusMain.textContent = message;
+    }
+
+    function showDialog(title, html) {
+        dialogTitle.textContent = title;
+        dialogContent.innerHTML = html;
+        dialogLayer.classList.add("active");
+    }
+
+    function hideDialog() {
+        dialogLayer.classList.remove("active");
+    }
+
+    function closeMenus() {
+        document
+            .querySelectorAll(".menu-item.open")
+            .forEach(item => item.classList.remove("open"));
+    }
+
+    /* =====================================================
+       MEDIA TYPE
+       ===================================================== */
+
+    function detectType(file) {
+        const name = file.name.toLowerCase();
+        const type = file.type.toLowerCase();
+
+        if (type.startsWith("audio/")) {
+            return "audio";
+        }
+
+        if (type.startsWith("video/")) {
+            return "video";
+        }
+
+        if (
+            /\.(mp3|wav|ogg|oga|m4a|aac|flac)$/i.test(name)
+        ) {
+            return "audio";
+        }
+
+        return "video";
+    }
+
+    /* =====================================================
+       PLAYLIST
+       ===================================================== */
+
+    function addFiles(fileList) {
+        const files = Array.from(fileList);
+
+        if (!files.length) {
+            return;
+        }
+
+        for (const file of files) {
+            const entry = {
+                file,
+                name: file.name,
+                type: detectType(file),
+                url: URL.createObjectURL(file)
+            };
+
+            state.playlist.push(entry);
+        }
+
+        renderPlaylist();
+
+        if (state.index === -1 && state.playlist.length) {
+            loadIndex(0, false);
+        }
+
+        setStatus(
+            state.playlist.length
+            + " media file(s) loaded."
+        );
+    }
+
+    function renderPlaylist() {
+        playlist
+            .querySelectorAll(".playlist-item")
+            .forEach(element => element.remove());
+
+        playlistEmpty.style.display =
+            state.playlist.length ? "none" : "block";
+
+        state.playlist.forEach((item, index) => {
+            if (
+                state.filter !== "all"
+                && item.type !== state.filter
+            ) {
+                return;
+            }
+
+            const element = document.createElement("div");
+
+            element.className = "playlist-item";
+
+            if (index === state.index) {
+                element.classList.add("active");
+            }
+
+            element.textContent =
+                (item.type === "audio" ? "♪ " : "▶ ")
+                + item.name;
+
+            element.title = item.name;
+
+            element.addEventListener("dblclick", () => {
+                loadIndex(index, true);
+            });
+
+            playlist.appendChild(element);
+        });
+    }
+
+    function clearPlaylist() {
+        stop();
+
+        for (const item of state.playlist) {
+            URL.revokeObjectURL(item.url);
+        }
+
+        state.playlist = [];
+        state.index = -1;
+        state.type = null;
+
+        video.removeAttribute("src");
+        audio.removeAttribute("src");
+
+        video.load();
+        audio.load();
+
+        video.classList.remove("active");
+        audioVisual.classList.remove("active");
+        idleScreen.classList.remove("hidden");
+
+        mediaDisplay.textContent = "No Disc / No Media";
+        statusType.textContent = "No Media";
+        timeDisplay.textContent = "00:00:00";
+        durationText.textContent = "00:00";
+
+        seek.value = 0;
+
+        renderPlaylist();
+        setStatus("Playlist cleared.");
+    }
+
+    /* =====================================================
+       LOAD
+       ===================================================== */
+
+    function loadIndex(index, autoplay = true) {
+        if (
+            index < 0
+            || index >= state.playlist.length
+        ) {
+            return;
+        }
+
+        const item = state.playlist[index];
+
+        video.pause();
+        audio.pause();
+
+        state.index = index;
+        state.type = item.type;
+
+        idleScreen.classList.add("hidden");
+
+        if (item.type === "audio") {
+            video.classList.remove("active");
+            audioVisual.classList.add("active");
+
+            audio.src = item.url;
+            audio.load();
+
+            audioTitle.textContent = item.name;
+
+            statusType.textContent = "Audio";
+        } else {
+            audioVisual.classList.remove("active");
+            video.classList.add("active");
+
+            video.src = item.url;
+            video.load();
+
+            statusType.textContent = "Video";
+        }
+
+        mediaDisplay.textContent = item.name;
+        setStatus("Loaded: " + item.name);
+
+        renderPlaylist();
+
+        seek.value = 0;
+        timeDisplay.textContent = "00:00:00";
+        durationText.textContent = "00:00";
+
+        const player = currentPlayer();
+
+        player.volume = Number(volume.value);
+        player.playbackRate = state.rates[state.rateIndex];
+
+        if (autoplay) {
+            player.play().catch(() => {
+                setStatus("Ready to play.");
+            });
+        }
+    }
+
+    /* =====================================================
+       PLAYBACK
+       ===================================================== */
+
+    function playPause() {
+        if (state.index === -1) {
+            fileInput.click();
+            return;
+        }
+
+        const player = currentPlayer();
+
+        if (player.paused) {
+            player.play().catch(() => {
+                showDialog(
+                    "Playback",
+                    "<p>The browser could not start playback.</p>"
+                    + "<p>Try pressing the Play button again.</p>"
+                );
+            });
+        } else {
+            player.pause();
+        }
+    }
+
+    function stop() {
+        if (state.index === -1) {
+            return;
+        }
+
+        const player = currentPlayer();
+
+        player.pause();
+
+        try {
+            player.currentTime = 0;
+        } catch (_) {}
+
+        seek.value = 0;
+
+        updateTime();
+
+        playButton.textContent = "▶";
+        audioDisc.classList.remove("spinning");
+
+        setStatus("Stopped.");
+    }
+
+    function previous() {
+        if (!state.playlist.length) {
+            return;
+        }
+
+        let index = state.index - 1;
+
+        if (index < 0) {
+            index = state.playlist.length - 1;
+        }
+
+        loadIndex(index, true);
+    }
+
+    function next() {
+        if (!state.playlist.length) {
+            return;
+        }
+
+        let index = state.index + 1;
+
+        if (index >= state.playlist.length) {
+            index = 0;
+        }
+
+        loadIndex(index, true);
+    }
+
+    function seekBy(seconds) {
+        if (state.index === -1) {
+            return;
+        }
+
+        const player = currentPlayer();
+
+        if (!Number.isFinite(player.duration)) {
+            return;
+        }
+
+        player.currentTime = Math.max(
+            0,
+            Math.min(
+                player.duration,
+                player.currentTime + seconds
+            )
+        );
+
+        showOSD(
+            (seconds > 0 ? "+" : "")
+            + seconds
+            + " sec"
+        );
+    }
+
+    function updateTime() {
+        if (state.index === -1) {
+            return;
+        }
+
+        const player = currentPlayer();
+
+        timeDisplay.textContent =
+            formatTime(player.currentTime);
+
+        durationText.textContent =
+            shortTime(player.duration);
+
+        if (
+            Number.isFinite(player.duration)
+            && player.duration > 0
+        ) {
+            seek.value = Math.floor(
+                (player.currentTime / player.duration)
+                * 1000
+            );
+        }
+    }
+
+    /* =====================================================
+       SPEED
+       ===================================================== */
+
+    function cycleSpeed() {
+        state.rateIndex++;
+
+        if (state.rateIndex >= state.rates.length) {
+            state.rateIndex = 0;
+        }
+
+        const rate = state.rates[state.rateIndex];
+
+        video.playbackRate = rate;
+        audio.playbackRate = rate;
+
+        rateDisplay.textContent = rate.toFixed(2) + "x";
+
+        showOSD(
+            "Playback speed: "
+            + rate.toFixed(2)
+            + "x"
+        );
+    }
+
+    /* =====================================================
+       VOLUME
+       ===================================================== */
+
+    function setVolume(value) {
+        const amount = Math.max(
+            0,
+            Math.min(1, Number(value))
+        );
+
+        volume.value = amount;
+
+        video.volume = amount;
+        audio.volume = amount;
+
+        video.muted = false;
+        audio.muted = false;
+
+        muteButton.textContent =
+            amount === 0 ? "×" : "♪";
+
+        statusVolume.textContent =
+            "Volume: "
+            + Math.round(amount * 100)
+            + "%";
+    }
+
+    function toggleMute() {
+        const player = currentPlayer();
+
+        if (state.index === -1) {
+            return;
+        }
+
+        player.muted = !player.muted;
+
+        muteButton.textContent =
+            player.muted ? "×" : "♪";
+
+        showOSD(
+            player.muted
+                ? "Mute"
+                : "Volume "
+                    + Math.round(player.volume * 100)
+                    + "%"
+        );
+    }
+
+    /* =====================================================
+       ASPECT
+       ===================================================== */
+
+    function toggleAspect() {
+        state.aspect43 = !state.aspect43;
+
+        app.classList.toggle(
+            "aspect-4-3",
+            state.aspect43
+        );
+
+        aspectButton.textContent =
+            state.aspect43 ? "16:9" : "4:3";
+
+        showOSD(
+            state.aspect43
+                ? "Aspect ratio: 4:3"
+                : "Aspect ratio: Auto"
+        );
+    }
+
+    /* =====================================================
+       TRUETHEATER
+       ===================================================== */
+
+    function toggleTrueTheater() {
+        state.trueTheater = !state.trueTheater;
+
+        app.classList.toggle(
+            "true-theater",
+            state.trueTheater
+        );
+
+        showOSD(
+            "TrueTheater: "
+            + (state.trueTheater ? "On" : "Off")
+        );
+    }
+
+    /* =====================================================
+       SCREENSHOT
+       ===================================================== */
+
+    function captureFrame() {
+        if (
+            state.type !== "video"
+            || state.index === -1
+            || !video.videoWidth
+        ) {
+            showDialog(
+                "Capture Frame",
+                "<p>No video frame is currently available.</p>"
+            );
+
+            return;
+        }
+
+        try {
+            const canvas =
+                document.createElement("canvas");
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            const context =
+                canvas.getContext("2d");
+
+            context.drawImage(
+                video,
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
+
+            canvas.toBlob(blob => {
+                if (!blob) {
+                    return;
+                }
+
+                const link =
+                    document.createElement("a");
+
+                link.href =
+                    URL.createObjectURL(blob);
+
+                link.download =
+                    "powerdvd-capture-"
+                    + Date.now()
+                    + ".png";
+
+                link.click();
+
+                setTimeout(() => {
+                    URL.revokeObjectURL(link.href);
+                }, 1000);
+
+                showOSD("Frame captured");
+            }, "image/png");
+
+        } catch (_) {
+            showDialog(
+                "Capture Frame",
+                "<p>The browser could not capture this video frame.</p>"
+            );
+        }
+    }
+
+    /* =====================================================
+       SUBTITLE
+       ===================================================== */
+
+    function loadSubtitle(file) {
+        if (
+            state.type !== "video"
+            || state.index === -1
+        ) {
+            showDialog(
+                "Subtitle",
+                "<p>Open a video before loading subtitles.</p>"
+            );
+
+            return;
+        }
+
+        if (!file.name.toLowerCase().endsWith(".vtt")) {
+            showDialog(
+                "Subtitle",
+                "<p>This browser edition currently accepts "
+                + "<b>WebVTT (.vtt)</b> subtitles.</p>"
+            );
+
+            return;
+        }
+
+        video
+            .querySelectorAll("track[data-local-track]")
+            .forEach(track => {
+                if (track.dataset.url) {
+                    URL.revokeObjectURL(track.dataset.url);
+                }
+
+                track.remove();
+            });
+
+        const url = URL.createObjectURL(file);
+
+        const track =
+            document.createElement("track");
+
+        track.kind = "subtitles";
+        track.label = "Local Subtitle";
+        track.srclang = "en";
+        track.default = true;
+
+        track.src = url;
+
+        track.dataset.localTrack = "1";
+        track.dataset.url = url;
+
+        video.appendChild(track);
+
+        track.addEventListener("load", () => {
+            if (track.track) {
+                track.track.mode = "showing";
+            }
+        });
+
+        setStatus(
+            "Subtitle loaded: "
+            + file.name
+        );
+
+        showOSD("Subtitle loaded");
+    }
+
+    /* =====================================================
+       DIALOG CONTENT
+       ===================================================== */
+
+    function showAbout() {
+        showDialog(
+            "About CyberLink PowerDVD",
+            `
+                <h3>CyberLink PowerDVD - Retro Web Edition</h3>
+
+                <p>
+                    Windows XP era inspired media player
+                    simulation for the web desktop project.
+                </p>
+
+                <p>
+                    Browser playback engine:
+                    HTML5 Video / Audio.
+                </p>
+
+                <p>
+                    This recreation does not contain the
+                    original CyberLink player engine or
+                    proprietary codecs.
+                </p>
+            `
+        );
+    }
+
+    function showSettings() {
+        showDialog(
+            "PowerDVD Configuration",
+            `
+                <h3>Player Configuration</h3>
+
+                <div class="settings-row">
+                    <span>TrueTheater enhancement</span>
+
+                    <b>
+                        ${state.trueTheater ? "Enabled" : "Disabled"}
+                    </b>
+                </div>
+
+                <div class="settings-row">
+                    <span>Aspect ratio</span>
+
+                    <b>
+                        ${state.aspect43 ? "4:3" : "Automatic"}
+                    </b>
+                </div>
+
+                <div class="settings-row">
+                    <span>Playback speed</span>
+
+                    <b>
+                        ${state.rates[state.rateIndex].toFixed(2)}x
+                    </b>
+                </div>
+
+                <div class="settings-row">
+                    <span>Playlist files</span>
+
+                    <b>
+                        ${state.playlist.length}
+                    </b>
+                </div>
+
+                <p style="margin-top:12px;color:#666">
+                    Playback availability depends on codecs
+                    supported by the browser.
+                </p>
+            `
+        );
+    }
+
+    /* =====================================================
+       ACTION DISPATCH
+       ===================================================== */
+
+    function executeAction(action) {
+        switch (action) {
+            case "open":
+                fileInput.click();
+                break;
+
+            case "open-subtitle":
+                subtitleInput.click();
+                break;
+
+            case "clear":
+                clearPlaylist();
+                break;
+
+            case "play":
+                playPause();
+                break;
+
+            case "stop":
+                stop();
+                break;
+
+            case "previous":
+                previous();
+                break;
+
+            case "next":
+                next();
+                break;
+
+            case "speed":
+                cycleSpeed();
+                break;
+
+            case "playlist":
+                library.classList.toggle("hidden");
+                break;
+
+            case "aspect":
+                toggleAspect();
+                break;
+
+            case "theater":
+                toggleTrueTheater();
+                break;
+
+            case "settings":
+                showSettings();
+                break;
+
+            case "capture":
+                captureFrame();
+                break;
+
+            case "about":
+                showAbout();
+                break;
+        }
+
+        closeMenus();
+    }
+
+    /* =====================================================
+       MENU EVENTS
+       ===================================================== */
+
+    document
+        .querySelectorAll(".menu-button")
+        .forEach(button => {
+            button.addEventListener("click", event => {
+                event.stopPropagation();
+
+                const item =
+                    button.closest(".menu-item");
+
+                const isOpen =
+                    item.classList.contains("open");
+
+                closeMenus();
+
+                if (!isOpen) {
+                    item.classList.add("open");
+                }
+            });
+        });
+
+    document
+        .querySelectorAll("[data-action]")
+        .forEach(button => {
+            button.addEventListener("click", () => {
+                executeAction(
+                    button.dataset.action
+                );
+            });
+        });
+
+    document.addEventListener("click", closeMenus);
+
+    /* =====================================================
+       MODE BUTTONS
+       ===================================================== */
+
+    document
+        .querySelectorAll("[data-mode]")
+        .forEach(button => {
+            button.addEventListener("click", () => {
+                document
+                    .querySelectorAll("[data-mode]")
+                    .forEach(other =>
+                        other.classList.remove("active")
+                    );
+
+                button.classList.add("active");
+
+                const mode =
+                    button.dataset.mode;
+
+                if (mode === "music") {
+                    state.filter = "audio";
+                } else if (mode === "video") {
+                    state.filter = "video";
+                } else {
+                    state.filter = "all";
+                }
+
+                renderPlaylist();
+            });
+        });
+
+    /* =====================================================
+       LIBRARY FILTERS
+       ===================================================== */
+
+    document
+        .querySelectorAll("[data-library-filter]")
+        .forEach(button => {
+            button.addEventListener("click", () => {
+                document
+                    .querySelectorAll(
+                        "[data-library-filter]"
+                    )
+                    .forEach(other =>
+                        other.classList.remove("active")
+                    );
+
+                button.classList.add("active");
+
+                state.filter =
+                    button.dataset.libraryFilter;
+
+                renderPlaylist();
+            });
+        });
+
+    /* =====================================================
+       CONTROL EVENTS
+       ===================================================== */
+
+    playButton.addEventListener(
+        "click",
+        playPause
+    );
+
+    stopButton.addEventListener(
+        "click",
+        stop
+    );
+
+    previousButton.addEventListener(
+        "click",
+        previous
+    );
+
+    nextButton.addEventListener(
+        "click",
+        next
+    );
+
+    rewindButton.addEventListener(
+        "click",
+        () => seekBy(-10)
+    );
+
+    forwardButton.addEventListener(
+        "click",
+        () => seekBy(10)
+    );
+
+    openButton.addEventListener(
+        "click",
+        () => fileInput.click()
+    );
+
+    playlistButton.addEventListener(
+        "click",
+        () => library.classList.toggle("hidden")
+    );
+
+    aspectButton.addEventListener(
+        "click",
+        toggleAspect
+    );
+
+    captureButton.addEventListener(
+        "click",
+        captureFrame
+    );
+
+    muteButton.addEventListener(
+        "click",
+        toggleMute
+    );
+
+    /* =====================================================
+       SEEK
+       ===================================================== */
+
+    seek.addEventListener("input", () => {
+        if (state.index === -1) {
+            return;
+        }
+
+        const player = currentPlayer();
+
+        if (
+            !Number.isFinite(player.duration)
+            || player.duration <= 0
+        ) {
+            return;
+        }
+
+        player.currentTime =
+            player.duration
+            * (Number(seek.value) / 1000);
+    });
+
+    /* =====================================================
+       VOLUME
+       ===================================================== */
+
+    volume.addEventListener("input", () => {
+        setVolume(volume.value);
+    });
+
+    /* =====================================================
+       FILE INPUT
+       ===================================================== */
+
+    fileInput.addEventListener("change", () => {
+        addFiles(fileInput.files);
+        fileInput.value = "";
+    });
+
+    subtitleInput.addEventListener("change", () => {
+        const file = subtitleInput.files[0];
+
+        if (file) {
+            loadSubtitle(file);
+        }
+
+        subtitleInput.value = "";
+    });
+
+    /* =====================================================
+       MEDIA EVENTS
+       ===================================================== */
+
+    function registerMediaEvents(player) {
+        player.addEventListener(
+            "timeupdate",
+            updateTime
+        );
+
+        player.addEventListener(
+            "loadedmetadata",
+            updateTime
+        );
+
+        player.addEventListener("play", () => {
+            playButton.textContent = "Ⅱ";
+
+            if (state.type === "audio") {
+                audioDisc.classList.add("spinning");
+            }
+
+            setStatus("Playing.");
+        });
+
+        player.addEventListener("pause", () => {
+            playButton.textContent = "▶";
+            audioDisc.classList.remove("spinning");
+        });
+
+        player.addEventListener("ended", () => {
+            audioDisc.classList.remove("spinning");
+            next();
+        });
+
+        player.addEventListener("error", () => {
+            showDialog(
+                "PowerDVD Playback Error",
+                `
+                    <p>
+                        PowerDVD could not play this media file.
+                    </p>
+
+                    <p>
+                        The browser may not support its
+                        codec or container format.
+                    </p>
+
+                    <p>
+                        MP4/H.264, WebM, MP3, WAV and OGG
+                        normally provide the best browser
+                        compatibility.
+                    </p>
+                `
+            );
+
+            setStatus("Playback error.");
+        });
+    }
+
+    registerMediaEvents(video);
+    registerMediaEvents(audio);
+
+    /* =====================================================
+       DRAG & DROP
+       ===================================================== */
+
+    let dragCounter = 0;
+
+    videoArea.addEventListener(
+        "dragenter",
+        event => {
+            event.preventDefault();
+
+            dragCounter++;
+
+            videoArea.classList.add("drag");
+        }
+    );
+
+    videoArea.addEventListener(
+        "dragover",
+        event => {
+            event.preventDefault();
+        }
+    );
+
+    videoArea.addEventListener(
+        "dragleave",
+        event => {
+            event.preventDefault();
+
+            dragCounter--;
+
+            if (dragCounter <= 0) {
+                dragCounter = 0;
+                videoArea.classList.remove("drag");
+            }
+        }
+    );
+
+    videoArea.addEventListener(
+        "drop",
+        event => {
+            event.preventDefault();
+
+            dragCounter = 0;
+            videoArea.classList.remove("drag");
+
+            addFiles(event.dataTransfer.files);
+        }
+    );
+
+    /* =====================================================
+       KEYBOARD
+       ===================================================== */
+
+    document.addEventListener("keydown", event => {
+        if (
+            event.target.tagName === "INPUT"
+            || event.target.tagName === "SELECT"
+        ) {
+            return;
+        }
+
+        if (
+            event.ctrlKey
+            && event.key.toLowerCase() === "o"
+        ) {
+            event.preventDefault();
+            fileInput.click();
+            return;
+        }
+
+        switch (event.key) {
+            case " ":
+                event.preventDefault();
+                playPause();
+                break;
+
+            case "ArrowLeft":
+                event.preventDefault();
+                seekBy(-5);
+                break;
+
+            case "ArrowRight":
+                event.preventDefault();
+                seekBy(5);
+                break;
+
+            case "ArrowUp":
+                event.preventDefault();
+
+                setVolume(
+                    Number(volume.value) + 0.05
+                );
+                break;
+
+            case "ArrowDown":
+                event.preventDefault();
+
+                setVolume(
+                    Number(volume.value) - 0.05
+                );
+                break;
+
+            case "m":
+            case "M":
+                toggleMute();
+                break;
+
+            case "s":
+            case "S":
+                stop();
+                break;
+
+            case "Escape":
+                hideDialog();
+                closeMenus();
+                break;
+        }
+    });
+
+    /* =====================================================
+       DIALOG
+       ===================================================== */
+
+    dialogClose.addEventListener(
+        "click",
+        hideDialog
+    );
+
+    dialogLayer.addEventListener(
+        "mousedown",
+        event => {
+            if (event.target === dialogLayer) {
+                hideDialog();
+            }
+        }
+    );
+
+    /* =====================================================
+       CLEANUP
+       ===================================================== */
+
+    window.addEventListener(
+        "beforeunload",
+        () => {
+            for (const item of state.playlist) {
+                URL.revokeObjectURL(item.url);
+            }
+        }
+    );
+
+    /* =====================================================
+       INITIALIZE
+       ===================================================== */
+
+    setVolume(0.75);
+
+    setStatus(
+        "Ready - Open a media file or drag it into PowerDVD."
+    );
+
+})();
+</script>
+
+</body>
+</html>

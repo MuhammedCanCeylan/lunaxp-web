@@ -1,0 +1,782 @@
+<!--
+WINDOWS XP SYSTEM RESTORE (rstrui) - ASSET LISTESI
+
+| Dosya adi | Tavsiye edilen boyut | Zorunluluk | Kullanim / Aciklama |
+|------------|----------------------|------------|----------------------------------------------|
+| icon.png   | 32x32                | Zorunlu    | XP System Tools / System Restore ikonu       |
+
+NOTLAR:
+- Bu uygulama Windows XP System Restore sihirbazini tarayicida yeniden olusturur.
+- Geri yukleme noktalari localStorage icinde gercek olarak olusturulur, listelenir ve silinir.
+- "Restore" islemi sihirbaz/progress/restart akisini gercekten yurutur ve son restorasyonu kaydeder.
+- Ancak host Windows dosyalarini, registry'yi veya kullanicinin gercek isletim sistemini degistirmez.
+- Projenin registry/vfs semasi bilinmedigi icin ana XP shell dosyalarina tahmini mudahale YAPILMAZ.
+- Dış XP Luna titlebar/taskbar ana WindowManager tarafindan saglanir.
+- alert(), confirm(), prompt() kullanilmaz; tum mesajlar uygulama ici dialoglardir.
+-->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sistem Geri Yükleme</title>
+<style>
+:root{
+  --xp:#ECE9D8;
+  --line:#ACA899;
+  --blue:#0A246A;
+  --blue2:#3A6EA5;
+  --link:#003399;
+}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden}
+body{font:11px Tahoma,Arial,sans-serif;background:#fff;color:#000}
+button,input{font:11px Tahoma,Arial,sans-serif}
+button{cursor:default}
+.app{
+  width:100%;height:100%;min-width:620px;min-height:430px;
+  display:grid;grid-template-rows:1fr 54px;background:#fff
+}
+.wizard{
+  min-height:0;display:grid;grid-template-columns:186px 1fr;
+  border-bottom:1px solid #8a8a8a
+}
+.side{
+  position:relative;overflow:hidden;
+  background:linear-gradient(180deg,#0d4d9b 0%,#3b7bbd 43%,#6da0cf 100%);
+  color:#fff
+}
+.side:before{
+  content:"";position:absolute;left:-60px;bottom:-85px;width:270px;height:270px;border-radius:50%;
+  background:radial-gradient(circle at 55% 40%,rgba(255,255,255,.55),rgba(255,255,255,.13) 42%,transparent 43%);
+}
+.side:after{
+  content:"";position:absolute;left:58px;bottom:46px;width:115px;height:115px;border-radius:50%;
+  border:14px solid rgba(255,255,255,.16)
+}
+.sideText{
+  position:relative;z-index:2;padding:26px 18px;
+  font:normal 18px "Trebuchet MS",Tahoma,sans-serif;line-height:1.25
+}
+.sideSub{
+  margin-top:12px;font:11px Tahoma,Arial,sans-serif;line-height:1.45;color:#eaf3fb
+}
+.sideIcon{
+  position:absolute;z-index:3;left:24px;bottom:36px;width:60px;height:49px;
+  border:2px solid #d6ebff;background:#3b78b1;box-shadow:0 0 0 3px rgba(0,47,100,.45),inset 0 0 0 2px #dbefff
+}
+.sideIcon:before{
+  content:"";position:absolute;left:18px;bottom:-14px;width:20px;height:10px;background:#ccd5dc
+}
+.sideIcon:after{
+  content:"↶";position:absolute;right:-27px;top:-15px;width:35px;height:35px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:#5aa84f;border:2px solid #e5f5e2;color:#fff;font:bold 24px Arial
+}
+
+.content{min-width:0;min-height:0;position:relative;background:#fff}
+.pageview{
+  position:absolute;inset:0;display:none;overflow:auto;padding:24px 29px 22px
+}
+.pageview.active{display:block}
+h1{
+  font:normal 22px "Trebuchet MS",Tahoma,sans-serif;color:#24558a;
+  margin:0 0 10px
+}
+.lead{font-size:12px;line-height:1.5;margin-bottom:19px}
+.helpText{color:#555;line-height:1.5}
+
+.choice{
+  display:grid;grid-template-columns:22px 1fr;gap:7px;padding:7px 5px;
+  margin:2px 0
+}
+.choice label{font-weight:bold;color:#174f88}
+.choice p{margin:3px 0 0;line-height:1.45;color:#444}
+.choice.disabled{opacity:.5}
+
+.link{
+  color:var(--link);text-decoration:underline;cursor:pointer
+}
+.notice{
+  margin-top:19px;padding:8px 10px;border:1px solid #d9c66b;background:#fff8d7;color:#5d5328;line-height:1.45
+}
+
+/* Calendar */
+.restoreLayout{
+  display:grid;grid-template-columns:minmax(310px,1fr) minmax(220px,.8fr);gap:17px
+}
+.calendarBox,.pointBox{
+  border:1px solid #9f9f9f;background:#f7f7f7
+}
+.calHead{
+  height:28px;display:grid;grid-template-columns:28px 1fr 28px;align-items:center;
+  background:#dbe7f3;border-bottom:1px solid #9f9f9f;color:#174f88;font-weight:bold;text-align:center
+}
+.calHead button{
+  width:24px;height:22px;margin:auto;border:1px solid transparent;background:transparent;color:#174f88;font-weight:bold
+}
+.calHead button:hover{border-color:#98aac0;background:#fff}
+.week,.days{
+  display:grid;grid-template-columns:repeat(7,1fr);text-align:center
+}
+.week{padding:5px 6px 1px;color:#666;font-size:10px}
+.days{padding:2px 6px 8px;gap:2px}
+.day{
+  height:29px;border:1px solid transparent;background:transparent;color:#333;
+  display:flex;align-items:center;justify-content:center;position:relative
+}
+.day.other{color:#aaa}
+.day.hasPoint{font-weight:bold;color:#0a3f82}
+.day.hasPoint:after{
+  content:"";position:absolute;bottom:2px;width:4px;height:4px;border-radius:50%;background:#4f8f46
+}
+.day:hover:not(:disabled){border-color:#9bb3cf;background:#eef5fc}
+.day.selected{border:1px solid #316ac5!important;background:#d8e8fb!important}
+.day.today{outline:1px dotted #777;outline-offset:-3px}
+
+.pointBox{background:#fff;display:flex;flex-direction:column;min-height:280px}
+.pointTitle{
+  padding:7px 9px;background:#dbe7f3;border-bottom:1px solid #9f9f9f;color:#174f88;font-weight:bold
+}
+.pointList{flex:1;overflow:auto}
+.point{
+  padding:8px 9px;border-bottom:1px solid #eee;cursor:default
+}
+.point:hover{background:#eef5fc}
+.point.selected{background:#316ac5;color:#fff}
+.point b{display:block;margin-bottom:3px}
+.point small{font-size:10px;color:#666}
+.point.selected small{color:#eaf3ff}
+.noPoint{padding:14px;color:#777;line-height:1.45}
+
+/* create */
+.formRow{margin:15px 0}
+.formRow label{display:block;margin-bottom:6px;font-weight:bold}
+.textbox{width:100%;height:25px;border:2px inset #fff;padding:2px 4px;background:#fff}
+.counter{text-align:right;color:#666;font-size:10px;margin-top:3px}
+.typeLine{
+  display:grid;grid-template-columns:110px 1fr;gap:7px;padding:6px 0;border-bottom:1px solid #eee
+}
+.typeLine b{font-weight:normal;color:#555}
+
+/* confirm */
+.summary{
+  border:1px solid #aaa;background:#f7f7f7;padding:10px;margin:14px 0
+}
+.summaryGrid{display:grid;grid-template-columns:135px 1fr;gap:7px 10px}
+.summaryGrid b{font-weight:normal;color:#555}
+
+/* progress */
+.progressArea{
+  max-width:440px;margin:35px auto;text-align:center
+}
+.progressIcon{
+  width:82px;height:66px;margin:0 auto 20px;position:relative;
+  border:2px solid #d6ebff;background:#3b78b1;box-shadow:0 0 0 3px #28557d,inset 0 0 0 2px #dbefff
+}
+.progressIcon:after{
+  content:"↶";position:absolute;right:-24px;top:-19px;width:39px;height:39px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;background:#5aa84f;border:2px solid #ecfae9;color:#fff;font:bold 27px Arial
+}
+.progressTrack{
+  height:19px;border:2px inset #fff;background:#f5f5f5;margin:18px 0 8px;padding:2px
+}
+.progressBar{height:100%;width:0;background:#316ac5;transition:width .35s linear}
+.restartScreen{
+  display:none;position:absolute;inset:0;z-index:80;background:#000;color:#fff;text-align:center;
+  align-items:center;justify-content:center;flex-direction:column
+}
+.restartScreen.show{display:flex}
+.xpLogo{
+  color:#fff;font:normal 31px "Trebuchet MS",Tahoma,sans-serif;margin-bottom:24px
+}
+.xpLogo b{font-weight:bold}
+.loader{width:170px;height:18px;border:2px solid #aaa;border-radius:2px;padding:2px;overflow:hidden}
+.loaderInner{
+  width:45px;height:100%;background:#397bc1;animation:boot 1.25s linear infinite
+}
+@keyframes boot{from{transform:translateX(-52px)}to{transform:translateX(174px)}}
+
+/* Footer buttons */
+.footer{
+  display:flex;align-items:center;justify-content:flex-end;gap:7px;
+  padding:10px 12px;background:var(--xp)
+}
+.footer .left{margin-right:auto}
+.xpbtn{
+  min-width:80px;height:27px;padding:1px 12px;background:var(--xp);border:2px outset #fff;color:#000
+}
+.xpbtn:active:not(:disabled){border-style:inset}
+.xpbtn:disabled{color:#888;text-shadow:1px 1px #fff}
+.xpbtn.primary{outline:1px solid #000;outline-offset:-4px}
+
+/* dialog */
+.shade{
+  display:none;position:absolute;inset:0;z-index:150;background:rgba(0,0,0,.18);
+  align-items:center;justify-content:center;padding:18px
+}
+.shade.show{display:flex}
+.dialog{
+  width:min(450px,92vw);background:var(--xp);border:2px outset #fff;
+  box-shadow:4px 5px 15px rgba(0,0,0,.48)
+}
+.dtitle{
+  min-height:25px;display:flex;align-items:center;justify-content:space-between;
+  padding:2px 3px 2px 7px;color:#fff;font-weight:bold;
+  background:linear-gradient(90deg,var(--blue),var(--blue2))
+}
+.dx{width:21px;height:20px;padding:0;color:#fff;background:#d8503c;border:2px outset #fff;font-weight:bold}
+.dbody{padding:13px;line-height:1.45}
+.dactions{display:flex;justify-content:flex-end;gap:7px;padding:0 12px 11px}
+.dactions button{min-width:78px;height:25px;background:var(--xp);border:2px outset #fff}
+.msg{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start}
+.infoicon{
+  width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  color:#fff;background:#316ac5;border:1px solid #174b9e;font:bold 23px Georgia,serif
+}
+.warnicon{
+  width:32px;height:32px;clip-path:polygon(50% 0,100% 100%,0 100%);background:#f2cd3a;position:relative
+}
+.warnicon:after{content:"!";position:absolute;left:12px;top:8px;font:bold 19px Arial;color:#333}
+
+@media(max-width:760px){
+  .wizard{grid-template-columns:150px 1fr}
+  .sideText{font-size:15px;padding:20px 14px}
+  .restoreLayout{grid-template-columns:1fr}
+  .pointBox{min-height:180px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <section class="wizard">
+    <aside class="side">
+      <div class="sideText" id="sideTitle">Sistem Geri Yükleme
+        <div class="sideSub" id="sideSub">Windows'u, kişisel belgelerinizi etkilemeden daha önceki bir duruma döndürün.</div>
+      </div>
+      <div class="sideIcon"></div>
+    </aside>
+
+    <main class="content">
+      <!-- Welcome -->
+      <section class="pageview active" data-page="welcome">
+        <h1>Sistem Geri Yükleme'ye Hoş Geldiniz</h1>
+        <div class="lead">
+          Sistem Geri Yükleme, kişisel veri dosyalarınızı kaybetmeden bilgisayarınızdaki değişiklikleri geri almanıza yardımcı olabilir.
+        </div>
+
+        <div class="choice">
+          <input id="optRestore" type="radio" name="welcomeMode" value="restore" checked>
+          <div>
+            <label for="optRestore">Bilgisayarımı önceki bir zamana geri yükle</label>
+            <p>Var olan bir geri yükleme noktası seçin ve sistem ayarlarını daha önceki bir duruma döndürün.</p>
+          </div>
+        </div>
+
+        <div class="choice">
+          <input id="optCreate" type="radio" name="welcomeMode" value="create">
+          <div>
+            <label for="optCreate">Geri yükleme noktası oluştur</label>
+            <p>Bilgisayarınızın geçerli durumunu tanımlayan yeni bir geri yükleme noktası oluşturun.</p>
+          </div>
+        </div>
+
+        <div class="choice" id="undoChoice">
+          <input id="optUndo" type="radio" name="welcomeMode" value="undo">
+          <div>
+            <label for="optUndo">Son geri yüklememi geri al</label>
+            <p>En son Sistem Geri Yükleme işlemi tarafından yapılan değişikliği geri alın.</p>
+          </div>
+        </div>
+
+        <div class="notice">
+          Bu web sürümü gerçek Windows kayıt defterinizi veya dosyalarınızı değiştirmez. Geri yükleme noktaları XP simülatöründeki bu araç içinde tutulur.
+        </div>
+      </section>
+
+      <!-- Restore selection -->
+      <section class="pageview" data-page="select">
+        <h1>Geri Yükleme Noktası Seç</h1>
+        <div class="lead">
+          Takvimde kalın görünen tarihlerde bir veya daha fazla geri yükleme noktası vardır. Bir tarih seçin, ardından sağdaki listeden bir geri yükleme noktası seçin.
+        </div>
+
+        <div class="restoreLayout">
+          <div class="calendarBox">
+            <div class="calHead">
+              <button id="prevMonth" type="button">◀</button>
+              <span id="monthLabel"></span>
+              <button id="nextMonth" type="button">▶</button>
+            </div>
+            <div class="week"><span>Pzt</span><span>Sal</span><span>Çar</span><span>Per</span><span>Cum</span><span>Cmt</span><span>Paz</span></div>
+            <div class="days" id="days"></div>
+          </div>
+
+          <div class="pointBox">
+            <div class="pointTitle" id="pointTitle">Bu tarihteki geri yükleme noktaları</div>
+            <div class="pointList" id="pointList"></div>
+          </div>
+        </div>
+
+        <div class="helpText" style="margin-top:12px">
+          Sistem Geri Yükleme, belgelerim gibi kişisel veri dosyalarını değiştirmek için tasarlanmamıştır.
+        </div>
+      </section>
+
+      <!-- Create -->
+      <section class="pageview" data-page="create">
+        <h1>Geri Yükleme Noktası Oluştur</h1>
+        <div class="lead">
+          Geri yükleme noktanızı daha sonra kolayca tanıyabilmeniz için açıklayıcı bir ad yazın. Tarih ve saat otomatik olarak eklenecektir.
+        </div>
+
+        <div class="formRow">
+          <label for="description">Geri yükleme noktası açıklaması:</label>
+          <input class="textbox" id="description" maxlength="64" placeholder="Örn. Ekran kartı sürücüsünden önce">
+          <div class="counter"><span id="descCount">0</span> / 64</div>
+        </div>
+
+        <div class="summary">
+          <div class="typeLine"><b>Tarih ve saat:</b><span id="createDate"></span></div>
+          <div class="typeLine"><b>Tür:</b><span>Elle oluşturulan geri yükleme noktası</span></div>
+        </div>
+      </section>
+
+      <!-- Create success -->
+      <section class="pageview" data-page="created">
+        <h1>Geri Yükleme Noktası Oluşturuldu</h1>
+        <div class="lead">Yeni geri yükleme noktası başarıyla oluşturuldu.</div>
+        <div class="summary">
+          <div class="summaryGrid">
+            <b>Açıklama:</b><span id="createdDesc"></span>
+            <b>Oluşturulma:</b><span id="createdDate"></span>
+            <b>Tür:</b><span>Elle oluşturuldu</span>
+          </div>
+        </div>
+        <div class="helpText">Bu geri yükleme noktası daha sonra “Bilgisayarımı önceki bir zamana geri yükle” seçeneğinden seçilebilir.</div>
+      </section>
+
+      <!-- Confirm -->
+      <section class="pageview" data-page="confirm">
+        <h1>Geri Yükleme Noktası Seçimini Onayla</h1>
+        <div class="lead">
+          Sistem Geri Yükleme işlemi başlatılmadan önce seçiminizi gözden geçirin.
+        </div>
+        <div class="summary">
+          <div class="summaryGrid">
+            <b>Geri yükleme noktası:</b><span id="confirmDesc"></span>
+            <b>Tarih ve saat:</b><span id="confirmDate"></span>
+            <b>Tür:</b><span id="confirmType"></span>
+          </div>
+        </div>
+        <div class="notice">
+          Gerçek Windows XP'de bu aşamadan sonra açık programlar kapatılır ve bilgisayar yeniden başlatılır. Bu web sürümü yalnızca XP simülasyonu içinde yeniden başlatma animasyonu gösterir.
+        </div>
+      </section>
+
+      <!-- Undo confirmation -->
+      <section class="pageview" data-page="undo">
+        <h1>Son Geri Yüklemeyi Geri Al</h1>
+        <div class="lead">En son Sistem Geri Yükleme işlemini geri almak üzeresiniz.</div>
+        <div class="summary">
+          <div class="summaryGrid">
+            <b>Son geri yükleme:</b><span id="undoDesc"></span>
+            <b>Tarih:</b><span id="undoDate"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Progress -->
+      <section class="pageview" data-page="progress">
+        <div class="progressArea">
+          <div class="progressIcon"></div>
+          <h1 id="progressTitle">Bilgisayarınız geri yükleniyor...</h1>
+          <div class="helpText" id="progressText">Sistem ayarları uygulanıyor. Lütfen bekleyin.</div>
+          <div class="progressTrack"><div class="progressBar" id="progressBar"></div></div>
+          <div class="helpText" id="progressPercent">0%</div>
+        </div>
+      </section>
+
+      <!-- Complete -->
+      <section class="pageview" data-page="complete">
+        <h1 id="completeTitle">Geri Yükleme Tamamlandı</h1>
+        <div class="lead" id="completeLead">
+          Bilgisayarınız seçilen geri yükleme noktasına başarıyla geri yüklendi.
+        </div>
+        <div class="summary">
+          <div class="summaryGrid">
+            <b>Geri yükleme noktası:</b><span id="completeDesc"></span>
+            <b>Tarih:</b><span id="completeDate"></span>
+          </div>
+        </div>
+        <div class="helpText">Sistem Geri Yükleme aracını kapatmak için Son'u tıklatın.</div>
+      </section>
+
+      <div class="restartScreen" id="restartScreen">
+        <div class="xpLogo"><b>Microsoft Windows</b> XP</div>
+        <div style="margin-bottom:16px">Windows yeniden başlatılıyor...</div>
+        <div class="loader"><div class="loaderInner"></div></div>
+      </div>
+
+      <div class="shade" id="shade">
+        <div class="dialog">
+          <div class="dtitle"><span id="dtitle">Sistem Geri Yükleme</span><button class="dx" id="dx" type="button">×</button></div>
+          <div class="dbody" id="dbody"></div>
+          <div class="dactions" id="dactions"></div>
+        </div>
+      </div>
+    </main>
+  </section>
+
+  <footer class="footer">
+    <button class="xpbtn left" id="helpBtn" type="button">Yardım</button>
+    <button class="xpbtn" id="backBtn" type="button">&lt; Geri</button>
+    <button class="xpbtn primary" id="nextBtn" type="button">İleri &gt;</button>
+    <button class="xpbtn" id="cancelBtn" type="button">İptal</button>
+  </footer>
+</div>
+
+<script>
+(()=>{
+'use strict';
+
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+const STORAGE='xp_system_restore_v3';
+
+const TYPE_NAMES={
+  manual:'Elle oluşturuldu',
+  checkpoint:'Sistem Denetim Noktası',
+  install:'Yükleme',
+  driver:'Sürücü Yüklemesi',
+  update:'Windows Update'
+};
+
+function isoLocal(d){
+  const p=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+}
+function dateKey(d){
+  const p=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+}
+function parseDate(s){return new Date(s)}
+function fmtDate(s){
+  return parseDate(s).toLocaleString('tr-TR',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+function fmtShort(s){
+  return parseDate(s).toLocaleDateString('tr-TR',{day:'2-digit',month:'long',year:'numeric'});
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+function seed(){
+  const now=new Date();
+  const mk=(days,h,type,desc)=>{
+    const d=new Date(now);d.setDate(d.getDate()-days);d.setHours(h,15,0,0);
+    return {id:crypto.randomUUID?crypto.randomUUID():String(Math.random()),date:isoLocal(d),type,desc};
+  };
+  return {
+    points:[
+      mk(1,9,'checkpoint','Sistem Denetim Noktası'),
+      mk(3,16,'install','Google Chrome yüklendi'),
+      mk(5,11,'update','Windows güvenlik güncelleştirmesi'),
+      mk(7,14,'driver','Ses sürücüsü yüklendi'),
+      mk(10,10,'checkpoint','Sistem Denetim Noktası')
+    ],
+    lastRestore:null,
+    undoRecord:null
+  };
+}
+function load(){
+  try{
+    const v=JSON.parse(localStorage.getItem(STORAGE)||'null');
+    if(v&&Array.isArray(v.points))return v;
+  }catch{}
+  const s=seed();saveState(s);return s;
+}
+function saveState(v){try{localStorage.setItem(STORAGE,JSON.stringify(v))}catch{}}
+let state=load();
+
+let currentPage='welcome';
+let history=[];
+let selectedDate=new Date();
+selectedDate.setHours(0,0,0,0);
+let calDate=new Date(selectedDate.getFullYear(),selectedDate.getMonth(),1);
+let selectedPointId=null;
+let pendingAction=null; // restore | undo
+let progressTimer=null;
+
+/* Dialog */
+const shade=$('#shade');
+function showDialog(title,html,buttons){
+  $('#dtitle').textContent=title;$('#dbody').innerHTML=html;$('#dactions').innerHTML='';
+  (buttons||[{label:'Tamam',action:hideDialog}]).forEach(b=>{
+    const x=document.createElement('button');x.type='button';x.textContent=b.label;x.onclick=b.action||hideDialog;$('#dactions').appendChild(x)
+  });
+  shade.classList.add('show');
+}
+function hideDialog(){shade.classList.remove('show')}
+$('#dx').onclick=hideDialog;
+shade.addEventListener('mousedown',e=>{if(e.target===shade)hideDialog()});
+function info(msg,title='Sistem Geri Yükleme'){
+  showDialog(title,`<div class="msg"><div class="infoicon">i</div><div>${esc(msg).replace(/\n/g,'<br>')}</div></div>`)
+}
+function warn(msg,title='Sistem Geri Yükleme'){
+  showDialog(title,`<div class="msg"><div class="warnicon"></div><div>${esc(msg).replace(/\n/g,'<br>')}</div></div>`)
+}
+
+/* Navigation */
+function showPage(name,push=true){
+  if(push&&currentPage!==name)history.push(currentPage);
+  currentPage=name;
+  $$('.pageview').forEach(p=>p.classList.toggle('active',p.dataset.page===name));
+  configureFooter();
+  if(name==='welcome')refreshWelcome();
+  if(name==='select')renderCalendar();
+  if(name==='create')prepareCreate();
+  if(name==='undo')prepareUndo();
+}
+function configureFooter(){
+  const back=$('#backBtn'),next=$('#nextBtn'),cancel=$('#cancelBtn');
+  back.disabled=['welcome','progress','complete','created'].includes(currentPage);
+  next.disabled=false;
+  next.textContent='İleri >';
+  cancel.textContent='İptal';
+
+  if(currentPage==='created'||currentPage==='complete'){
+    next.textContent='Son';
+    back.disabled=true;
+  }
+  if(currentPage==='progress'){
+    back.disabled=true;next.disabled=true;cancel.disabled=true;
+  }else cancel.disabled=false;
+  if(currentPage==='select')next.disabled=!selectedPointId;
+  if(currentPage==='create')next.textContent='Oluştur';
+  if(currentPage==='confirm'||currentPage==='undo')next.textContent='İleri >';
+}
+function goBack(){
+  if(!history.length)return;
+  const name=history.pop();showPage(name,false);
+}
+
+/* Welcome */
+function refreshWelcome(){
+  const hasUndo=!!state.undoRecord;
+  $('#undoChoice').classList.toggle('disabled',!hasUndo);
+  $('#optUndo').disabled=!hasUndo;
+  if(!hasUndo&&$('#optUndo').checked)$('#optRestore').checked=true;
+}
+
+/* Calendar */
+const monthNames=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+function pointsOnDate(key){return state.points.filter(p=>p.date.slice(0,10)===key).sort((a,b)=>b.date.localeCompare(a.date))}
+function renderCalendar(){
+  $('#monthLabel').textContent=`${monthNames[calDate.getMonth()]} ${calDate.getFullYear()}`;
+  const first=new Date(calDate.getFullYear(),calDate.getMonth(),1);
+  let offset=(first.getDay()+6)%7; // monday first
+  const start=new Date(first);start.setDate(start.getDate()-offset);
+  const todayKey=dateKey(new Date());
+  const days=$('#days');days.innerHTML='';
+  for(let i=0;i<42;i++){
+    const d=new Date(start);d.setDate(start.getDate()+i);
+    const key=dateKey(d),pts=pointsOnDate(key);
+    const b=document.createElement('button');
+    b.type='button';b.className='day';
+    b.textContent=d.getDate();
+    b.dataset.date=key;
+    if(d.getMonth()!==calDate.getMonth())b.classList.add('other');
+    if(pts.length)b.classList.add('hasPoint');
+    if(key===dateKey(selectedDate))b.classList.add('selected');
+    if(key===todayKey)b.classList.add('today');
+    b.onclick=()=>{
+      selectedDate=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+      selectedPointId=null;
+      renderCalendar();
+    };
+    days.appendChild(b);
+  }
+  renderPointList();
+  configureFooter();
+}
+function renderPointList(){
+  const key=dateKey(selectedDate),pts=pointsOnDate(key);
+  $('#pointTitle').textContent=selectedDate.toLocaleDateString('tr-TR',{day:'2-digit',month:'long',year:'numeric'});
+  const list=$('#pointList');
+  if(!pts.length){
+    list.innerHTML='<div class="noPoint">Bu tarihte geri yükleme noktası yok.<br><br>Takvimde kalın gösterilen başka bir tarih seçin.</div>';
+    return;
+  }
+  list.innerHTML=pts.map(p=>`
+    <div class="point ${p.id===selectedPointId?'selected':''}" data-point="${esc(p.id)}">
+      <b>${esc(p.desc)}</b>
+      <small>${parseDate(p.date).toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})} — ${esc(TYPE_NAMES[p.type]||p.type)}</small>
+    </div>`).join('');
+  $$('[data-point]').forEach(x=>x.onclick=()=>{
+    selectedPointId=x.dataset.point;
+    renderPointList();configureFooter();
+  });
+}
+$('#prevMonth').onclick=()=>{calDate=new Date(calDate.getFullYear(),calDate.getMonth()-1,1);renderCalendar()};
+$('#nextMonth').onclick=()=>{calDate=new Date(calDate.getFullYear(),calDate.getMonth()+1,1);renderCalendar()};
+
+/* Create */
+function prepareCreate(){
+  $('#description').value='';
+  $('#descCount').textContent='0';
+  $('#createDate').textContent=new Date().toLocaleString('tr-TR',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  setTimeout(()=>$('#description').focus(),0)
+}
+$('#description').addEventListener('input',()=>$('#descCount').textContent=$('#description').value.length);
+function createPoint(){
+  const desc=$('#description').value.trim();
+  if(!desc){warn('Geri yükleme noktası için bir açıklama yazın.');return}
+  const p={id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),date:isoLocal(new Date()),type:'manual',desc};
+  state.points.push(p);
+  state.points.sort((a,b)=>a.date.localeCompare(b.date));
+  saveState(state);
+  $('#createdDesc').textContent=p.desc;$('#createdDate').textContent=fmtDate(p.date);
+  history=[];showPage('created',false);
+}
+
+/* Confirm */
+function prepareConfirm(){
+  const p=state.points.find(x=>x.id===selectedPointId);
+  if(!p){warn('Önce bir geri yükleme noktası seçin.');return false}
+  $('#confirmDesc').textContent=p.desc;
+  $('#confirmDate').textContent=fmtDate(p.date);
+  $('#confirmType').textContent=TYPE_NAMES[p.type]||p.type;
+  pendingAction={type:'restore',point:p};
+  return true;
+}
+function prepareUndo(){
+  const u=state.undoRecord;
+  if(!u){showPage('welcome',false);return}
+  $('#undoDesc').textContent=u.point?.desc||'Önceki geri yükleme';
+  $('#undoDate').textContent=u.restoredAt?fmtDate(u.restoredAt):'—';
+  pendingAction={type:'undo',record:u};
+}
+
+/* Restore simulation */
+function startProgress(){
+  const isUndo=pendingAction?.type==='undo';
+  showPage('progress');
+  history=[];
+  $('#progressTitle').textContent=isUndo?'Son geri yükleme geri alınıyor...':'Bilgisayarınız geri yükleniyor...';
+  $('#progressText').textContent='Sistem ayarları hazırlanıyor. Lütfen bilgisayarınızı kapatmayın.';
+  $('#progressBar').style.width='0%';$('#progressPercent').textContent='0%';
+
+  let p=0,stage=0;
+  const stages=[
+    [12,'Geri yükleme noktası bilgileri okunuyor...'],
+    [31,'Sistem ayarları hazırlanıyor...'],
+    [54,'Kayıt defteri ayarları işleniyor...'],
+    [72,'Sistem dosyaları denetleniyor...'],
+    [88,'Değişiklikler tamamlanıyor...'],
+    [100,'Windows yeniden başlatılacak...']
+  ];
+  clearInterval(progressTimer);
+  progressTimer=setInterval(()=>{
+    p=Math.min(100,p+2+Math.floor(Math.random()*4));
+    while(stage<stages.length-1&&p>=stages[stage][0])stage++;
+    $('#progressBar').style.width=p+'%';
+    $('#progressPercent').textContent=p+'%';
+    $('#progressText').textContent=stages[Math.max(0,stage-1)][1];
+    if(p>=100){
+      clearInterval(progressTimer);
+      setTimeout(runRestart,550);
+    }
+  },115);
+}
+function runRestart(){
+  $('#restartScreen').classList.add('show');
+  setTimeout(()=>{
+    $('#restartScreen').classList.remove('show');
+    finishRestore();
+  },2600);
+}
+function finishRestore(){
+  if(pendingAction?.type==='restore'){
+    const point=pendingAction.point;
+    const previous=state.lastRestore;
+    state.undoRecord={
+      point,
+      previous,
+      restoredAt:isoLocal(new Date())
+    };
+    state.lastRestore={pointId:point.id,restoredAt:isoLocal(new Date())};
+    saveState(state);
+    $('#completeTitle').textContent='Geri Yükleme Tamamlandı';
+    $('#completeLead').textContent='Bilgisayarınız seçilen geri yükleme noktasına başarıyla geri yüklendi.';
+    $('#completeDesc').textContent=point.desc;
+    $('#completeDate').textContent=fmtDate(point.date);
+  }else{
+    const u=pendingAction.record;
+    state.lastRestore=u.previous||null;
+    state.undoRecord=null;
+    saveState(state);
+    $('#completeTitle').textContent='Geri Alma Tamamlandı';
+    $('#completeLead').textContent='Son Sistem Geri Yükleme işlemi başarıyla geri alındı.';
+    $('#completeDesc').textContent=u.point?.desc||'Önceki geri yükleme';
+    $('#completeDate').textContent=u.restoredAt?fmtDate(u.restoredAt):'—';
+  }
+  pendingAction=null;
+  showPage('complete',false);
+}
+
+/* Footer actions */
+$('#backBtn').onclick=goBack;
+$('#nextBtn').onclick=()=>{
+  if(currentPage==='welcome'){
+    const mode=document.querySelector('input[name=welcomeMode]:checked')?.value||'restore';
+    if(mode==='restore'){
+      selectedDate=new Date();selectedDate.setHours(0,0,0,0);
+      // choose nearest point date if no point today
+      const latest=[...state.points].sort((a,b)=>b.date.localeCompare(a.date))[0];
+      if(latest){
+        const d=parseDate(latest.date);selectedDate=new Date(d.getFullYear(),d.getMonth(),d.getDate());calDate=new Date(d.getFullYear(),d.getMonth(),1)
+      }
+      selectedPointId=null;showPage('select');
+    }else if(mode==='create')showPage('create');
+    else showPage('undo');
+  }else if(currentPage==='select'){
+    if(prepareConfirm())showPage('confirm');
+  }else if(currentPage==='create')createPoint();
+  else if(currentPage==='confirm')startProgress();
+  else if(currentPage==='undo')startProgress();
+  else if(currentPage==='created'||currentPage==='complete')closeApp();
+};
+$('#cancelBtn').onclick=closeApp;
+function closeApp(){
+  try{window.parent.postMessage({type:'XP_APP_CLOSE_REQUEST',app:'rstrui'},'*')}catch{}
+}
+
+/* Help */
+$('#helpBtn').onclick=()=>showDialog('Sistem Geri Yükleme Yardımı',`
+  <b>Bilgisayarımı önceki bir zamana geri yükle</b><br>
+  Takvimden geri yükleme noktası olan bir gün seçin, sağdaki listeden noktayı seçin ve İleri'yi tıklatın.<br><br>
+  <b>Geri yükleme noktası oluştur</b><br>
+  Açıklayıcı bir ad vererek yeni bir geri yükleme noktası oluşturabilirsiniz.<br><br>
+  <b>Son geri yüklemeyi geri al</b><br>
+  Bir geri yükleme tamamlandıktan sonra, son işlemi geri alma seçeneği ana ekranda kullanılabilir olur.<br><br>
+  <b>Web sürümü sınırı</b><br>
+  Bu araç gerçek Windows işletim sistemini veya ana XP simülatörünüzün bilinmeyen registry/vfs şemasını değiştirmez.
+`);
+
+/* Native popup ban */
+window.alert=m=>info(String(m));
+window.confirm=m=>{info(String(m));return false};
+window.prompt=m=>{info(String(m));return null};
+
+document.addEventListener('keydown',e=>{
+  if(shade.classList.contains('show')){
+    if(e.key==='Escape'){e.preventDefault();hideDialog()}
+    return;
+  }
+  if(e.key==='Escape'&&!['progress'].includes(currentPage)){e.preventDefault();goBack()}
+});
+
+refreshWelcome();configureFooter();
+})();
+</script>
+</body>
+</html>
