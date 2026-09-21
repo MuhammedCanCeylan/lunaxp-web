@@ -1,0 +1,1 @@
+exports.onCreateWebpackConfig=({stage:e,actions:o})=>{o.setWebpackConfig({node:{fs:!1}})};
